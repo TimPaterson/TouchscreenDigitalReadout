@@ -169,6 +169,7 @@ void Init()
 
 	EIC->CONFIG[0].reg = EicConfig[0].reg;
 	EIC->CONFIG[1].reg = EicConfig[1].reg;
+	EIC->CTRL.reg = EIC_CTRL_ENABLE;
 	NVIC_EnableIRQ(EIC_IRQn);
 
 /*
