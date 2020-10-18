@@ -75,8 +75,8 @@ void Init()
 	PM->APBCMASK.reg = PM_APBCMASK_AC | PM_APBAMASK_EIC;
 	
 	// Set port pin output levels first
-	// RtpIrq_PIN and ConsoleRx_PIN inputs set high to pull-up
-	SetPinsA(ConsoleRx_PIN | SdCs_PIN | RtpCs_PIN);
+	// RtpIrq_PIN input set high to pull-up
+	SetPinsA(SdCs_PIN | RtpCs_PIN);
 	SetPinsB(LcdCs_PIN | RtpIrq_PIN);
 	// Set port pin direction (1 = output)
 	DirWritePinsA(SdCs_PIN | RtpCs_PIN);
@@ -84,9 +84,10 @@ void Init()
 	// Set all inputs to continuously sample
 	PORT->Group[0].CTRL.reg = 0xFFFFFFFF;
 	PORT->Group[1].CTRL.reg = 0xFFFFFFFF;
-	// Turn on pull-ups
-	SetPortConfigA(PORT_WRCONFIG_INEN | PORT_WRCONFIG_PULLEN, ConsoleRx_PIN);
+	// Turn on pull-up
 	SetPortConfigB(PORT_WRCONFIG_INEN | PORT_WRCONFIG_PULLEN, RtpIrq_PIN);
+	// Turn on input buffers
+	SetPortConfigB(PORT_WRCONFIG_INEN, LcdData_PIN);
 
 	//************************************************************************
 	// Port pin multiplexers
@@ -97,7 +98,7 @@ void Init()
 	// This is on MUX channel A
 	SetPortMuxA(PORT_MUX_A, Nmi_PIN | LcdWait_PIN | LcdIrq_PIN | QposA_PIN | QposB_PIN | 
 		ZposA_PIN | ZposB_PIN | YposA_PIN | YposB_PIN | XposA_PIN | XposB_PIN);
-	SetPortMuxB(PORT_MUX_A, RtpIrq_PIN | MicroSdCd_PIN);
+	SetPortMuxB(PORT_MUX_A, MicroSdCd_PIN);
 
 	// Set up Analog Comparator input on PA04
 	// This in on MUX channel B
@@ -171,14 +172,4 @@ void Init()
 	EIC->CONFIG[1].reg = EicConfig[1].reg;
 	EIC->CTRL.reg = EIC_CTRL_ENABLE;
 	NVIC_EnableIRQ(EIC_IRQn);
-
-/*
-	// Set up TC4 to output a square wave to check clock frequency
-	PM->APBCMASK.reg |= PM_APBCMASK_TC4;
-	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_TC4_TC5;
-	TC4->COUNT8.CTRLA.reg = TC_CTRLA_WAVEGEN_NPWM | TC_CTRLA_MODE_COUNT8 | TC_CTRLA_ENABLE;
-	TC4->COUNT8.PER.reg = 3;
-	TC4->COUNT8.CC[0].reg = 2;
-	SetPortMuxB(PORT_MUX_E, PORT_PB08);
-*/
 }
