@@ -17,16 +17,26 @@ using namespace RA8876const;
 //*********************************************************************
 // Initialization values for East Rising ER-TFTM101-1
 
-enum RA8876_Hardware
-{
-	OscFreq = 10000000,		// Crystal clock
-	CoreFreq = 100000000,	// RA8876 core clock - CCLK
-	LcdScanFreq = 50000000,	// LCD scan clock - SCLK
-	SdramFreq = 100000000,	// SDRAM clock - MCLK
-	SdramRefresh = 64,		// SDRAM refresh interval, ms
-	SdramRowSize = 4096,	// SDRAM row size (for refresh)
-	SdramRefInterval = SdramFreq / 1000 * SdramRefresh / SdramRowSize - 2,
-};
+// Hardware settings
+static constexpr long OscFreq = 10000000;	// Crystal clock
+static constexpr long CoreFreq = 100000000;	// RA8876 core clock - CCLK
+static constexpr long SdramFreq = 100000000;	// SDRAM clock - MCLK
+static constexpr int SdramRefresh = 64;		// SDRAM refresh interval; ms
+static constexpr int SdramRowSize = 4096;	// SDRAM row size (for refresh)
+static constexpr int SdramRefInterval = SdramFreq / 1000 * SdramRefresh / SdramRowSize - 2;
+
+// LCD parameters
+static constexpr long LcdScanFreq = 50000000;	// LCD scan clock - SCLK
+static constexpr int LcdWidthPx = 1024;
+static constexpr int LcdHeightPx = 600;
+// HSync
+static constexpr int LcdHsyncWidthPx = 70;
+static constexpr int LcdHsyncFrontPorchPx = 160;
+static constexpr int LcdHsyncBackPorchPx = 160;
+// VSync
+static constexpr int LcdVsyncWidthLn = 10;
+static constexpr int LcdVsyncFrontPorchLn = 12;
+static constexpr int LcdVsyncBackPorchLn = 23;
 
 enum RA8876_InitValues
 {
@@ -54,6 +64,22 @@ enum RA8876_InitValues
 
 	// Display Initialization
 	MACR_Init = MACR_LeftRightTopBottom | MACR_MaskNone,
+	DPCR_Init = DPCR_OutputSequenceRGB | DPCR_VertScanTopToBottom | DPCR_PclkEdgeFalling,
+	PCSR_Init = PCSR_VsyncIdleHigh | PCSR_HsyncIdleHigh | PCSR_DataIdleLow | 
+		PCSR_ClockIdleLow | PCSR_DataEnableIdleLow | PCSR_DataEnableActiveHigh | 
+		PCSR_VsyncActiveHigh | PCSR_HsyncActiveHigh,
+	HDWR_Init = LcdWidthPx / 8 - 1,
+	HDWFTR_Init = LcdWidthPx % 8,
+	HNDR_Init = LcdHsyncBackPorchPx / 8 - 1,
+	HNDFTR_Init = LcdHsyncBackPorchPx % 8,
+	HSTR_Init = LcdHsyncFrontPorchPx / 8 - 1,
+	HPWR_Init = (LcdHsyncWidthPx - 1) / 8,
+	VDHR0_Init = (LcdHeightPx - 1) & 0xFF,
+	VDHR1_Init = (LcdHeightPx - 1) >> 8,
+	VNDR0_Init = (LcdVsyncBackPorchLn - 1) & 0xFF,
+	VNDR1_Init = (LcdVsyncBackPorchLn - 1) >> 8,
+	VSTR_Init = LcdVsyncFrontPorchLn - 1,
+	VPWR_Init = LcdVsyncWidthLn - 1,
 };
 
 //*********************************************************************
@@ -155,7 +181,22 @@ const RegValue s_arSdramInitList[] = {
 
 const RegValue s_arInitList[] = {
 	// Initialize Display
-	MACR, MACR_Init,
+	MACR,	MACR_Init,
+	PCSR,	PCSR_Init,
+	HDWR,	HDWR_Init,
+	HDWFTR,	HDWFTR_Init,
+	HNDR,	HNDR_Init,
+	HNDFTR,	HNDFTR_Init,
+	HSTR,	HSTR_Init,
+	HPWR,	HPWR_Init,
+	VDHR0,	VDHR0_Init,
+	VDHR1,	VDHR1_Init,
+	VNDR0,	VNDR0_Init,
+	VNDR1,	VNDR1_Init,
+	VSTR,	VSTR_Init,
+	VPWR,	VPWR_Init,
+	// Turn display on once parameters are set
+	DPCR,	DPCR_Init,
 };
 
 //*********************************************************************
@@ -180,7 +221,10 @@ void RA8876::Init()
 	// Wait for SDRAM to be ready
 	while ((GetStatus() & STATUS_SdramReady) == 0);
 
+	// Initialize LCD
 	WriteRegList(s_arInitList, _countof(s_arInitList));
+	SetMainImage(0, LcdWidthPx);
+	SetActiveWindowSize(LcdWidthPx, LcdHeightPx);
 }
 
 uint RA8876::GetStatus()
@@ -209,4 +253,22 @@ uint RA8876::ReadReg(uint addr)
 {
 	WriteAddr(addr);
 	return ReadData();
+}
+
+//*********************************************************************
+// Function-specific handlers
+
+void RA8876::TestPattern()
+{
+	WriteReg(DPCR, DPCR_Init | DPCR_DisplayOn | DPCR_DisplayTestBar);
+}
+
+void RA8876::DisplayOn()
+{
+	WriteReg(DPCR, DPCR_Init | DPCR_DisplayOn);
+}
+
+void RA8876::DisplayOff()
+{
+	WriteReg(DPCR, DPCR_Init | DPCR_DisplayOff);
 }

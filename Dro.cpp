@@ -27,6 +27,7 @@ FILE		Console_FILE;
 FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 
 Xtp2046	Touch;
+RA8876	Lcd;
 
 //*********************************************************************
 // Main program
@@ -49,7 +50,8 @@ int main(void)
 
 	printf("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
 
-	RA8876::Init();
+	Lcd.Init();
+	Lcd.TestPattern();
 
 	//************************************************************************
 	// Main loop
@@ -58,6 +60,7 @@ int main(void)
 	int		iCurPos;
 	int		iLastPos;
 	int		iLastTouch;
+	int		i;
 
 	iLastPos = 0;
 	iLastTouch = 0;
@@ -77,13 +80,40 @@ int main(void)
 			iCurPos = Touch.ReadX();
 			if (iCurPos != iLastTouch)
 			{
-				printf("Touch: %i\n", iCurPos);
+				//printf("Touch: %i\n", iCurPos);
 				iLastTouch = iCurPos;
 			}
 		}
 		if (Console.IsByteReady())
 		{
-			Console.WriteByte(Console.ReadByte());
+			byte	ch;
+			
+			ch = Console.ReadByte();
+			if (ch >= 'A' && ch <= 'Z')
+				ch += 'a' - 'A';
+
+			switch (ch)
+			{
+				// Use lower-case alphabetical order to find the right letter
+			case '+':
+			case '=':
+				i = TCC1->CC[1].reg;
+				i += LcdBacklightPwmMax / 10;
+				if (i > LcdBacklightPwmMax)
+					i = LcdBacklightPwmMax;
+				TCC1->CC[1].reg = i;
+				printf("up\n");
+				break;
+
+			case '-':
+				i = TCC1->CC[1].reg;
+				i -= LcdBacklightPwmMax / 10;
+				if (i < 0)
+					i = 0;
+				TCC1->CC[1].reg = i;
+				printf("down\n");
+				break;
+			}
 		}
     }
 }

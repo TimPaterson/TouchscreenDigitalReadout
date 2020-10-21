@@ -72,7 +72,7 @@ void StartClock()
 
 void Init()
 {
-	PM->APBCMASK.reg = PM_APBCMASK_AC | PM_APBAMASK_EIC;
+	PM->APBCMASK.reg = PM_APBCMASK_AC | PM_APBCMASK_TCC1;
 	
 	// Set port pin output levels first
 	// RtpIrq_PIN input set high to pull-up
@@ -172,4 +172,12 @@ void Init()
 	EIC->CONFIG[1].reg = EicConfig[1].reg;
 	EIC->CTRL.reg = EIC_CTRL_ENABLE;
 	NVIC_EnableIRQ(EIC_IRQn);
+
+	// Set up TCC1 as PWM for backlight
+	// No prescale, run at 48MHz
+	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_TCC0_TCC1;
+	TCC1->PER.reg = LcdBacklightPwmMax - 1;
+	TCC1->CC[1].reg = LcdBacklightPwmMax / 2;	// start 1t 50%
+	TCC1->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
+	TCC1->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV1 | TCC_CTRLA_PRESCSYNC_PRESC | TCC_CTRLA_ENABLE;
 }

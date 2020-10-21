@@ -25,6 +25,8 @@ namespace RA8876const
 
 //*********************************************************************
 
+using namespace RA8876const;
+
 class RA8876
 {
 public:
@@ -36,14 +38,73 @@ public:
 	static uint GetStatus();
 	static void WriteReg(uint addr, uint val);
 	static uint ReadReg(uint addr);
+	static void TestPattern();
+	static void DisplayOn();
+	static void DisplayOff();
 
-public:
-	static void WriteRegList(const RA8876const::RegValue *pList, int iLen)
+	//*********************************************************************
+	// Generic register combination handlers
+
+	static void WriteRegList(const RegValue *pList, int iLen)
 	{
 		do 
 		{
 			WriteReg(pList->addr, pList->val);
 			pList++;
 		} while (--iLen > 0);
+	}
+
+	static void WriteReg16(uint addr, uint val)
+	{
+		WriteReg(addr, val);
+		WriteReg(addr + 1, val >> 8);
+	}
+
+	static void WriteReg32(uint addr, ulong val)
+	{
+		WriteReg16(addr, val);
+		WriteReg16(addr + 2, val >> 16);
+	}
+
+	static void WriteRegXY(uint addr, uint X, uint Y)
+	{
+		WriteReg16(addr, X);
+		WriteReg16(addr + 2, Y);
+	}
+
+	//*********************************************************************
+	// Function-specific handlers
+
+	static void SetMainImage(ulong addr, uint width)
+	{
+		WriteReg32(MISA0, addr);
+		WriteReg32(MIW0, width);
+		SetMainWindowPos(0, 0);
+		SetCanvas(addr, width);
+	}
+
+	static void SetMainWindowPos(uint X, uint Y)
+	{
+		WriteReg16(MWULX0, X);
+		WriteReg16(MWULY0, Y);
+	}
+
+	static void SetCanvas(ulong addr, uint width)
+	{
+		WriteReg32(CVSSA0, addr);
+		WriteReg32(CVS_IMWTH0, width);
+		SetActiveWindowPos(0, 0);
+	}
+
+	static void SetActiveWindowPos(uint X, uint Y)
+	{
+		WriteReg16(AWUL_X0, X);
+		WriteReg16(AWUL_Y0, Y);
+	}
+
+	static void SetActiveWindowSize(uint width, uint height)
+	{
+		WriteReg16(AW_WTH0, width);
+		WriteReg16(AW_HT0, height);
 	}
 };

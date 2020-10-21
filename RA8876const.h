@@ -382,6 +382,73 @@ namespace RA8876const
 	};
 
 	//************************************************************************
+	// LCD Display Control Registers
+
+	// Main/PIP Window Control Register
+	enum MPWCTR_Bits
+	{
+	};
+
+	// PIP Window Color Depth Setting
+	enum PIPCDEP_Bits
+	{
+	};
+
+	// Display Configuration Register
+	enum DPCR_Bits
+	{
+		// Choose one from each group
+		DPCR_OutputSequenceRGB = 0x00,
+		DPCR_OutputSequenceRBG = 0x01,
+		DPCR_OutputSequenceGRB = 0x02,
+		DPCR_OutputSequenceGBR = 0x03,
+		DPCR_OutputSequenceBRG = 0x04,
+		DPCR_OutputSequenceBGR = 0x05,
+		DPCR_OutputSequenceGray = 0x06,
+		DPCR_OutputSequenceIdle = 0x07,
+
+		DPCR_VertScanTopToBottom = 0x00,
+		DPCR_VertScanBottomToTop = 0x04,
+
+		DPCR_DisplayTestBar = 0x20,
+
+		DPCR_DisplayOff = 0x00,
+		DPCR_DisplayOn = 0x40,
+
+		DPCR_PclkEdgeRising = 0x00,
+		DPCR_PclkEdgeFalling = 0x80,
+	};
+
+	// Panel scan Clock and Data Setting Register
+	enum PCSR_Bits
+	{
+		// Choose one from each group
+		PCSR_VsyncIdleLow = 0x00,
+		PCSR_VsyncIdleHigh = 0x01,
+
+		PCSR_HsyncIdleLow = 0x00,
+		PCSR_HsyncIdleHigh = 0x02,
+
+		PCSR_DataIdleLow = 0x00,
+		PCSR_DataIdleHight = 0x04,
+
+		PCSR_ClockIdleLow = 0x00,
+		PCSR_ClockIdleHigh = 0x08,
+
+		PCSR_DataEnableIdleLow  = 0x00,
+		PCSR_DataEnableIdleHigh = 0x10,
+
+		PCSR_DataEnableActiveLow = 0x20,
+		PCSR_DataEnableActiveHigh = 0x00,
+
+		PCSR_VsyncActiveLow = 0x00,
+		PCSR_VsyncActiveHigh = 0x40,
+
+		PCSR_HsyncActiveLow = 0x00,
+		PCSR_HsyncActiveHigh = 0x80,
+	};
+
+	//************************************************************************
 	// SDRAM Control
 
 	// SDRAM attribute register

@@ -60,17 +60,20 @@ class Xtp2046 : public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
 		PWR_RefOffAdcOn =	(PWR_RefOffAdcOn_Val << PWR_pos),
 		PWR_RefOnAdcOff =	(PWR_RefOnAdcOff_Val << PWR_pos),
 		PWR_On =			(PWR_On_Val << PWR_pos),
+
+		// Start bit
+		RTP_Start = 0x80,
 	};
 
 public:
 	static uint ReadX()
 	{
-		return ReadValue(ADDR_Xpos | MODE_12Bit | REF_Dif | PWR_On);
+		return ReadValue(RTP_Start | ADDR_Xpos | MODE_12Bit | REF_Dif | PWR_On);
 	}
 
 	static uint ReadY()
 	{
-		return ReadValue(ADDR_Ypos | MODE_12Bit | REF_Dif | PWR_On);
+		return ReadValue(RTP_Start | ADDR_Ypos | MODE_12Bit | REF_Dif | PWR_On);
 	}
 
 protected:

@@ -336,12 +336,18 @@ enum ExtIrq
 };
 
 //*********************************************************************
-// Set up a timer on TC3. 
+// Timer on TC3. 
 //
 // With prescale of 1024, resolution is 1 / (48MHz / 1024) = 21.3us, 
 // and max delay is 1.4 seconds.
 
 typedef DECLARE_TIMER(TC3, 1024) Timer;
+
+//*********************************************************************
+// LCD backlight LED PWM on TCC1 
+
+static constexpr int LcdBacklightPwmFreq = 200;
+static constexpr int LcdBacklightPwmMax = F_CPU / LcdBacklightPwmFreq -1;
 
 //*********************************************************************
 // Console (debug) serial port
