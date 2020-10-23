@@ -64,6 +64,7 @@ enum RA8876_InitValues
 
 	// Display Initialization
 	MACR_Init = MACR_LeftRightTopBottom | MACR_MaskNone,
+	ICR_Init = ICR_MemPortSdram | ICR_IrqLevelHigh | ICR_GraphicsMode,
 	DPCR_Init = DPCR_OutputSequenceRGB | DPCR_VertScanTopToBottom | DPCR_PclkEdgeFalling,
 	PCSR_Init = PCSR_VsyncIdleHigh | PCSR_HsyncIdleHigh | PCSR_DataIdleLow | 
 		PCSR_ClockIdleLow | PCSR_DataEnableIdleLow | PCSR_DataEnableActiveHigh | 
@@ -92,48 +93,15 @@ inline INLINE_ATTR void ToggleEnable()
 	ClearLcdPin(LcdE);
 }
 
-inline INLINE_ATTR void WriteAddr(uint addr)
-{
-	// Write address
-	ClearLcdPin(LcdRW | LcdCs | LcdCD);
-	PORTB->OUT.Lcd8 = addr;	// Address
-	ToggleEnable();
-}
-
-inline INLINE_ATTR void WriteData(uint val)
-{
-	// Write data
-	SetLcdPin(LcdCD);
-	PORTB->OUT.Lcd8 = val;	// Data
-	ToggleEnable();
-	SetLcdPin(LcdCs);
-}
-
-inline INLINE_ATTR uint ReadData()
-{
-	uint	val;
-
-	// Read data
-	PORTB->DIR.Lcd16 = 0;	// Switch to inputs
-	SetLcdPin(LcdCD | LcdRW);
-	SetLcdPin(LcdE);	// toggle E
-	Timer::ShortDelay_clocks(2);
-	val = PORTB->IN.Lcd8;
-	ClearLcdPin(LcdE);
-	SetLcdPin(LcdCs);
-	PORTB->DIR.Lcd16 = LcdData16;	// Switch back to outputs
-	return val;
-}
-
 // When the RA8876 is first powered on, it runs on the crystal clock
 // at only 10 MHz. Make sure it's ready by checking the WAIT line.
 inline void WriteRegSlow(uint addr, uint val)
 {
 	while (GetLcdWait() == 0);
-	WriteAddr(addr);
+	RA8876::WriteAddr(addr);
 	Timer::ShortDelay_clocks(1);	// Pause for WAIT to assert
 	while (GetLcdWait() == 0);
-	WriteData(val);
+	RA8876::WriteData(val);
 }
 
 static void WriteRegListSlow(const RegValue *pList, int iLen)
@@ -148,10 +116,10 @@ static void WriteRegListSlow(const RegValue *pList, int iLen)
 uint ReadRegSlow(uint addr)
 {
 	while (GetLcdWait() == 0);
-	WriteAddr(addr);
+	RA8876::WriteAddr(addr);
 	Timer::ShortDelay_clocks(1);	// Pause for WAIT to assert
 	while (GetLcdWait() == 0);
-	return ReadData();
+	return RA8876::ReadData();
 }
 
 //*********************************************************************
@@ -182,6 +150,7 @@ const RegValue s_arSdramInitList[] = {
 const RegValue s_arInitList[] = {
 	// Initialize Display
 	MACR,	MACR_Init,
+	ICR,	ICR_Init,
 	PCSR,	PCSR_Init,
 	HDWR,	HDWR_Init,
 	HDWFTR,	HDWFTR_Init,
@@ -243,16 +212,40 @@ uint RA8876::GetStatus()
 	return status;
 }
 
-void RA8876::WriteReg(uint addr, uint val)
+void RA8876::WriteAddr(uint addr)
 {
-	WriteAddr(addr);
-	WriteData(val);
+	// Write address
+	ClearLcdPin(LcdRW | LcdCs | LcdCD);
+	PORTB->OUT.Lcd8 = addr;	// Address
+	ToggleEnable();
+	SetLcdPin(LcdCD | LcdCs);
 }
 
-uint RA8876::ReadReg(uint addr)
+void RA8876::WriteData(uint val)
 {
-	WriteAddr(addr);
-	return ReadData();
+	// Write data
+	SetLcdPin(LcdCD);
+	ClearLcdPin(LcdRW | LcdCs);
+	PORTB->OUT.Lcd8 = val;	// Data
+	ToggleEnable();
+	SetLcdPin(LcdCs);
+}
+
+uint RA8876::ReadData()
+{
+	uint	val;
+
+	// Read data
+	PORTB->DIR.Lcd16 = 0;	// Switch to inputs
+	ClearLcdPin(LcdCs);
+	SetLcdPin(LcdCD | LcdRW);
+	SetLcdPin(LcdE);	// toggle E
+	Timer::ShortDelay_clocks(2);
+	val = PORTB->IN.Lcd8;
+	ClearLcdPin(LcdE);
+	SetLcdPin(LcdCs);
+	PORTB->DIR.Lcd16 = LcdData16;	// Switch back to outputs
+	return val;
 }
 
 //*********************************************************************

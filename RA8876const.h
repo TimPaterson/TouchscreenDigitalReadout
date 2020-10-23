@@ -346,12 +346,13 @@ namespace RA8876const
 	// Input Control Register
 	enum ICR_Bits
 	{
-		// Choose one from each group
+		ICR_MemPort_Mask = 0x03,
 		ICR_MemPortSdram = 0x00,
 		ICR_MemPortGamma = 0x01,
 		ICR_MemPortCursor = 0x02,
 		ICR_MemPortPalette = 0x03,
 
+		ICR_TextGraphicsMode_Mask = 0x04,
 		ICR_GraphicsMode = 0x00,
 		ICR_TextMode = 0x04,
 
@@ -387,11 +388,39 @@ namespace RA8876const
 	// Main/PIP Window Control Register
 	enum MPWCTR_Bits
 	{
+		MPWCTR_SyncIdle = 0x01,
+		MPWCTR_SyncEnable = 0x00,
+
+		MPWCTR_MainImageColor_Mask = 0x0C,
+		MPWCTR_MainImageColor8 = 0x00,
+		MPWCTR_MainImageColor16 = 0x04,
+		MPWCTR_MainImageColor24 = 0x08,
+
+		MPWCTR_ConfigurePip_Mask = 0x10,
+		MPWCTR_ConfigurePip1 = 0x00,
+		MPWCTR_ConfigurePip2 = 0x10,
+
+		MPWCTR_Pip2_Mask = 0x40,
+		MPWCTR_Pip2Disable = 0x00,
+		MPWCTR_Pip2Enable = 0x40,
+
+		MPWCTR_Pip1_Mask = 0x80,
+		MPWCTR_Pip1Disable = 0x00,
+		MPWCTR_Pip1Enable = 0x80,
 	};
 
 	// PIP Window Color Depth Setting
 	enum PIPCDEP_Bits
 	{
+		PIPCDEP_Pip2Color_Mask = 0x03,
+		PIPCDEP_Pip2Color8 = 0x00,
+		PIPCDEP_Pip2Color16 = 0x01,
+		PIPCDEP_Pip2Color24 = 0x02,
+
+		PIPCDEP_Pip1Color_Mask = 0x0C,
+		PIPCDEP_Pip1Color8 = 0x00,
+		PIPCDEP_Pip1Color16 = 0x04,
+		PIPCDEP_Pip1Color24 = 0x08,
 	};
 
 	// Display Configuration Register
@@ -446,6 +475,109 @@ namespace RA8876const
 
 		PCSR_HsyncActiveLow = 0x00,
 		PCSR_HsyncActiveHigh = 0x80,
+	};
+
+	// Graphic / Text Cursor Control Register
+	enum GTCCR_Bits
+	{
+		// UNDONE: GTCCR
+	};
+
+	//************************************************************************
+	// Geometric Engine Control Registers
+
+	// Color Depth of Canvas & Active Window
+	enum AW_COLOR_Bits
+	{
+		AW_COLOR_CanvasColor_Mask = 0x03,
+		AW_COLOR_CanvasColor8 = 0x00,
+		AW_COLOR_CanvasColor16 = 0x01,
+		AW_COLOR_CanvasColor24 = 0x02,
+
+		AW_COLOR_AddrMode_Mask = 0x04,
+		AW_COLOR_AddrModeXY = 0x00,
+		AW_COLOR_AddrModeLinear = 0x04,
+	};
+
+	// Draw Line / Triangle Control Register 0
+	enum DCR0_Bits
+	{
+		DCR0_DrawLine = 0x00,
+		DCR0_DrawTriangle = 0x02,
+
+		DCR0_FillOff = 0x00,
+		DCR0_FillOn = 0x020,
+
+		DCR0_DrawActive = 0x80,
+	};
+
+	// Draw Circle/Ellipse/Ellipse Curve/Circle Square Control Register 1
+	enum DCR1_Bits
+	{
+		DCR1_DrawEllipse = 0x00,
+		DCR1_DrawCurve = 0x10,
+		DCR1_DrawRect = 0x20,
+		DCR1_DrawRoundedRect = 0x30,
+
+		DCR1_FillOff = 0x00,
+		DCR1_FillOn = 0x040,
+
+		DCR1_DrawActive = 0x80,
+	};
+
+	//************************************************************************
+	// Block Transfer Engine (BTE) Control Registers
+
+
+	//************************************************************************
+	// Serial Flash & SPI Master Control Registers
+
+
+	//************************************************************************
+	// Text Engine
+
+	// Character Control Register 0
+	enum CCR0_Bits
+	{
+		CCR0_CharSet_Mask = 0x03,
+		CCR0_CharSet8859_1 = 0x00,
+		CCR0_CharSet8859_2 = 0x01,
+		CCR0_CharSet8859_4 = 0x02,
+		CCR0_CharSet8859_5 = 0x03,
+
+		CCR0_CharHeight_Mask = 0x30,
+		CCR0_CharHeight16 = 0x00,
+		CCR0_CharHeight24 = 0x10,
+		CCR0_CharHeight32 = 0x20,
+
+		CCR0_CharSource_Mask = 0xC0,
+		CCR0_CharSourceInternal = 0x00,
+		CCR0_CharSourceSerial = 0x01,
+		CCR0_CharSourceRam = 0x02,
+	};
+
+	// Character Control Register 1
+	enum CCR1_Bits
+	{
+		CCR1_CharHeightX_Mask = 0x03,
+		CCR1_CharHeightX1 = 0x00,
+		CCR1_CharHeightX2 = 0x01,
+		CCR1_CharHeightX3 = 0x02,
+		CCR1_CharHeightX4 = 0x03,
+
+		CCR1_CharWidthX_Mask = 0x0C,
+		CCR1_CharWidthX1 = 0x00,
+		CCR1_CharWidthX2 = 0x04,
+		CCR1_CharWidthX3 = 0x08,
+		CCR1_CharWidthX4 = 0x0C,
+
+		CCR1_CharRotation_Mask = 0x01,
+		CCR1_CharRotationNone = 0x00,
+		CCR1_CharRotation90 = 0x01,
+
+		CCR1_CharBackground_Mask = 0x40,
+		CCR1_CharBackgroundSet = 0x00,
+		CCR1_CharBackgroundTransparent = 0x40,
 	};
 
 	//************************************************************************

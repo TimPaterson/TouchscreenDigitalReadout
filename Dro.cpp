@@ -51,7 +51,22 @@ int main(void)
 	printf("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
 
 	Lcd.Init();
-	Lcd.TestPattern();
+	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
+	Lcd.DisplayOn();
+	Lcd.WriteRegRgb(FGCR, 0xFF);
+	Lcd.FillRect(0, 0, 1023, 599);
+	Lcd.WriteRegRgb(FGCR, 0xFF00);
+	Lcd.FillRect(100, 100, 923, 499);
+
+	// Write some text
+	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
+	Lcd.WriteRegRgb(BGCR, 0);
+	Lcd.WriteReg(CCR0, CCR0_CharSet8859_1 | CCR0_CharHeight32 | CCR0_CharSourceInternal);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundTransparent);
+	Lcd.WriteRegXY(F_CURX0, 0, 0);
+	Lcd.WriteString("0123456789");
+	Lcd.WriteRegXY(F_CURX0, 0, 32 * 4);
+	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 
 	//************************************************************************
 	// Main loop
