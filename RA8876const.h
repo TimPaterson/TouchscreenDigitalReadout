@@ -202,7 +202,7 @@ namespace RA8876const
 		DMA_CTRL,
 		SFL_CTRL,
 		SPIDR,
-		SPIMCR2,
+		SPIMCR,
 		SPIMSR,
 		SPI_DIVSOR,
 		DMA_SSTR0,
@@ -532,6 +532,65 @@ namespace RA8876const
 	//************************************************************************
 	// Serial Flash & SPI Master Control Registers
 
+	// Serial flash DMA Controller REG
+	enum DMA_CTRL_Bits
+	{
+		DMA_CTRL_Start = 0x01,
+	};
+
+	// Serial Flash/ROM Controller Register
+	enum SFL_CTRL_Bits
+	{
+		SFL_CTRL_ReadCommand03 = 0x00,
+		SFL_CTRL_ReadCommand0B = 0x04,
+		SFL_CTRL_ReadCommand1B = 0x08,
+		SFL_CTRL_ReadCommand3B = 0x02,
+		SFL_CTRL_ReadCommandBB = 0x03,
+
+		SFL_CTRL_AddrBits24 = 0x00,
+		SFL_CTRL_AddrBits32 = 0x20,
+
+		SFL_CTRL_ModeFont = 0x00,
+		SFL_CTRL_ModeDma = 0x40,
+
+		SFL_CTRL_Select0 = 0x00,
+		SFL_CTRL_Select1 = 0x80,
+	};
+
+	// SPI master Control Register
+	enum SPIMCR_Bits
+	{
+		SPIMCR_SpiMode0 = 0x00,
+		SPIMCR_SpiMode1 = 0x01,
+		SPIMCR_SpiMode2 = 0x02,
+		SPIMCR_SpiMode3 = 0x03,
+
+		SPIMCR_EmtIrqUnmasked = 0x00,
+		SPIMCR_EmtIrqMasked = 0x04,
+
+		SPIMCR_OvfIrqUnmasked = 0x00,
+		SPIMCR_OvfIrqMasked = 0x08,
+
+		SPIMCR_SlaveSelectInactive = 0x00,
+		SPIMCR_SlaveSelectActive = 0x10,
+
+		SPIMCR_SlaveSelectCs0 = 0x00,
+		SPIMCR_SlaveSelectCs1 = 0x20,
+
+		SPIMCR_IrqEnable = 0x40,
+		SPIMCR_IrqDisable = 0x00,
+	};
+
+	// SPI master Status Register
+	enum SPIMSR_Bits
+	{
+		SPIMSR_Idle = 0x04,
+		SPIMSR_Overflow = 0x08,
+		SPIMSR_RxFifoFull = 0x10,
+		SPIMSR_RxFifoEmpty = 0x20,
+		SPIMSR_TxFifoFull = 0x40,
+		SPIMSR_TxFifoEmpty = 0x80,
+	};
 
 	//************************************************************************
 	// Text Engine
@@ -552,8 +611,8 @@ namespace RA8876const
 
 		CCR0_CharSource_Mask = 0xC0,
 		CCR0_CharSourceInternal = 0x00,
-		CCR0_CharSourceSerial = 0x01,
-		CCR0_CharSourceRam = 0x02,
+		CCR0_CharSourceExternal = 0x40,
+		CCR0_CharSourceRam = 0x80,
 	};
 
 	// Character Control Register 1
@@ -578,6 +637,29 @@ namespace RA8876const
 		CCR1_CharBackground_Mask = 0x40,
 		CCR1_CharBackgroundSet = 0x00,
 		CCR1_CharBackgroundTransparent = 0x40,
+	};
+
+	// GT Character ROM Select
+	enum GTFNT_SEL_Bits
+	{
+		GTFNT_SEL_GT21L16T1W = 0x00,
+		GTFNT_SEL_GT30L16U2W = 0x20,
+		GTFNT_SEL_GT30L24T3Y = 0x40,
+		GTFNT_SEL_GT30L24M1Z = 0x60,
+		GTFNT_SEL_GT30L32S4W = 0x80,
+		GTFNT_SEL_GT21L34S1W = 0xC0,
+	};
+
+	// GT Character ROM Control register
+	enum GTFNT_CR
+	{
+		GTENT_CR_CharWidthFixed = 0x00,
+		GTENT_CR_CharWidthArial = 0x01,
+		GTENT_CR_CharWidthRoman = 0x02,
+		GTENT_CR_CharWidthBold = 0x03,
+
+		GTFNT_CR_Ascii = 0x20,
+		// There's more, but we don't care
 	};
 
 	//************************************************************************

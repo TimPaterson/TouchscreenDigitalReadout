@@ -48,7 +48,7 @@ int main(void)
 	Touch.SetBaudRateConst(2000000);
 	Touch.Enable();
 
-	printf("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
+	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
 
 	Lcd.Init();
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
@@ -61,11 +61,13 @@ int main(void)
 	// Write some text
 	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
 	Lcd.WriteRegRgb(BGCR, 0);
-	Lcd.WriteReg(CCR0, CCR0_CharSet8859_1 | CCR0_CharHeight32 | CCR0_CharSourceInternal);
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundTransparent);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX1 | CCR1_CharWidthX1 | CCR1_CharBackgroundTransparent);
 	Lcd.WriteRegXY(F_CURX0, 0, 0);
+	Lcd.ExternalFont(CCR0_CharHeight32, GTENT_CR_CharWidthArial | GTFNT_CR_Ascii);
 	Lcd.WriteString("0123456789");
-	Lcd.WriteRegXY(F_CURX0, 0, 32 * 4);
+	Lcd.WriteRegXY(F_CURX0, 0, 32);
+	Lcd.WriteReg(FLDR, 0);
+	//Lcd.InternalFont(CCR0_CharHeight32, CCR0_CharSet8859_1);
 	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 
 	//************************************************************************
@@ -88,14 +90,14 @@ int main(void)
 			iCurPos = Xpos.GetPos();
 			if (iCurPos != iLastPos)
 			{
-				printf("Pos: %i\n", iCurPos);
+				DEBUG_PRINT("Pos: %i\n", iCurPos);
 				iLastPos = iCurPos;
 			}
 
 			iCurPos = Touch.ReadX();
 			if (iCurPos != iLastTouch)
 			{
-				//printf("Touch: %i\n", iCurPos);
+				//DEBUG_PRINT("Touch: %i\n", iCurPos);
 				iLastTouch = iCurPos;
 			}
 		}
@@ -117,7 +119,7 @@ int main(void)
 				if (i > LcdBacklightPwmMax)
 					i = LcdBacklightPwmMax;
 				TCC1->CC[1].reg = i;
-				printf("up\n");
+				DEBUG_PRINT("up\n");
 				break;
 
 			case '-':
@@ -126,7 +128,7 @@ int main(void)
 				if (i < 0)
 					i = 0;
 				TCC1->CC[1].reg = i;
-				printf("down\n");
+				DEBUG_PRINT("down\n");
 				break;
 			}
 		}

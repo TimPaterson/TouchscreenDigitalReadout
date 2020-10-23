@@ -42,6 +42,7 @@ public:
 	static void TestPattern();
 	static void DisplayOn();
 	static void DisplayOff();
+	static void ExternalFont(uint uCharHeight, uint uFont);
 
 	static void WriteReg(uint addr, uint val)
 	{
@@ -176,5 +177,10 @@ public:
 		}
 		while (GetStatus() & STATUS_CoreBusy);
 		WriteReg(ICR, reg);
+	}
+
+	static void InternalFont(uint uCharHeight, uint uFont)
+	{
+		WriteReg(CCR0, uCharHeight | CCR0_CharSourceInternal | uFont);
 	}
 };
