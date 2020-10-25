@@ -5,10 +5,10 @@
 //
 //****************************************************************************
 
-
 #include <standard.h>
 #include "Dro.h"
 #include "PosSensor.h"
+#include "LcdDef.h"
 #include "RA8876.h"
 #include "Xtp2046.h"
 
@@ -30,8 +30,55 @@ Xtp2046	Touch;
 RA8876	Lcd;
 
 //*********************************************************************
+// Tests
+//*********************************************************************
+
+void HexDump(const byte *pb, int cb)
+{
+	int		col;
+
+	// Dump on console in hex
+	col = 16;
+
+	for (; cb > 0; cb--, col--, pb++)
+	{
+		if (col == 0)
+		{
+			DEBUG_PRINT("\n");
+			col = 16;
+		}
+		printf("%02X ", *pb);
+	}
+	DEBUG_PRINT("\n");
+}
+
+void TextDisplay()
+{
+	Lcd.WriteRegRgb(FGCR, 0xFF);
+	Lcd.FillRect(0, 0, 1023, 599);
+	Lcd.WriteRegRgb(FGCR, 0xFF00);
+	Lcd.FillRect(100, 100, 923, 499);
+
+	// Write some text
+	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
+	Lcd.WriteRegRgb(BGCR, 0);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundTransparent);
+	Lcd.WriteRegXY(F_CURX0, 0, 0);
+	Lcd.ExternalFont(CCR0_CharHeight16, GTENT_CR_CharWidthFixed | GTFNT_CR_Ascii, 1);
+	Lcd.WriteString("0123456789");
+	Lcd.WriteRegXY(F_CURX0, 0, 64);
+	Lcd.WriteReg(FLDR, 0);
+	//Lcd.InternalFont(CCR0_CharHeight32, CCR0_CharSet8859_1);
+	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
+}
+
+//*********************************************************************
 // Main program
 //*********************************************************************
+
+#define MEMLOC (0x1DD780)
+
+byte arbBuf[256];
 
 int main(void)
 {
@@ -53,22 +100,6 @@ int main(void)
 	Lcd.Init();
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.DisplayOn();
-	Lcd.WriteRegRgb(FGCR, 0xFF);
-	Lcd.FillRect(0, 0, 1023, 599);
-	Lcd.WriteRegRgb(FGCR, 0xFF00);
-	Lcd.FillRect(100, 100, 923, 499);
-
-	// Write some text
-	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
-	Lcd.WriteRegRgb(BGCR, 0);
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX1 | CCR1_CharWidthX1 | CCR1_CharBackgroundTransparent);
-	Lcd.WriteRegXY(F_CURX0, 0, 0);
-	Lcd.ExternalFont(CCR0_CharHeight32, GTENT_CR_CharWidthArial | GTFNT_CR_Ascii);
-	Lcd.WriteString("0123456789");
-	Lcd.WriteRegXY(F_CURX0, 0, 32);
-	Lcd.WriteReg(FLDR, 0);
-	//Lcd.InternalFont(CCR0_CharHeight32, CCR0_CharSet8859_1);
-	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 
 	//************************************************************************
 	// Main loop
@@ -112,6 +143,30 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
+			case 'e':
+				DEBUG_PRINT("Erase\n");
+				Lcd.SerialMemErase(MEMLOC, SFCMD_SectorErase, 1);
+				break;
+
+			case 'p':
+				DEBUG_PRINT("Program\n");
+				for (int i = 0; i < 6; i++)
+				{
+					Lcd.SerialMemRead(MEMLOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 0);
+					Lcd.SerialMemWrite(MEMLOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 1);
+				}
+				break;
+
+			case 'r':
+				DEBUG_PRINT("Read\n");
+				Lcd.SerialMemRead(MEMLOC, sizeof arbBuf, arbBuf, 1);
+				HexDump(arbBuf, sizeof arbBuf);
+				break;
+
+			case 't':
+				TextDisplay();
+				break;
+
 			case '+':
 			case '=':
 				i = TCC1->CC[1].reg;

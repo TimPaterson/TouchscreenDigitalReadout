@@ -261,6 +261,9 @@
     <Compile Include="Interrupts.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="LcdDef.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="PosSensor.cpp">
       <SubType>compile</SubType>
     </Compile>

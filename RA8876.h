@@ -21,6 +21,25 @@ namespace RA8876const
 		byte	addr;
 		byte	val;
 	};
+
+	enum SerialFlashCommands
+	{
+		SFCMD_Read = 0x03,
+		SFCMD_FastRead = 0x0B,
+		SFCMD_WriteEnable = 0x06,
+		SFCMD_Program = 0x02,
+		SFCMD_SectorErase = 0x20,
+		SFCMD_BlockErase = 0x52,
+		SFCMD_ChipErase = 0x60,
+		SFCMD_ReadStatus = 0x05,
+		SFCMD_WriteStatus = 0x01,
+	};
+
+	enum SerialFlashStatus
+	{
+		SFSTAT_Busy = 0x01,
+		SFSTAT_WriteEnabled = 0x02,
+	};
 };
 
 //*********************************************************************
@@ -42,7 +61,6 @@ public:
 	static void TestPattern();
 	static void DisplayOn();
 	static void DisplayOff();
-	static void ExternalFont(uint uCharHeight, uint uFont);
 
 	static void WriteReg(uint addr, uint val)
 	{
@@ -179,8 +197,155 @@ public:
 		WriteReg(ICR, reg);
 	}
 
-	static void InternalFont(uint uCharHeight, uint uFont)
+	static void InternalFont(uint charHeight, uint font)
 	{
-		WriteReg(CCR0, uCharHeight | CCR0_CharSourceInternal | uFont);
+		WriteReg(CCR0, charHeight | CCR0_CharSourceInternal | font);
+	}
+
+	void ExternalFont(uint charHeight, uint font, uint port = 0)
+	{
+		WriteReg(CCR0, charHeight | CCR0_CharSourceExternal);
+		WriteReg(GTFNT_CR, font);
+		WriteReg(SFL_CTRL, (port ? SFL_CTRL_Init1 : SFL_CTRL_Init0) | SFL_CTRL_ModeFont);
+		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+	}
+
+	//*********************************************************************
+	// Serial Flash/ROM
+	//
+	// NOTE: These functions block until completion.
+
+	byte SerialReadByte()
+	{
+		//while (ReadReg(SPIMSR) & SPIMSR_RxFifoEmpty);	// wait for byte
+		return ReadReg(SPIDR);
+	}
+
+	void SerialWriteByte(byte val)
+	{
+		//while (ReadReg(SPIMSR) & SPIMSR_TxFifoFull);	// wait for space
+		WriteReg(SPIDR, val);
+	}
+
+	byte SerialMemGetStatus()
+	{
+		byte	bCs;
+		byte	val;
+
+		bCs = ReadReg(SPIMCR);
+		WriteData(bCs | SPIMCR_SlaveSelectActive);
+		WriteReg(SPIDR, SFCMD_ReadStatus);
+		WriteReg(SPIDR, 0);
+		SerialReadByte();		// dummy byte
+		val = SerialReadByte();	// status
+		WriteReg(SPIMCR, bCs);
+		return val;
+	}
+
+	void SerialMemRead(ulong addr, int cb, byte *pb, uint port)
+	{
+		uint	val;
+		byte	bCs;
+		int		cbWrite;
+		int		cbRead;
+
+		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+		bCs = SPIMCR_SpiMode0 | (port ? SPIMCR_SlaveSelectCs1 : SPIMCR_SlaveSelectCs0);
+		WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+
+		// Chip is selected, send command
+		WriteReg(SPIDR, SFCMD_FastRead);
+		WriteReg(SPIDR, addr >> 16);
+		WriteReg(SPIDR, addr >> 8);
+		WriteReg(SPIDR, addr);
+		WriteReg(SPIDR, 0);		// dummy byte for fast read
+
+		cbWrite = cb;
+		cbRead = -5;	// ignore response to command bytes
+		do
+		{
+			val = SerialReadByte();
+			if (cbRead >= 0)
+				*pb++ = val;
+			cbRead++;
+			if (cbWrite > 0)
+			{
+				WriteReg(SPIDR, 0);
+				cbWrite--;
+			}
+		} while (cbRead < cb);
+
+		WriteReg(SPIMCR, bCs);
+	}
+
+	void SerialMemWrite(ulong addr, int cb, byte *pb, uint port)
+	{
+		byte	bCs;
+
+		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+		bCs = SPIMCR_SpiMode0 | (port ? SPIMCR_SlaveSelectCs1 : SPIMCR_SlaveSelectCs0);
+
+		do 
+		{
+			// Enable writes
+			WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+			WriteReg(SPIDR, SFCMD_WriteEnable);
+			WriteReg(SPIMCR, bCs);
+
+			// Clear SPI status
+			WriteReg(SPIMSR, SPIMSR_Idle);
+
+			// Perform write, within a 256-byte page
+			WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+			WriteReg(SPIDR, SFCMD_Program);
+			WriteReg(SPIDR, addr >> 16);
+			WriteReg(SPIDR, addr >> 8);
+			WriteReg(SPIDR, addr);
+
+			do
+			{
+				SerialWriteByte(*pb++);
+				addr++;
+			} while (--cb > 0 && (addr & 0xFF) != 0);
+
+			// Wait for SPI to finish
+			while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
+			// Release CS, starting write operation
+			WriteReg(SPIMCR, bCs);
+
+			// Poll for completion
+			while (SerialMemGetStatus() & SFSTAT_Busy);
+		} while (cb > 0);
+	}
+
+	void SerialMemErase(ulong addr, uint cmd, uint port)
+	{
+		byte	bCs;
+
+		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+		bCs = SPIMCR_SpiMode0 | (port ? SPIMCR_SlaveSelectCs1 : SPIMCR_SlaveSelectCs0);
+
+		// Enable writes
+		WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+		WriteReg(SPIDR, SFCMD_WriteEnable);
+		WriteReg(SPIMCR, bCs);
+
+		// Clear SPI status
+		WriteReg(SPIMSR, SPIMSR_Idle);
+
+		// Send command with address
+		WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+		WriteReg(SPIDR, cmd);
+		WriteReg(SPIDR, addr >> 16);
+		WriteReg(SPIDR, addr >> 8);
+		WriteReg(SPIDR, addr);
+
+		// Wait for SPI to finish
+		while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
+		// Release CS, starting write operation
+		WriteReg(SPIMCR, bCs);
+
+		// Poll for completion
+		while (SerialMemGetStatus() & SFSTAT_Busy);
 	}
 };
