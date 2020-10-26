@@ -357,15 +357,29 @@ static constexpr int CONSOLE_BAUD_RATE = 500000;
 typedef DECLARE_USART(SERCOM0, 20, 100)	Console_t;
 
 #ifdef DEBUG
-#define DEBUG_PRINT	printf
+#define DEBUG_PRINT(...)	fprintf(&Console_FILE, __VA_ARGS__);
 #else
 #define DEBUG_PRINT(...)
 #endif
 
 extern Console_t Console;
+extern FILE Console_FILE;
 
 //*********************************************************************
 // Position sensors
 
 static constexpr uint PosSensorIrqMask = EI_QposA | EI_QposB | 
 	EI_YposA | EI_YposB | EI_ZposA | EI_ZposB | EI_XposA | EI_XposB;
+
+//*********************************************************************
+// Brown-out detector
+//
+// When voltage drops, the flash can't keep up. Keep it in reset when
+// the voltage is below 2.7V.
+
+// This number comes from the data sheet, and is different for some
+// silicon revisions. We're using Rev G because it has the EEPROM
+// emulation flash in the 128K version.
+//
+static constexpr byte BOD_LEVEL_2p7_REVG = 39;
+

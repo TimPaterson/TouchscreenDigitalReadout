@@ -71,6 +71,11 @@ void StartClock()
 
 void Init()
 {
+	// Set up brown-out detector to keep us in reset if voltage is less than 2.7
+	SYSCTRL->BOD33.reg = SYSCTRL_BOD33_LEVEL(BOD_LEVEL_2p7_REVG) | 
+		SYSCTRL_BOD33_ACTION_RESET | SYSCTRL_BOD33_ENABLE;
+
+	// Turn on clock to modules we use
 	PM->APBCMASK.reg = PM_APBCMASK_AC | PM_APBCMASK_TCC1;
 	
 	// Set port pin output levels first
@@ -133,13 +138,13 @@ void Init()
 		AC_COMPCTRL_SPEED_HIGH | AC_COMPCTRL_INTSEL_FALLING | AC_COMPCTRL_ENABLE;
 	AC->CTRLA.reg = AC_CTRLA_LPMUX | AC_CTRLA_RUNSTDBY(1) | AC_CTRLA_ENABLE;
 	// UNDONE: For testing, use regular interrupt on AC
-	AC->INTENSET.reg = AC_INTENSET_COMP0;
-	NVIC_EnableIRQ(AC_IRQn);
+	//AC->INTENSET.reg = AC_INTENSET_COMP0;
+	//NVIC_EnableIRQ(AC_IRQn);
 
 	// Set up EIC
 	// GCLK only needed in case we select filtering
 	// "To use NMI, GCLK_EIC must be enabled after EIC configuration (NMICTRL)"
-	// UNDONE: EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL | EIC_NMICTRL_NMIFILTEN;
+	EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL | EIC_NMICTRL_NMIFILTEN;
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_EIC;
 	EIC->INTENSET.reg = PosSensorIrqMask;
 
@@ -179,4 +184,7 @@ void Init()
 	TCC1->CC[1].reg = LcdBacklightPwmMax / 2;	// start 1t 50%
 	TCC1->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
 	TCC1->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV1 | TCC_CTRLA_PRESCSYNC_PRESC | TCC_CTRLA_ENABLE;
+	
+	// Set up WDT
+	WDT->CONFIG.reg = WDT_CONFIG_PER_128;	// 128 / 1024 = 125ms
 }

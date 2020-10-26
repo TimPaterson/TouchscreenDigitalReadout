@@ -18,9 +18,14 @@ DEFINE_USART_ISR(SERCOM0, Console)
 //****************************************************************************
 // Analog Comparator UNDONE: testing only
 
-void AC_Handler()
+void NonMaskableInt_Handler()
 {
-	Console.WriteString("Shutting down\n");
+	Console.WriteStringNoBuf("Shutting down\n");
+	// Turn off some clocks to save power
+	PM->APBCMASK.reg = 0;	// all peripherals off
+	PM->APBBMASK.reg = PM_APBBMASK_NVMCTRL | PM_APBBMASK_DSU;
+	PM->AHBMASK.reg = PM_AHBMASK_NVMCTRL | PM_APBBMASK_DSU | PM_AHBMASK_HPB2 | 
+		PM_AHBMASK_HPB1 | PM_AHBMASK_HPB0;
 	while(1);
 }
 

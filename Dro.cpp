@@ -24,7 +24,6 @@ void Init();
 
 Console_t	Console;
 FILE		Console_FILE;
-FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 
 Xtp2046	Touch;
 RA8876	Lcd;
@@ -47,7 +46,8 @@ void HexDump(const byte *pb, int cb)
 			DEBUG_PRINT("\n");
 			col = 16;
 		}
-		printf("%02X ", *pb);
+		DEBUG_PRINT("%02X ", *pb);
+		wdt_reset();
 	}
 	DEBUG_PRINT("\n");
 }
@@ -100,6 +100,11 @@ int main(void)
 	Lcd.Init();
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.DisplayOn();
+	TextDisplay();
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundSet);
+
+	// Start WDT now that initialization is complete
+	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
 	//************************************************************************
 	// Main loop
@@ -116,6 +121,8 @@ int main(void)
 
     while (1) 
     {
+		wdt_reset();
+
 		if (tmr.CheckInterval_rate(10))
 		{
 			iCurPos = Xpos.GetPos();
@@ -128,7 +135,8 @@ int main(void)
 			iCurPos = Touch.ReadX();
 			if (iCurPos != iLastTouch)
 			{
-				//DEBUG_PRINT("Touch: %i\n", iCurPos);
+				Lcd.WriteRegXY(F_CURX0, 0, 300);
+				printf("%5i", iCurPos);
 				iLastTouch = iCurPos;
 			}
 		}

@@ -180,6 +180,19 @@ public:
 		WriteData(ReadReg(ICR) & ~ICR_TextGraphicsMode_Mask);
 	}
 
+	// This used by printf
+	static void WriteChar(void *pv, char ch)
+	{
+		uint	reg;
+
+		// Slow, but gets there
+		reg = ReadReg(ICR);
+		WriteData(reg | ICR_TextMode);
+		WriteReg(MRWDP, ch);
+		while (GetStatus() & STATUS_CoreBusy);
+		WriteReg(ICR, reg);
+	}
+
 	static void WriteString(const char *psz)
 	{
 		uint	reg;
@@ -255,10 +268,10 @@ public:
 
 		// Chip is selected, send command
 		WriteReg(SPIDR, SFCMD_FastRead);
-		WriteReg(SPIDR, addr >> 16);
-		WriteReg(SPIDR, addr >> 8);
-		WriteReg(SPIDR, addr);
-		WriteReg(SPIDR, 0);		// dummy byte for fast read
+		WriteData(addr >> 16);
+		WriteData(addr >> 8);
+		WriteData(addr);
+		WriteData(0);		// dummy byte for fast read
 
 		cbWrite = cb;
 		cbRead = -5;	// ignore response to command bytes
@@ -298,9 +311,9 @@ public:
 			// Perform write, within a 256-byte page
 			WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
 			WriteReg(SPIDR, SFCMD_Program);
-			WriteReg(SPIDR, addr >> 16);
-			WriteReg(SPIDR, addr >> 8);
-			WriteReg(SPIDR, addr);
+			WriteData(addr >> 16);
+			WriteData(addr >> 8);
+			WriteData(addr);
 
 			do
 			{
