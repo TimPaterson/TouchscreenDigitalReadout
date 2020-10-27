@@ -279,6 +279,9 @@
     <Compile Include="RA8876const.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ResTouch.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Spi.h">
       <SubType>compile</SubType>
     </Compile>

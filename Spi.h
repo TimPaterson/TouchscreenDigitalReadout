@@ -92,6 +92,7 @@ public:
 		spiCtrlA.bit.DIPO = padMiso;
 		spiCtrlA.bit.CPHA = modeSpi & 1;
 		spiCtrlA.bit.CPOL = modeSpi & 2;
+		spiCtrlA.bit.IBON = 1;
 		pSpi(iUsart)->CTRLA.reg = spiCtrlA.reg;
 		pSpi(iUsart)->CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
 	}
@@ -122,11 +123,42 @@ public:
 
 	static byte SpiByte(byte b = 0) NO_INLINE_ATTR
 	{
-		pSpi(iUsart)->DATA.reg = b;
-		while (!pSpi(iUsart)->INTFLAG.bit.RXC);
-		return pSpi(iUsart)->DATA.reg;
+		WriteByte(b);
+		while (!IsByteReady());
+		return ReadByte();
 	}
 
 	static void Select()	{ ClearPins(uSsPin, uSsPort); }
 	static void Deselect()	{ SetPins(uSsPin, uSsPort); }
+
+protected:
+	static byte ReadByte()
+	{
+		return pSpi(iUsart)->DATA.reg;
+	}
+
+	static void WriteByte(byte b = 0)
+	{
+		pSpi(iUsart)->DATA.reg = b;
+	}
+
+	static bool IsByteReady()
+	{
+		return pSpi(iUsart)->INTFLAG.bit.RXC;
+	}
+
+	static bool CanSendByte()
+	{
+		return pSpi(iUsart)->INTFLAG.bit.DRE;
+	}
+
+	static bool IsRxOverflow()
+	{
+		return pSpi(iUsart)->INTFLAG.bit.ERROR;
+	}
+
+	static void ClearOverflow()
+	{
+		pSpi(iUsart)->INTFLAG.reg = SERCOM_SPI_INTFLAG_ERROR;
+	}
 };

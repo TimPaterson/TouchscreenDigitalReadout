@@ -9,26 +9,32 @@
 #pragma once
 
 #include "Spi.h"
+#include "ResTouch.h"
 
 
-class Xtp2046 : public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
+class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
 {
+public:
+	static constexpr int BaudRate = 1000000;
+	static constexpr int ScanRate = 10;	// reads per second
+
+public:
 	// Types
 	enum ControlByte
 	{
 		// Analog input selections
 		// These are for differential mode
-		ADDR_Ypos_Val = 1,
+		ADDR_X_Val = 5,
+		ADDR_Y_Val = 1,
 		ADDR_Z1_Val = 3,
 		ADDR_Z2_Val = 4,
-		ADDR_Xpos_Val = 5,
 
 		ADDR_pos = 4,	// bit position in control byte
 
-		ADDR_Ypos =		(ADDR_Ypos_Val << ADDR_pos),
-		ADDR_Z1 =		(ADDR_Z1_Val << ADDR_pos),
-		ADDR_Z2 =		(ADDR_Z2_Val << ADDR_pos),
-		ADDR_Xpos =		(ADDR_Xpos_Val << ADDR_pos),
+		ADDR_X =	(ADDR_X_Val << ADDR_pos),
+		ADDR_Y =	(ADDR_Y_Val << ADDR_pos),
+		ADDR_Z1 =	(ADDR_Z1_Val << ADDR_pos),
+		ADDR_Z2 =	(ADDR_Z2_Val << ADDR_pos),
 
 		// Mode: 12-bit or 8-bit
 		MODE_12Bit_Val = 0,
@@ -63,17 +69,39 @@ class Xtp2046 : public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
 
 		// Start bit
 		RTP_Start = 0x80,
+
+		// Combined values
+		RTP_ReadX = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_X,
+		RTP_ReadY = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Y,
+		RTP_ReadZ1 = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Z1,
+		RTP_ReadZ2 = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Z2,
 	};
 
+
 public:
-	static uint ReadX()
+	void Init(SpiInPad padMiso, SpiOutPad padMosi)
 	{
-		return ReadValue(RTP_Start | ADDR_Xpos | MODE_12Bit | REF_Dif | PWR_On);
+		Spi::Init(padMiso, padMosi, SPIMODE_0);
+		Spi::SetBaudRateConst(BaudRate);
+
+		// Set scaling values
+		InitScale(&scaleX, &scaleY);
+
+		m_tmr.Start();
 	}
 
-	static uint ReadY()
+	bool Process()
 	{
-		return ReadValue(RTP_Start | ADDR_Ypos | MODE_12Bit | REF_Dif | PWR_On);
+		ushort	X, Y, Z;
+
+		if (!m_tmr.CheckInterval_rate(ScanRate))
+			return false;
+
+		X = ReadValue(RTP_ReadX);
+		Y = ReadValue(RTP_ReadY);
+		Z = ReadValue(RTP_ReadZ1);
+
+		return ProcessRaw(X, Y, Z);
 	}
 
 protected:
@@ -82,12 +110,29 @@ protected:
 		uint	val;
 
 		Select();
+		// Read twice to get stable values
 		SpiByte(bControl);
-		val = SpiByte() << 4;
-		val |= SpiByte() >> 4;
+		SpiByte();
+		SpiByte(bControl);
+		val = SpiByte() << 5;
+		val |= SpiByte() >> 3;
 		Deselect();
 		return val;
 	}
+
+protected:
+	Timer	m_tmr;
+
+	// Default scaling values
+	inline static const TouchScreenScale scaleX =
+	{
+		200, 18000, 1023, true
+	};
+
+	inline static const TouchScreenScale scaleY =
+	{
+		300, 11000, 599, true
+	};
 };
 
 extern Xtp2046	Touch;

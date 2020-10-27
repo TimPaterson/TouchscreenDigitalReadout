@@ -62,7 +62,7 @@ void TextDisplay()
 	// Write some text
 	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
 	Lcd.WriteRegRgb(BGCR, 0);
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundTransparent);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundTransparent);
 	Lcd.WriteRegXY(F_CURX0, 0, 0);
 	Lcd.ExternalFont(CCR0_CharHeight16, GTENT_CR_CharWidthFixed | GTFNT_CR_Ascii, 1);
 	Lcd.WriteString("0123456789");
@@ -91,8 +91,7 @@ int main(void)
 	Console.StreamInit(&Console_FILE);
 	Console.Enable();
 
-	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, SPIMODE_0);
-	Touch.SetBaudRateConst(2000000);
+	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK);
 	Touch.Enable();
 
 	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
@@ -101,7 +100,7 @@ int main(void)
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.DisplayOn();
 	TextDisplay();
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX4 | CCR1_CharWidthX4 | CCR1_CharBackgroundSet);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundSet);
 
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
@@ -112,16 +111,22 @@ int main(void)
 	Timer	tmr;
 	int		iCurPos;
 	int		iLastPos;
-	int		iLastTouch;
 	int		i;
 
 	iLastPos = 0;
-	iLastTouch = 0;
 	tmr.Start();
 
     while (1) 
     {
 		wdt_reset();
+
+		if (Touch.Process())
+		{
+			Lcd.WriteRegXY(F_CURX0, 0, 300);
+			printf("X: %5i", Touch.GetX());
+			Lcd.WriteRegXY(F_CURX0, 0, 350);
+			printf("Y: %5i", Touch.GetY());
+		}
 
 		if (tmr.CheckInterval_rate(10))
 		{
@@ -130,14 +135,6 @@ int main(void)
 			{
 				DEBUG_PRINT("Pos: %i\n", iCurPos);
 				iLastPos = iCurPos;
-			}
-
-			iCurPos = Touch.ReadX();
-			if (iCurPos != iLastTouch)
-			{
-				Lcd.WriteRegXY(F_CURX0, 0, 300);
-				printf("%5i", iCurPos);
-				iLastTouch = iCurPos;
 			}
 		}
 		if (Console.IsByteReady())

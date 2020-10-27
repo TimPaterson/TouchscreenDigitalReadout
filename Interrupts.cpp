@@ -20,7 +20,14 @@ DEFINE_USART_ISR(SERCOM0, Console)
 
 void NonMaskableInt_Handler()
 {
-	Console.WriteStringNoBuf("Shutting down\n");
+	Console.WriteStringNoBuf("Shutting down\r\n");
+	// Disable all I/O pins. Make them all inputs and
+	// disable mux, pull-up, input buffer
+	DirWritePinsA(0);
+	SetPortConfigA(0, ALL_PORT_PINS);	
+	DirWritePinsB(0);
+	SetPortConfigB(0, ALL_PORT_PINS);
+
 	// Turn off some clocks to save power
 	PM->APBCMASK.reg = 0;	// all peripherals off
 	PM->APBBMASK.reg = PM_APBBMASK_NVMCTRL | PM_APBBMASK_DSU;
