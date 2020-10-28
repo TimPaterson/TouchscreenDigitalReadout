@@ -167,6 +167,48 @@ public:
 		while (GetStatus() & STATUS_CoreBusy);
 	}
 
+	static void LoadGraphicsCursor(const byte *pbCursor, uint id)
+	{
+		uint	icr;
+		uint	gtccr;
+
+		icr = ReadReg(ICR);
+		WriteData(icr | ICR_MemPortCursor);
+		gtccr = ReadReg(GTCCR);
+		WriteData((gtccr & ~GTCCR_GraphicCursorSelect_Mask) | id);
+
+		// Write 256-byte block to data port
+		WriteAddr(MRWDP);
+		for (int i = 0; i < 256; i++)
+			WriteData(*pbCursor++);
+
+		// Restore registers
+		WriteReg(GTCCR, gtccr);
+		WriteReg(ICR, icr);
+	}
+
+	static void SetGraphicsCursorColors(byte color0, byte color1)
+	{
+		WriteReg(GCC0, color0);
+		WriteReg(GCC1, color1);
+	}
+
+	static void SetGraphicsCursorPosition(uint X, uint Y)
+	{
+		WriteReg16(GCHP0, X);
+		WriteReg16(GCVP0, Y);
+	}
+
+	static void EnableGraphicsCursor(uint id)
+	{
+		WriteData((ReadReg(GTCCR) & ~GTCCR_GraphicCursorSelect_Mask) | id | GTCCR_GraphicsCursorEnable);
+	}
+
+	static void DisableGraphicsCursor()
+	{
+		WriteData(ReadReg(GTCCR) & ~GTCCR_GraphicsCursorEnable);
+	}
+
 	//*********************************************************************
 	// Text Engine
 

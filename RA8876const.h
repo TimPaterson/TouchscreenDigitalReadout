@@ -480,7 +480,24 @@ namespace RA8876const
 	// Graphic / Text Cursor Control Register
 	enum GTCCR_Bits
 	{
-		// UNDONE: GTCCR
+		GTCCR_TextCursorBlink = 0x01,
+
+		GTCCR_TextCursorEnable = 0x02,
+
+		GTCCR_GraphicCursorSelect_Mask = 0x0C,
+		GTCCR_GraphicCursorSelect1 = 0x00,
+		GTCCR_GraphicCursorSelect2 = 0x04,
+		GTCCR_GraphicCursorSelect3 = 0x08,
+		GTCCR_GraphicCursorSelect4 = 0x0C,
+
+		GTCCR_GraphicsCursorEnable = 0x10,
+
+		GTCCR_GammaTableSelect_Mask = 0x60,
+		GTCCR_GammaTableSelectBlue = 0x00,
+		GTCCR_GammaTableSelectGreen = 0x20,
+		GTCCR_GammaTableSelectRed = 0x40,
+
+		GTCCR_GammaCorrectionEnable = 0x80,
 	};
 
 	//************************************************************************

@@ -28,6 +28,11 @@ FILE		Console_FILE;
 Xtp2046	Touch;
 RA8876	Lcd;
 
+extern "C" 
+{
+extern const byte TargetCursor[256];
+}
+
 //*********************************************************************
 // Tests
 //*********************************************************************
@@ -97,6 +102,9 @@ int main(void)
 	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
 
 	Lcd.Init();
+	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect1);
+	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
+
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.DisplayOn();
 	TextDisplay();
@@ -122,10 +130,23 @@ int main(void)
 
 		if (Touch.Process())
 		{
-			Lcd.WriteRegXY(F_CURX0, 0, 300);
-			printf("X: %5i", Touch.GetX());
-			Lcd.WriteRegXY(F_CURX0, 0, 350);
-			printf("Y: %5i", Touch.GetY());
+			// Touch sensor has an update
+			if (Touch.IsTouched())
+			{
+				int	X, Y;
+
+				X = Touch.GetX();
+				Y = Touch.GetY();
+
+				X = std::max(X - 16, 0);
+				Y = std::max(Y - 16, 0);
+				Lcd.SetGraphicsCursorPosition(X, Y);
+				Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+			}
+			else
+			{
+				Lcd.DisableGraphicsCursor();
+			}
 		}
 
 		if (tmr.CheckInterval_rate(10))
@@ -137,6 +158,7 @@ int main(void)
 				iLastPos = iCurPos;
 			}
 		}
+
 		if (Console.IsByteReady())
 		{
 			byte	ch;

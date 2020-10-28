@@ -63,11 +63,8 @@ public:
 	}
 
 protected:
-	bool ProcessRaw(ushort rawX, ushort rawY, ushort rawZ)
+	bool ProcessRaw(ushort rawX, ushort rawY)
 	{
-		if (rawZ < m_minZtouch)
-			return false;
-
 		m_posX.Set(rawX);
 		m_posY.Set(rawY);
 		return true;
@@ -76,5 +73,4 @@ protected:
 protected:
 	Position m_posX;
 	Position m_posY;
-	ushort m_minZtouch = 100;
 };

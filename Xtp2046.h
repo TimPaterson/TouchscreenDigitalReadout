@@ -16,7 +16,9 @@ class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
 {
 public:
 	static constexpr int BaudRate = 1000000;
-	static constexpr int ScanRate = 10;	// reads per second
+	static constexpr int AverageShift = 4;
+	static constexpr int AverageCount = 1 << AverageShift;
+	static constexpr int ScanRate = 100 * AverageCount;
 
 public:
 	// Types
@@ -79,6 +81,9 @@ public:
 
 
 public:
+	bool IsTouched()	{ return m_fIsTouched; }
+
+public:
 	void Init(SpiInPad padMiso, SpiOutPad padMosi)
 	{
 		Spi::Init(padMiso, padMosi, SPIMODE_0);
@@ -92,17 +97,28 @@ public:
 
 	bool Process()
 	{
-		ushort	X, Y, Z;
-
 		if (!m_tmr.CheckInterval_rate(ScanRate))
 			return false;
 
-		X = ReadValue(RTP_ReadX);
-		Y = ReadValue(RTP_ReadY);
-		Z = ReadValue(RTP_ReadZ1);
+		if (ReadValue(RTP_ReadZ1) >= m_minZtouch)
+		{
+			m_sumX += ReadValue(RTP_ReadX);
+			m_sumY += ReadValue(RTP_ReadY);
+			if (++m_cAvg < AverageCount)
+				return false;
 
-		return ProcessRaw(X, Y, Z);
+			ProcessRaw(m_sumX >> AverageShift, m_sumY >> AverageShift);
+			m_fIsTouched = true;
+		}
+		else
+			m_fIsTouched = false;
+
+		m_cAvg = 0;
+		m_sumX = 0;
+		m_sumY = 0;
+		return true;
 	}
+
 
 protected:
 	static uint ReadValue(byte bControl) NO_INLINE_ATTR
@@ -122,7 +138,13 @@ protected:
 
 protected:
 	Timer	m_tmr;
+	ushort	m_sumX;
+	ushort	m_sumY;
+	ushort	m_minZtouch = 200;
+	byte	m_cAvg;
+	bool	m_fIsTouched;
 
+protected:
 	// Default scaling values
 	inline static const TouchScreenScale scaleX =
 	{
