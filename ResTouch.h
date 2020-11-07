@@ -16,6 +16,14 @@ struct TouchScreenScale
 	bool	fReverse;
 };
 
+enum TouchFlags
+{
+	TOUCH_None = 0,
+	TOUCH_Start = 1,
+	TOUCH_End = 2,
+	TOUCH_Touched = 4,
+};
+
 class ResTouch
 {
 	static constexpr int ScaleShift = 16;
@@ -52,8 +60,9 @@ protected:
 	};
 
 public:
-	uint GetX()	{ return m_posX.Get(); }
-	uint GetY()	{ return m_posY.Get(); }
+	uint GetX()		{ return m_posX.Get(); }
+	uint GetY()		{ return m_posY.Get(); }
+	uint GetTouch()	{ return m_touchFlags; }
 
 public:
 	void InitScale(const TouchScreenScale *pScaleX, const TouchScreenScale *pScaleY)
@@ -70,7 +79,30 @@ protected:
 		return true;
 	}
 
+	void IsTouched(bool fIsTouched)	
+	{
+		uint	flags;
+
+		flags = m_touchFlags;
+		if (fIsTouched)
+		{
+			if (!(flags & TOUCH_Touched))
+				flags = TOUCH_Start | TOUCH_Touched;
+			else
+				flags = TOUCH_Touched;
+		}
+		else
+		{
+			if (flags & TOUCH_Touched)
+				flags = TOUCH_End;
+			else
+				flags = TOUCH_None;
+		}
+		m_touchFlags = flags;
+	}
+
 protected:
-	Position m_posX;
-	Position m_posY;
+	Position	m_posX;
+	Position	m_posY;
+	byte		m_touchFlags;
 };

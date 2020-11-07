@@ -81,9 +81,6 @@ public:
 
 
 public:
-	bool IsTouched()	{ return m_fIsTouched; }
-
-public:
 	void Init(SpiInPad padMiso, SpiOutPad padMosi)
 	{
 		Spi::Init(padMiso, padMosi, SPIMODE_0);
@@ -95,27 +92,46 @@ public:
 		m_tmr.Start();
 	}
 
-	bool Process()
+	bool Process() NO_INLINE_ATTR
 	{
 		if (!m_tmr.CheckInterval_rate(ScanRate))
 			return false;
 
 		if (ReadValue(RTP_ReadZ1) >= m_minZtouch)
 		{
+			// Touching
+			if (!m_fPrevTouch)
+			{
+				// Just starting contact
+				m_sumX = 0;
+				m_sumY = 0;
+				m_cAvg = 0;
+			}
+			m_fPrevTouch = true;
 			m_sumX += ReadValue(RTP_ReadX);
 			m_sumY += ReadValue(RTP_ReadY);
 			if (++m_cAvg < AverageCount)
 				return false;
 
 			ProcessRaw(m_sumX >> AverageShift, m_sumY >> AverageShift);
-			m_fIsTouched = true;
+			IsTouched(true);
+			m_sumX = 0;
+			m_sumY = 0;
+			m_cAvg = 0;
 		}
 		else
-			m_fIsTouched = false;
+		{
+			// Not touching
+			if (m_fPrevTouch)
+				m_cAvg = 0;	// Just ending contact
 
-		m_cAvg = 0;
-		m_sumX = 0;
-		m_sumY = 0;
+			m_fPrevTouch = false;
+			if (++m_cAvg < AverageCount)
+				return false;
+
+			IsTouched(false);
+		}
+
 		return true;
 	}
 
@@ -142,7 +158,7 @@ protected:
 	ushort	m_sumY;
 	ushort	m_minZtouch = 200;
 	byte	m_cAvg;
-	bool	m_fIsTouched;
+	bool	m_fPrevTouch;
 
 protected:
 	// Default scaling values

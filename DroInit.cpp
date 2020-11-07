@@ -181,7 +181,7 @@ void Init()
 	// No prescale, run at 48MHz
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_TCC0_TCC1;
 	TCC1->PER.reg = LcdBacklightPwmMax - 1;
-	TCC1->CC[1].reg = LcdBacklightPwmMax / 2;	// start 1t 50%
+	TCC1->CC[1].reg = LcdBacklightPwmMax - LcdBacklightPwmMax / 4;	// start 1t 75%
 	TCC1->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
 	TCC1->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV1 | TCC_CTRLA_PRESCSYNC_PRESC | TCC_CTRLA_ENABLE;
 	

@@ -40,6 +40,10 @@ namespace RA8876const
 		SFSTAT_Busy = 0x01,
 		SFSTAT_WriteEnabled = 0x02,
 	};
+
+	static constexpr int SerialFlashPageSize = 256;
+	static constexpr int SerialFlashSectorSize = 0x1000;
+	static constexpr int SerialFlashBlockSize = 0x8000;
 };
 
 //*********************************************************************
@@ -257,12 +261,11 @@ public:
 		WriteReg(CCR0, charHeight | CCR0_CharSourceInternal | font);
 	}
 
-	void ExternalFont(uint charHeight, uint font, uint port = 0)
+	static void ExternalFont(uint charHeight, uint font, uint port = 0)
 	{
 		WriteReg(CCR0, charHeight | CCR0_CharSourceExternal);
 		WriteReg(GTFNT_CR, font);
-		WriteReg(SFL_CTRL, (port ? SFL_CTRL_Init1 : SFL_CTRL_Init0) | SFL_CTRL_ModeFont);
-		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+		SerialSelectPort(SFL_CTRL_ModeFont, port);
 	}
 
 	//*********************************************************************
@@ -270,19 +273,25 @@ public:
 	//
 	// NOTE: These functions block until completion.
 
-	byte SerialReadByte()
+	static byte SerialReadByte()
 	{
 		//while (ReadReg(SPIMSR) & SPIMSR_RxFifoEmpty);	// wait for byte
 		return ReadReg(SPIDR);
 	}
 
-	void SerialWriteByte(byte val)
+	static void SerialWriteByte(byte val)
 	{
 		//while (ReadReg(SPIMSR) & SPIMSR_TxFifoFull);	// wait for space
 		WriteReg(SPIDR, val);
 	}
 
-	byte SerialMemGetStatus()
+	static void SerialSelectPort(uint mode, uint port)
+	{
+		WriteReg(SFL_CTRL, (port ? SFL_CTRL_Init1 : SFL_CTRL_Init0) | mode);
+		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
+	}
+
+	static byte SerialMemGetStatus()
 	{
 		byte	bCs;
 		byte	val;
@@ -297,7 +306,7 @@ public:
 		return val;
 	}
 
-	void SerialMemRead(ulong addr, int cb, byte *pb, uint port)
+	static void SerialMemRead(ulong addr, int cb, byte *pb, uint port)
 	{
 		uint	val;
 		byte	bCs;
@@ -333,7 +342,7 @@ public:
 		WriteReg(SPIMCR, bCs);
 	}
 
-	void SerialMemWrite(ulong addr, int cb, byte *pb, uint port)
+	static void SerialMemWrite(ulong addr, int cb, byte *pb, uint port)
 	{
 		byte	bCs;
 
@@ -361,7 +370,7 @@ public:
 			{
 				SerialWriteByte(*pb++);
 				addr++;
-			} while (--cb > 0 && (addr & 0xFF) != 0);
+			} while (--cb > 0 && (addr % SerialFlashPageSize) != 0);
 
 			// Wait for SPI to finish
 			while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
@@ -373,7 +382,32 @@ public:
 		} while (cb > 0);
 	}
 
-	void SerialMemErase(ulong addr, uint cmd, uint port)
+	static void SerialMemErase(ulong addr, int cb, uint port)
+	{
+		int		cbBase;
+
+		while (cb > 0)
+		{
+			// Do a full 32K block if aligned and want that much
+			if (cb >= SerialFlashBlockSize && addr % SerialFlashBlockSize == 0)
+			{
+				SerialMemEraseCmd(addr, SFCMD_BlockErase, port);
+				cbBase = SerialFlashBlockSize;
+			}
+			else
+			{
+				// This could be unaligned, meaning we'll erase stuff
+				// preceding the address. Sorry about that.
+				SerialMemEraseCmd(addr, SFCMD_SectorErase, port);
+				// Count only the bytes we intended (subtract preceding bytes)
+				cbBase = SerialFlashSectorSize - addr % SerialFlashSectorSize;
+			}
+			cb -= cbBase;
+			addr += cbBase;
+		}
+	}
+
+	static void SerialMemEraseCmd(ulong addr, uint cmd, uint port)
 	{
 		byte	bCs;
 

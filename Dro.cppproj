@@ -258,11 +258,20 @@
     <Compile Include="DroInit.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="HitTest.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Images\TargetCursor.c">
       <SubType>compile</SubType>
       <Link>TargetCursor.c</Link>
     </Compile>
     <Compile Include="Interrupts.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="KeypadHit.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="KeypadHitList.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="LcdDef.h">

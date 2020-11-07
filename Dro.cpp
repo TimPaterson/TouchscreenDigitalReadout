@@ -11,6 +11,7 @@
 #include "LcdDef.h"
 #include "RA8876.h"
 #include "Xtp2046.h"
+#include "KeypadHit.h"
 
 
 //*********************************************************************
@@ -25,8 +26,9 @@ void Init();
 Console_t	Console;
 FILE		Console_FILE;
 
-Xtp2046	Touch;
-RA8876	Lcd;
+Xtp2046		Touch;
+RA8876		Lcd;
+KeypadHit	KeyHit;
 
 extern "C" 
 {
@@ -77,11 +79,83 @@ void TextDisplay()
 	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 }
 
+bool DownloadImage(ulong addr, int cbData)
+{
+	static byte arPageBuf[SerialFlashPageSize];
+	Timer	tmr;
+	int		i;
+
+	// Flush out receiver buffer
+	Console.DiscardReadBuf();
+	// Allow 10 seconds for user to start download
+	for (i = 0; i < 10; i++)
+	{
+		tmr.Start();
+		while (!tmr.CheckDelay(1))
+		{
+			wdt_reset();
+			if (Console.IsByteReady())
+				goto Ready;
+		}
+	}
+	return false;
+
+Ready:
+	// First 4 bytes of download are header, skip them
+	// Not included in count cbData
+	tmr.Start();
+	for (i = 0; i < 4; i++)
+	{
+		while (!Console.IsByteReady())
+		{
+			if (tmr.CheckDelay_ms(2))
+				return false;
+		}
+		// throw away header byte
+	}
+
+	while (cbData > 0)
+	{
+		wdt_reset();
+		tmr.Start();
+		for (i = 0; i < SerialFlashPageSize && cbData > 0; i++, cbData--)
+		{
+			while (!Console.IsByteReady())
+			{
+				if (tmr.CheckDelay_ms(50))
+					return false;
+			}
+			arPageBuf[i] = Console.ReadByte();
+		}
+
+		Lcd.SerialMemWrite(addr, i, arPageBuf, 1);
+		addr += i;
+	}
+	return true;
+}
+
+void NO_INLINE_ATTR DisplaySerialImage(ulong addr, int width, int height, int x, int y)
+{
+	Lcd.WriteReg32(DMA_SSTR0, addr);
+	Lcd.WriteReg16(DMA_SWTH0, width);
+	Lcd.WriteReg16(DMAW_WTH0, width);
+	Lcd.WriteReg16(DMAW_HIGH0, height);
+	Lcd.WriteReg16(DMA_DX0, x);
+	Lcd.WriteReg16(DMA_DY0, y);
+	Lcd.SerialSelectPort(SFL_CTRL_ModeDma, 1);
+	Lcd.WriteReg(DMA_CTRL, DMA_CTRL_Start);
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
 
-#define MEMLOC (0x1DD780)
+// Locations in serial flash
+#define FONT_LOC		(0x1DD780)
+#define IMAGE_LOC		(0x8000)
+#define IMAGE_Height	250
+#define IMAGE_Width		190
+#define IMAGE_SIZE		(IMAGE_Width * IMAGE_Height * 2)
 
 byte arbBuf[256];
 
@@ -105,6 +179,7 @@ int main(void)
 	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect1);
 	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
 
+	Lcd.WriteReg(MPWCTR, MPWCTR_MainImageColor16);
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.DisplayOn();
 	TextDisplay();
@@ -130,10 +205,13 @@ int main(void)
 
 		if (Touch.Process())
 		{
+			uint	flags;
+
 			// Touch sensor has an update
-			if (Touch.IsTouched())
+			flags = Touch.GetTouch();
+			if (flags & TOUCH_Touched)
 			{
-				int	X, Y;
+				int	X, Y, hit;
 
 				X = Touch.GetX();
 				Y = Touch.GetY();
@@ -142,6 +220,20 @@ int main(void)
 				Y = std::max(Y - 16, 0);
 				Lcd.SetGraphicsCursorPosition(X, Y);
 				Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+
+				if (flags & TOUCH_Start)
+				{
+					hit = KeyHit.TestHit(X, Y);
+					if (hit >= 0)
+					{
+						if (hit < 10)
+							Console.WriteByte(hit + '0');
+						else if (hit == Key_Decimal)
+							Console.WriteByte('.');
+						else
+							DEBUG_PRINT("\n");
+					}
+				}
 			}
 			else
 			{
@@ -170,23 +262,39 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
+			case 'd':
+				DEBUG_PRINT("Download\n");
+				if (DownloadImage(IMAGE_LOC, IMAGE_SIZE))
+					DEBUG_PRINT("Success\n");
+				else
+					DEBUG_PRINT("Failed\n");
+				break;
+
 			case 'e':
 				DEBUG_PRINT("Erase\n");
-				Lcd.SerialMemErase(MEMLOC, SFCMD_SectorErase, 1);
+				WDT->CTRL.reg = 0;	// disable watchdog during long process
+				Lcd.SerialMemErase(IMAGE_LOC, IMAGE_SIZE, 1);
+				WDT->CTRL.reg = WDT_CTRL_ENABLE;
+				break;
+
+			case 'k':
+				DEBUG_PRINT("Show keypad\n");
+				DisplaySerialImage(IMAGE_LOC, IMAGE_Width, IMAGE_Height, 50, 200);
+				KeyHit.Init(50, 200);
 				break;
 
 			case 'p':
 				DEBUG_PRINT("Program\n");
 				for (int i = 0; i < 6; i++)
 				{
-					Lcd.SerialMemRead(MEMLOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 0);
-					Lcd.SerialMemWrite(MEMLOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 1);
+					Lcd.SerialMemRead(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 0);
+					Lcd.SerialMemWrite(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 1);
 				}
 				break;
 
 			case 'r':
 				DEBUG_PRINT("Read\n");
-				Lcd.SerialMemRead(MEMLOC, sizeof arbBuf, arbBuf, 1);
+				Lcd.SerialMemRead(IMAGE_LOC + 0x770, sizeof arbBuf, arbBuf, 1);
 				HexDump(arbBuf, sizeof arbBuf);
 				break;
 

@@ -354,10 +354,10 @@ static constexpr int LcdBacklightPwmMax = F_CPU / LcdBacklightPwmFreq -1;
 
 static constexpr int CONSOLE_BAUD_RATE = 500000;
 
-typedef DECLARE_USART(SERCOM0, 20, 100)	Console_t;
+typedef DECLARE_USART(SERCOM0, 100, 100)	Console_t;
 
 #ifdef DEBUG
-#define DEBUG_PRINT(...)	fprintf(&Console_FILE, __VA_ARGS__);
+#define DEBUG_PRINT(...)	fprintf(&Console_FILE, __VA_ARGS__)
 #else
 #define DEBUG_PRINT(...)
 #endif
