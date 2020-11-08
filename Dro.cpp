@@ -12,6 +12,7 @@
 #include "RA8876.h"
 #include "Xtp2046.h"
 #include "KeypadHit.h"
+#include "UsbDro.h"
 
 
 //*********************************************************************
@@ -29,8 +30,9 @@ FILE		Console_FILE;
 Xtp2046		Touch;
 RA8876		Lcd;
 KeypadHit	KeyHit;
+UsbDro		UsbPort;
 
-extern "C" 
+extern "C"
 {
 extern const byte TargetCursor[256];
 }
@@ -185,6 +187,11 @@ int main(void)
 	TextDisplay();
 	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundSet);
 
+	// Initialize USB
+	Mouse.Init(LcdWidthPx, LcdHeightPx);
+	UsbPort.Init();
+	UsbPort.Enable();
+
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
@@ -195,13 +202,42 @@ int main(void)
 	int		iCurPos;
 	int		iLastPos;
 	int		i;
+	bool	fShow = false;
 
 	iLastPos = 0;
 	tmr.Start();
 
-    while (1) 
+    while (1)
     {
 		wdt_reset();
+
+		i = UsbPort.Process();
+		if (i != HOSTACT_None)
+		{
+			int	X, Y;
+			ButtonState buttons;
+
+			switch (i)
+			{
+			case HOSTACT_MouseChange:
+				X = Mouse.GetX();
+				Y = Mouse.GetY();
+
+				X = std::max(X - 16, 0);
+				Y = std::max(Y - 16, 0);
+				Lcd.SetGraphicsCursorPosition(X, Y);
+				Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+
+				buttons = Mouse.GetButtons();
+				if (buttons.btnStart & BUTTON_Left)
+					fShow = !fShow;
+				if (fShow)
+					Lcd.DisableGraphicsCursor();
+				else
+					Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+				break;
+			}
+		}
 
 		if (Touch.Process())
 		{
@@ -237,7 +273,8 @@ int main(void)
 			}
 			else
 			{
-				Lcd.DisableGraphicsCursor();
+				if (!Mouse.IsLoaded())
+					Lcd.DisableGraphicsCursor();
 			}
 		}
 
@@ -254,7 +291,7 @@ int main(void)
 		if (Console.IsByteReady())
 		{
 			byte	ch;
-			
+
 			ch = Console.ReadByte();
 			if (ch >= 'A' && ch <= 'Z')
 				ch += 'a' - 'A';

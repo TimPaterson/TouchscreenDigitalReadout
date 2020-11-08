@@ -12,7 +12,7 @@
 //****************************************************************************
 // Enumerate hotspots.
 
-enum KeypadHotspots
+enum DigitHotspots
 {
 	Key_0,
 	Key_1,
@@ -24,8 +24,16 @@ enum KeypadHotspots
 	Key_7,
 	Key_8,
 	Key_9,
-	Key_Sign,
-	Key_Decimal,
+};
+
+
+enum KeypadHotspots
+{
+	StartKey = Key_9,
+
+#define DEFINE_HOTSPOT_Keypad(name, group, x1, y1, x2, y2)	name,
+#include "Images/Keypad.h"
+
 	KeypadSpotCount
 };
 
