@@ -13,7 +13,7 @@
 #include "Xtp2046.h"
 #include "KeypadHit.h"
 #include "UsbDro.h"
-
+#include "FatFileSys.h"
 
 //*********************************************************************
 // Functions in DroInit
@@ -31,6 +31,10 @@ Xtp2046		Touch;
 RA8876		Lcd;
 KeypadHit	KeyHit;
 UsbDro		UsbPort;
+
+FatSd		Sd0;
+FatSd		Sd1;
+FAT_DRIVES_LIST(&Sd0, &Sd1);
 
 extern "C"
 {
@@ -191,6 +195,8 @@ int main(void)
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
 	UsbPort.Init();
 	UsbPort.Enable();
+
+	FatSys::Init();
 
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;

@@ -12,7 +12,7 @@
 #include "ResTouch.h"
 
 
-class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN, 0)
+class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN)
 {
 public:
 	static constexpr int BaudRate = 1000000;

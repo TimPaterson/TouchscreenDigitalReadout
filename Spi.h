@@ -11,9 +11,7 @@
 // Declare SPI port
 //
 // Read the SERCOM number as the last character of the name string (SERCOMn)
-#define DECLARE_SPI(usart, pin, port) Spi<#usart[6] - '0', pin, port>
-
-#define pSpi(i)	((SercomSpi *)((byte *)SERCOM0 + ((byte *)SERCOM1 - (byte *)SERCOM0) * i))
+#define DECLARE_SPI(usart, ...) Spi<#usart[6] - '0', __VA_ARGS__>
 
 //****************************************************************************
 
@@ -43,26 +41,11 @@ enum SpiMode
 
 //****************************************************************************
 
-template <int iUsart, uint uSsPin, uint uSsPort>
+template <int iUsart, uint uSsPin, uint uSsPort = 0, byte bDummy = 0>
 class Spi
 {
-	// Types
-	template <typename T>
-	struct PortIoGroup
-	{
-		volatile T	DIR;
-		volatile T	DIRCLR;
-		volatile T	DIRSET;
-		volatile T	DIRTGL;
-		volatile T	OUT;
-		volatile T	OUTCLR;
-		volatile T	OUTSET;
-		volatile T	OUTTGL;
-		volatile T	IN;
-	};
-
-	typedef PortIoGroup<LONG_BYTES>	PortSs;
-	#define SsPort	((PortSs *)&PORT_IOBUS->Group[uSsPort])
+public:
+	static SercomSpi *pSpi(int i) {return ((SercomSpi *)((byte *)SERCOM0 + ((byte *)SERCOM1 - (byte *)SERCOM0) * i)); }
 
 public:
 	static void Init(SpiInPad padMiso, SpiOutPad padMosi, SpiMode modeSpi)
@@ -116,16 +99,56 @@ public:
 
 	static void SetBaudRateConst(uint32_t rate, uint32_t clock)
 	{
-		pSpi(iUsart)->BAUD.reg = DIV_UINT_RND(clock, rate * 2) - 1;
+		SetBaudRateReg(DIV_UINT_RND(clock, rate * 2) - 1);
 	}
 
 	static void Select(bool fSelect)	{ if (fSelect) Select(); else Deselect(); }
 
-	static byte SpiByte(byte b = 0) NO_INLINE_ATTR
+	static byte SpiByte(byte b = bDummy) NO_INLINE_ATTR
 	{
 		WriteByte(b);
 		while (!IsByteReady());
 		return ReadByte();
+	}
+
+	static void ReadBytes(byte *pb, uint cb) NO_INLINE_ATTR
+	{
+		uint		cbRead;
+
+		cbRead = cb;
+
+		for (;;)
+		{
+			if (cb > 0 && CanSendByte())
+			{
+				WriteByte();
+				cb--;
+			}
+
+			if (IsByteReady())
+			{
+				*pb++ = ReadByte();
+				if (--cbRead == 0)
+					break;
+			}
+		}
+	}
+
+	static void WriteBytes(byte *pb, uint cb) NO_INLINE_ATTR
+	{
+		ClearTxComplete();
+		pSpi(iUsart)->CTRLB.reg = 0;	// Disable receiver
+		for (;;)
+		{
+			if (CanSendByte())
+			{
+				WriteByte(*pb++);
+				if (--cb == 0)
+					break;
+			}
+		}
+		while (!IsTxComplete());
+		pSpi(iUsart)->CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
 	}
 
 	static void Select()	{ ClearPins(uSsPin, uSsPort); }
@@ -137,7 +160,7 @@ protected:
 		return pSpi(iUsart)->DATA.reg;
 	}
 
-	static void WriteByte(byte b = 0)
+	static void WriteByte(byte b = bDummy)
 	{
 		pSpi(iUsart)->DATA.reg = b;
 	}
@@ -152,6 +175,16 @@ protected:
 		return pSpi(iUsart)->INTFLAG.bit.DRE;
 	}
 
+	static bool IsTxComplete()
+	{
+		return pSpi(iUsart)->INTFLAG.bit.TXC;
+	}
+
+	static void ClearTxComplete()
+	{
+		pSpi(iUsart)->INTFLAG.reg = SERCOM_SPI_INTFLAG_TXC;
+	}
+
 	static bool IsRxOverflow()
 	{
 		return pSpi(iUsart)->INTFLAG.bit.ERROR;
@@ -160,5 +193,10 @@ protected:
 	static void ClearOverflow()
 	{
 		pSpi(iUsart)->INTFLAG.reg = SERCOM_SPI_INTFLAG_ERROR;
+	}
+
+	static void SetBaudRateReg(uint val)
+	{
+		pSpi(iUsart)->BAUD.reg = val;
 	}
 };
