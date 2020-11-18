@@ -32,9 +32,8 @@ RA8876		Lcd;
 KeypadHit	KeyHit;
 UsbDro		UsbPort;
 
-FatSd		Sd0;
-FatSd		Sd1;
-FAT_DRIVES_LIST(&Sd0, &Sd1);
+FatSd		Sd;
+FAT_DRIVES_LIST(&Sd);
 
 extern "C"
 {
@@ -196,10 +195,13 @@ int main(void)
 	UsbPort.Init();
 	UsbPort.Enable();
 
+	// Initialize file system
+	Sd.SpiInit(SPIMISOPAD_Pad1, SPIOUTPAD_Pad2_MOSI_Pad3_SCK);
+	Sd.Enable();
 	FatSys::Init();
 
 	// Start WDT now that initialization is complete
-	WDT->CTRL.reg = WDT_CTRL_ENABLE;
+	//WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
 	//************************************************************************
 	// Main loop
@@ -320,15 +322,51 @@ int main(void)
 				WDT->CTRL.reg = WDT_CTRL_ENABLE;
 				break;
 
+			case 'f':
+				DEBUG_PRINT("Show files\n");
+				{
+					uint	h;
+					int		err;
+					int		cnt;
+
+					h = FatSys::StartEnum(0);
+					cnt = 0;
+					for (;;) 
+					{
+						err = FatSysWait::EnumNextWait(h, (char *)arbBuf, sizeof arbBuf);
+						if (FatSys::IsError(err))
+							break;
+						DEBUG_PRINT("%-20s", arbBuf);
+						if (!FatSys::IsFolder(err))
+							DEBUG_PRINT(" %6li\n", FatSys::GetSize(err));
+						else
+							DEBUG_PRINT("\n");
+						FatSysWait::CloseWait(err);
+						cnt++;
+					}
+					FatSysWait::Close(h);
+					DEBUG_PRINT("%i files\n", cnt);
+				}
+				break;
+
 			case 'k':
 				DEBUG_PRINT("Show keypad\n");
 				DisplaySerialImage(IMAGE_LOC, IMAGE_Width, IMAGE_Height, 50, 200);
 				KeyHit.Init(50, 200);
 				break;
 
+			case 'm':
+				DEBUG_PRINT("Mount SD card\n");
+				i = FatSysWait::MountWait(0);
+				if (FatSys::IsError(i))
+					DEBUG_PRINT("Failed with error code %i\n", i);
+				else
+					DEBUG_PRINT("Success\n");
+				break;
+
 			case 'p':
 				DEBUG_PRINT("Program\n");
-				for (int i = 0; i < 6; i++)
+				for (i = 0; i < 6; i++)
 				{
 					Lcd.SerialMemRead(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 0);
 					Lcd.SerialMemWrite(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 1);

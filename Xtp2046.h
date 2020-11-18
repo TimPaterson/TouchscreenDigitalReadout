@@ -83,8 +83,8 @@ public:
 public:
 	void Init(SpiInPad padMiso, SpiOutPad padMosi)
 	{
-		Spi::Init(padMiso, padMosi, SPIMODE_0);
-		Spi::SetBaudRateConst(BaudRate);
+		SpiInit(padMiso, padMosi, SPIMODE_0);
+		SetBaudRateConst(BaudRate);
 
 		// Set scaling values
 		InitScale(&scaleX, &scaleY);

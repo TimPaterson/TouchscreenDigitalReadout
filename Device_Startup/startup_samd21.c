@@ -49,67 +49,73 @@ void __libc_init_array(void);
 /* Default empty handler */
 void Dummy_Handler(void);
 
+#ifdef DEBUG
+#define DEFAULT_HANDLER(isr)	void isr##_Handler() __attribute__ ((weak, alias(#isr "_Dummy_Handler")));
+#else
+#define DEFAULT_HANDLER(isr)	void isr##_Handler() __attribute__ ((weak, alias("Dummy_Handler")));
+#endif
+
 /* Cortex-M0+ core handlers */
-void NonMaskableInt_Handler  ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void HardFault_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SVCall_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void PendSV_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(NMI)
+DEFAULT_HANDLER(HardFault)
+DEFAULT_HANDLER(SVCall)
+DEFAULT_HANDLER(PendSV)
+DEFAULT_HANDLER(SysTick)
 
 /* Peripherals handlers */
-void PM_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SYSCTRL_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void WDT_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void RTC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void EIC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void NVMCTRL_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void DMAC_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(PM)
+DEFAULT_HANDLER(SYSCTRL)
+DEFAULT_HANDLER(WDT)
+DEFAULT_HANDLER(RTC)
+DEFAULT_HANDLER(EIC)
+DEFAULT_HANDLER(NVMCTRL)
+DEFAULT_HANDLER(DMAC)
 #ifdef ID_USB
-void USB_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(USB)
 #endif
-void EVSYS_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM0_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM1_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM2_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void SERCOM3_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(EVSYS)
+DEFAULT_HANDLER(SERCOM0)
+DEFAULT_HANDLER(SERCOM1)
+DEFAULT_HANDLER(SERCOM2)
+DEFAULT_HANDLER(SERCOM3)
 #ifdef ID_SERCOM4
-void SERCOM4_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(SERCOM4)
 #endif
 #ifdef ID_SERCOM5
-void SERCOM5_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(SERCOM5)
 #endif
-void TCC0_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC1_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TCC2_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC3_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC4_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC5_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(TCC0)
+DEFAULT_HANDLER(TCC1)
+DEFAULT_HANDLER(TCC2)
+DEFAULT_HANDLER(TC3)
+DEFAULT_HANDLER(TC4)
+DEFAULT_HANDLER(TC5)
 #ifdef ID_TC6
-void TC6_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(TC6)
 #endif
 #ifdef ID_TC7
-void TC7_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(TC7)
 #endif
 #ifdef ID_ADC
-void ADC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(ADC)
 #endif
 #ifdef ID_AC
-void AC_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(AC)
 #endif
 #ifdef ID_DAC
-void DAC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(DAC)
 #endif
 #ifdef ID_PTC
-void PTC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(PTC)
 #endif
 #ifdef ID_I2S
-void I2S_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(I2S)
 #endif
 #ifdef ID_AC1
-void AC1_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(AC1)
 #endif
 #ifdef ID_TCC3
-void TCC3_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+DEFAULT_HANDLER(TCC3)
 #endif
 
 /* Exception Table */
@@ -266,6 +272,51 @@ void Reset_Handler(void)
         while (1);
 }
 
+#ifdef	DEBUG
+
+volatile int s_fContinue;
+
+#define DEBUG_HANDLER(fcn)	void fcn##_Dummy_Handler(void) { while(!s_fContinue); }
+//#define DEBUG_HANDLER(fcn)	void fcn##_Dummy_Handler(void) { while(1); }
+
+DEBUG_HANDLER(NMI)
+DEBUG_HANDLER(HardFault)
+DEBUG_HANDLER(SVCall)
+DEBUG_HANDLER(PendSV)
+DEBUG_HANDLER(SysTick)
+DEBUG_HANDLER(PM)
+DEBUG_HANDLER(SYSCTRL)
+DEBUG_HANDLER(WDT)
+DEBUG_HANDLER(RTC)
+DEBUG_HANDLER(EIC)
+DEBUG_HANDLER(NVMCTRL)
+DEBUG_HANDLER(DMAC)
+DEBUG_HANDLER(USB)
+DEBUG_HANDLER(EVSYS)
+DEBUG_HANDLER(SERCOM0)
+DEBUG_HANDLER(SERCOM1)
+DEBUG_HANDLER(SERCOM2)
+DEBUG_HANDLER(SERCOM3)
+DEBUG_HANDLER(SERCOM4)
+DEBUG_HANDLER(SERCOM5)
+DEBUG_HANDLER(TCC0)
+DEBUG_HANDLER(TCC1)
+DEBUG_HANDLER(TCC2)
+DEBUG_HANDLER(TC3)
+DEBUG_HANDLER(TC4)
+DEBUG_HANDLER(TC5)
+DEBUG_HANDLER(TC6)
+DEBUG_HANDLER(TC7)
+DEBUG_HANDLER(ADC)
+DEBUG_HANDLER(AC)
+DEBUG_HANDLER(DAC)
+DEBUG_HANDLER(PTC)
+DEBUG_HANDLER(I2S)
+DEBUG_HANDLER(AC1)
+DEBUG_HANDLER(TCC3)
+
+#else
+
 /**
  * \brief Default interrupt handler for unused IRQs.
  */
@@ -274,3 +325,5 @@ void Dummy_Handler(void)
         while (1) {
         }
 }
+
+#endif

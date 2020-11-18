@@ -13,8 +13,11 @@
 #include "Spi.h"
 
 
+//****************************************************************************
+// This is generic glue for using a standard SERCOM SPI with a FAT SD card
+
 #define	SD_CARD_SLOW_BAUDRATE	400000
-#define	SD_CARD_FAST_BAUDRATE	(F_CPU / 2)
+#define	SD_CARD_FAST_BAUDRATE	(F_CPU / 4)
 
 // Declare SPI port
 //
@@ -27,11 +30,25 @@ class SpiFat : public Spi<iUsart, uSsPin, uSsPort, 0xFF>
 public:
 	typedef Spi<iUsart, uSsPin, uSsPort, 0xFF>	Base;
 
+	static void SpiInit(SpiInPad padMiso, SpiOutPad padMosi, SpiMode modeSpi = SPIMODE_0)
+		{ Base::SpiInit(padMiso, padMosi, modeSpi); }
 	static byte SpiRead()			{ return Base::SpiByte(); }
 	static void SpiWrite(byte b)	{ Base::SpiByte(b); }
-	static void SetClockSlow()		{ Base::SetBaudRateConst(SD_CARD_SLOW_BAUDRATE); }
-	static void SetClockFast()		{ Base::SetBaudRateConst(SD_CARD_FAST_BAUDRATE); }
+	static void SetClockSlow()		
+		{ Base::SetBaudRateConstEnabled(SD_CARD_SLOW_BAUDRATE); }
+	static void SetClockFast()		
+		{ Base::SetBaudRateConstEnabled(SD_CARD_FAST_BAUDRATE); }
+};
+
+//****************************************************************************
+// This is specific to the touch screen project
+
+class SpiBase : public DECLARE_SPI_FAT(SERCOM2, SdCs_PIN)
+{
+public:
 	static bool SdCardPresent()		{ return true; }
 };
 
-typedef	SdCard<DECLARE_SPI_FAT(SERCOM2, SdCs_PIN)>	FatSd;
+typedef SdCard<SpiBase> FatSd;
+
+inline FatDateTime GetFatTime()		{ FatDateTime dt; dt.ul = 0; return dt; }

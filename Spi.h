@@ -48,7 +48,7 @@ public:
 	static SercomSpi *pSpi(int i) {return ((SercomSpi *)((byte *)SERCOM0 + ((byte *)SERCOM1 - (byte *)SERCOM0) * i)); }
 
 public:
-	static void Init(SpiInPad padMiso, SpiOutPad padMosi, SpiMode modeSpi)
+	static void SpiInit(SpiInPad padMiso, SpiOutPad padMosi, SpiMode modeSpi)
 	{
 		SERCOM_SPI_CTRLA_Type	spiCtrlA;
 
@@ -91,15 +91,35 @@ public:
 	}
 
 #ifdef F_CPU
+	static uint CalcBaudRateConst(uint32_t rate)
+	{
+		return CalcBaudRateConst(rate, F_CPU);
+	}
+
 	static void SetBaudRateConst(uint32_t rate)
 	{
 		SetBaudRateConst(rate, F_CPU);
 	}
+
+	static void SetBaudRateConstEnabled(uint32_t rate)
+	{
+		SetBaudRateConstEnabled(rate, F_CPU);
+	}
 #endif
+
+	static uint CalcBaudRateConst(uint32_t rate, uint32_t clock)
+	{
+		return DIV_UINT_RND(clock, rate * 2) - 1;
+	}
 
 	static void SetBaudRateConst(uint32_t rate, uint32_t clock)
 	{
-		SetBaudRateReg(DIV_UINT_RND(clock, rate * 2) - 1);
+		SetBaudRateReg(CalcBaudRateConst(rate, clock));
+	}
+
+	static void SetBaudRateConstEnabled(uint32_t rate, uint32_t clock)
+	{
+		SetBaudRateRegEnabled(CalcBaudRateConst(rate, clock));
 	}
 
 	static void Select(bool fSelect)	{ if (fSelect) Select(); else Deselect(); }
@@ -198,5 +218,18 @@ protected:
 	static void SetBaudRateReg(uint val)
 	{
 		pSpi(iUsart)->BAUD.reg = val;
+	}
+
+	static void SetBaudRateRegEnabled(uint baud) INLINE_ATTR
+	{
+		SERCOM_SPI_CTRLA_Type	ctrlA;
+		SERCOM_SPI_CTRLA_Type	ctrlAsave;
+
+		ctrlAsave.reg = pSpi(iUsart)->CTRLA.reg;
+		ctrlA.reg = ctrlAsave.reg;
+		ctrlA.bit.ENABLE = 0;
+		pSpi(iUsart)->CTRLA.reg = ctrlA.reg;
+		SetBaudRateReg(baud);
+		pSpi(iUsart)->CTRLA.reg = ctrlAsave.reg;
 	}
 };
