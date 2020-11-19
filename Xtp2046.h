@@ -12,6 +12,20 @@
 #include "ResTouch.h"
 
 
+struct TouchScaleZ 
+{
+	ushort	minZtouch;
+	ushort	reserved;
+};
+
+struct TouchScale_t
+{
+	TouchScaleAxis	X;
+	TouchScaleAxis	Y;
+	TouchScaleZ		Z;
+};
+
+
 class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN)
 {
 public:
@@ -81,15 +95,21 @@ public:
 
 
 public:
-	void Init(SpiInPad padMiso, SpiOutPad padMosi)
+	void Init(SpiInPad padMiso, SpiOutPad padMosi, TouchScale_t *pScale)
 	{
 		SpiInit(padMiso, padMosi, SPIMODE_0);
 		SetBaudRateConst(BaudRate);
 
 		// Set scaling values
-		InitScale(&scaleX, &scaleY);
+		SetScale(pScale);
 
 		m_tmr.Start();
+	}
+
+	void SetScale(TouchScale_t *pScale)
+	{
+		m_minZtouch = pScale->Z.minZtouch;
+		InitScale(&pScale->X, &pScale->Y);
 	}
 
 	bool Process() NO_INLINE_ATTR
@@ -156,21 +176,9 @@ protected:
 	Timer	m_tmr;
 	ushort	m_sumX;
 	ushort	m_sumY;
-	ushort	m_minZtouch = 200;
+	ushort	m_minZtouch;
 	byte	m_cAvg;
 	bool	m_fPrevTouch;
-
-protected:
-	// Default scaling values
-	inline static const TouchScreenScale scaleX =
-	{
-		200, 18000, 1023, true
-	};
-
-	inline static const TouchScreenScale scaleY =
-	{
-		300, 11000, 599, true
-	};
 };
 
 extern Xtp2046	Touch;

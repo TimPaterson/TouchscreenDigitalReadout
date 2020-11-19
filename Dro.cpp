@@ -6,6 +6,7 @@
 //****************************************************************************
 
 #include <standard.h>
+#include <Nvm/EepromMgr.h>
 #include "Dro.h"
 #include "PosSensor.h"
 #include "LcdDef.h"
@@ -33,12 +34,36 @@ KeypadHit	KeyHit;
 UsbDro		UsbPort;
 
 FatSd		Sd;
+FatSysWait<true>	FileSys;
 FAT_DRIVES_LIST(&Sd);
 
 extern "C"
 {
 extern const byte TargetCursor[256];
 }
+
+//****************************************************************************
+// EEPROM data
+
+// The first two rows are reserved to store position at shutdown
+static constexpr int ReservedEepromRows = 2;
+
+// Define the structure
+#define EepromData(typ, name, ...)	typ name;
+struct Eeprom_t
+{
+#include "EepromData.h"
+};
+
+// Define initial EEPROM data
+#define EepromData(typ, name, ...)	__VA_ARGS__,
+const Eeprom_t RwwData =
+{
+#include "EepromData.h"
+};
+
+// Create an EepromMgr for it, which includes a copy in RAM
+EepromMgr<Eeprom_t, &RwwData, ReservedEepromRows> Eeprom;
 
 //*********************************************************************
 // Tests
@@ -169,16 +194,22 @@ int main(void)
 	StartClock();
 	Init();
 	Timer::Init();
+	Eeprom.Init();
 
 	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
 	Console.SetBaudRate(CONSOLE_BAUD_RATE);
 	Console.StreamInit(&Console_FILE);
 	Console.Enable();
 
-	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK);
+	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchScale);
 	Touch.Enable();
 
 	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
+	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
+	{
+		DEBUG_PRINT("WDT Reset\n");
+	}
+
 
 	Lcd.Init();
 	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect1);
@@ -198,10 +229,10 @@ int main(void)
 	// Initialize file system
 	Sd.SpiInit(SPIMISOPAD_Pad1, SPIOUTPAD_Pad2_MOSI_Pad3_SCK);
 	Sd.Enable();
-	FatSys::Init();
+	FileSys.Init();
 
 	// Start WDT now that initialization is complete
-	//WDT->CTRL.reg = WDT_CTRL_ENABLE;
+	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
 	//************************************************************************
 	// Main loop
@@ -218,6 +249,9 @@ int main(void)
     while (1)
     {
 		wdt_reset();
+
+		// Process EEPROM save if in progress
+		Eeprom.Process();
 
 		i = UsbPort.Process();
 		if (i != HOSTACT_None)
@@ -329,22 +363,22 @@ int main(void)
 					int		err;
 					int		cnt;
 
-					h = FatSys::StartEnum(0);
+					h = FileSys.StartEnum(0);
 					cnt = 0;
 					for (;;) 
 					{
-						err = FatSysWait::EnumNextWait(h, (char *)arbBuf, sizeof arbBuf);
-						if (FatSys::IsError(err))
+						err = FileSys.EnumNextWait(h, (char *)arbBuf, sizeof arbBuf);
+						if (FileSys.IsError(err))
 							break;
 						DEBUG_PRINT("%-20s", arbBuf);
-						if (!FatSys::IsFolder(err))
-							DEBUG_PRINT(" %6li\n", FatSys::GetSize(err));
+						if (!FileSys.IsFolder(err))
+							DEBUG_PRINT(" %6li\n", FileSys.GetSize(err));
 						else
 							DEBUG_PRINT("\n");
-						FatSysWait::CloseWait(err);
+						FileSys.CloseWait(err);
 						cnt++;
 					}
-					FatSysWait::Close(h);
+					FileSys.Close(h);
 					DEBUG_PRINT("%i files\n", cnt);
 				}
 				break;
@@ -357,8 +391,8 @@ int main(void)
 
 			case 'm':
 				DEBUG_PRINT("Mount SD card\n");
-				i = FatSysWait::MountWait(0);
-				if (FatSys::IsError(i))
+				i = FileSys.MountWait(0);
+				if (FileSys.IsError(i))
 					DEBUG_PRINT("Failed with error code %i\n", i);
 				else
 					DEBUG_PRINT("Success\n");

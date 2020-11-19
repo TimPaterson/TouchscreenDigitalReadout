@@ -8,7 +8,7 @@
 #pragma once
 
 
-struct TouchScreenScale
+struct TouchScaleAxis
 {
 	ushort	uBase;
 	ushort	uScale;
@@ -33,22 +33,22 @@ protected:
 	class Position
 	{
 	public:
-		void Init(const TouchScreenScale *pScale)
+		void Init(TouchScaleAxis *pScale)
 		{
-			memcpy(&m_scale, pScale, sizeof m_scale);
+			m_pScale = pScale;
 		}
 
 		void Set(int pos)
 		{
-			pos -= m_scale.uBase;
+			pos -= m_pScale->uBase;
 			if (pos < 0)
 				pos = 0;
-			pos *= m_scale.uScale;
+			pos *= m_pScale->uScale;
 			pos >>= ScaleShift;
-			if (pos > m_scale.uMax)
-				pos = m_scale.uMax;
-			if (m_scale.fReverse)
-				pos = m_scale.uMax - pos;
+			if (pos > m_pScale->uMax)
+				pos = m_pScale->uMax;
+			if (m_pScale->fReverse)
+				pos = m_pScale->uMax - pos;
 			m_uCur = pos;
 		}
 
@@ -56,7 +56,7 @@ protected:
 
 	protected:
 		ushort	m_uCur;
-		TouchScreenScale	m_scale;
+		TouchScaleAxis	*m_pScale;
 	};
 
 public:
@@ -65,7 +65,7 @@ public:
 	uint GetTouch()	{ return m_touchFlags; }
 
 public:
-	void InitScale(const TouchScreenScale *pScaleX, const TouchScreenScale *pScaleY)
+	void InitScale(TouchScaleAxis *pScaleX, TouchScaleAxis *pScaleY)
 	{
 		m_posX.Init(pScaleX);
 		m_posY.Init(pScaleY);
