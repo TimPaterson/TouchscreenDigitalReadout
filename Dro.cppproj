@@ -243,7 +243,8 @@
         <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
       </ArmGccCpp>
     </ToolchainSettings>
-    <PostBuildEvent>"$(ToolchainDir)\arm-none-eabi-objdump" -h -S -C $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension) &gt; $(OutputDirectory)\$(OutputFileName).lss</PostBuildEvent>
+    <PostBuildEvent>FixDebugInfo $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)
+"$(ToolchainDir)\arm-none-eabi-objdump" -h -S -C $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension) &gt; $(OutputDirectory)\$(OutputFileName).lss</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Device_Startup\startup_samd21.c">

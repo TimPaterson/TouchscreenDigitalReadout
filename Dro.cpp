@@ -176,6 +176,38 @@ void NO_INLINE_ATTR DisplaySerialImage(ulong addr, int width, int height, int x,
 	Lcd.WriteReg(DMA_CTRL, DMA_CTRL_Start);
 }
 
+
+void CalibratePos(int X, int Y, int anchorX, int anchorY)
+{
+	int		readX, readY;
+
+	Lcd.SetGraphicsCursorPosition(X - 16, Y - 16);
+
+	while (!(Touch.Process() && Touch.GetTouch() & TOUCH_Start))
+	{
+		wdt_reset();
+		if (Console.IsByteReady())
+			return;
+	}
+
+	readX = Touch.GetX();
+	readY = Touch.GetY();
+	Touch.CalibrateX(readX, X, anchorX);
+	Touch.CalibrateY(readY, Y, anchorY);
+}
+
+void NO_INLINE_ATTR CalibrateTouch()
+{
+	static constexpr int MinX = 32;
+	static constexpr int MaxX = LcdWidthPx - 1 - 32;
+	static constexpr int MinY = 32;
+	static constexpr int MaxY = LcdHeightPx - 1 - 32;
+
+	Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+	CalibratePos(MinX, MinY, MaxX, MaxY);
+	CalibratePos(MaxX, MaxY, MinX, MinY);
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
@@ -341,6 +373,12 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
+			case 'c':
+				DEBUG_PRINT("Calibrate touch screen...");
+				CalibrateTouch();
+				DEBUG_PRINT("complete.\n");
+				break;
+
 			case 'd':
 				DEBUG_PRINT("Download\n");
 				if (DownloadImage(IMAGE_LOC, IMAGE_SIZE))
@@ -411,6 +449,20 @@ int main(void)
 				DEBUG_PRINT("Read\n");
 				Lcd.SerialMemRead(IMAGE_LOC + 0x770, sizeof arbBuf, arbBuf, 1);
 				HexDump(arbBuf, sizeof arbBuf);
+				break;
+
+			case 's':
+				DEBUG_PRINT("Save EEPROM (y/n)?");
+				while(!Console.IsByteReady())
+					wdt_reset();
+				ch = Console.ReadByte();
+				if (ch == 'y' || ch == 'Y')
+				{
+					Eeprom.StartSave();
+					DEBUG_PRINT("...Saved\n");
+				}
+				else
+					DEBUG_PRINT("...Not saved\n");
 				break;
 
 			case 't':
