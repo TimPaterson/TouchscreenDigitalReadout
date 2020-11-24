@@ -208,6 +208,34 @@ void NO_INLINE_ATTR CalibrateTouch()
 	CalibratePos(MaxX, MaxY, MinX, MinY);
 }
 
+void LoadFileImage(uint hFile, uint addr)
+{
+	int		cbXfer;
+	int		cb;
+	ushort	*pus;
+
+	Lcd.WriteReg16(CURH0, 0);
+	Lcd.WriteReg16(CURV0, 0);
+
+	FileSys.SeekWait(hFile, 4);	// skip 4-byte header
+	cbXfer = FileSys.GetSize(hFile) - 5;	// don't count trailing byte either
+	
+	for (cb = 0; cbXfer > 0; cb -= 2, cbXfer -= 2)
+	{
+		if (cb == 0)
+		{
+			cb = FileSys.ReadWait(hFile, NULL, cbXfer);
+			if (cb <= 0)
+			{
+				DEBUG_PRINT("File read returned %i\n", cb);
+				break;
+			}
+			pus = (ushort *)FileSys.GetDataBuf();
+		}
+		Lcd.FifoWrite16(*pus++);
+	}
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
@@ -425,6 +453,22 @@ int main(void)
 				DEBUG_PRINT("Show keypad\n");
 				DisplaySerialImage(IMAGE_LOC, IMAGE_Width, IMAGE_Height, 50, 200);
 				KeyHit.Init(50, 200);
+				break;
+
+			case 'l':
+				DEBUG_PRINT("Load image\n");
+				{
+					int	h;
+
+					h = FileSys.OpenWait("MainScreen.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+					if (h <= 0)
+					{
+						DEBUG_PRINT("Error code %i opening file\n", h);
+						break;
+					}
+					LoadFileImage(h, 0);
+					FileSys.CloseWait(h);
+				}
 				break;
 
 			case 'm':

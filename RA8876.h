@@ -62,6 +62,8 @@ public:
 	static void WriteAddr(uint addr);
 	static void WriteData(uint val);
 	static uint ReadData();
+	static void WriteData16(uint val);
+	static uint ReadData16();
 	static void TestPattern();
 	static void DisplayOn();
 	static void DisplayOff();
@@ -115,6 +117,24 @@ public:
 		WriteReg(addr, val >> 16);		// red
 		WriteReg(addr + 1, val >> 8);	// green
 		WriteReg(addr + 2, val);		// blue
+	}
+
+	static void WaitFifoWrite()
+	{
+		while (ReadReg(SPIMSR) & SPIMSR_TxFifoFull);	// wait for space
+	}
+
+	static void FifoWrite(uint val)
+	{
+		WaitFifoWrite();
+		WriteReg(MRWDP, val);
+	}
+
+	static void FifoWrite16(uint val)
+	{
+		WaitFifoWrite();
+		WriteAddr(MRWDP);
+		WriteData16(val);
 	}
 
 	//*********************************************************************

@@ -510,6 +510,8 @@ namespace RA8876const
 		AW_COLOR_CanvasColor8 = 0x00,
 		AW_COLOR_CanvasColor16 = 0x01,
 		AW_COLOR_CanvasColor24 = 0x02,
+		AW_COLOR_DataWidth8 = 0x00,
+		AW_COLOR_DataWidth16 = 0x01,
 
 		AW_COLOR_AddrMode_Mask = 0x04,
 		AW_COLOR_AddrModeXY = 0x00,

@@ -222,6 +222,16 @@ void RA8876::WriteData(uint val)
 	SetLcdPin(LcdCs);
 }
 
+void RA8876::WriteData16(uint val)
+{
+	// Write data
+	SetLcdPin(LcdCD);
+	ClearLcdPin(LcdRW | LcdCs);
+	PORTB->OUT.Lcd16 = val;	// Data
+	ToggleEnable();
+	SetLcdPin(LcdCs);
+}
+
 uint RA8876::ReadData()
 {
 	uint	val;
@@ -233,6 +243,23 @@ uint RA8876::ReadData()
 	SetLcdPin(LcdE);	// toggle E
 	Timer::ShortDelay_clocks(2);
 	val = PORTB->IN.Lcd8;
+	ClearLcdPin(LcdE);
+	SetLcdPin(LcdCs);
+	PORTB->DIR.Lcd16 = LcdData16;	// Switch back to outputs
+	return val;
+}
+
+uint RA8876::ReadData16()
+{
+	uint	val;
+
+	// Read data
+	PORTB->DIR.Lcd16 = 0;	// Switch to inputs
+	ClearLcdPin(LcdCs);
+	SetLcdPin(LcdCD | LcdRW);
+	SetLcdPin(LcdE);	// toggle E
+	Timer::ShortDelay_clocks(2);
+	val = PORTB->IN.Lcd16;
 	ClearLcdPin(LcdE);
 	SetLcdPin(LcdCs);
 	PORTB->DIR.Lcd16 = LcdData16;	// Switch back to outputs

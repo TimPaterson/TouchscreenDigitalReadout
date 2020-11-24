@@ -57,3 +57,24 @@ void EIC_Handler()
 		Qpos.InputChange(uPortVal >> QposA_BIT);
 	}
 }
+
+//****************************************************************************
+// WDT
+
+#ifdef DEBUG
+
+EXTERN_C void WdtHelper(uint uAddr)
+{
+	WDT->INTFLAG.reg = WDT_INTFLAG_EW;	// Clear interrupt
+	DEBUG_PRINT("\nWDT interrupt from %x\n", uAddr);
+}
+
+void NAKED_ATTR WDT_Handler()
+{
+	asm volatile (
+		"ldr	r0, [sp, #0x18] \n\t"
+		"b		WdtHelper \n\t"
+	);
+}
+
+#endif

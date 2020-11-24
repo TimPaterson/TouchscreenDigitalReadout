@@ -133,15 +133,18 @@ public:
 
 	static void ReadBytes(byte *pb, uint cb) NO_INLINE_ATTR
 	{
-		uint		cbRead;
+		uint	cbSend;
+		uint	cbRead;
 
 		cbRead = cb;
+		cbSend = 2;		// size of read buffer
 
 		for (;;)
 		{
-			if (cb > 0 && CanSendByte())
+			if (cbSend > 0 && cb > 0 && CanSendByte())
 			{
 				WriteByte();
+				cbSend--;
 				cb--;
 			}
 
@@ -150,6 +153,7 @@ public:
 				*pb++ = ReadByte();
 				if (--cbRead == 0)
 					break;
+				cbSend++;	
 			}
 		}
 	}
