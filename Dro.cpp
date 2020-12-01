@@ -15,6 +15,7 @@
 #include "KeypadHit.h"
 #include "UsbDro.h"
 #include "FatFileSys.h"
+#include "TextDisplay.h"
 
 //*********************************************************************
 // Functions in DroInit
@@ -32,6 +33,7 @@ Xtp2046		Touch;
 RA8876		Lcd;
 KeypadHit	KeyHit;
 UsbDro		UsbPort;
+TextDisplay	Text;
 
 FatSd		Sd;
 FatSysWait<true>	FileSys;
@@ -41,6 +43,12 @@ extern "C"
 {
 extern const byte TargetCursor[256];
 }
+
+#define DEFINE_LOCATION(name, x, y)	name##_X = x, name##_Y = y,
+enum Locations
+{
+#include "Images/MainScreen.h"
+};
 
 //****************************************************************************
 // EEPROM data
@@ -89,16 +97,24 @@ void HexDump(const byte *pb, int cb)
 	DEBUG_PRINT("\n");
 }
 
+void DumpCanvas(uint addr)
+{
+	DEBUG_PRINT("Image addr: %lu, width: %u\n",  Lcd.ReadReg32(addr), Lcd.ReadReg16(addr + 4));
+	DEBUG_PRINT("Window: (%u, %u) width: %u, height: %u\n",  
+		Lcd.ReadReg16(addr + 6), Lcd.ReadReg16(addr + 8), 
+		Lcd.ReadReg16(addr + 10), Lcd.ReadReg16(addr + 12));
+}
+
 void TextDisplay()
 {
-	Lcd.WriteRegRgb(FGCR, 0xFF);
+	Lcd.SetForeColor(0xFF);
 	Lcd.FillRect(0, 0, 1023, 599);
-	Lcd.WriteRegRgb(FGCR, 0xFF00);
+	Lcd.SetForeColor(0xFF00);
 	Lcd.FillRect(100, 100, 923, 499);
 
 	// Write some text
-	Lcd.WriteRegRgb(FGCR, 0xFFFFFF);
-	Lcd.WriteRegRgb(BGCR, 0);
+	Lcd.SetForeColor(0xFFFFFF);
+	Lcd.SetBackColor(0);
 	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundTransparent);
 	Lcd.WriteRegXY(F_CURX0, 0, 0);
 	Lcd.ExternalFont(CCR0_CharHeight16, GTENT_CR_CharWidthFixed | GTFNT_CR_Ascii, 1);
@@ -107,61 +123,6 @@ void TextDisplay()
 	Lcd.WriteReg(FLDR, 0);
 	//Lcd.InternalFont(CCR0_CharHeight32, CCR0_CharSet8859_1);
 	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
-}
-
-bool DownloadImage(ulong addr, int cbData)
-{
-	static byte arPageBuf[SerialFlashPageSize];
-	Timer	tmr;
-	int		i;
-
-	// Flush out receiver buffer
-	Console.DiscardReadBuf();
-	// Allow 10 seconds for user to start download
-	for (i = 0; i < 10; i++)
-	{
-		tmr.Start();
-		while (!tmr.CheckDelay(1))
-		{
-			wdt_reset();
-			if (Console.IsByteReady())
-				goto Ready;
-		}
-	}
-	return false;
-
-Ready:
-	// First 4 bytes of download are header, skip them
-	// Not included in count cbData
-	tmr.Start();
-	for (i = 0; i < 4; i++)
-	{
-		while (!Console.IsByteReady())
-		{
-			if (tmr.CheckDelay_ms(2))
-				return false;
-		}
-		// throw away header byte
-	}
-
-	while (cbData > 0)
-	{
-		wdt_reset();
-		tmr.Start();
-		for (i = 0; i < SerialFlashPageSize && cbData > 0; i++, cbData--)
-		{
-			while (!Console.IsByteReady())
-			{
-				if (tmr.CheckDelay_ms(50))
-					return false;
-			}
-			arPageBuf[i] = Console.ReadByte();
-		}
-
-		Lcd.SerialMemWrite(addr, i, arPageBuf, 1);
-		addr += i;
-	}
-	return true;
 }
 
 void NO_INLINE_ATTR DisplaySerialImage(ulong addr, int width, int height, int x, int y)
@@ -175,7 +136,6 @@ void NO_INLINE_ATTR DisplaySerialImage(ulong addr, int width, int height, int x,
 	Lcd.SerialSelectPort(SFL_CTRL_ModeDma, 1);
 	Lcd.WriteReg(DMA_CTRL, DMA_CTRL_Start);
 }
-
 
 void CalibratePos(int X, int Y, int anchorX, int anchorY)
 {
@@ -208,31 +168,50 @@ void NO_INLINE_ATTR CalibrateTouch()
 	CalibratePos(MaxX, MaxY, MinX, MinY);
 }
 
-void LoadFileImage(uint hFile, uint addr)
+class SetAndRestore
 {
-	int		cbXfer;
+public:
+	SetAndRestore(uint addr, uint value)
+	{
+		Addr = addr;
+		Value = RA8876::ReadReg(addr);
+		RA8876::WriteReg(addr, value);
+	}
+	~SetAndRestore()
+	{
+		RA8876::WriteReg(Addr, Value);
+	}
+	uint	Value;
+	uint	Addr;
+};
+
+void LoadFileToRam(uint hFile, uint addr)
+{
 	int		cb;
 	ushort	*pus;
 
-	Lcd.WriteReg16(CURH0, 0);
-	Lcd.WriteReg16(CURV0, 0);
+	SetAndRestore x(AW_COLOR, AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
+	Lcd.WriteReg32(CURH0, addr);
 
-	FileSys.SeekWait(hFile, 4);	// skip 4-byte header
-	cbXfer = FileSys.GetSize(hFile) - 5;	// don't count trailing byte either
-	
-	for (cb = 0; cbXfer > 0; cb -= 2, cbXfer -= 2)
+	for (;;) 
 	{
+		cb = FileSys.ReadWait(hFile, NULL, 0x200);
 		if (cb == 0)
+			break;
+
+		if (cb < 0)
 		{
-			cb = FileSys.ReadWait(hFile, NULL, cbXfer);
-			if (cb <= 0)
-			{
-				DEBUG_PRINT("File read returned %i\n", cb);
-				break;
-			}
-			pus = (ushort *)FileSys.GetDataBuf();
+			DEBUG_PRINT("File read returned %i\n", cb);
+			break;
 		}
-		Lcd.FifoWrite16(*pus++);
+
+		pus = (ushort *)FileSys.GetDataBuf();
+
+		while (cb > 0)
+		{
+			Lcd.FifoWrite16(*pus++);
+			cb -= 2;
+		}
 	}
 }
 
@@ -255,6 +234,7 @@ int main(void)
 	Init();
 	Timer::Init();
 	Eeprom.Init();
+	TCC1->CC[1].reg = Eeprom.Data.Brightness;
 
 	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
 	Console.SetBaudRate(CONSOLE_BAUD_RATE);
@@ -408,22 +388,7 @@ int main(void)
 				break;
 
 			case 'd':
-				DEBUG_PRINT("Download\n");
-				if (DownloadImage(IMAGE_LOC, IMAGE_SIZE))
-					DEBUG_PRINT("Success\n");
-				else
-					DEBUG_PRINT("Failed\n");
-				break;
-
-			case 'e':
-				DEBUG_PRINT("Erase\n");
-				WDT->CTRL.reg = 0;	// disable watchdog during long process
-				Lcd.SerialMemErase(IMAGE_LOC, IMAGE_SIZE, 1);
-				WDT->CTRL.reg = WDT_CTRL_ENABLE;
-				break;
-
-			case 'f':
-				DEBUG_PRINT("Show files\n");
+				DEBUG_PRINT("File directory\n");
 				{
 					uint	h;
 					int		err;
@@ -431,7 +396,7 @@ int main(void)
 
 					h = FileSys.StartEnum(0);
 					cnt = 0;
-					for (;;) 
+					for (;;)
 					{
 						err = FileSys.EnumNextWait(h, (char *)arbBuf, sizeof arbBuf);
 						if (FileSys.IsError(err))
@@ -447,6 +412,35 @@ int main(void)
 					FileSys.Close(h);
 					DEBUG_PRINT("%i files\n", cnt);
 				}
+				break;
+
+			case 'e':
+				DEBUG_PRINT("Erase\n");
+				WDT->CTRL.reg = 0;	// disable watchdog during long process
+				Lcd.SerialMemErase(IMAGE_LOC, IMAGE_SIZE, 1);
+				WDT->CTRL.reg = WDT_CTRL_ENABLE;
+				break;
+
+			case 'f':
+				DEBUG_PRINT("Load font\n");
+				{
+					int	h;
+
+					h = FileSys.OpenWait("BigFont.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+					if (h <= 0)
+					{
+						DEBUG_PRINT("Error code %i opening file\n", h);
+						break;
+					}
+					LoadFileToRam(h, FONT_START);
+					FileSys.CloseWait(h);
+				}
+				Text.Init(0, LcdWidthPx, LcdHeightPx, Color16bpp);
+				Text.SetViewport(Xaxis_X, Xaxis_Y);
+				Text.SetForeColor(0);
+				Text.SetBackColor(0xFFFFFF);
+				Text.SetFont(FID_BigFont);
+				Text.WriteString("123456");
 				break;
 
 			case 'k':
@@ -466,7 +460,7 @@ int main(void)
 						DEBUG_PRINT("Error code %i opening file\n", h);
 						break;
 					}
-					LoadFileImage(h, 0);
+					LoadFileToRam(h, 0);
 					FileSys.CloseWait(h);
 				}
 				break;
@@ -515,19 +509,21 @@ int main(void)
 
 			case '+':
 			case '=':
-				i = TCC1->CC[1].reg;
+				i = Eeprom.Data.Brightness;
 				i += LcdBacklightPwmMax / 10;
 				if (i > LcdBacklightPwmMax)
 					i = LcdBacklightPwmMax;
+				Eeprom.Data.Brightness = i;
 				TCC1->CC[1].reg = i;
 				DEBUG_PRINT("up\n");
 				break;
 
 			case '-':
-				i = TCC1->CC[1].reg;
+				i = Eeprom.Data.Brightness;
 				i -= LcdBacklightPwmMax / 10;
 				if (i < 0)
 					i = 0;
+				Eeprom.Data.Brightness = i;
 				TCC1->CC[1].reg = i;
 				DEBUG_PRINT("down\n");
 				break;

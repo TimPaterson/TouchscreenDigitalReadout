@@ -547,6 +547,48 @@ namespace RA8876const
 	//************************************************************************
 	// Block Transfer Engine (BTE) Control Registers
 
+	enum BTE_CTRL0_Bits
+	{
+		BTE_CTRL0_Pattern8x8 = 0x00,
+		BTE_CTRL0_Pattern16x16 = 0x01,
+
+		BTE_CTRL0_Enable = 0x10,
+	};
+
+	enum BTE_CTRL1_Bits
+	{
+		BTE_CTRL1_OpcodeMpuWriteWithRop = 0x00,
+		BTE_CTRL1_OpcodeMpuWriteChromaKey = 0x04,
+		BTE_CTRL1_OpcodeMpuWriteExpandMono = 0x08,
+		BTE_CTRL1_OpcodeMpuWriteExpandMonoTranparent = 0x09,
+		BTE_CTRL1_OpcodeMemoryCopyWithRop = 0x02,
+		BTE_CTRL1_OpcodeMemoryCopyChromaKey = 0x05,
+		BTE_CTRL1_OpcodeMemoryCopyWithOpacity = 0x0B,
+		BTE_CTRL1_OpcodeMemoryCopyExpandMono = 0x0E,
+		BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent  = 0x0F,
+		BTE_CTRL1_OpcodePatternFillWithRop = 0x06,
+		BTE_CTRL1_OpcodePatternFillChromaKey = 0x07,
+		BTE_CTRL1_OpcodeSolidFill = 0x0C,
+
+		BTE_CTRL1_RopBlack = 0x00,
+		BTE_CTRL1_RopNotS0andNotS1 = 0x01,
+		BTE_CTRL1_RopNotS0andS1 = 0x02,
+		BTE_CTRL1_RopNotS0 = 0x03,
+		BTE_CTRL1_RopS0andNotS1 = 0x04,
+		BTE_CTRL1_RopNotS1 = 0x05,
+		BTE_CTRL1_RopS0xorS1 = 0x06,
+		BTE_CTRL1_RopNotS0orNotS1 = 0x07,
+		BTE_CTRL1_RopS0andS1 = 0x08,
+		BTE_CTRL1_RopNotS0xorS1 = 0x09,
+		BTE_CTRL1_RopS1 = 0x0A,
+		BTE_CTRL1_RopNotS0orS1 = 0x0B,
+		BTE_CTRL1_RopS0 = 0x0C,
+		BTE_CTRL1_RopS0orNotS1  = 0x0D,
+		BTE_CTRL1_RopS0orS1 = 0x0E,
+		BTE_CTRL1_RopWhite = 0x0f,
+
+		BTE_CTRL1_BitStartShift = 4,
+	};
 
 	//************************************************************************
 	// Serial Flash & SPI Master Control Registers

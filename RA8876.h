@@ -83,6 +83,16 @@ public:
 	//*********************************************************************
 	// Generic register combination handlers
 
+	static bool IsBusy()
+	{
+		return GetStatus() & STATUS_CoreBusy;
+	}
+
+	static void WaitWhileBusy()
+	{
+		while (IsBusy());
+	}
+
 	static void WriteRegList(const RegValue *pList, int iLen)
 	{
 		do 
@@ -98,10 +108,22 @@ public:
 		WriteReg(addr + 1, val >> 8);
 	}
 
+	static uint ReadReg16(uint addr)
+	{
+		uint val  = ReadReg(addr);
+		return (ReadReg(addr + 1) << 8) + val;
+	}
+
 	static void WriteReg32(uint addr, ulong val)
 	{
 		WriteReg16(addr, val);
 		WriteReg16(addr + 2, val >> 16);
+	}
+
+	static ulong ReadReg32(uint addr)
+	{
+		uint val  = ReadReg16(addr);
+		return (ReadReg16(addr + 2) << 16) + val;
 	}
 
 	static void WriteRegXY(uint addr, uint X, uint Y)
@@ -176,6 +198,16 @@ public:
 	//*********************************************************************
 	// Graphics Engine
 
+	static void SetForeColor(ulong color)
+	{
+		WriteRegRgb(FGCR, color);
+	}
+
+	static void SetBackColor(ulong color)
+	{
+		WriteRegRgb(BGCR, color);
+	}
+
 	static void SetTwoPoints(uint X0, uint Y0, uint X1, uint Y1)
 	{
 		WriteReg16(DLHSR0, X0);
@@ -188,7 +220,7 @@ public:
 	{
 		SetTwoPoints(X0, Y0, X1, Y1);
 		WriteReg(DCR1, DCR1_DrawRect | DCR1_FillOn | DCR1_DrawActive);
-		while (GetStatus() & STATUS_CoreBusy);
+		WaitWhileBusy();
 	}
 
 	static void LoadGraphicsCursor(const byte *pbCursor, uint id)
@@ -255,7 +287,7 @@ public:
 		reg = ReadReg(ICR);
 		WriteData(reg | ICR_TextMode);
 		WriteReg(MRWDP, ch);
-		while (GetStatus() & STATUS_CoreBusy);
+		WaitWhileBusy();
 		WriteReg(ICR, reg);
 	}
 
@@ -272,7 +304,7 @@ public:
 			WriteData(ch);
 			while (GetStatus() & STATUS_WriteFifoFull);
 		}
-		while (GetStatus() & STATUS_CoreBusy);
+		WaitWhileBusy();
 		WriteReg(ICR, reg);
 	}
 
