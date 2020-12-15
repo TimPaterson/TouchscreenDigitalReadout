@@ -40,10 +40,6 @@ namespace RA8876const
 		SFSTAT_Busy = 0x01,
 		SFSTAT_WriteEnabled = 0x02,
 	};
-
-	static constexpr int SerialFlashPageSize = 256;
-	static constexpr int SerialFlashSectorSize = 0x1000;
-	static constexpr int SerialFlashBlockSize = 0x8000;
 };
 
 //*********************************************************************
@@ -167,7 +163,7 @@ public:
 		WriteReg32(MISA0, addr);
 		WriteReg16(MIW0, width);
 		SetMainWindowPos(0, 0);
-		SetCanvas(addr, width);
+		SetCanvasView(addr, width);
 	}
 
 	static void SetMainWindowPos(uint X, uint Y)
@@ -176,7 +172,7 @@ public:
 		WriteReg16(MWULY0, Y);
 	}
 
-	static void SetCanvas(ulong addr, uint width)
+	static void SetCanvasView(ulong addr, uint width)
 	{
 		WriteReg32(CVSSA0, addr);
 		WriteReg16(CVS_IMWTH0, width);
@@ -358,7 +354,7 @@ public:
 		return val;
 	}
 
-	static void SerialMemRead(ulong addr, int cb, byte *pb, uint port)
+	static void SerialMemRead(ulong addr, int cb, byte *pb, uint port) NO_INLINE_ATTR
 	{
 		uint	val;
 		byte	bCs;
@@ -394,7 +390,7 @@ public:
 		WriteReg(SPIMCR, bCs);
 	}
 
-	static void SerialMemWrite(ulong addr, int cb, byte *pb, uint port)
+	static void SerialMemWrite(ulong addr, int cb, byte *pb, uint port) NO_INLINE_ATTR
 	{
 		byte	bCs;
 
@@ -434,7 +430,7 @@ public:
 		} while (cb > 0);
 	}
 
-	static void SerialMemErase(ulong addr, int cb, uint port)
+	static void SerialMemErase(ulong addr, int cb, uint port) NO_INLINE_ATTR
 	{
 		int		cbBase;
 
@@ -459,7 +455,7 @@ public:
 		}
 	}
 
-	static void SerialMemEraseCmd(ulong addr, uint cmd, uint port)
+	static void SerialMemEraseCmd(ulong addr, uint cmd, uint port) NO_INLINE_ATTR
 	{
 		byte	bCs;
 
@@ -488,5 +484,21 @@ public:
 
 		// Poll for completion
 		while (SerialMemGetStatus() & SFSTAT_Busy);
+	}
+
+	void CopySerialMemToRam(ulong addrFlash, ulong addrRam, int cb, uint port) NO_INLINE_ATTR
+	{
+		byte	modeSave;
+
+		SerialSelectPort(SFL_CTRL_ModeDma, port);
+		modeSave = ReadReg(AW_COLOR);
+		WriteData(AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
+		WriteReg32(DMA_SSTR0, addrFlash);
+		WriteReg32(DMA_DX0, addrRam);
+		WriteReg32(DMAW_WTH0, cb);
+		WriteReg(DMA_CTRL, DMA_CTRL_Start);
+		WaitWhileBusy();
+		// Restore mode
+		WriteReg(AW_COLOR, modeSave);
 	}
 };

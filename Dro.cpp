@@ -12,10 +12,12 @@
 #include "LcdDef.h"
 #include "RA8876.h"
 #include "Xtp2046.h"
-#include "KeypadHit.h"
+#include "HotspotList.h"
 #include "UsbDro.h"
 #include "FatFileSys.h"
 #include "TextDisplay.h"
+#include "TouchCanvas.h"
+
 
 //*********************************************************************
 // Functions in DroInit
@@ -31,7 +33,6 @@ FILE		Console_FILE;
 
 Xtp2046		Touch;
 RA8876		Lcd;
-KeypadHit	KeyHit;
 UsbDro		UsbPort;
 TextDisplay	Text;
 
@@ -41,14 +42,19 @@ FAT_DRIVES_LIST(&Sd);
 
 extern "C"
 {
-extern const byte TargetCursor[256];
+	extern const byte TargetCursor[256];
 }
 
-#define DEFINE_LOCATION(name, x, y)	name##_X = x, name##_Y = y,
-enum Locations
-{
-#include "Images/MainScreen.h"
-};
+//****************************************************************************
+// Static canvas data (RAM)
+
+#define START_SCREEN(name)	TouchCanvas name(
+#define IMAGE_ADDRESS(val)	val + RamScreenStart,
+#define IMAGE_WIDTH(val)	val,
+#define IMAGE_DEPTH(val)	val,
+#define END_SCREEN(name)	&name##HotspotList);
+
+#include "Images/Screen.h"
 
 //****************************************************************************
 // EEPROM data
@@ -60,14 +66,14 @@ static constexpr int ReservedEepromRows = 2;
 #define EepromData(typ, name, ...)	typ name;
 struct Eeprom_t
 {
-#include "EepromData.h"
+	#include "EepromData.h"
 };
 
 // Define initial EEPROM data
 #define EepromData(typ, name, ...)	__VA_ARGS__,
 const Eeprom_t RwwData =
 {
-#include "EepromData.h"
+	#include "EepromData.h"
 };
 
 // Create an EepromMgr for it, which includes a copy in RAM
@@ -100,12 +106,12 @@ void HexDump(const byte *pb, int cb)
 void DumpCanvas(uint addr)
 {
 	DEBUG_PRINT("Image addr: %lu, width: %u\n",  Lcd.ReadReg32(addr), Lcd.ReadReg16(addr + 4));
-	DEBUG_PRINT("Window: (%u, %u) width: %u, height: %u\n",  
-		Lcd.ReadReg16(addr + 6), Lcd.ReadReg16(addr + 8), 
+	DEBUG_PRINT("Window: (%u, %u) width: %u, height: %u\n",
+		Lcd.ReadReg16(addr + 6), Lcd.ReadReg16(addr + 8),
 		Lcd.ReadReg16(addr + 10), Lcd.ReadReg16(addr + 12));
 }
 
-void TextDisplay()
+void NO_INLINE_ATTR TextDisplay()
 {
 	Lcd.SetForeColor(0xFF);
 	Lcd.FillRect(0, 0, 1023, 599);
@@ -125,19 +131,7 @@ void TextDisplay()
 	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 }
 
-void NO_INLINE_ATTR DisplaySerialImage(ulong addr, int width, int height, int x, int y)
-{
-	Lcd.WriteReg32(DMA_SSTR0, addr);
-	Lcd.WriteReg16(DMA_SWTH0, width);
-	Lcd.WriteReg16(DMAW_WTH0, width);
-	Lcd.WriteReg16(DMAW_HIGH0, height);
-	Lcd.WriteReg16(DMA_DX0, x);
-	Lcd.WriteReg16(DMA_DY0, y);
-	Lcd.SerialSelectPort(SFL_CTRL_ModeDma, 1);
-	Lcd.WriteReg(DMA_CTRL, DMA_CTRL_Start);
-}
-
-void CalibratePos(int X, int Y, int anchorX, int anchorY)
+void NO_INLINE_ATTR CalibratePos(int X, int Y, int anchorX, int anchorY)
 {
 	int		readX, readY;
 
@@ -175,7 +169,7 @@ public:
 	{
 		Addr = addr;
 		Value = RA8876::ReadReg(addr);
-		RA8876::WriteReg(addr, value);
+		RA8876::WriteData(value);
 	}
 	~SetAndRestore()
 	{
@@ -185,7 +179,7 @@ public:
 	uint	Addr;
 };
 
-void LoadFileToRam(uint hFile, uint addr)
+void NO_INLINE_ATTR LoadFileToRam(uint hFile, uint addr)
 {
 	int		cb;
 	ushort	*pus;
@@ -193,7 +187,7 @@ void LoadFileToRam(uint hFile, uint addr)
 	SetAndRestore x(AW_COLOR, AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
 	Lcd.WriteReg32(CURH0, addr);
 
-	for (;;) 
+	for (;;)
 	{
 		cb = FileSys.ReadWait(hFile, NULL, 0x200);
 		if (cb == 0)
@@ -215,16 +209,38 @@ void LoadFileToRam(uint hFile, uint addr)
 	}
 }
 
+void NO_INLINE_ATTR WriteFileToFlash(uint hFile, uint addr)
+{
+	int		cb;
+
+	cb = FileSys.GetSize(hFile);
+	// Round up to full block size for erasure
+	cb = (cb + SerialFlashBlockSize - 1) & ~(SerialFlashBlockSize - 1);
+
+	WDT->CTRL.reg = 0;	// disable watchdog during long process
+	Lcd.SerialMemErase(addr, cb, 1);
+	WDT->CTRL.reg = WDT_CTRL_ENABLE;
+
+	for (;;)
+	{
+		cb = FileSys.ReadWait(hFile, NULL, 0x200);
+		if (cb == 0)
+			break;
+
+		if (cb < 0)
+		{
+			DEBUG_PRINT("File read returned %i\n", cb);
+			break;
+		}
+
+		Lcd.SerialMemWrite(addr, cb, FileSys.GetDataBuf(), 1);
+		addr += cb;
+	}
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
-
-// Locations in serial flash
-#define FONT_LOC		(0x1DD780)
-#define IMAGE_LOC		(0x8000)
-#define IMAGE_Height	250
-#define IMAGE_Width		190
-#define IMAGE_SIZE		(IMAGE_Width * IMAGE_Height * 2)
 
 byte arbBuf[256];
 
@@ -252,14 +268,18 @@ int main(void)
 
 
 	Lcd.Init();
+
+	// Copy serial data in graphics memory
+	Lcd.CopySerialMemToRam(FlashScreenStart, RamScreenStart, ScreenFileLength, 1);
+	Lcd.CopySerialMemToRam(FlashFontStart, RamFontStart, FontFileLength, 1);
+
 	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect1);
 	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
 
-	Lcd.WriteReg(MPWCTR, MPWCTR_MainImageColor16);
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
+	Lcd.WriteReg(MPWCTR, MPWCTR_MainImageColor16);
+	MainScreen.SetCanvasView(MISA0);
 	Lcd.DisplayOn();
-	TextDisplay();
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundSet);
 
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
@@ -329,7 +349,7 @@ int main(void)
 			flags = Touch.GetTouch();
 			if (flags & TOUCH_Touched)
 			{
-				int	X, Y, hit;
+				int	X, Y;
 
 				X = Touch.GetX();
 				Y = Touch.GetY();
@@ -341,15 +361,9 @@ int main(void)
 
 				if (flags & TOUCH_Start)
 				{
-					hit = KeyHit.TestHit(X, Y);
-					if (hit >= 0)
+					if (MainScreen.TestHit(X, Y) != NULL)
 					{
-						if (hit < 10)
-							Console.WriteByte(hit + '0');
-						else if (hit == Key_Decimal)
-							Console.WriteByte('.');
-						else
-							DEBUG_PRINT("\n");
+						DEBUG_PRINT("Key hit\n");
 					}
 				}
 			}
@@ -414,39 +428,20 @@ int main(void)
 				}
 				break;
 
-			case 'e':
-				DEBUG_PRINT("Erase\n");
-				WDT->CTRL.reg = 0;	// disable watchdog during long process
-				Lcd.SerialMemErase(IMAGE_LOC, IMAGE_SIZE, 1);
-				WDT->CTRL.reg = WDT_CTRL_ENABLE;
-				break;
-
 			case 'f':
 				DEBUG_PRINT("Load font\n");
 				{
 					int	h;
 
-					h = FileSys.OpenWait("BigFont.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+					h = FileSys.OpenWait("Fonts.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
 					if (h <= 0)
 					{
 						DEBUG_PRINT("Error code %i opening file\n", h);
 						break;
 					}
-					LoadFileToRam(h, FONT_START);
+					WriteFileToFlash(h, FlashFontStart);
 					FileSys.CloseWait(h);
 				}
-				Text.Init(0, LcdWidthPx, LcdHeightPx, Color16bpp);
-				Text.SetViewport(Xaxis_X, Xaxis_Y);
-				Text.SetForeColor(0);
-				Text.SetBackColor(0xFFFFFF);
-				Text.SetFont(FID_BigFont);
-				Text.WriteString("123456");
-				break;
-
-			case 'k':
-				DEBUG_PRINT("Show keypad\n");
-				DisplaySerialImage(IMAGE_LOC, IMAGE_Width, IMAGE_Height, 50, 200);
-				KeyHit.Init(50, 200);
 				break;
 
 			case 'l':
@@ -454,13 +449,13 @@ int main(void)
 				{
 					int	h;
 
-					h = FileSys.OpenWait("MainScreen.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+					h = FileSys.OpenWait("Screen.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
 					if (h <= 0)
 					{
 						DEBUG_PRINT("Error code %i opening file\n", h);
 						break;
 					}
-					LoadFileToRam(h, 0);
+					WriteFileToFlash(h, FlashScreenStart);
 					FileSys.CloseWait(h);
 				}
 				break;
@@ -472,21 +467,6 @@ int main(void)
 					DEBUG_PRINT("Failed with error code %i\n", i);
 				else
 					DEBUG_PRINT("Success\n");
-				break;
-
-			case 'p':
-				DEBUG_PRINT("Program\n");
-				for (i = 0; i < 6; i++)
-				{
-					Lcd.SerialMemRead(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 0);
-					Lcd.SerialMemWrite(FONT_LOC + sizeof arbBuf * i, sizeof arbBuf, arbBuf, 1);
-				}
-				break;
-
-			case 'r':
-				DEBUG_PRINT("Read\n");
-				Lcd.SerialMemRead(IMAGE_LOC + 0x770, sizeof arbBuf, arbBuf, 1);
-				HexDump(arbBuf, sizeof arbBuf);
 				break;
 
 			case 's':

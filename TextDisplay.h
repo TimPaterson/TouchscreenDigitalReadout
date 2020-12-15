@@ -12,18 +12,17 @@
 
 
 EXTERN_C FontInfo *FontList[];
-#define FONT_START		0x20'0000
 
 void DumpCanvas(uint addr);
 
 //****************************************************************************
 // Enumeration of font names in FontList
 
-#define START_FONT_INIT(name)	FID_##name,
+#define START_FONT(name)	FID_##name,
 
 enum FontId
 {
-	#include "Images/BigFont.h"
+	#include "Fonts/Fonts.h"
 };
 
 //****************************************************************************
@@ -56,11 +55,11 @@ public:
 
 	void MakeActive()
 	{
-		SetCanvas(DT_STR0);
+		SetCanvasView(DT_STR0);
 		SetForeColor(m_foreColor);
 		SetBackColor(m_backColor);
 		WriteReg(BTE_COLR, m_colorDepth);
-		WriteReg32(S0_STR0, m_pFontInfo->FontStart + FONT_START);
+		WriteReg32(S0_STR0, m_pFontInfo->FontStart);
 		WriteReg16(S0_WTH0, m_pFontInfo->CharsetWidth);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
@@ -116,6 +115,32 @@ public:
 				return;
 			WriteChar(ch);
 		}
+	}
+
+	int GetCharWidth(byte ch)
+	{
+		ch -= m_pFontInfo->FirstChar;
+		if (ch > m_pFontInfo->LastChar)
+			return 0;
+
+		if (ch + m_pFontInfo->FirstChar == ' ' && m_spaceWidth != 0)
+			return m_spaceWidth;
+		return m_pFontInfo->arWidths[ch];
+	}
+
+	int GetStringWidth(const char *psz)
+	{
+		byte	ch;
+		int		len;
+
+		for (len = 0;;)
+		{
+			ch = *psz++;
+			if (ch == 0)
+				break;
+			len += GetCharWidth(ch);
+		}
+		return len;
 	}
 
 	//*********************************************************************

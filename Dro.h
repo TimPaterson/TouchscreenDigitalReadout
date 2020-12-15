@@ -10,6 +10,7 @@
 #include <IoBuf/UsartBuf.h>
 #include <Util/TimerLib.h>
 #include "Spi.h"
+#include "SerialMem.h"
 
 
 #define VERSION	0
@@ -382,4 +383,3 @@ static constexpr uint PosSensorIrqMask = EI_QposA | EI_QposB |
 // emulation flash in the 128K version.
 //
 static constexpr byte BOD_LEVEL_2p7_REVG = 39;
-
