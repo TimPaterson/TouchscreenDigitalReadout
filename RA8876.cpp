@@ -183,8 +183,6 @@ void RA8876::Init()
 
 	// Initialize LCD
 	WriteRegList(s_arInitList, _countof(s_arInitList));
-	SetMainImage(0, LcdWidthPx);
-	SetActiveWindowSize(LcdWidthPx, LcdHeightPx);
 }
 
 uint RA8876::GetStatus()

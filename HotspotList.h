@@ -105,6 +105,16 @@ enum KeyboardHotspots
 };
 
 //*************************************************************************
+// Define the hotspot goups
+
+#define START_GROUP(group)	HOTSPOT_GROUP_##group,
+
+enum HotspotGroups
+{
+	#include "Images/Screen.h"
+};
+
+//*************************************************************************
 // Define the hotspot values for all keys not in the above groups
 
 #define GROUP_HOTSPOT_(name, group, x1, y1, x2, y2)	name,

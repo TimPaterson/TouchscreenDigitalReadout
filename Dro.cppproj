@@ -247,7 +247,7 @@
 "$(ToolchainDir)\arm-none-eabi-objdump" -h -S -C $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension) &gt; $(OutputDirectory)\$(OutputFileName).lss</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Canvas.h">
+    <Compile Include="ScreenMgr.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="SerialMem.h">
@@ -277,7 +277,7 @@
     <Compile Include="FatFileSys.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="TextDisplay.h">
+    <Compile Include="TextField.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FontInfo.c">
@@ -338,10 +338,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device_Startup\" />
+    <Folder Include="Fonts\" />
     <Folder Include="Images\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\samd21j17d_flash.ld">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Fonts\Fonts.fnt">
       <SubType>compile</SubType>
     </None>
     <None Include="Images\Screen.xml">

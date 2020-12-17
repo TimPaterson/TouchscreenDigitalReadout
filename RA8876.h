@@ -137,9 +137,14 @@ public:
 		WriteReg(addr + 2, val);		// blue
 	}
 
+	static bool IsFifoWriteReady()
+	{
+		return !(GetStatus() & STATUS_WriteFifoFull);
+	}
+
 	static void WaitFifoWrite()
 	{
-		while (ReadReg(SPIMSR) & SPIMSR_TxFifoFull);	// wait for space
+		while (!IsFifoWriteReady());	// wait for space
 	}
 
 	static void FifoWrite(uint val)
@@ -155,16 +160,55 @@ public:
 		WriteData16(val);
 	}
 
+	static void FastFifoWrite16(uint val)
+	{
+		// Assumes address register already set
+		WaitFifoWrite();
+		WriteData16(val);
+	}
+
+	static bool IsFifoReadReady()
+	{
+		return !(GetStatus() & STATUS_ReadFifoEmpty);
+	}
+
+	static void WaitFifoRead()
+	{
+		while (!IsFifoReadReady());	// wait for data
+	}
+
+	static byte FifoRead()
+	{
+		WaitFifoRead();
+		return ReadReg(MRWDP);
+	}
+
+	static ushort FifoRead16()
+	{
+		WaitFifoRead();
+		WriteAddr(MRWDP);
+		return ReadData16();
+	}
+
+	static ushort FastFifoRead16()
+	{
+		// Assumes address register already set
+		WaitFifoRead();
+		return ReadData16();
+	}
+
+	static void WriteSequentialRegisters(void *pv, uint addr, int cnt)
+	{
+		byte *pb = (byte *)pv;
+
+		do 
+		{
+			WriteReg(addr++, *pb++);
+		} while (--cnt > 0);
+	}
+
 	//*********************************************************************
 	// Function-specific handlers
-
-	static void SetMainImage(ulong addr, uint width)
-	{
-		WriteReg32(MISA0, addr);
-		WriteReg16(MIW0, width);
-		SetMainWindowPos(0, 0);
-		SetCanvasView(addr, width);
-	}
 
 	static void SetMainWindowPos(uint X, uint Y)
 	{

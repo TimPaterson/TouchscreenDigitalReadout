@@ -5,20 +5,12 @@
 //
 //****************************************************************************
 
-
 #include <standard.h>
 #include "HotspotList.h"
 
 
 //****************************************************************************
 // Read in the hotspot coordinates
-
-#define START_GROUP(group)	HOTSPOT_GROUP_##group,
-
-enum HotspotGroups
-{
-	#include "Images/Screen.h"
-};
 
 #define HOTSPOT_COUNT(name, count)	name##HotspotCount = count,
 

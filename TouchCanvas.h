@@ -7,8 +7,7 @@
 
 #pragma once
 
-
-#include "Canvas.h"
+#include "ScreenMgr.h"
 #include "Hotspot.h"
 
 

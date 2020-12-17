@@ -15,8 +15,9 @@
 #include "HotspotList.h"
 #include "UsbDro.h"
 #include "FatFileSys.h"
-#include "TextDisplay.h"
+#include "TextField.h"
 #include "TouchCanvas.h"
+#include "ScreenMgr.h"
 
 
 //*********************************************************************
@@ -24,26 +25,6 @@
 
 void StartClock();
 void Init();
-
-//****************************************************************************
-// Static data
-
-Console_t	Console;
-FILE		Console_FILE;
-
-Xtp2046		Touch;
-RA8876		Lcd;
-UsbDro		UsbPort;
-TextDisplay	Text;
-
-FatSd		Sd;
-FatSysWait<true>	FileSys;
-FAT_DRIVES_LIST(&Sd);
-
-extern "C"
-{
-	extern const byte TargetCursor[256];
-}
 
 //****************************************************************************
 // Static canvas data (RAM)
@@ -55,6 +36,28 @@ extern "C"
 #define END_SCREEN(name)	&name##HotspotList);
 
 #include "Images/Screen.h"
+
+//****************************************************************************
+// Static data
+
+Console_t	Console;
+FILE		Console_FILE;
+
+Xtp2046		Touch;
+ScreenMgr	Lcd;
+UsbDro		UsbPort;
+TextField	DisplayX(&MainScreen, Xaxis_X, Xaxis_Y);
+TextField	DisplayY(&MainScreen, Yaxis_X, Yaxis_Y);
+TextField	DisplayZ(&MainScreen, Zaxis_X, Zaxis_Y);
+
+FatSd		Sd;
+FatSysWait<true>	FileSys;
+FAT_DRIVES_LIST(&Sd);
+
+extern "C"
+{
+	extern const byte TargetCursor[256];
+}
 
 //****************************************************************************
 // EEPROM data
@@ -82,6 +85,8 @@ EepromMgr<Eeprom_t, &RwwData, ReservedEepromRows> Eeprom;
 //*********************************************************************
 // Tests
 //*********************************************************************
+
+byte arbBuf[256];
 
 void HexDump(const byte *pb, int cb)
 {
@@ -111,7 +116,7 @@ void DumpCanvas(uint addr)
 		Lcd.ReadReg16(addr + 10), Lcd.ReadReg16(addr + 12));
 }
 
-void NO_INLINE_ATTR TextDisplay()
+void NO_INLINE_ATTR TextField()
 {
 	Lcd.SetForeColor(0xFF);
 	Lcd.FillRect(0, 0, 1023, 599);
@@ -179,7 +184,7 @@ public:
 	uint	Addr;
 };
 
-void NO_INLINE_ATTR LoadFileToRam(uint hFile, uint addr)
+void NO_INLINE_ATTR LoadFileToRam(uint hFile, ulong addr)
 {
 	int		cb;
 	ushort	*pus;
@@ -209,7 +214,23 @@ void NO_INLINE_ATTR LoadFileToRam(uint hFile, uint addr)
 	}
 }
 
-void NO_INLINE_ATTR WriteFileToFlash(uint hFile, uint addr)
+void NO_INLINE_ATTR DumpRam(ulong addr, int  cb)
+{
+	ushort	*pus;
+
+	if (cb > (int)sizeof arbBuf)
+		cb = sizeof arbBuf;
+
+	SetAndRestore x(AW_COLOR, AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
+	Lcd.WriteReg32(CURH0, addr);
+	Lcd.ReadReg(MRWDP);	// dummy read
+	pus = (ushort *)&arbBuf[0];
+	for (int i = 0; i < cb / 2; i++)
+		*pus++ = Lcd.FastFifoRead16();
+	HexDump(arbBuf, cb);
+}
+
+void NO_INLINE_ATTR WriteFileToFlash(uint hFile, ulong addr)
 {
 	int		cb;
 
@@ -242,8 +263,6 @@ void NO_INLINE_ATTR WriteFileToFlash(uint hFile, uint addr)
 // Main program
 //*********************************************************************
 
-byte arbBuf[256];
-
 int main(void)
 {
 	StartClock();
@@ -266,7 +285,6 @@ int main(void)
 		DEBUG_PRINT("WDT Reset\n");
 	}
 
-
 	Lcd.Init();
 
 	// Copy serial data in graphics memory
@@ -277,8 +295,7 @@ int main(void)
 	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
 
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
-	Lcd.WriteReg(MPWCTR, MPWCTR_MainImageColor16);
-	MainScreen.SetCanvasView(MISA0);
+	Lcd.SetMainImage(&MainScreen);
 	Lcd.DisplayOn();
 
 	// Initialize USB
@@ -291,6 +308,16 @@ int main(void)
 	Sd.Enable();
 	FileSys.Init();
 
+	DisplayX.SetForeColor(0);
+	DisplayX.SetBackColor(0xFFFF00);
+	DisplayX.SetFont(FID_DigitDisplay);
+	DisplayX.SetSpaceWidth(DisplayX.GetCharWidth('0'));
+
+	DisplayY.SetForeColor(0);
+	DisplayY.SetBackColor(0xFFFF00);
+	DisplayY.SetFont(FID_DigitDisplay);
+	DisplayY.SetSpaceWidth(DisplayY.GetCharWidth('0'));
+
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
@@ -302,6 +329,7 @@ int main(void)
 	int		iLastPos;
 	int		i;
 	bool	fShow = false;
+	bool	fPip = false;
 
 	iLastPos = 0;
 	tmr.Start();
@@ -350,6 +378,8 @@ int main(void)
 			if (flags & TOUCH_Touched)
 			{
 				int	X, Y;
+				HotspotData	*pHot;
+				byte key;
 
 				X = Touch.GetX();
 				Y = Touch.GetY();
@@ -361,9 +391,24 @@ int main(void)
 
 				if (flags & TOUCH_Start)
 				{
-					if (MainScreen.TestHit(X, Y) != NULL)
+					pHot = MainScreen.TestHit(X, Y);
+					if (pHot != NULL)
 					{
-						DEBUG_PRINT("Key hit\n");
+						key = pHot->id;
+						switch (pHot->group)
+						{
+						case HOTSPOT_GROUP_Digit:
+							DEBUG_PRINT("Digit %c\n", key + '0');
+							break;
+
+						case HOTSPOT_GROUP_Keyboard:
+							DEBUG_PRINT("Keyboard %c\n", key);
+							break;
+
+						default:
+							DEBUG_PRINT("Key %i\n", key);
+							break;
+						}
 					}
 				}
 			}
@@ -429,7 +474,7 @@ int main(void)
 				break;
 
 			case 'f':
-				DEBUG_PRINT("Load font\n");
+				DEBUG_PRINT("Loading font...");
 				{
 					int	h;
 
@@ -441,11 +486,12 @@ int main(void)
 					}
 					WriteFileToFlash(h, FlashFontStart);
 					FileSys.CloseWait(h);
+					DEBUG_PRINT("complete\n");
 				}
 				break;
 
 			case 'l':
-				DEBUG_PRINT("Load image\n");
+				DEBUG_PRINT("Loading image...");
 				{
 					int	h;
 
@@ -457,6 +503,7 @@ int main(void)
 					}
 					WriteFileToFlash(h, FlashScreenStart);
 					FileSys.CloseWait(h);
+					DEBUG_PRINT("complete\n");
 				}
 				break;
 
@@ -467,6 +514,19 @@ int main(void)
 					DEBUG_PRINT("Failed with error code %i\n", i);
 				else
 					DEBUG_PRINT("Success\n");
+				break;
+
+			case 'p':
+				DEBUG_PRINT("PIP display\n");
+				if (fPip)
+					Lcd.DisablePip1();
+				else
+					Lcd.EnablePip1(&MainScreen, 50, 50);
+				break;
+
+			case 'r':
+				DEBUG_PRINT("Dump RAM\n");
+				DumpRam(FONT_DigitDisplay.FontStart + 0x5FA0, 0x50);
 				break;
 
 			case 's':
@@ -484,7 +544,11 @@ int main(void)
 				break;
 
 			case 't':
-				TextDisplay();
+				DEBUG_PRINT("Write text\n");
+				DisplayX.MakeActive();
+				DisplayX.WriteString(" 12.3456");
+				DisplayY.MakeActive();
+				DisplayY.WriteString(" -9.8765");
 				break;
 
 			case '+':

@@ -392,6 +392,7 @@ namespace RA8876const
 		MPWCTR_SyncEnable = 0x00,
 
 		MPWCTR_MainImageColor_Mask = 0x0C,
+		MPWCTR_MainImageColor_Shft = 2,
 		MPWCTR_MainImageColor8 = 0x00,
 		MPWCTR_MainImageColor16 = 0x04,
 		MPWCTR_MainImageColor24 = 0x08,
@@ -413,11 +414,13 @@ namespace RA8876const
 	enum PIPCDEP_Bits
 	{
 		PIPCDEP_Pip2Color_Mask = 0x03,
+		PIPCDEP_Pip2Color_Shft = 0,
 		PIPCDEP_Pip2Color8 = 0x00,
 		PIPCDEP_Pip2Color16 = 0x01,
 		PIPCDEP_Pip2Color24 = 0x02,
 
 		PIPCDEP_Pip1Color_Mask = 0x0C,
+		PIPCDEP_Pip1Color_Shft = 2,
 		PIPCDEP_Pip1Color8 = 0x00,
 		PIPCDEP_Pip1Color16 = 0x04,
 		PIPCDEP_Pip1Color24 = 0x08,
@@ -588,6 +591,30 @@ namespace RA8876const
 		BTE_CTRL1_RopWhite = 0x0f,
 
 		BTE_CTRL1_BitStartShift = 4,
+	};
+
+	enum BTE_COLR_Bits
+	{
+		BTE_COLR_DestColor_Mask = 0x03,
+		BTE_COLR_DestColor_Shft = 0,
+		BTE_COLR_DestColor8 = 0x00,
+		BTE_COLR_DestColor16 = 0x01,
+		BTE_COLR_DestColor24 = 0x02,
+
+		BTE_COLR_Src1Color_Mask = 0x1C,
+		BTE_COLR_Src1Color_Shft = 2,
+		BTE_COLR_Src1Color8 = 0x00,
+		BTE_COLR_Src1Color16 = 0x04,
+		BTE_COLR_Src1Color24 = 0x08,
+		BTE_COLR_Src1ColorConst = 0x0C,
+		BTE_COLR_Src1ColorAlpha8 = 0x10,
+		BTE_COLR_Src1ColorAlpha16 = 0x14,
+
+		BTE_COLR_Src0Color_Mask = 0x60,
+		BTE_COLR_Src0Color_Shft = 5,
+		BTE_COLR_Src0Color8 = 0x00,
+		BTE_COLR_Src0Color16 = 0x20,
+		BTE_COLR_Src0Color24 = 0x40,
 	};
 
 	//************************************************************************
