@@ -46,9 +46,9 @@ FILE		Console_FILE;
 Xtp2046		Touch;
 ScreenMgr	Lcd;
 UsbDro		UsbPort;
-TextField	DisplayX(&MainScreen, Xaxis_X, Xaxis_Y);
-TextField	DisplayY(&MainScreen, Yaxis_X, Yaxis_Y);
-TextField	DisplayZ(&MainScreen, Zaxis_X, Zaxis_Y);
+TextLine	DisplayX(&MainScreen, Xaxis_X, Xaxis_Y);
+TextLine	DisplayY(&MainScreen, Yaxis_X, Yaxis_Y);
+TextLine	DisplayZ(&MainScreen, Zaxis_X, Zaxis_Y);
 
 FatSd		Sd;
 FatSysWait<true>	FileSys;
@@ -114,26 +114,6 @@ void DumpCanvas(uint addr)
 	DEBUG_PRINT("Window: (%u, %u) width: %u, height: %u\n",
 		Lcd.ReadReg16(addr + 6), Lcd.ReadReg16(addr + 8),
 		Lcd.ReadReg16(addr + 10), Lcd.ReadReg16(addr + 12));
-}
-
-void NO_INLINE_ATTR TextField()
-{
-	Lcd.SetForeColor(0xFF);
-	Lcd.FillRect(0, 0, 1023, 599);
-	Lcd.SetForeColor(0xFF00);
-	Lcd.FillRect(100, 100, 923, 499);
-
-	// Write some text
-	Lcd.SetForeColor(0xFFFFFF);
-	Lcd.SetBackColor(0);
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX3 | CCR1_CharWidthX3 | CCR1_CharBackgroundTransparent);
-	Lcd.WriteRegXY(F_CURX0, 0, 0);
-	Lcd.ExternalFont(CCR0_CharHeight16, GTENT_CR_CharWidthFixed | GTFNT_CR_Ascii, 1);
-	Lcd.WriteString("0123456789");
-	Lcd.WriteRegXY(F_CURX0, 0, 64);
-	Lcd.WriteReg(FLDR, 0);
-	//Lcd.InternalFont(CCR0_CharHeight32, CCR0_CharSet8859_1);
-	Lcd.WriteString("The quick brown fox jumped over the lazy dog.");
 }
 
 void NO_INLINE_ATTR CalibratePos(int X, int Y, int anchorX, int anchorY)
@@ -352,6 +332,8 @@ int main(void)
 			case HOSTACT_MouseChange:
 				X = Mouse.GetX();
 				Y = Mouse.GetY();
+				DisplayX.printf("%7i\n", X);
+				DisplayY.printf("%7i\n", Y);
 
 				X = std::max(X - 16, 0);
 				Y = std::max(Y - 16, 0);
@@ -541,14 +523,6 @@ int main(void)
 				}
 				else
 					DEBUG_PRINT("...Not saved\n");
-				break;
-
-			case 't':
-				DEBUG_PRINT("Write text\n");
-				DisplayX.MakeActive();
-				DisplayX.WriteString(" 12.3456");
-				DisplayY.MakeActive();
-				DisplayY.WriteString(" -9.8765");
 				break;
 
 			case '+':

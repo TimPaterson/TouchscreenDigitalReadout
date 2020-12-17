@@ -39,19 +39,28 @@ extern "C"
 class TextField : public RA8876
 {
 public:
-	TextField(Canvas *pCanvas, ushort X, ushort Y):	
-		m_pCanvas{pCanvas}, 
-		m_viewPosX{X}, 
-		m_viewPosY{Y}, 
-		m_curPosX{X}, 
-		m_curPosY{Y} 
+	static constexpr long Transparent = -1;
+
+public:
+	TextField(Canvas *pCanvas, ushort X, ushort Y):
+		TextField(pCanvas, X, Y, 
+		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
+		{}
+
+	TextField(Canvas *pCanvas, ushort X, ushort Y, _fdev_put_t *put):
+		m_pCanvas{pCanvas},
+		m_backColor{Transparent},
+		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
+		m_viewPosX{X},
+		m_viewPosY{Y},
+		m_curPosX{X},
+		m_curPosY{Y}
 		{}
 
 public:
-	void SetFont(FontId id, bool isTransparent = false)
+	void SetFont(FontId id)
 	{
 		m_pFontInfo = FontList[id];
-		m_isTransparent = isTransparent;
 		SetSpaceWidth();
 		MakeActive();
 	}
@@ -66,7 +75,7 @@ public:
 		m_foreColor = color;
 	}
 
-	void SetBackColor(ulong color)
+	void SetBackColor(long color)
 	{
 		m_backColor = color;
 	}
@@ -81,7 +90,7 @@ public:
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
 		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) |
-			(m_isTransparent ? BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent :
+			(m_backColor < 0 ? BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent :
 			BTE_CTRL1_OpcodeMemoryCopyExpandMono));
 	}
 
@@ -125,6 +134,7 @@ public:
 	{
 		byte	ch;
 
+		MakeActive();
 		for (;;)
 		{
 			ch = *psz++;
@@ -132,6 +142,19 @@ public:
 				return;
 			WriteChar(ch);
 		}
+	}
+
+	int printf(const char *fmt, ...)
+	{
+		va_list ap;
+		int i;
+
+		MakeActive();
+		va_start(ap, fmt);
+		i = vfprintf(&m_file, fmt, ap);
+		va_end(ap);
+
+		return i;
 	}
 
 	int GetCharWidth(byte ch)
@@ -167,11 +190,49 @@ protected:
 	Canvas		*m_pCanvas;
 	FontInfo	*m_pFontInfo;
 	ulong		m_foreColor;
-	ulong		m_backColor;
+	long		m_backColor;	// -1 signifies transparent
+	FILE		m_file;
 	ushort		m_viewPosX;
 	ushort		m_viewPosY;
 	ushort		m_curPosX;
 	ushort		m_curPosY;
-	bool		m_isTransparent;
 	byte		m_spaceWidth;
+};
+
+
+class TextLine : public TextField
+{
+public:
+	TextLine(Canvas *pCanvas, ushort X, ushort Y): 
+		TextField(pCanvas, X, Y,
+		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
+		{}
+
+public:
+	void WriteChar(byte ch)
+	{
+		if (ch == '\n')
+		{
+			ResetPosition();
+			return;
+		}
+
+		TextField::WriteChar(ch);
+	}
+
+	// Local version to use our WriteChar()
+	void WriteString(const char *psz) NO_INLINE_ATTR
+	{
+		byte	ch;
+
+		MakeActive();
+		for (;;)
+		{
+			ch = *psz++;
+			if (ch == 0)
+			return;
+			WriteChar(ch);
+		}
+	}
+
 };
