@@ -13,6 +13,7 @@
 
 typedef struct
 {
+	// These first two elements correspond to the Image class in TouchCanvas.h
 	ulong	FontStart;
 	ushort	CharsetWidth;
 	ushort	Height;

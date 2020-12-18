@@ -58,6 +58,7 @@ enum RA8876_InitValues
 	VNDR1_Init = (LcdVsyncBackPorchLn - 1) >> 8,
 	VSTR_Init = LcdVsyncFrontPorchLn - 1,
 	VPWR_Init = LcdVsyncWidthLn - 1,
+	MPWCTR_Init = MPWCTR_SyncEnable,
 
 	// SPI Initialization
 	// SPI Serial character ROM at CS0
@@ -155,6 +156,7 @@ const RegValue s_arInitList[] = {
 	VNDR1,	VNDR1_Init,
 	VSTR,	VSTR_Init,
 	VPWR,	VPWR_Init,
+	MPWCTR,	MPWCTR_Init,
 	GTFNT_SEL, GTFNT_SEL_GT30L32S4W,
 	DPCR,	DPCR_Init,
 };

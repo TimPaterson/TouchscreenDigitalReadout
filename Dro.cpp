@@ -32,6 +32,7 @@ void Init();
 #define START_SCREEN(name)	TouchCanvas name(
 #define IMAGE_ADDRESS(val)	val + RamScreenStart,
 #define IMAGE_WIDTH(val)	val,
+#define IMAGE_HEIGHT(val)	val,
 #define IMAGE_DEPTH(val)	val,
 #define END_SCREEN(name)	&name##HotspotList);
 
@@ -499,16 +500,18 @@ int main(void)
 				break;
 
 			case 'p':
-				DEBUG_PRINT("PIP display\n");
 				if (fPip)
+				{
+					DEBUG_PRINT("PIP off\n");
 					Lcd.DisablePip1();
+					fPip = false;
+				}
 				else
-					Lcd.EnablePip1(&MainScreen, 50, 50);
-				break;
-
-			case 'r':
-				DEBUG_PRINT("Dump RAM\n");
-				DumpRam(FONT_DigitDisplay.FontStart + 0x5FA0, 0x50);
+				{
+					DEBUG_PRINT("PIP on\n");
+					Lcd.EnablePip1(&KeyUpper, 50, 200);
+					fPip = true;
+				}
 				break;
 
 			case 's':
