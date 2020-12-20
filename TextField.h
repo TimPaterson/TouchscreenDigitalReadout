@@ -105,6 +105,11 @@ public:
 		m_curPosX = position;
 	}
 
+	void MovePosition(int cntPx)
+	{
+		m_curPosX += cntPx;
+	}
+
 	void NewLine()
 	{
 		m_curPosY += m_pFontInfo->Height;

@@ -11,13 +11,9 @@
 #include "PosSensor.h"
 #include "LcdDef.h"
 #include "RA8876.h"
-#include "Xtp2046.h"
-#include "HotspotList.h"
 #include "UsbDro.h"
 #include "FatFileSys.h"
-#include "TextField.h"
-#include "TouchCanvas.h"
-#include "ScreenMgr.h"
+#include "AxisDisplay.h"
 
 
 //*********************************************************************
@@ -47,9 +43,6 @@ FILE		Console_FILE;
 Xtp2046		Touch;
 ScreenMgr	Lcd;
 UsbDro		UsbPort;
-TextLine	DisplayX(&MainScreen, Xaxis_X, Xaxis_Y);
-TextLine	DisplayY(&MainScreen, Yaxis_X, Yaxis_Y);
-TextLine	DisplayZ(&MainScreen, Zaxis_X, Zaxis_Y);
 
 FatSd		Sd;
 FatSysWait<true>	FileSys;
@@ -60,28 +53,27 @@ extern "C"
 	extern const byte TargetCursor[256];
 }
 
+//********************************************************************
+// Define the four sensors
+
+AxisDisplay Xpos(&Eeprom.Data.XaxisInfo, Xaxis_X, Xaxis_Y);
+AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, Yaxis_X, Yaxis_Y);
+AxisDisplay Zpos(&Eeprom.Data.ZaxisInfo, Zaxis_X, Zaxis_Y);
+PosSensor Qpos(&Eeprom.Data.QaxisInfo);
+
 //****************************************************************************
 // EEPROM data
 
-// The first two rows are reserved to store position at shutdown
-static constexpr int ReservedEepromRows = 2;
-
-// Define the structure
-#define EepromData(typ, name, ...)	typ name;
-struct Eeprom_t
-{
-	#include "EepromData.h"
-};
-
 // Define initial EEPROM data
 #define EepromData(typ, name, ...)	__VA_ARGS__,
+
 const Eeprom_t RwwData =
 {
 	#include "EepromData.h"
 };
 
 // Create an EepromMgr for it, which includes a copy in RAM
-EepromMgr<Eeprom_t, &RwwData, ReservedEepromRows> Eeprom;
+EepromMgr_t Eeprom;
 
 //*********************************************************************
 // Tests
@@ -250,7 +242,13 @@ int main(void)
 	Init();
 	Timer::Init();
 	Eeprom.Init();
+
+	// Put EEPROM data into effect
 	TCC1->CC[1].reg = Eeprom.Data.Brightness;
+	Xpos.AxisInfoUpdate();
+	Ypos.AxisInfoUpdate();
+	Zpos.AxisInfoUpdate();
+	Qpos.AxisInfoUpdate();
 
 	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
 	Console.SetBaudRate(CONSOLE_BAUD_RATE);
@@ -289,16 +287,6 @@ int main(void)
 	Sd.Enable();
 	FileSys.Init();
 
-	DisplayX.SetForeColor(0);
-	DisplayX.SetBackColor(0xFFFF00);
-	DisplayX.SetFont(FID_DigitDisplay);
-	DisplayX.SetSpaceWidth(DisplayX.GetCharWidth('0'));
-
-	DisplayY.SetForeColor(0);
-	DisplayY.SetBackColor(0xFFFF00);
-	DisplayY.SetFont(FID_DigitDisplay);
-	DisplayY.SetSpaceWidth(DisplayY.GetCharWidth('0'));
-
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
@@ -306,13 +294,10 @@ int main(void)
 	// Main loop
 
 	Timer	tmr;
-	int		iCurPos;
-	int		iLastPos;
 	int		i;
 	bool	fShow = false;
 	bool	fPip = false;
 
-	iLastPos = 0;
 	tmr.Start();
 
     while (1)
@@ -321,6 +306,8 @@ int main(void)
 
 		// Process EEPROM save if in progress
 		Eeprom.Process();
+
+		AxisDisplay::UpdateAll();
 
 		i = UsbPort.Process();
 		if (i != HOSTACT_None)
@@ -333,8 +320,8 @@ int main(void)
 			case HOSTACT_MouseChange:
 				X = Mouse.GetX();
 				Y = Mouse.GetY();
-				DisplayX.printf("%7i\n", X);
-				DisplayY.printf("%7i\n", Y);
+				//Xpos.printf("%7i\n", X);
+				//Ypos.printf("%7i\n", Y);
 
 				X = std::max(X - 16, 0);
 				Y = std::max(Y - 16, 0);
@@ -399,16 +386,6 @@ int main(void)
 			{
 				if (!Mouse.IsLoaded())
 					Lcd.DisableGraphicsCursor();
-			}
-		}
-
-		if (tmr.CheckInterval_rate(10))
-		{
-			iCurPos = Xpos.GetPos();
-			if (iCurPos != iLastPos)
-			{
-				DEBUG_PRINT("Pos: %i\n", iCurPos);
-				iLastPos = iCurPos;
 			}
 		}
 

@@ -9,6 +9,7 @@
 
 #include "Hotspot.h"
 
+
 //*************************************************************************
 // Define the hotspot values for digit keys on main screen. They just
 // get their numeric value, 0 - 9.
@@ -129,14 +130,23 @@ enum Hotspots
 // of flexible arrays. Declare the external references.
 
 #ifdef __cplusplus
+extern "C"
+{
 
 #define START_HOTSPOTS(name) extern HotspotList name##HotspotList;
 
-extern "C"
-{
-	#include "Images/Screen.h"
-}
+#include "Images/Screen.h"
 
+//*************************************************************************
+// Define the screens
+
+#include "TouchCanvas.h"
+
+#define START_SCREEN(name) extern TouchCanvas name;
+
+#include "Images/Screen.h"
+
+}
 #endif	// __cplusplus
 
 //*************************************************************************

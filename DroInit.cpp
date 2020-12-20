@@ -123,7 +123,7 @@ void Init()
 	
 	// Set up USB on PA24 and PA25
 	// This is on MUX channel G
-	SetPortMuxA(PORT_MUX_G, UsbDm_BIT | UsbDp_BIT);
+	SetPortMuxA(PORT_MUX_G, UsbDm_PIN | UsbDp_PIN);
 
 	// Set up Analog Comparator output on PA12
 	// This is on MUX channel H
@@ -148,7 +148,7 @@ void Init()
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_EIC;
 	EIC->INTENSET.reg = PosSensorIrqMask;
 
-#define IRQCONFIG(irq, sense, filter)	EicConfig[irq > 7].reg |= (sense | filter) << (irq > 7 ? irq - 7 : irq) * 4
+#define IRQCONFIG(irq, sense, filter)	EicConfig[irq > 7].reg |= (sense | filter) << (irq > 7 ? irq - 8 : irq) * 4
 	EIC_CONFIG_Type	EicConfig[2];
 	EicConfig[0].reg = 0;
 	EicConfig[1].reg = 0;

@@ -9,6 +9,7 @@
 
 #include <IoBuf/UsartBuf.h>
 #include <Util/TimerLib.h>
+#include <Nvm/EepromMgr.h>
 #include "Spi.h"
 #include "SerialMem.h"
 
@@ -383,3 +384,31 @@ static constexpr uint PosSensorIrqMask = EI_QposA | EI_QposB |
 // emulation flash in the 128K version.
 //
 static constexpr byte BOD_LEVEL_2p7_REVG = 39;
+
+//*********************************************************************
+// EEPROM data definition
+// Actually managed in flash my EepromMgr
+
+struct AxisInfo
+{
+	double	Compensation;
+	byte	Resolution;		// microns (typically 5)
+	bool	Direction;
+};
+
+#include "Xtp2046.h"
+
+// The first two rows are reserved to store position at shutdown
+static constexpr int ReservedEepromRows = 2;
+
+#define EepromData(typ, name, ...)	typ name;
+
+struct Eeprom_t
+{
+	#include "EepromData.h"
+};
+
+extern const Eeprom_t RwwData;	// initial EEPROM data
+typedef EepromMgr<Eeprom_t, &RwwData, ReservedEepromRows> EepromMgr_t;
+
+extern EepromMgr_t Eeprom;

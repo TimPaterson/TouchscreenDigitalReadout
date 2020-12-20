@@ -7,7 +7,7 @@
 
 #include <standard.h>
 #include "Dro.h"
-#include "PosSensor.h"
+#include "AxisDisplay.h"
 
 
 //****************************************************************************
