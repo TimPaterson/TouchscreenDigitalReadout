@@ -11,6 +11,7 @@
 
 class PosSensor
 {
+	static constexpr int MaxOrigins = 3;
 	static constexpr double MmPerInch = 25.4;
 	static constexpr double MaxCompensation = 0.001;	// max adjust of 0.1%
 
@@ -29,7 +30,10 @@ public:
 public:
 	double GetPosition()
 	{
-		return m_iCurPos * (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch);
+		int		pos;
+
+		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_iCurPos;
+		return pos * (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch);
 	}
 
 	void SetPosition(double pos)
@@ -37,10 +41,7 @@ public:
 		int		iPos;
 
 		iPos = lround(pos / (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch));
-
-		__disable_irq();
-		m_iCurPos = iPos;
-		__enable_irq();
+		m_arOrigins[Eeprom.Data.OriginNum] = iPos - m_iCurPos;
 	}
 
 
@@ -119,9 +120,12 @@ protected:
 	// member (RAM) data
 	//*********************************************************************
 protected:
+	volatile int m_iCurPos;		// can change in ISR
+
+protected:
 	AxisInfo	*m_pInfo;
 	double		m_scaleMm;
 	double		m_scaleInch;
-	int			m_iCurPos;
+	int			m_arOrigins[MaxOrigins];
 	byte		m_bPrevSig;
 };

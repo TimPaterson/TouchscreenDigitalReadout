@@ -122,6 +122,7 @@ enum HotspotGroups
 
 enum Hotspots
 {
+	HotspotStart = KeyPad_9,
 	#include "Images/Screen.h"
 };
 
@@ -142,7 +143,9 @@ extern "C"
 
 #include "TouchCanvas.h"
 
-#define START_SCREEN(name) extern TouchCanvas name;
+#define START_SCREEN(name)		extern TouchCanvas name;
+#define START_SCREEN_Key(name)	extern const ColorImage name;
+#define START_AREAS(name)		extern const name##_Areas_t name##_Areas;
 
 #include "Images/Screen.h"
 

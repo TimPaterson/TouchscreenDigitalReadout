@@ -19,23 +19,27 @@ enum ColorDepths
 };
 
 
-class Image
+struct Image
 {
-public:
-	Image(ulong addr, ushort width) : 
-		m_imageAddress{addr}, m_imageWidth{width} {}
-
-protected:
 	ulong		m_imageAddress;
 	ushort		m_imageWidth;
 };
 
+struct ColorImage
+{
+	byte GetColorDepth() const	{ return m_colorDepth; }
 
-class Canvas : Image
+	ulong		m_imageAddress;
+	ushort		m_imageWidth;
+	byte		m_colorDepth;
+};
+
+
+class Canvas
 {
 public:
 	Canvas(ulong addr, ushort width, ushort height, byte depth) : 
-		Image(addr, width), m_viewWidth{width}, 
+		m_imageAddress{addr}, m_imageWidth{width},
 		m_viewHeight{height}, m_colorDepth{depth} {}
 
 public:
@@ -51,6 +55,8 @@ public:
 	// instance data
 	//*********************************************************************
 protected:
+	ulong		m_imageAddress;
+	ushort		m_imageWidth;
 	ushort		m_viewPosX;
 	ushort		m_viewPosY;
 	ushort		m_viewWidth;

@@ -31,6 +31,7 @@ EepromData(AxisInfo, YaxisInfo, { 1.0, 5, 0 })
 EepromData(AxisInfo, ZaxisInfo, { 1.0, 5, 0 })
 EepromData(AxisInfo, QaxisInfo, { 1.0, 5, 0 })
 EepromData(bool, fIsMetric, false)
+EepromData(byte, OriginNum, 0)
 
 // Undefine all the macros now
 #undef	EepromData

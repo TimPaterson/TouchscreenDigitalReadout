@@ -197,7 +197,7 @@ public:
 		return ReadData16();
 	}
 
-	static void WriteSequentialRegisters(void *pv, uint addr, int cnt)
+	static void WriteSequentialRegisters(const void *pv, uint addr, int cnt)
 	{
 		byte *pb = (byte *)pv;
 

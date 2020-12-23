@@ -39,7 +39,7 @@ public:
 
 		pos = GetPosition();
 		if (pos < 0)
-			MovePosition(GetCharWidth(' ') - GetCharWidth('-'));
+			MoveXposition(GetCharWidth(' ') - GetCharWidth('-'));
 
 		if (IsMetric())
 			printf("%8.2f\n", pos);

@@ -100,12 +100,12 @@ public:
 		m_curPosY = m_viewPosY;
 	}
 
-	void SetPosition(uint position)
+	void SetXposition(uint position)
 	{
 		m_curPosX = position;
 	}
 
-	void MovePosition(int cntPx)
+	void MoveXposition(int cntPx)
 	{
 		m_curPosX += cntPx;
 	}

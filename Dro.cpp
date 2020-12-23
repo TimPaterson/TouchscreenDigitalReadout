@@ -14,6 +14,7 @@
 #include "UsbDro.h"
 #include "FatFileSys.h"
 #include "AxisDisplay.h"
+#include "Actions.h"
 
 
 //*********************************************************************
@@ -25,12 +26,27 @@ void Init();
 //****************************************************************************
 // Static canvas data (RAM)
 
-#define START_SCREEN(name)	TouchCanvas name(
-#define IMAGE_ADDRESS(val)	val + RamScreenStart,
-#define IMAGE_WIDTH(val)	val,
-#define IMAGE_HEIGHT(val)	val,
-#define IMAGE_DEPTH(val)	val,
-#define END_SCREEN(name)	&name##HotspotList);
+// "Canvas" images
+#define START_SCREEN(name)		TouchCanvas name(
+#define IMAGE_ADDRESS(val)		val + RamScreenStart,
+#define IMAGE_WIDTH(val)		val,
+#define IMAGE_HEIGHT(val)		val,
+#define IMAGE_DEPTH(val)		val,
+#define END_SCREEN(name)		&name##HotspotList);
+
+// "ColorImage" images
+#define START_SCREEN_Key(name)	const ColorImage name = {
+#define IMAGE_ADDRESS_Key(val)	val + RamScreenStart,
+#define IMAGE_WIDTH_Key(val)	val,
+#define IMAGE_DEPTH_Key(val)	val
+#define END_SCREEN_Key(name)	};
+
+#include "Images/Screen.h"
+
+// Areas
+#define START_AREAS(name)					const name##_Areas_t name##_Areas = {
+#define DEFINE_AREA(name, x1, y1, x2, y2)	{x1, y1, x2, y2},
+#define END_AREAS(name)						};
 
 #include "Images/Screen.h"
 
@@ -277,6 +293,9 @@ int main(void)
 	Lcd.SetMainImage(&MainScreen);
 	Lcd.DisplayOn();
 
+	Actions::ShowAbsInc();
+	Actions::ShowInchMetric();
+
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
 	UsbPort.Init();
@@ -320,8 +339,6 @@ int main(void)
 			case HOSTACT_MouseChange:
 				X = Mouse.GetX();
 				Y = Mouse.GetY();
-				//Xpos.printf("%7i\n", X);
-				//Ypos.printf("%7i\n", Y);
 
 				X = std::max(X - 16, 0);
 				Y = std::max(Y - 16, 0);
@@ -345,47 +362,13 @@ int main(void)
 
 			// Touch sensor has an update
 			flags = Touch.GetTouch();
-			if (flags & TOUCH_Touched)
+			if (flags & TOUCH_Start)
 			{
 				int	X, Y;
-				HotspotData	*pHot;
-				byte key;
 
 				X = Touch.GetX();
 				Y = Touch.GetY();
-
-				X = std::max(X - 16, 0);
-				Y = std::max(Y - 16, 0);
-				Lcd.SetGraphicsCursorPosition(X, Y);
-				Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
-
-				if (flags & TOUCH_Start)
-				{
-					pHot = MainScreen.TestHit(X, Y);
-					if (pHot != NULL)
-					{
-						key = pHot->id;
-						switch (pHot->group)
-						{
-						case HOTSPOT_GROUP_Digit:
-							DEBUG_PRINT("Digit %c\n", key + '0');
-							break;
-
-						case HOTSPOT_GROUP_Keyboard:
-							DEBUG_PRINT("Keyboard %c\n", key);
-							break;
-
-						default:
-							DEBUG_PRINT("Key %i\n", key);
-							break;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (!Mouse.IsLoaded())
-					Lcd.DisableGraphicsCursor();
+				Actions::TakeAction(X, Y);
 			}
 		}
 
