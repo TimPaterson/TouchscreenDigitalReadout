@@ -82,11 +82,11 @@ public:
 
 	void MakeActive()
 	{
-		ScreenMgr::SetBteDestination(m_pCanvas);
+		ScreenMgr::SetBteDest(m_pCanvas);
 		WriteReg16(DT_Y0, m_curPosY);
 		RA8876::SetForeColor(m_foreColor);
 		RA8876::SetBackColor(m_backColor);
-		ScreenMgr::SetBteSource0((Image *)m_pFontInfo, Color8bpp);
+		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, Color8bpp);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
 		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) |

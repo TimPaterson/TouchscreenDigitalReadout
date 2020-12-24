@@ -316,6 +316,7 @@ int main(void)
 	int		i;
 	bool	fShow = false;
 	bool	fPip = false;
+	bool	fBorder = false;
 
 	tmr.Start();
 
@@ -472,6 +473,15 @@ int main(void)
 					Lcd.EnablePip1(&KeyUpper, 50, 200);
 					fPip = true;
 				}
+				break;
+
+			case 'r':
+				DEBUG_PRINT("Rectangle border\n");
+				if (fBorder)
+					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, 0xFFFFFF);
+				else
+					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, &Pattern16);
+				fBorder = !fBorder;
 				break;
 
 			case 's':

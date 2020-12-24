@@ -34,6 +34,8 @@ struct Area
 
 class ScreenMgr : public RA8876
 {
+	static const int BorderThickness = 4;
+
 public:
 	static void SetMainImage(TouchCanvas *pCanvas)
 	{
@@ -83,7 +85,7 @@ public:
 		m_pPip2Image = NULL;
 	}
 
-	static void SetBteDestination(Canvas *pCanvas)
+	static void SetBteDest(Canvas *pCanvas)
 	{
 		byte	val;
 
@@ -92,13 +94,22 @@ public:
 		WriteData(val | (pCanvas->GetColorDepth() << BTE_COLR_DestColor_Shft));
 	}
 
-	static void SetBteSource0(const Image *pImage, uint bpp)
+	static void SetBteSrc0(const Image *pImage, uint bpp)
 	{
 		byte	val;
 
 		WriteSequentialRegisters(pImage, S0_STR0, ImageRegCount);
 		val = ReadReg(BTE_COLR) & ~BTE_COLR_Src0Color_Mask;
 		WriteData(val | (bpp << BTE_COLR_Src0Color_Shft));
+	}
+
+	static void SetBteSrc1(const Image *pImage, uint bpp)
+	{
+		byte	val;
+
+		WriteSequentialRegisters(pImage, S1_STR0, ImageRegCount);
+		val = ReadReg(BTE_COLR) & ~BTE_COLR_Src1Color_Mask;
+		WriteData(val | (bpp << BTE_COLR_Src1Color_Shft));
 	}
 
 	static HotspotData *TestHit(int X, int Y)
@@ -118,12 +129,55 @@ public:
 
 	static void CopyRect(const ColorImage *pSrc, uint srcX, uint srcY, Canvas *pDst, const Area *pAreaDst)
 	{
-		SetBteSource0((Image *)pSrc, pSrc->GetColorDepth());
+		SetBteSrc0((Image *)pSrc, pSrc->GetColorDepth());
 		WriteRegXY(S0_X0, srcX, srcY);
-		SetBteDestination(pDst);
+		SetBteDest(pDst);
 		WriteSequentialRegisters(pAreaDst, DT_X0, sizeof *pAreaDst);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
 		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+		WaitWhileBusy();
+	}
+
+	static void RectBorder(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc)
+	{
+		SetBteSrc0((Image *)pSrc, pSrc->GetColorDepth());
+		WriteRegXY(S0_X0, 0, 0);
+		SetBteDest(pDst);
+		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodePatternFillWithRop | BTE_CTRL1_RopS0);
+		RectBorderDraw(pAreaDst, BTE_CTRL0_Pattern16x16);
+	}
+
+	static void RectBorder(Canvas *pDst, const Area *pAreaDst, ulong color)
+	{
+		SetBteDest(pDst);
+		SetForeColor(color);
+		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
+		RectBorderDraw(pAreaDst);
+	}
+
+protected:
+	static void RectBorderDraw(const Area *pAreaDst, uint pattern = BTE_CTRL0_Pattern8x8)
+	{
+		pattern |= BTE_CTRL0_Enable;
+
+		// Write along each edge
+		// Top: X = 0, Y = 0
+		WriteSequentialRegisters(pAreaDst, DT_X0, 3 * sizeof(ushort));
+		WriteReg16(BTE_HIG0, BorderThickness);
+		WriteReg(BTE_CTRL0, pattern);
+		WaitWhileBusy();
+		// Bottom: X = 0, Y = Height - BorderThickness
+		WriteReg16(DT_Y0, pAreaDst->Ypos + pAreaDst->Height - BorderThickness);
+		WriteReg(BTE_CTRL0, pattern);
+		WaitWhileBusy();
+		// Left: X = 0, Y = BorderThickness
+		WriteReg16(DT_Y0, pAreaDst->Ypos + BorderThickness);
+		WriteRegXY(BTE_WTH0, BorderThickness, pAreaDst->Height - 2 * BorderThickness);
+		WriteReg(BTE_CTRL0, pattern);
+		WaitWhileBusy();
+		// Right: X = Width - BorderThickness, Y = BorderThickness
+		WriteReg16(DT_X0, pAreaDst->Xpos + pAreaDst->Width - BorderThickness);
+		WriteReg(BTE_CTRL0, pattern);
 		WaitWhileBusy();
 	}
 
