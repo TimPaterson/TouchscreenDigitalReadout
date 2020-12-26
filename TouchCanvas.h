@@ -8,7 +8,6 @@
 #pragma once
 
 #include "Hotspot.h"
-#include "FontInfo.h"	// for definition of Image struct
 
 
 enum ColorDepths

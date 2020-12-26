@@ -11,7 +11,7 @@
 
 class PosSensor
 {
-	static constexpr int MaxOrigins = 3;
+	static constexpr int MaxOrigins = 2;
 	static constexpr double MmPerInch = 25.4;
 	static constexpr double MaxCompensation = 0.001;	// max adjust of 0.1%
 
@@ -23,25 +23,25 @@ public:
 	void InputChange(uint uSignal)
 	{
 		uSignal &= 3;	// low two bits - A and B signals
-		m_iCurPos += s_arbQuadDecode[(m_bPrevSig << 2) + uSignal];
+		m_posCur += s_arbQuadDecode[(m_bPrevSig << 2) + uSignal];
 		m_bPrevSig = uSignal;
 	}
 
 public:
 	double GetPosition()
 	{
-		int		pos;
+		long		pos;
 
-		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_iCurPos;
+		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_posCur;
 		return pos * (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch);
 	}
 
 	void SetPosition(double pos)
 	{
-		int		iPos;
+		long		iPos;
 
 		iPos = lround(pos / (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch));
-		m_arOrigins[Eeprom.Data.OriginNum] = iPos - m_iCurPos;
+		m_arOrigins[Eeprom.Data.OriginNum] = iPos - m_posCur;
 	}
 
 
@@ -83,7 +83,7 @@ public:
 		m_scaleInch = m_scaleMm / MmPerInch;
 	}
 
-	int GetPosInt()	{ return m_iCurPos; }
+	long GetPosInt()	{ return m_posCur; }
 
 public:
 	static bool IsMetric()
@@ -120,12 +120,12 @@ protected:
 	// member (RAM) data
 	//*********************************************************************
 protected:
-	volatile int m_iCurPos;		// can change in ISR
+	volatile long m_posCur;		// can change in ISR
 
 protected:
 	AxisInfo	*m_pInfo;
 	double		m_scaleMm;
 	double		m_scaleInch;
-	int			m_arOrigins[MaxOrigins];
+	long		m_arOrigins[MaxOrigins];
 	byte		m_bPrevSig;
 };

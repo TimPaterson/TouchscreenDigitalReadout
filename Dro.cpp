@@ -248,6 +248,19 @@ void NO_INLINE_ATTR WriteFileToFlash(uint hFile, ulong addr)
 	}
 }
 
+void NO_INLINE_ATTR EnableCursor()
+{
+	uint height = 112;
+	Lcd.WriteReg(CURHS, 1);
+	Lcd.WriteReg(CURVS, height / 4 - 1);
+	Lcd.WriteReg(BTCR, 35);
+	Lcd.WriteReg(CCR0, CCR0_CharHeight32);
+	Lcd.WriteReg(CCR1, CCR1_CharHeightX4);
+	Lcd.WriteReg(ICR, ICR_TextMode);
+	Lcd.WriteReg(GTCCR, GTCCR_TextCursorEnable | GTCCR_TextCursorBlink);
+	Lcd.WriteRegXY(F_CURX0, Zaxis_X + 54 * 3, Zaxis_Y - (32 * 4 - height));
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
