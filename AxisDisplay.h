@@ -21,30 +21,23 @@ extern AxisDisplay	Zpos;
 extern PosSensor	Qpos;
 
 
-class AxisDisplay : public PosSensor, public TextLine
+class AxisDisplay : public PosSensor, public NumberLine
 {
 public:
-	AxisDisplay(AxisInfo *pInfo, uint X, uint Y) :
-		PosSensor(pInfo), TextLine(&MainScreen, X, Y)
-	{
-		SetForeColor(0);
-		SetBackColor(0xFFFF00);
-		SetFont(FID_DigitDisplay);
-		SetSpaceWidth(GetCharWidth('0'));
-	}
+	AxisDisplay(AxisInfo *pInfo, const Area *pArea) :
+		PosSensor(pInfo), NumberLine(&MainScreen, pArea, FID_DigitDisplay, 0, 0xFFFF00)
+		{}
 
 	void UpdateDisplay()
 	{
 		double	pos;
 
 		pos = GetPosition();
-		if (pos < 0)
-			MoveXposition(GetCharWidth(' ') - GetCharWidth('-'));
 
 		if (IsMetric())
-			printf("%8.2f\n", pos);
+			PrintNum("%8.2f\n", pos);
 		else
-			printf("%8.4f\n", pos);
+			PrintNum("%8.4f\n", pos);
 	}
 
 public:

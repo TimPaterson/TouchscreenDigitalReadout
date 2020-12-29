@@ -12,6 +12,8 @@
 class PosSensor
 {
 	static constexpr int MaxOrigins = 2;
+	static constexpr double InchRounding = 5000.0;		// 1/5000 inch
+	static constexpr double MmRounding = 100.0;			// 1/100 mm
 	static constexpr double MmPerInch = 25.4;
 	static constexpr double MaxCompensation = 0.001;	// max adjust of 0.1%
 
@@ -33,15 +35,27 @@ public:
 		long		pos;
 
 		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_posCur;
-		return pos * (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch);
+		if (Eeprom.Data.fIsMetric)
+			return nearbyint(pos * m_scaleMm) / MmRounding;
+
+		return nearbyint(pos *  m_scaleInch) / InchRounding;
 	}
 
 	void SetPosition(double pos)
 	{
-		long		iPos;
+		// Round to display value first
+		if (Eeprom.Data.fIsMetric)
+		{
+			pos = nearbyint(pos * MmRounding);
+			pos /= m_scaleMm;
+		}
+		else
+		{
+			pos = nearbyint(pos * InchRounding);
+			pos /= m_scaleInch;
+		}
 
-		iPos = lround(pos / (Eeprom.Data.fIsMetric ? m_scaleMm : m_scaleInch));
-		m_arOrigins[Eeprom.Data.OriginNum] = iPos - m_posCur;
+		m_arOrigins[Eeprom.Data.OriginNum] = lround(pos) - m_posCur;
 	}
 
 
@@ -77,10 +91,10 @@ public:
 
 	void AxisInfoUpdate()
 	{
-		m_scaleMm = m_pInfo->Compensation * m_pInfo->Resolution / 1000.0;
+		m_scaleMm = m_pInfo->Compensation * m_pInfo->Resolution * MmRounding / 1000.0;
 		if (m_pInfo->Direction)
 			m_scaleMm = -m_scaleMm;
-		m_scaleInch = m_scaleMm / MmPerInch;
+		m_scaleInch = m_scaleMm * InchRounding / MmRounding / MmPerInch;
 	}
 
 	long GetPosInt()	{ return m_posCur; }

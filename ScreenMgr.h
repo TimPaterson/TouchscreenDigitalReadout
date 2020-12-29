@@ -11,27 +11,6 @@
 #include "TouchCanvas.h"
 
 
-struct Area
-{
-	ushort	Xpos;
-	ushort	Ypos;
-	ushort	Width;
-	ushort	Height;
-};
-
-//*************************************************************************
-// Define the areas in each image
-
-// First create the struct
-#define START_AREAS(name)					struct name##_Areas_t {
-#define DEFINE_AREA(name, x1, y1, x2, y2)	Area name;
-#define END_AREAS(name)						};
-
-#include "Images/Screen.h"
-
-//*************************************************************************
-
-
 class ScreenMgr : public RA8876
 {
 	static const int BorderThickness = 4;
@@ -41,7 +20,7 @@ public:
 	{
 		byte	val;
 
-		m_pMainImage =  pCanvas;
+		s_pMainImage =  pCanvas;
 		WriteSequentialRegisters(pCanvas, MISA0, CanvasRegCount);
 		val = ReadReg(MPWCTR) & ~MPWCTR_MainImageColor_Mask;
 		WriteData(val | (pCanvas->GetColorDepth() << MPWCTR_MainImageColor_Shft));
@@ -51,7 +30,7 @@ public:
 	{
 		byte	val;
 
-		m_pPip1Image = pCanvas;
+		s_pPip1Image = pCanvas;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip1 | MPWCTR_Pip1Enable));
 		WriteRegXY(PWDULX0, X, Y);
@@ -63,14 +42,14 @@ public:
 	static void DisablePip1()
 	{
 		WriteData(ReadReg(MPWCTR) & ~MPWCTR_Pip1_Mask);
-		m_pPip1Image = NULL;
+		s_pPip1Image = NULL;
 	}
 
 	static void EnablePip2(TouchCanvas *pCanvas, uint X, uint Y)
 	{
 		byte	val;
 
-		m_pPip1Image = pCanvas;
+		s_pPip1Image = pCanvas;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip2 | MPWCTR_Pip2Enable));
 		WriteRegXY(PWDULX0, X, Y);
@@ -82,7 +61,7 @@ public:
 	static void DisablePip2()
 	{
 		WriteData(ReadReg(MPWCTR) & ~MPWCTR_Pip2_Mask);
-		m_pPip2Image = NULL;
+		s_pPip2Image = NULL;
 	}
 
 	static void SetBteDest(Canvas *pCanvas)
@@ -117,14 +96,14 @@ public:
 		HotspotData		*pSpot;
 
 		// PIP1 is on top if enabled
-		if (m_pPip1Image != NULL && (pSpot = m_pPip1Image->TestHit(X, Y)) != NULL)
+		if (s_pPip1Image != NULL && (pSpot = s_pPip1Image->TestHit(X, Y)) != NULL)
 			return pSpot;
 
 		// PIP2 is next if enabled
-		if (m_pPip2Image != NULL && (pSpot = m_pPip2Image->TestHit(X, Y)) != NULL)
+		if (s_pPip2Image != NULL && (pSpot = s_pPip2Image->TestHit(X, Y)) != NULL)
 			return pSpot;
 
-		return m_pMainImage->TestHit(X, Y);
+		return s_pMainImage->TestHit(X, Y);
 	}
 
 	static void CopyRect(const ColorImage *pSrc, uint srcX, uint srcY, Canvas *pDst, const Area *pAreaDst)
@@ -134,6 +113,16 @@ public:
 		SetBteDest(pDst);
 		WriteSequentialRegisters(pAreaDst, DT_X0, sizeof *pAreaDst);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
+		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+		WaitWhileBusy();
+	}
+
+	static void FillRect(Canvas *pDst, const Area *pAreaDst, ulong color)
+	{
+		SetBteDest(pDst);
+		SetForeColor(color);
+		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
+		WriteSequentialRegisters(pAreaDst, DT_X0, sizeof *pAreaDst);
 		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
 		WaitWhileBusy();
 	}
@@ -182,10 +171,10 @@ protected:
 	}
 
 	//*********************************************************************
-	// instance data
+	// static (RAM) data
 	//*********************************************************************
 protected:
-	inline static TouchCanvas	*m_pMainImage;
-	inline static TouchCanvas	*m_pPip1Image;
-	inline static TouchCanvas	*m_pPip2Image;
+	inline static TouchCanvas	*s_pMainImage;
+	inline static TouchCanvas	*s_pPip1Image;
+	inline static TouchCanvas	*s_pPip2Image;
 };

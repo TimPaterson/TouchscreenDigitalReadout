@@ -42,20 +42,38 @@ public:
 	static constexpr long Transparent = -1;
 
 public:
-	TextField(Canvas *pCanvas, ushort X, ushort Y):
-		TextField(pCanvas, X, Y, 
+	TextField(Canvas *pCanvas, const Area *pArea):
+		TextField(pCanvas, pArea, 
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
 		{}
 
-	TextField(Canvas *pCanvas, ushort X, ushort Y, _fdev_put_t *put):
+	TextField(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor):
+		TextField(pCanvas, pArea, id, foreColor, backColor,
+		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
+		{}
+
+	TextField(Canvas *pCanvas, const Area *pArea, _fdev_put_t *put):
 		m_pCanvas{pCanvas},
+		m_pArea{pArea},
 		m_backColor{Transparent},
 		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
-		m_viewPosX{X},
-		m_viewPosY{Y},
-		m_curPosX{X},
-		m_curPosY{Y}
+		m_curPosX{pArea->Xpos},
+		m_curPosY{pArea->Ypos}
 		{}
+
+	TextField(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+		m_pCanvas{pCanvas},
+		m_pArea{pArea},
+		m_backColor{Transparent},
+		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
+		m_curPosX{pArea->Xpos},
+		m_curPosY{pArea->Ypos}
+	{
+		SetFont(id);
+		m_foreColor = foreColor;
+		m_backColor = backColor;
+		ResetPosition();
+	}
 
 public:
 	void SetFont(FontId id)
@@ -96,8 +114,8 @@ public:
 
 	void ResetPosition()
 	{
-		m_curPosX = m_viewPosX;
-		m_curPosY = m_viewPosY;
+		m_curPosX = m_pArea->Xpos;
+		m_curPosY = m_pArea->Ypos;
 	}
 
 	void SetXposition(uint position)
@@ -135,7 +153,7 @@ public:
 		WaitWhileBusy();
 	}
 
-	void WriteString(const char *psz) NO_INLINE_ATTR
+	void WriteString(const char *psz)
 	{
 		byte	ch;
 
@@ -188,17 +206,26 @@ public:
 		return len;
 	}
 
+	void ClearArea()
+	{
+		ScreenMgr::FillRect(m_pCanvas, m_pArea, m_backColor);
+	}
+
+	void FillArea(ulong color)
+	{
+		ScreenMgr::FillRect(m_pCanvas, m_pArea, color);
+	}
+
 	//*********************************************************************
 	// instance data
 	//*********************************************************************
 protected:
 	Canvas		*m_pCanvas;
 	FontInfo	*m_pFontInfo;
+	const Area	*m_pArea;
 	ulong		m_foreColor;
 	long		m_backColor;	// -1 signifies transparent
 	FILE		m_file;
-	ushort		m_viewPosX;
-	ushort		m_viewPosY;
 	ushort		m_curPosX;
 	ushort		m_curPosY;
 	byte		m_spaceWidth;
@@ -208,10 +235,21 @@ protected:
 class TextLine : public TextField
 {
 public:
-	TextLine(Canvas *pCanvas, ushort X, ushort Y): 
-		TextField(pCanvas, X, Y,
+	TextLine(Canvas *pCanvas, const Area *pArea): 
+		TextLine(pCanvas, pArea,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
 		{}
+
+	TextLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
+		TextLine(pCanvas, pArea, id, foreColor, backColor,
+		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
+		{}
+
+	TextLine(Canvas *pCanvas, const Area *pArea, _fdev_put_t *put):
+		TextField(pCanvas, pArea, put) {}
+
+	TextLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+		TextField(pCanvas, pArea, id, foreColor, backColor, put) {}
 
 public:
 	void WriteChar(byte ch)
@@ -226,7 +264,7 @@ public:
 	}
 
 	// Local version to use our WriteChar()
-	void WriteString(const char *psz) NO_INLINE_ATTR
+	void WriteString(const char *psz)
 	{
 		byte	ch;
 
@@ -235,9 +273,57 @@ public:
 		{
 			ch = *psz++;
 			if (ch == 0)
-			return;
+				return;
+			WriteChar(ch);
+		}
+	}
+};
+
+
+class NumberLine : public TextLine
+{
+public:
+	NumberLine(Canvas *pCanvas, const Area *pArea): 
+		TextLine(pCanvas, pArea,
+		({union {void (NumberLine::*mf)(byte); _fdev_put_t *p;} u = {&NumberLine::WriteChar}; u.p;}))
+		{}
+
+	NumberLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
+		TextLine(pCanvas, pArea,
+		({union {void (NumberLine::*mf)(byte); _fdev_put_t *p;} u = {&NumberLine::WriteChar}; u.p;}))
+	{
+		SetFont(id);
+		m_foreColor = foreColor;
+		m_backColor = backColor;
+	}
+
+public:
+	int PrintNum(const char *fmt, double val)
+	{
+		if (val < 0)
+			MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+		return printf(fmt, val);
+	}
+
+	void WriteString(const char *psz)
+	{
+		byte	ch;
+
+		MakeActive();
+		for (;;)
+		{
+			ch = *psz++;
+			if (ch == 0)
+				return;
+			if (ch == '-')
+				MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
 			WriteChar(ch);
 		}
 	}
 
+	void SetFont(FontId id)
+	{
+		TextLine::SetFont(id);
+		SetSpaceWidth(GetCharWidth('0'));
+	}
 };

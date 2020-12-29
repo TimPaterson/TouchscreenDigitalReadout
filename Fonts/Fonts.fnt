@@ -1,0 +1,69 @@
+{
+  "FontInfos": [
+    {
+      "FontFamilyName": "Arial",
+      "TypefaceName": "Regular",
+      "CharSetName": "Digits",
+      "Size": 96,
+      "Name": "DigitDisplay"
+    },
+    {
+      "FontFamilyName": "Arial",
+      "TypefaceName": "Regular",
+      "CharSetName": "Arithmetic",
+      "Size": 48,
+      "Name": "Calculator"
+    },
+    {
+      "FontFamilyName": "Arial",
+      "TypefaceName": "Regular",
+      "CharSetName": "Arithmetic",
+      "Size": 24,
+      "Name": "CalcSmall"
+    },
+    {
+      "FontFamilyName": "Arial",
+      "TypefaceName": "Regular",
+      "CharSetName": "Arithmetic",
+      "Size": 48,
+      "Name": "\u002B"
+    }
+  ],
+  "CharSets": [
+    {
+      "Glyphs": [],
+      "FirstChar": 32,
+      "LastChar": 57,
+      "Name": "Digits"
+    },
+    {
+      "Glyphs": [
+        {
+          "Char": 177,
+          "Name": "CH_PlusOrMinus"
+        },
+        {
+          "Char": 215,
+          "Name": "CH_Multiply"
+        },
+        {
+          "Char": 247,
+          "Name": "CH_Divide"
+        },
+        {
+          "Char": 960,
+          "Name": "CH_Pi"
+        }
+      ],
+      "FirstChar": 32,
+      "LastChar": 126,
+      "Name": "Arithmetic"
+    },
+    {
+      "Glyphs": [],
+      "FirstChar": 32,
+      "LastChar": 126,
+      "Name": "\u002B"
+    }
+  ]
+}

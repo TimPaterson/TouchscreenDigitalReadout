@@ -11,21 +11,28 @@
 
 
 //*************************************************************************
-// Define the hotspot values for digit keys on main screen. They just
-// get their numeric value, 0 - 9.
+// Define the tacked-on characters in each CharSet
 
-enum DigitHotspots
+#define START_CHARSET(name)			enum CharValues_name {
+#define DEFINE_CHAR(name, chr, val)	chr = val,
+#define END_CHARSET(name)			};
+
+#include "Fonts/Fonts.h"
+
+//*************************************************************************
+// Define the hotspot values for action keys on main screen. 
+
+enum ActionHotspots
 {
-	KeyPad_0,
-	KeyPad_1,
-	KeyPad_2,
-	KeyPad_3,
-	KeyPad_4,
-	KeyPad_5,
-	KeyPad_6,
-	KeyPad_7,
-	KeyPad_8,
-	KeyPad_9,
+	Key_sign,
+	Key_backSpace,
+	Key_clear,
+	Key_pi,
+	Xdisplay,
+	Ydisplay,
+	Zdisplay,
+	Key_mult = CH_Multiply,
+	Key_divide = CH_Divide,
 };
 
 //*************************************************************************
@@ -103,10 +110,16 @@ enum KeyboardHotspots
 	Key_semi = ';',
 	Key_comma = ',',
 	Key_period = '.',
+	Key_decimal = Key_period,
+	Key_plus = '+',
+	Key_minus = '-',
+	Key_equal = '=',
+
+	Key_shift = -1,
 };
 
 //*************************************************************************
-// Define the hotspot goups
+// Define the hotspot groups
 
 #define START_GROUP(group)	HOTSPOT_GROUP_##group,
 
@@ -122,7 +135,6 @@ enum HotspotGroups
 
 enum Hotspots
 {
-	HotspotStart = KeyPad_9,
 	#include "Images/Screen.h"
 };
 
@@ -139,10 +151,18 @@ extern "C"
 #include "Images/Screen.h"
 
 //*************************************************************************
-// Define the screens
+// Declare the screens & areas
 
 #include "TouchCanvas.h"
 
+// Define a struct of areas for each screen
+#define START_AREAS(name)					struct name##_Areas_t {
+#define DEFINE_AREA(name, x1, y1, x2, y2)	Area name;
+#define END_AREAS(name)						};
+
+#include "Images/Screen.h"
+
+// Define the externs
 #define START_SCREEN(name)		extern TouchCanvas name;
 #define START_SCREEN_Key(name)	extern const ColorImage name;
 #define START_AREAS(name)		extern const name##_Areas_t name##_Areas;

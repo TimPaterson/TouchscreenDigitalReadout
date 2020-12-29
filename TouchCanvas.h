@@ -33,12 +33,20 @@ struct ColorImage
 	byte		m_colorDepth;
 };
 
+struct Area
+{
+	ushort	Xpos;
+	ushort	Ypos;
+	ushort	Width;
+	ushort	Height;
+};
+
 
 class Canvas
 {
 public:
 	Canvas(ulong addr, ushort width, ushort height, byte depth) : 
-		m_imageAddress{addr}, m_imageWidth{width},
+		m_imageAddress{addr}, m_imageWidth{width}, m_viewWidth{width},
 		m_viewHeight{height}, m_colorDepth{depth} {}
 
 public:

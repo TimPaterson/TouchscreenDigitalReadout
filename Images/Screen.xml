@@ -1,0 +1,376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd">
+  <Set Name="BtnHeight" Value="60"/>
+  <Set Name="BtnWidth" Value="60"/>
+  <Set Name="KeySpace" Value="10"/>
+  <Set Name="BtnFontSize" Value="BtnHeight * 3 / 4" />
+  <Set Name="BtnSmallFont" Value="BtnFontSize * 3 / 4" />
+  <Component Name="Key">
+    <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="0" Fill="White">
+      <TextBlock Name="Label" FontSize="BtnFontSize" Top="0" Foreground="Black" FontFamily="Arial" />
+    </Rectangle>
+    <HotSpot Name="KeySpot" Height="BtnHeight" Width="BtnWidth" />
+  </Component>
+  <Component Name="Memory">
+    <Rectangle Name="MemRect" Height="BtnHeight" Width="150">
+      <HotSpot Name="Mem"/>
+    </Rectangle>
+  </Component>
+  <SetString Name="ToggleOn" Value="Yellow"/>
+  <Component Name="Toggle">
+    <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="0x606060">
+      <TextBlock Name="Upper" FontSize="BtnFontSize / 2" Top="1" Foreground="DarkGray" FontFamily="Arial" Text="abs" />
+      <Line X1="10" Y1="BtnHeight / 2" X2="BtnWidth - 10" Y2="BtnHeight / 2" Stroke="White" StrokeThickness="2" />
+      <TextBlock Name="Lower" FontSize="BtnFontSize / 2" Top="33" Foreground="DarkGray" FontFamily="Arial" Text="inc" />
+    </Rectangle>
+  </Component>
+  <Component Name="InchMetric">
+    <Ref RefName="Toggle"/>
+    <SetString RefName="Upper">Text="inch"</SetString>
+    <SetString RefName="Lower">Text="mm"</SetString>
+  </Component>
+  <Canvas Name="MainScreen" Width="1024" Height="600" ColorDepth="Color16bpp" Fill="LightBlue">
+    <Set Name="DispHt" Value="112"/>
+    <Set Name="DispWd" Value="410" />
+    <Set Name="DigHt" Value="96"/>
+    <Set Name="LabHt" Value="72"/>
+    <Set Name="Vspace" Value="30"/>
+    <Set Name="LabTop" Value="(DispHt - DigHt) / 2"/>
+    <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
+      <Default>
+        <Rectangle Height="DispHt" Width="DispWd" Fill="Yellow">
+          <HotSpot Name="AxisDisplay" Group="Axis"/>
+        </Rectangle>
+        <Rectangle Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
+          StrokeThickness="5" Stroke="0" Fill="White">
+          <TextBlock Name="AxisLabel" FontSize="LabHt" Foreground="Black" FontFamily="Arial" Left="13" />
+          <TextBlock Name="AxisLabel" FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial"
+            Text="0" Top="47" Left="59"/>
+          <HotSpot Name="AxisButton"/>
+        </Rectangle>
+     </Default>
+      <Row>
+        <Column Location="Xaxis">
+          <Set>AxisLabel.Text = X</Set>
+          <Set>AxisButton.Name = Xbutton</Set>
+          <Set>AxisDisplay.Area = Xdisplay</Set>
+          <Set>AxisDisplay.Name = Xdisplay</Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column Location="Yaxis">
+          <Set>AxisLabel.Text = Y</Set>
+          <Set>AxisButton.Name = Ybutton</Set>
+          <Set>AxisDisplay.Area = Ydisplay</Set>
+          <Set>AxisDisplay.Name = Ydisplay</Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column Location="Zaxis">
+          <Set>AxisLabel.Text = Z</Set>
+          <Set>AxisButton.Name = Zbutton</Set>
+          <Set>AxisDisplay.Area = Zdisplay</Set>
+          <Set>AxisDisplay.Name = Zdisplay</Set>
+        </Column>
+      </Row>
+    </Grid>
+    <Set Name="KeypadLeft" Value="560"/>
+    <Set Name="KeypadWidth" Value="KeySpace + (BtnWidth + KeySpace) * 4"/>
+    <Set Name="KeypadHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
+    <Set Name="CalcTextHeight" Value="BtnHeight"/>
+    <Set Name="SmallTextHeight" Value="28"/>
+    <Set Name="Undo2Top" Value="Vspace/2 + SmallTextHeight"/>
+    <Set Name="Undo1Top" Value="Undo2Top + SmallTextHeight"/>
+    <Set Name="CalcDispTop" Value="Undo1Top + SmallTextHeight + KeySpace"/>
+    <Set Name="CalcTextTop" Value="CalcDispTop + CalcTextHeight + KeySpace"/>
+    <Set Name="KeypadTop" Value="CalcTextTop + SmallTextHeight + KeySpace"/>
+    <Set Name="KeypadBottom" Value="KeypadTop + KeypadHeight" />
+    <Ref RefName="InchMetric" Left="KeypadLeft - BtnWidth - 2 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>Button.Area = "InchMetric"; Button.HotSpot = "InchMetric"</Set>
+    </Ref>
+    <Ref RefName="Toggle" Left="KeypadLeft - 2 * BtnWidth - 4 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>Button.Area = "AbsInc"; Button.HotSpot = "AbsInc"</Set>
+    </Ref>
+    <Rectangle Left="KeypadLeft" Top="Vspace/2" Location="Undo3" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    </Rectangle>
+    <Rectangle Left="KeypadLeft" Top="Undo2Top" Location="Undo2" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    </Rectangle>
+    <Rectangle Left="KeypadLeft" Top="Undo1Top" Location="Undo1" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    </Rectangle>
+    <HotSpot Name="Undo" Area="Undo" Left="KeypadLeft" Top="Vspace/2" Height="SmallTextHeight * 3" Width="KeypadWidth"/>
+    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Location="CalcDisplay" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="White">
+      <HotSpot Name="CalcDisplay"/>
+    </Rectangle>
+    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Location="CalcText" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    </Rectangle>
+    <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" FontSize="24">Memories</TextBlock>
+    <Rectangle Top="KeypadTop" Left="KeypadLeft" Height="KeypadHeight" Width="KeypadWidth" Fill="Black">
+      <SetString Name="MemColorOdd" Value="Pink"/>
+      <SetString Name="MemColorEven" Value="PaleGreen"/>
+      <Grid Name="KeyPad" Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+        <Default>
+          <Ref RefName="Key" />
+          <Set>KeySpot.Group = Digit</Set>
+        </Default>
+        <Row>
+          <Column>
+            <Set RefName="Label">Text = bksp; FontSize=BtnSmallFont*3/4</Set>
+            <Set RefName="KeySpot">Group = "Edit"; Name = Key_backSpace</Set>
+          </Column>
+          <Column>
+            <Set RefName="Label">Text = CE; FontSize=BtnSmallFont</Set>
+            <Set RefName="KeySpot">Group = "Edit"; Name = Key_clear</Set>
+          </Column>
+          <Column>
+            <Set RefName="Label">Text = π</Set>
+            <Set RefName="KeySpot">Group = "Edit"; Name = Key_pi</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = +</Set>
+            <Set RefName="KeySpot">Group = "Operator"; Name = Key_plus</Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>Mem.Name = Mem1</Set>
+            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem1"</SetString>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set RefName="Label">Text = 7</Set>
+            <Set RefName="KeySpot">Name = Key_7</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 8</Set>
+            <Set RefName="KeySpot">Name = Key_8</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 9</Set>
+            <Set RefName="KeySpot">Name = Key_9</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = −</Set>
+            <Set RefName="KeySpot">Group = Operator; Name = Key_minus</Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>Mem.Name = Mem2</Set>
+            <SetString RefName="MemRect">Fill = MemColorEven; Location = "Mem2"</SetString>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>Label.Text = 4</Set>
+            <Set RefName="KeySpot">Name = Key_4</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 5</Set>
+            <Set RefName="KeySpot">Name = Key_5</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 6</Set>
+            <Set RefName="KeySpot">Name = Key_6</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = ×</Set>
+            <Set RefName="KeySpot">Group = "Operator"; Name = Key_mult</Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>Mem.Name = Mem3</Set>
+            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem3"</SetString>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>Label.Text = 1</Set>
+            <Set RefName="KeySpot">Name = Key_1</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 2</Set>
+            <Set RefName="KeySpot">Name = Key_2</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 3</Set>
+            <Set RefName="KeySpot">Name = Key_3</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = ÷</Set>
+            <Set RefName="KeySpot">Group = "Operator"; Name = Key_divide</Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>Mem.Name = Mem4</Set>
+            <SetString RefName="MemRect">Fill = MemColorEven; Location = "Mem4"</SetString>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set RefName="Label">Text = ±</Set>
+            <Set RefName="KeySpot">Name = Key_sign</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = 0</Set>
+            <Set RefName="KeySpot">Name = Key_0</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = ∙</Set>
+            <Set>KeySpot.Name = Key_decimal</Set>
+          </Column>
+          <Column>
+            <Set>Label.Text = =</Set>
+            <Set RefName="KeySpot">Group = "Operator"; Name = Key_equal</Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>Mem.Name = Mem5</Set>
+            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem5"</SetString>
+          </ColumnNoDefault>
+        </Row>
+      </Grid>
+    </Rectangle>
+  </Canvas>
+  <Canvas Name="AbsCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Ref RefName="Toggle"/>
+    <SetString RefName="Upper">Foreground=ToggleOn</SetString>
+  </Canvas>
+  <Canvas Name="IncCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Ref RefName="Toggle"/>
+    <SetString RefName="Lower">Foreground=ToggleOn</SetString>
+  </Canvas>
+  <Canvas Name="Inch" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Ref RefName="InchMetric"/>
+    <SetString RefName="Upper">Foreground=ToggleOn</SetString>
+  </Canvas>
+  <Canvas Name="Metric" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Ref RefName="InchMetric"/>
+    <SetString RefName="Lower">Foreground=ToggleOn</SetString>
+  </Canvas>
+  <Canvas Name="Pattern16" Height="16" Width="16" ColorDepth="Color16bpp" Type="Key" Fill="0">
+    <Rectangle Height="8" Width="8" Fill="Red" />
+    <Rectangle Left="8" Height="8" Width="8" Fill="Green" />
+    <Rectangle Top="8" Height="8" Width="8" Fill="Blue" />
+    <Rectangle Top="8" Left="8" Height="8" Width="8" Fill="Yellow" />
+  </Canvas>
+  <Set Name="KeyboardWidth" Value="KeySpace + (BtnWidth + KeySpace) * 12"/>
+  <!-- round up to multiple of 4 -->
+  <Set Name="KeyboardWidth" Value="(KeyboardWidth + 3) / 4 * 4"/>
+  <Set Name="KeyboardHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
+  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+      <Default>
+        <Ref RefName="Key" />
+        <Set>KeySpot.Group = Keyboard</Set>
+      </Default>
+      <Row>
+        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
+      </Row>
+      <Row Left="BtnWidth / 2">
+        <Column><Set>Label.Text=q; KeySpot.Name=Key_q</Set></Column>
+        <Column><Set>Label.Text=w; KeySpot.Name=Key_w</Set></Column>
+        <Column><Set>Label.Text=e; KeySpot.Name=Key_e</Set></Column>
+        <Column><Set>Label.Text=r; KeySpot.Name=Key_r</Set></Column>
+        <Column><Set>Label.Text=t; KeySpot.Name=Key_t</Set></Column>
+        <Column><Set>Label.Text=y; KeySpot.Name=Key_y</Set></Column>
+        <Column><Set>Label.Text=u; KeySpot.Name=Key_u</Set></Column>
+        <Column><Set>Label.Text=i; KeySpot.Name=Key_i</Set></Column>
+        <Column><Set>Label.Text=o; KeySpot.Name=Key_o</Set></Column>
+        <Column><Set>Label.Text=p; KeySpot.Name=Key_p</Set></Column>
+      </Row>
+      <Row Left="BtnWidth">
+        <Column><Set>Label.Text=a; KeySpot.Name=Key_a</Set></Column>
+        <Column><Set>Label.Text=s; KeySpot.Name=Key_s</Set></Column>
+        <Column><Set>Label.Text=d; KeySpot.Name=Key_d</Set></Column>
+        <Column><Set>Label.Text=f; KeySpot.Name=Key_f</Set></Column>
+        <Column><Set>Label.Text=g; KeySpot.Name=Key_g</Set></Column>
+        <Column><Set>Label.Text=h; KeySpot.Name=Key_h</Set></Column>
+        <Column><Set>Label.Text=j; KeySpot.Name=Key_j</Set></Column>
+        <Column><Set>Label.Text=k; KeySpot.Name=Key_k</Set></Column>
+        <Column><Set>Label.Text=l; KeySpot.Name=Key_l</Set></Column>
+        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
+      </Row>
+      <Row Left="BtnWidth + BtnWidth / 2">
+        <Column><Set>Label.Text=z; KeySpot.Name=Key_z</Set></Column>
+        <Column><Set>Label.Text=x; KeySpot.Name=Key_x</Set></Column>
+        <Column><Set>Label.Text=c; KeySpot.Name=Key_c</Set></Column>
+        <Column><Set>Label.Text=v; KeySpot.Name=Key_v</Set></Column>
+        <Column><Set>Label.Text=b; KeySpot.Name=Key_b</Set></Column>
+        <Column><Set>Label.Text=n; KeySpot.Name=Key_n</Set></Column>
+        <Column><Set>Label.Text=m; KeySpot.Name=Key_m</Set></Column>
+        <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
+        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
+      </Row>
+    </Grid>
+  </Canvas>
+  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+      <Default>
+        <Ref RefName="Key" />
+        <Set>KeySpot.Group = Keyboard</Set>
+      </Default>
+      <Row>
+        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
+      </Row>
+      <Row Left="BtnWidth / 2">
+        <Column><Set>Label.Text=Q; KeySpot.Name=Key_Q</Set></Column>
+        <Column><Set>Label.Text=W; KeySpot.Name=Key_W</Set></Column>
+        <Column><Set>Label.Text=E; KeySpot.Name=Key_E</Set></Column>
+        <Column><Set>Label.Text=R; KeySpot.Name=Key_R</Set></Column>
+        <Column><Set>Label.Text=T; KeySpot.Name=Key_T</Set></Column>
+        <Column><Set>Label.Text=Y; KeySpot.Name=Key_Y</Set></Column>
+        <Column><Set>Label.Text=U; KeySpot.Name=Key_U</Set></Column>
+        <Column><Set>Label.Text=I; KeySpot.Name=Key_I</Set></Column>
+        <Column><Set>Label.Text=O; KeySpot.Name=Key_O</Set></Column>
+        <Column><Set>Label.Text=P; KeySpot.Name=Key_P</Set></Column>
+      </Row>
+      <Row Left="BtnWidth">
+        <Column><Set>Label.Text=A; KeySpot.Name=Key_A</Set></Column>
+        <Column><Set>Label.Text=S; KeySpot.Name=Key_S</Set></Column>
+        <Column><Set>Label.Text=D; KeySpot.Name=Key_D</Set></Column>
+        <Column><Set>Label.Text=F; KeySpot.Name=Key_F</Set></Column>
+        <Column><Set>Label.Text=G; KeySpot.Name=Key_G</Set></Column>
+        <Column><Set>Label.Text=H; KeySpot.Name=Key_H</Set></Column>
+        <Column><Set>Label.Text=J; KeySpot.Name=Key_J</Set></Column>
+        <Column><Set>Label.Text=K; KeySpot.Name=Key_K</Set></Column>
+        <Column><Set>Label.Text=L; KeySpot.Name=Key_L</Set></Column>
+        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
+      </Row>
+      <Row>
+        <Column><Set>Button.Width=BtnWidth * 3 / 2; Label.Text=shft; KeySpot.Name=Key_shift;</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=Z; KeySpot.Name=Key_Z</Set></Column>
+        <Column><Set>Label.Text=X; KeySpot.Name=Key_X</Set></Column>
+        <Column><Set>Label.Text=C; KeySpot.Name=Key_C</Set></Column>
+        <Column><Set>Label.Text=V; KeySpot.Name=Key_V</Set></Column>
+        <Column><Set>Label.Text=B; KeySpot.Name=Key_B</Set></Column>
+        <Column><Set>Label.Text=N; KeySpot.Name=Key_N</Set></Column>
+        <Column><Set>Label.Text=M; KeySpot.Name=Key_M</Set></Column>
+        <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
+        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
+      </Row>
+      <Row Left="BtnWidth * 3 / 2">
+        <Column Left="BtnWidth * 2"><Set>Label.Text=" "; KeySpot.Name=Key_Space; Button.Width=360</Set></Column>
+      </Row>
+    </Grid>
+  </Canvas>
+</Project>

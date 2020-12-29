@@ -256,13 +256,6 @@ public:
 		WriteReg16(DLVER0, Y1);
 	}
 
-	static void FillRect(uint X0, uint Y0, uint X1, uint Y1)
-	{
-		SetTwoPoints(X0, Y0, X1, Y1);
-		WriteReg(DCR1, DCR1_DrawRect | DCR1_FillOn | DCR1_DrawActive);
-		WaitWhileBusy();
-	}
-
 	static void LoadGraphicsCursor(const byte *pbCursor, uint id)
 	{
 		uint	icr;

@@ -72,9 +72,9 @@ extern "C"
 //********************************************************************
 // Define the four sensors
 
-AxisDisplay Xpos(&Eeprom.Data.XaxisInfo, Xaxis_X, Xaxis_Y);
-AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, Yaxis_X, Yaxis_Y);
-AxisDisplay Zpos(&Eeprom.Data.ZaxisInfo, Zaxis_X, Zaxis_Y);
+AxisDisplay Xpos(&Eeprom.Data.XaxisInfo, &MainScreen_Areas.Xdisplay);
+AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
+AxisDisplay Zpos(&Eeprom.Data.ZaxisInfo, &MainScreen_Areas.Zdisplay);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
 
 //****************************************************************************
