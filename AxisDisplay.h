@@ -25,7 +25,7 @@ class AxisDisplay : public PosSensor, public NumberLine
 {
 public:
 	AxisDisplay(AxisInfo *pInfo, const Area *pArea) :
-		PosSensor(pInfo), NumberLine(&MainScreen, pArea, FID_DigitDisplay, 0, 0xFFFF00)
+		PosSensor(pInfo), NumberLine(&MainScreen, pArea, FID_DigitDisplay, 0, AxisBackColor)
 		{}
 
 	void UpdateDisplay()

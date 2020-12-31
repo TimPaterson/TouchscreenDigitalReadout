@@ -1,11 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Project [<!ENTITY Fonts SYSTEM "../Fonts/Fonts.xml">]>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd">
-  <Set Name="BtnHeight" Value="60"/>
+  &Fonts;
+  <Set Name="BtnHeight">60</Set>
   <Set Name="BtnWidth" Value="60"/>
   <Set Name="KeySpace" Value="10"/>
   <Set Name="BtnFontSize" Value="BtnHeight * 3 / 4" />
   <Set Name="BtnSmallFont" Value="BtnFontSize * 3 / 4" />
+  <Color Name="AxisBackColor" Color="Yellow" />
+  <Color Name="CalcBackColor" Color="White" />
+  <Color Name="MemColorOdd" Color="0xD0C0D0"/>
+  <Color Name="MemColorEven" Color="PaleGreen"/>
   <Component Name="Key">
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
       RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="0" Fill="White">
@@ -33,7 +39,7 @@
     <SetString RefName="Lower">Text="mm"</SetString>
   </Component>
   <Canvas Name="MainScreen" Width="1024" Height="600" ColorDepth="Color16bpp" Fill="LightBlue">
-    <Set Name="DispHt" Value="112"/>
+    <Set Name="DispHt" Value="DigitDisplay_Height"/>
     <Set Name="DispWd" Value="410" />
     <Set Name="DigHt" Value="96"/>
     <Set Name="LabHt" Value="72"/>
@@ -41,7 +47,7 @@
     <Set Name="LabTop" Value="(DispHt - DigHt) / 2"/>
     <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
       <Default>
-        <Rectangle Height="DispHt" Width="DispWd" Fill="Yellow">
+        <Rectangle Height="DispHt" Width="DispWd" Fill="AxisBackColor">
           <HotSpot Name="AxisDisplay" Group="Axis"/>
         </Rectangle>
         <Rectangle Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
@@ -94,22 +100,20 @@
     <Ref RefName="Toggle" Left="KeypadLeft - 2 * BtnWidth - 4 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
       <Set>Button.Area = "AbsInc"; Button.HotSpot = "AbsInc"</Set>
     </Ref>
-    <Rectangle Left="KeypadLeft" Top="Vspace/2" Location="Undo3" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    <Rectangle Left="KeypadLeft" Top="Vspace/2" Location="Undo3" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="Undo2Top" Location="Undo2" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    <Rectangle Left="KeypadLeft" Top="Undo2Top" Location="Undo2" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="Undo1Top" Location="Undo1" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    <Rectangle Left="KeypadLeft" Top="Undo1Top" Location="Undo1" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <HotSpot Name="Undo" Area="Undo" Left="KeypadLeft" Top="Vspace/2" Height="SmallTextHeight * 3" Width="KeypadWidth"/>
-    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Location="CalcDisplay" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="White">
+    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Location="CalcDisplay" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
       <HotSpot Name="CalcDisplay"/>
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Location="CalcText" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="White">
+    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Location="CalcText" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" FontSize="24">Memories</TextBlock>
+    <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" Font="CalcSmall">Memories</TextBlock>
     <Rectangle Top="KeypadTop" Left="KeypadLeft" Height="KeypadHeight" Width="KeypadWidth" Fill="Black">
-      <SetString Name="MemColorOdd" Value="Pink"/>
-      <SetString Name="MemColorEven" Value="PaleGreen"/>
       <Grid Name="KeyPad" Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
         <Default>
           <Ref RefName="Key" />
@@ -117,7 +121,7 @@
         </Default>
         <Row>
           <Column>
-            <Set RefName="Label">Text = bksp; FontSize=BtnSmallFont*3/4</Set>
+            <Set RefName="Label">Text = ⌫; FontSize = BtnSmallFont</Set>
             <Set RefName="KeySpot">Group = "Edit"; Name = Key_backSpace</Set>
           </Column>
           <Column>
@@ -135,7 +139,7 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem1</Set>
-            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem1"</SetString>
+            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem1"</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -158,7 +162,7 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem2</Set>
-            <SetString RefName="MemRect">Fill = MemColorEven; Location = "Mem2"</SetString>
+            <Set RefName="MemRect">Fill = MemColorEven; Location = "Mem2"</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -181,7 +185,7 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem3</Set>
-            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem3"</SetString>
+            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem3"</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -204,7 +208,7 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem4</Set>
-            <SetString RefName="MemRect">Fill = MemColorEven; Location = "Mem4"</SetString>
+            <Set RefName="MemRect">Fill = MemColorEven; Location = "Mem4"</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -227,7 +231,7 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem5</Set>
-            <SetString RefName="MemRect">Fill = MemColorOdd; Location = "Mem5"</SetString>
+            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem5"</Set>
           </ColumnNoDefault>
         </Row>
       </Grid>

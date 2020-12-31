@@ -181,3 +181,13 @@ enum Locations
 {
 	#include "Images/Screen.h"
 };
+
+//*************************************************************************
+// Define colors
+
+#define DEFINE_COLOR(name, color)	name = color,
+
+enum Colors
+{
+	#include "Images/Screen.h"
+};

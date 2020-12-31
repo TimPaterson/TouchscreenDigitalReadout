@@ -1,0 +1,6 @@
+<Font Name='DigitDisplay' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='96'/>
+<Set Name='DigitDisplay_Height' Value='111'/>
+<Font Name='Calculator' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='48'/>
+<Set Name='Calculator_Height' Value='56'/>
+<Font Name='CalcSmall' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='24'/>
+<Set Name='CalcSmall_Height' Value='28'/>

@@ -342,8 +342,8 @@ protected:
 protected:
 	inline static Construct	s_construct;	// zero length
 	inline static double	s_arg1;
-	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, 0xFFFFFF};
-	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, 0xFFFFFF};
+	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, CalcBackColor};
+	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, CalcBackColor};
 	inline static char		s_arEntryBuf[InBufSize];
 	inline static byte		s_indBuf;
 	inline static byte		s_state;
