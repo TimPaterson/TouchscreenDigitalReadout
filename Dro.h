@@ -12,6 +12,7 @@
 #include <Nvm/EepromMgr.h>
 #include "Spi.h"
 #include "SerialMem.h"
+#include "FatFileDef.h"
 
 
 #define VERSION	0

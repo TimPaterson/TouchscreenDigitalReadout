@@ -6,15 +6,15 @@
 //****************************************************************************
 
 #include <standard.h>
-#include <Nvm/EepromMgr.h>
 #include "Dro.h"
 #include "PosSensor.h"
 #include "LcdDef.h"
 #include "RA8876.h"
+#include "FatFileSd.h"
 #include "UsbDro.h"
-#include "FatFileSys.h"
 #include "AxisDisplay.h"
 #include "Actions.h"
+#include "FileOperations.h"
 
 
 //*********************************************************************
@@ -60,9 +60,11 @@ Xtp2046		Touch;
 ScreenMgr	Lcd;
 UsbDro		UsbPort;
 
-FatSd		Sd;
+FatSd				Sd;
 FatSysWait<true>	FileSys;
-FAT_DRIVES_LIST(&Sd);
+FileOperations		FileOp;
+FAT_DRIVES_LIST(&FlashDrive, &Sd);
+//FAT_DRIVES_LIST(&Sd, &FlashDrive);
 
 extern "C"
 {
@@ -71,6 +73,8 @@ extern "C"
 
 //********************************************************************
 // Define the four sensors
+
+static const int AxisUpdateRate = 20;	// updates per second
 
 AxisDisplay Xpos(&Eeprom.Data.XaxisInfo, &MainScreen_Areas.Xdisplay);
 AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
@@ -173,36 +177,6 @@ public:
 	uint	Addr;
 };
 
-void NO_INLINE_ATTR LoadFileToRam(uint hFile, ulong addr)
-{
-	int		cb;
-	ushort	*pus;
-
-	SetAndRestore x(AW_COLOR, AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
-	Lcd.WriteReg32(CURH0, addr);
-
-	for (;;)
-	{
-		cb = FileSys.ReadWait(hFile, NULL, 0x200);
-		if (cb == 0)
-			break;
-
-		if (cb < 0)
-		{
-			DEBUG_PRINT("File read returned %i\n", cb);
-			break;
-		}
-
-		pus = (ushort *)FileSys.GetDataBuf();
-
-		while (cb > 0)
-		{
-			Lcd.FifoWrite16(*pus++);
-			cb -= 2;
-		}
-	}
-}
-
 void NO_INLINE_ATTR DumpRam(ulong addr, int  cb)
 {
 	ushort	*pus;
@@ -217,35 +191,6 @@ void NO_INLINE_ATTR DumpRam(ulong addr, int  cb)
 	for (int i = 0; i < cb / 2; i++)
 		*pus++ = Lcd.FastFifoRead16();
 	HexDump(arbBuf, cb);
-}
-
-void NO_INLINE_ATTR WriteFileToFlash(uint hFile, ulong addr)
-{
-	int		cb;
-
-	cb = FileSys.GetSize(hFile);
-	// Round up to full block size for erasure
-	cb = (cb + SerialFlashBlockSize - 1) & ~(SerialFlashBlockSize - 1);
-
-	WDT->CTRL.reg = 0;	// disable watchdog during long process
-	Lcd.SerialMemErase(addr, cb, 1);
-	WDT->CTRL.reg = WDT_CTRL_ENABLE;
-
-	for (;;)
-	{
-		cb = FileSys.ReadWait(hFile, NULL, 0x200);
-		if (cb == 0)
-			break;
-
-		if (cb < 0)
-		{
-			DEBUG_PRINT("File read returned %i\n", cb);
-			break;
-		}
-
-		Lcd.SerialMemWrite(addr, cb, FileSys.GetDataBuf(), 1);
-		addr += cb;
-	}
 }
 
 void NO_INLINE_ATTR EnableCursor()
@@ -330,6 +275,7 @@ int main(void)
 	bool	fShow = false;
 	bool	fPip = false;
 	bool	fBorder = false;
+	int		drvMount = -1;
 
 	tmr.Start();
 
@@ -340,7 +286,8 @@ int main(void)
 		// Process EEPROM save if in progress
 		Eeprom.Process();
 
-		AxisDisplay::UpdateAll();
+		if (tmr.CheckInterval_rate(AxisUpdateRate))
+			AxisDisplay::UpdateAll();
 
 		i = UsbPort.Process();
 		if (i != HOSTACT_None)
@@ -369,6 +316,21 @@ int main(void)
 				break;
 			}
 		}
+
+		if (drvMount != -1)
+		{
+			i = FileSys.GetDriveStatus(drvMount);
+			if (i != STERR_Busy)
+			{
+				if (FatSys::IsErrorNotBusy(i))
+					DEBUG_PRINT("Mount failed, error: %i\n", i);
+				else
+					DEBUG_PRINT("Mount succeeded\n");
+				drvMount = -1;
+			}
+		}
+
+		FileOp.Process();
 
 		if (Touch.Process())
 		{
@@ -405,72 +367,33 @@ int main(void)
 
 			case 'd':
 				DEBUG_PRINT("File directory\n");
-				{
-					uint	h;
-					int		err;
-					int		cnt;
-
-					h = FileSys.StartEnum(0);
-					cnt = 0;
-					for (;;)
-					{
-						err = FileSys.EnumNextWait(h, (char *)arbBuf, sizeof arbBuf);
-						if (FileSys.IsError(err))
-							break;
-						DEBUG_PRINT("%-20s", arbBuf);
-						if (!FileSys.IsFolder(err))
-							DEBUG_PRINT(" %6li\n", FileSys.GetSize(err));
-						else
-							DEBUG_PRINT("\n");
-						FileSys.CloseWait(err);
-						cnt++;
-					}
-					FileSys.Close(h);
-					DEBUG_PRINT("%i files\n", cnt);
-				}
+				FileOp.FileDirectory((char *)arbBuf, sizeof arbBuf);
 				break;
 
 			case 'f':
 				DEBUG_PRINT("Loading font...");
-				{
-					int	h;
-
-					h = FileSys.OpenWait("Fonts.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
-					if (h <= 0)
-					{
-						DEBUG_PRINT("Error code %i opening file\n", h);
-						break;
-					}
-					WriteFileToFlash(h, FlashFontStart);
-					FileSys.CloseWait(h);
-					DEBUG_PRINT("complete\n");
-				}
+				FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
 				break;
 
 			case 'l':
 				DEBUG_PRINT("Loading image...");
-				{
-					int	h;
-
-					h = FileSys.OpenWait("Screen.bin", 0, OPENFLAG_OpenExisting | OPENFLAG_File);
-					if (h <= 0)
-					{
-						DEBUG_PRINT("Error code %i opening file\n", h);
-						break;
-					}
-					WriteFileToFlash(h, FlashScreenStart);
-					FileSys.CloseWait(h);
-					DEBUG_PRINT("complete\n");
-				}
+				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
 				break;
 
 			case 'm':
-				DEBUG_PRINT("Mount SD card\n");
-				i = FileSys.MountWait(0);
-				if (FileSys.IsError(i))
-					DEBUG_PRINT("Failed with error code %i\n", i);
+			case 'n':
+				if (drvMount != -1)
+				{
+					DEBUG_PRINT("Abort mount\n");
+					drvMount = -1;
+				}
 				else
-					DEBUG_PRINT("Success\n");
+				{
+					ch -= 'm';	// get drive, 0 or 1
+					DEBUG_PRINT("Mount drive %i\n", ch);
+					drvMount = ch;
+					FileSys.Mount(ch);	// Always returns busy
+				}
 				break;
 
 			case 'p':

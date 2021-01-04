@@ -9,4 +9,4 @@
 
 #define FAT_SECT_BUF_CNT	4
 #define FAT_MAX_HANDLES		12
-#define FAT_NUM_DRIVES		1
+#define FAT_NUM_DRIVES		2
