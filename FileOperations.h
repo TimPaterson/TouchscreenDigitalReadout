@@ -14,6 +14,7 @@
 // Use macros for state definitions
 #define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
 #define DIR_OP_STATES(op) OP_STATE(op, enumNext)
+#define SINGLE_OP_STATES(op) OP_STATE(op, ready)
 
 #define OP_STATE(op, st)	ST_##op##_##st,
 
@@ -22,6 +23,7 @@ enum
 	ST_Idle,
 	FLASH_OP_STATES(flash)
 	DIR_OP_STATES(dir)
+	SINGLE_OP_STATES(single)
 };
 
 #undef OP_STATE
@@ -37,7 +39,7 @@ public:
 	void WriteFileToFlash(const char *psz, ulong addr)
 	{
 		flash.addr = addr;
-		hFile = Open(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+		hFile = StartOpen(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
 		TO_STATE(flash, open);
 	}
 
@@ -46,10 +48,20 @@ public:
 		dir.psz = psz;
 		dir.cb = cb;
 		dir.cnt = 0;
-		hFile = StartEnum(0);
-		EnumNext(hFile, psz, cb);
+		hFile = EnumBegin(0);
+		StartEnumNext(hFile, psz, cb);
 		TO_STATE(dir, enumNext);
 	}
+
+	void Mount(int drv)
+	{
+		drive = drv;
+		StartMount(drv);
+		TO_STATE(single, ready);
+	}
+
+public:
+	bool IsBusy()	{ return state != ST_Idle; }
 
 public:
 	void Process()
@@ -80,7 +92,7 @@ public:
 					int cb = GetSize(hFile);
 					// Round up to full block size for erasure
 					cb = (cb + SerialFlashBlockSize - 1) & ~(SerialFlashBlockSize - 1);
-					Read(hFile, NULL, FAT_SECT_SIZE);
+					StartRead(hFile, NULL, FAT_SECT_SIZE);
 					TO_STATE(flash, read);
 
 					WDT->CTRL.reg = 0;	// disable watchdog during long process
@@ -95,7 +107,7 @@ public:
 					{
 						RA8876::SerialMemWrite(flash.addr, cb, GetDataBuf(), 1);
 						flash.addr += cb;
-						Read(hFile, NULL, FAT_SECT_SIZE);
+						StartRead(hFile, NULL, FAT_SECT_SIZE);
 					}
 					else
 					{
@@ -125,9 +137,16 @@ public:
 						DEBUG_PRINT("\n");
 					Close(h);
 					dir.cnt++;
-					EnumNext(hFile, dir.psz, dir.cb);
+					StartEnumNext(hFile, dir.psz, dir.cb);
 				END_STATE
 
+				//*************************************************************
+				// Single operation (Mount)
+
+				OP_STATE(single, ready)
+					DEBUG_PRINT("Complete\n");
+					OP_DONE;
+				END_STATE
 			}
 		}
 

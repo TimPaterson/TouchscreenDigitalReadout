@@ -45,11 +45,11 @@ void EIC_Handler()
 	uint	uPortVal;
 
 	uIntFlags = EIC->INTFLAG.reg;
+	EIC->INTFLAG.reg = uIntFlags;	// reset all flags
 
 	// Is it a position sensor?
 	if (uIntFlags & PosSensorIrqMask)
 	{
-		EIC->INTFLAG.reg = PosSensorIrqMask;	// reset all flags
 		uPortVal = PORTA->IN.ul;
 		Xpos.InputChange(uPortVal >> XposA_BIT);
 		Ypos.InputChange(uPortVal >> YposA_BIT);

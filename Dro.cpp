@@ -61,7 +61,7 @@ ScreenMgr	Lcd;
 UsbDro		UsbPort;
 
 FatSd				Sd;
-FatSysWait<true>	FileSys;
+FatSysWait<wdt_reset> FileSys;
 FileOperations		FileOp;
 FAT_DRIVES_LIST(&FlashDrive, &Sd);
 //FAT_DRIVES_LIST(&Sd, &FlashDrive);
@@ -270,25 +270,43 @@ int main(void)
 	//************************************************************************
 	// Main loop
 
-	Timer	tmr;
+	Timer	tmrAxis;
 	int		i;
 	bool	fShow = false;
 	bool	fPip = false;
 	bool	fBorder = false;
-	int		drvMount = -1;
+	bool	fSdOut = true;
 
-	tmr.Start();
+	tmrAxis.Start();
 
     while (1)
     {
 		wdt_reset();
 
+		// Check status of SD card
+		if (!GetSdCd() == fSdOut && !FileOp.IsBusy())
+		{
+			fSdOut = !fSdOut;
+			if (fSdOut)
+			{
+				Sd.Dismount();
+				DEBUG_PRINT("SD card dismounted\n");
+			}
+			else
+			{
+				FileOp.Mount(Sd.GetDrive());
+				DEBUG_PRINT("SD card mounting...");
+			}
+		}
+
 		// Process EEPROM save if in progress
 		Eeprom.Process();
 
-		if (tmr.CheckInterval_rate(AxisUpdateRate))
+		// Update the axis position displays
+		if (tmrAxis.CheckInterval_rate(AxisUpdateRate))
 			AxisDisplay::UpdateAll();
 
+		// Process USB events
 		i = UsbPort.Process();
 		if (i != HOSTACT_None)
 		{
@@ -314,24 +332,26 @@ int main(void)
 				else
 					Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
 				break;
+
+			case HOSTACT_FlashReady:
+				FileOp.Mount(FlashDrive.GetDrive());
+				DEBUG_PRINT("USB drive mounting...");
+				break;
+
+			case HOSTACT_RemoveDevice:
+				if (FlashDrive.IsMounted())
+				{
+					FlashDrive.Dismount();
+					DEBUG_PRINT("USB drive dismounted\n");
+				}
+				break;
 			}
 		}
 
-		if (drvMount != -1)
-		{
-			i = FileSys.GetDriveStatus(drvMount);
-			if (i != STERR_Busy)
-			{
-				if (FatSys::IsErrorNotBusy(i))
-					DEBUG_PRINT("Mount failed, error: %i\n", i);
-				else
-					DEBUG_PRINT("Mount succeeded\n");
-				drvMount = -1;
-			}
-		}
-
+		// Process file operations
 		FileOp.Process();
 
+		// Process screen touch
 		if (Touch.Process())
 		{
 			uint	flags;
@@ -378,22 +398,6 @@ int main(void)
 			case 'l':
 				DEBUG_PRINT("Loading image...");
 				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
-				break;
-
-			case 'm':
-			case 'n':
-				if (drvMount != -1)
-				{
-					DEBUG_PRINT("Abort mount\n");
-					drvMount = -1;
-				}
-				else
-				{
-					ch -= 'm';	// get drive, 0 or 1
-					DEBUG_PRINT("Mount drive %i\n", ch);
-					drvMount = ch;
-					FileSys.Mount(ch);	// Always returns busy
-				}
 				break;
 
 			case 'p':
