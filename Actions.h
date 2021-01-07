@@ -15,6 +15,7 @@
 class Actions
 {
 	static constexpr int InBufSize = 12;
+	static constexpr int MemoryCount = 5;
 
 	enum ActionState
 	{
@@ -32,16 +33,34 @@ class Actions
 		OP_divide = Key_divide,
 	};
 
-	friend struct Construct;
-	struct Construct
+	class CalcMemory : public TextLine
 	{
-		Construct()
+	public:
+		// Setting the TextLine backcolor to -1 causes transparent mode
+		CalcMemory(const Area *pArea, ulong backColor) :
+			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1) 
 		{
-			s_arEntryBuf[0] = '\n';		// signal to rewrite line
-			s_arEntryBuf[1] = ' ';
-			s_indBuf = 2;
-			s_op = OP_none;
+			m_fillColor = backColor;
 		}
+
+	public:
+		double GetVal()	{ return m_val; }
+
+		void SetVal(double val)
+		{
+			m_val = val;
+			// The RA8876 has a bug when performing color expansion
+			// It does not correctly fill in the 16-bit background color.
+			// We work around that by erasing the previous text and using
+			// transparent background fill.
+			FillArea(m_fillColor);	// Clear existing value
+			if (val != 0)
+				printf("%.8g\n", val);
+		}
+
+	protected:
+		double	m_val;
+		ulong	m_fillColor;
 	};
 
 public:
@@ -236,6 +255,30 @@ public:
 			break;
 
 		//*****************************************************************
+		// Press a memory display
+		//
+		// If the calculator display is empty, this copies the memory value
+		// to the calculator. Otherwise, it copies the calculator value
+		// to the memory.
+
+		case HOTSPOT_GROUP_Memory:
+			spot -= Mem1;
+
+			switch (s_state)
+			{
+			case AS_Empty:
+				val = s_memories[spot].GetVal();
+				if (val != 0)
+					ToValueState(val);
+				break;
+
+			default:
+				s_memories[spot].SetVal(ToValueState());
+				break;
+			}
+			break;
+
+		//*****************************************************************
 		// Press a PIP keyboard key
 		//
 
@@ -340,13 +383,20 @@ protected:
 	// static (RAM) data
 	//*********************************************************************
 protected:
-	inline static Construct	s_construct;	// zero length
 	inline static double	s_arg1;
+	inline static CalcMemory s_memories[MemoryCount]
+	{
+		{&MainScreen_Areas.Mem1, MemColorOdd},
+		{&MainScreen_Areas.Mem2, MemColorEven},
+		{&MainScreen_Areas.Mem3, MemColorOdd},
+		{&MainScreen_Areas.Mem4, MemColorEven},
+		{&MainScreen_Areas.Mem5, MemColorOdd}
+	};
 	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, CalcBackColor};
 	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, CalcBackColor};
-	inline static char		s_arEntryBuf[InBufSize];
-	inline static byte		s_indBuf;
+	inline static char		s_arEntryBuf[InBufSize] = "\n ";
+	inline static byte		s_indBuf = 2;
+	inline static byte		s_op = OP_none;
 	inline static byte		s_state;
-	inline static byte		s_op;
 	inline static bool		s_fHaveDp;
 };

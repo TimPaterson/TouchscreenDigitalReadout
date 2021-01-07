@@ -24,6 +24,11 @@
 
 enum ActionHotspots
 {
+	Mem1,
+	Mem2,
+	Mem3,
+	Mem4,
+	Mem5,
 	Key_sign,
 	Key_backSpace,
 	Key_clear,

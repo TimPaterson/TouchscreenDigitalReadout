@@ -391,6 +391,11 @@ public:
 		return val;
 	}
 
+	static bool IsSerialMemBusy()
+	{
+		return SerialMemGetStatus() & SFSTAT_Busy;
+	}
+
 	static void SerialMemRead(ulong addr, int cb, byte *pb, uint port) NO_INLINE_ATTR
 	{
 		uint	val;
@@ -427,43 +432,56 @@ public:
 		WriteReg(SPIMCR, bCs);
 	}
 
-	static void SerialMemWrite(ulong addr, int cb, byte *pb, uint port) NO_INLINE_ATTR
+	static int SerialMemWriteStart(ulong addr, int cb, void *pv, uint port)
 	{
+		byte	*pb = (byte *)pv;
+		int		cbPage;
 		byte	bCs;
 
 		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
 		bCs = SPIMCR_SpiMode0 | (port ? SPIMCR_SlaveSelectCs1 : SPIMCR_SlaveSelectCs0);
+		cbPage = cb;
+
+		// Enable writes
+		WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+		WriteReg(SPIDR, SFCMD_WriteEnable);
+		WriteReg(SPIMCR, bCs);
+
+		// Clear SPI status
+		WriteReg(SPIMSR, SPIMSR_Idle);
+
+		// Perform write, within a 256-byte page
+		WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
+		WriteReg(SPIDR, SFCMD_Program);
+		WriteData(addr >> 16);
+		WriteData(addr >> 8);
+		WriteData(addr);
+
+		do
+		{
+			SerialWriteByte(*pb++);
+			addr++;
+		} while (--cbPage > 0 && (addr % SerialFlashPageSize) != 0);
+
+		// Wait for SPI to finish
+		while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
+		// Release CS, starting write operation
+		WriteReg(SPIMCR, bCs);
+		return cb - cbPage;
+	}
+
+	static void SerialMemWrite(ulong addr, int cb, void *pv, uint port) NO_INLINE_ATTR
+	{
+		byte	*pb = (byte *)pv;
+		int		cbPage;
 
 		do 
 		{
-			// Enable writes
-			WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
-			WriteReg(SPIDR, SFCMD_WriteEnable);
-			WriteReg(SPIMCR, bCs);
-
-			// Clear SPI status
-			WriteReg(SPIMSR, SPIMSR_Idle);
-
-			// Perform write, within a 256-byte page
-			WriteReg(SPIMCR, bCs | SPIMCR_SlaveSelectActive);
-			WriteReg(SPIDR, SFCMD_Program);
-			WriteData(addr >> 16);
-			WriteData(addr >> 8);
-			WriteData(addr);
-
-			do
-			{
-				SerialWriteByte(*pb++);
-				addr++;
-			} while (--cb > 0 && (addr % SerialFlashPageSize) != 0);
-
-			// Wait for SPI to finish
-			while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
-			// Release CS, starting write operation
-			WriteReg(SPIMCR, bCs);
-
-			// Poll for completion
-			while (SerialMemGetStatus() & SFSTAT_Busy);
+			cbPage = SerialMemWriteStart(addr, cb, pb, port);
+			addr += cbPage;
+			pb += cbPage;
+			cb -= cbPage;
+			while (IsSerialMemBusy());
 		} while (cb > 0);
 	}
 

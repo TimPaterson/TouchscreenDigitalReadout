@@ -193,6 +193,23 @@ void NO_INLINE_ATTR DumpRam(ulong addr, int  cb)
 	HexDump(arbBuf, cb);
 }
 
+void NO_INLINE_ATTR DumpRam(const Area *pArea, int  cb)
+{
+	ushort	*pus;
+
+	if (cb > (int)sizeof arbBuf)
+		cb = sizeof arbBuf;
+
+	Lcd.WriteSequentialRegisters(&MainScreen, CVSSA0, ImageRegCount);
+	Lcd.WriteSequentialRegisters(pArea, AWUL_X0, sizeof(Area));
+	Lcd.WriteReg32(CURH0, 0);
+	Lcd.ReadReg(MRWDP);	// dummy read
+	pus = (ushort *)&arbBuf[0];
+	for (int i = 0; i < cb / 2; i++)
+		*pus++ = Lcd.FastFifoRead16();
+	HexDump(arbBuf, cb);
+}
+
 void NO_INLINE_ATTR EnableCursor()
 {
 	uint height = 112;
@@ -379,6 +396,15 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
+			case 'b':
+				DEBUG_PRINT("Rectangle border\n");
+				if (fBorder)
+					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, 0xFFFFFF);
+				else
+					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, &Pattern16);
+				fBorder = !fBorder;
+				break;
+
 			case 'c':
 				DEBUG_PRINT("Calibrate touch screen...");
 				CalibrateTouch();
@@ -416,12 +442,7 @@ int main(void)
 				break;
 
 			case 'r':
-				DEBUG_PRINT("Rectangle border\n");
-				if (fBorder)
-					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, 0xFFFFFF);
-				else
-					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, &Pattern16);
-				fBorder = !fBorder;
+				DumpRam(&MainScreen_Areas.Mem1, 16);
 				break;
 
 			case 's':

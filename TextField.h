@@ -292,7 +292,7 @@ public:
 		TextLine(pCanvas, pArea,
 		({union {void (NumberLine::*mf)(byte); _fdev_put_t *p;} u = {&NumberLine::WriteChar}; u.p;}))
 	{
-		SetFont(id);
+		SetFont(id);	// We need to use our local SetFont();
 		m_foreColor = foreColor;
 		m_backColor = backColor;
 	}

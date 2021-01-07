@@ -10,8 +10,8 @@
   <Set Name="BtnSmallFont" Value="BtnFontSize * 3 / 4" />
   <Color Name="AxisBackColor" Color="Yellow" />
   <Color Name="CalcBackColor" Color="White" />
-  <Color Name="MemColorOdd" Color="0xD0C0D0"/>
-  <Color Name="MemColorEven" Color="PaleGreen"/>
+  <Color Name="MemColorOdd" Color="0xD0C0D0" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorEven" Color="PaleGreen" ColorDepth="Color16bpp"/>
   <Component Name="Key">
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
       RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="0" Fill="White">
@@ -21,7 +21,8 @@
   </Component>
   <Component Name="Memory">
     <Rectangle Name="MemRect" Height="BtnHeight" Width="150">
-      <HotSpot Name="Mem"/>
+      <HotSpot Name="Mem" Group="Memory"/>
+      <Rectangle Name="MemDisp" Top="BtnHeight / 4" Left="10" Height="BtnHeight / 2" Width="140"/>
     </Rectangle>
   </Component>
   <SetString Name="ToggleOn" Value="Yellow"/>
@@ -107,10 +108,10 @@
     <Rectangle Left="KeypadLeft" Top="Undo1Top" Location="Undo1" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <HotSpot Name="Undo" Area="Undo" Left="KeypadLeft" Top="Vspace/2" Height="SmallTextHeight * 3" Width="KeypadWidth"/>
-    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Location="CalcDisplay" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
+    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
       <HotSpot Name="CalcDisplay"/>
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Location="CalcText" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" Font="CalcSmall">Memories</TextBlock>
     <Rectangle Top="KeypadTop" Left="KeypadLeft" Height="KeypadHeight" Width="KeypadWidth" Fill="Black">
@@ -139,7 +140,8 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem1</Set>
-            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem1"</Set>
+            <Set RefName="MemRect">Fill = MemColorOdd</Set>
+            <Set>MemDisp.Area = Mem1</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -162,7 +164,8 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem2</Set>
-            <Set RefName="MemRect">Fill = MemColorEven; Location = "Mem2"</Set>
+            <Set RefName="MemRect">Fill = MemColorEven</Set>
+            <Set>MemDisp.Area = Mem2</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -185,7 +188,8 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem3</Set>
-            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem3"</Set>
+            <Set RefName="MemRect">Fill = MemColorOdd</Set>
+            <Set>MemDisp.Area = Mem3</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -208,7 +212,8 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem4</Set>
-            <Set RefName="MemRect">Fill = MemColorEven; Location = "Mem4"</Set>
+            <Set RefName="MemRect">Fill = MemColorEven</Set>
+            <Set>MemDisp.Area = Mem4</Set>
           </ColumnNoDefault>
         </Row>
         <Row>
@@ -231,7 +236,8 @@
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>Mem.Name = Mem5</Set>
-            <Set RefName="MemRect">Fill = MemColorOdd; Location = "Mem5"</Set>
+            <Set RefName="MemRect">Fill = MemColorOdd</Set>
+            <Set>MemDisp.Area = Mem5</Set>
           </ColumnNoDefault>
         </Row>
       </Grid>
