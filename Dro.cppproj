@@ -265,7 +265,13 @@
     <Compile Include="Fonts\Fonts.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Images\Pointer.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Images\Screen.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Images\TargetCursor.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ScreenMgr.h">
@@ -309,10 +315,6 @@
     </Compile>
     <Compile Include="Hotspot.h">
       <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Images\TargetCursor.c">
-      <SubType>compile</SubType>
-      <Link>TargetCursor.c</Link>
     </Compile>
     <Compile Include="Interrupts.cpp">
       <SubType>compile</SubType>

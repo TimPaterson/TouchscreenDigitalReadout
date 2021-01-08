@@ -69,6 +69,7 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 extern "C"
 {
 	extern const byte TargetCursor[256];
+	extern const byte PointerCursor[256];
 }
 
 //********************************************************************
@@ -261,7 +262,8 @@ int main(void)
 	Lcd.CopySerialMemToRam(FlashScreenStart, RamScreenStart, ScreenFileLength, 1);
 	Lcd.CopySerialMemToRam(FlashFontStart, RamFontStart, FontFileLength, 1);
 
-	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect1);
+	Lcd.LoadGraphicsCursor(PointerCursor, GTCCR_GraphicCursorSelect1);
+	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect2);
 	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
 
 	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
@@ -289,7 +291,6 @@ int main(void)
 
 	Timer	tmrAxis;
 	int		i;
-	bool	fShow = false;
 	bool	fPip = false;
 	bool	fBorder = false;
 	bool	fSdOut = true;
@@ -335,24 +336,25 @@ int main(void)
 			case HOSTACT_MouseChange:
 				X = Mouse.GetX();
 				Y = Mouse.GetY();
-
-				X = std::max(X - 16, 0);
-				Y = std::max(Y - 16, 0);
 				Lcd.SetGraphicsCursorPosition(X, Y);
-				Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
 
 				buttons = Mouse.GetButtons();
 				if (buttons.btnStart & BUTTON_Left)
-					fShow = !fShow;
-				if (fShow)
-					Lcd.DisableGraphicsCursor();
-				else
-					Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+					Actions::TakeAction(X, Y);
 				break;
 
 			case HOSTACT_FlashReady:
 				FileOp.Mount(FlashDrive.GetDrive());
 				DEBUG_PRINT("USB drive mounting...");
+				break;
+
+			case HOSTACT_AddDevice:
+				if (Mouse.IsLoaded())
+				{
+					Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+					Mouse.SetPos(LcdWidthPx / 2, LcdHeightPx / 2);
+					Lcd.SetGraphicsCursorPosition(LcdWidthPx / 2, LcdHeightPx / 2);
+				}
 				break;
 
 			case HOSTACT_RemoveDevice:
@@ -361,6 +363,9 @@ int main(void)
 					FlashDrive.Dismount();
 					DEBUG_PRINT("USB drive dismounted\n");
 				}
+
+				// Turn mouse off
+				Lcd.DisableGraphicsCursor();				
 				break;
 			}
 		}
