@@ -94,10 +94,14 @@ protected:
 // - PIP image (PISA0)
 // - Canvas (CVSSA0)
 // - BTE destination (DT_STR0)
+//
+// The Canvas registers (CVSSA0) also have color depth at the end, and the
+// m_colorDepth member can be used directly.
 
 static constexpr int ImageRegCount = 4 + 2;
 static constexpr int CanvasRegCount = ImageRegCount + 2 + 2;
 static constexpr int CanvasViewRegCount = CanvasRegCount + 2 + 2;
+static constexpr int CanvasViewDepthRegCount = CanvasViewRegCount + 1;
 
 
 class TouchCanvas : public Canvas

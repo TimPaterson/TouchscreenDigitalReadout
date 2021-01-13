@@ -8,44 +8,115 @@
   <Set Name="KeySpace" Value="10"/>
   <Set Name="BtnFontSize" Value="BtnHeight * 3 / 4" />
   <Set Name="BtnSmallFont" Value="BtnFontSize * 3 / 4" />
+  <Set Name="SmallTextHeight" Value="CalcSmall_Height"/>
+  <Color Name="ScreenBackColor" Color="LightBlue" ColorDepth="Color16bpp"/>
+  <Color Name="AxisForeColor" Color="Black" />
   <Color Name="AxisBackColor" Color="Yellow" />
   <Color Name="CalcBackColor" Color="White" />
   <Color Name="MemColorOdd" Color="0xD0C0D0" ColorDepth="Color16bpp"/>
   <Color Name="MemColorEven" Color="PaleGreen" ColorDepth="Color16bpp"/>
+  <Color Name="BtnBackground" Color="0x606060"/>
+
+  <!-- Components -->
   <Component Name="Key">
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
       RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="0" Fill="White">
-      <TextBlock Name="Label" FontSize="BtnFontSize" Top="0" Foreground="Black" FontFamily="Arial" />
+      <TextBlock Name="Label" FontSize="BtnFontSize" Foreground="Black" FontFamily="Arial" />
     </Rectangle>
     <HotSpot Name="KeySpot" Height="BtnHeight" Width="BtnWidth" />
   </Component>
+
   <Component Name="Memory">
     <Rectangle Name="MemRect" Height="BtnHeight" Width="150">
       <HotSpot Name="Mem" Group="Memory"/>
       <Rectangle Name="MemDisp" Top="BtnHeight / 4" Left="10" Height="BtnHeight / 2" Width="140"/>
     </Rectangle>
   </Component>
-  <SetString Name="ToggleOn" Value="Yellow"/>
+
   <Component Name="Toggle">
+    <Color Name="ToggleOn" Color="Yellow"/>
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
-      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="0x606060">
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="BtnBackground">
       <TextBlock Name="Upper" FontSize="BtnFontSize / 2" Top="1" Foreground="DarkGray" FontFamily="Arial" Text="abs" />
       <Line X1="10" Y1="BtnHeight / 2" X2="BtnWidth - 10" Y2="BtnHeight / 2" Stroke="White" StrokeThickness="2" />
       <TextBlock Name="Lower" FontSize="BtnFontSize / 2" Top="33" Foreground="DarkGray" FontFamily="Arial" Text="inc" />
     </Rectangle>
   </Component>
+
   <Component Name="InchMetric">
     <Ref RefName="Toggle"/>
     <SetString RefName="Upper">Text="inch"</SetString>
     <SetString RefName="Lower">Text="mm"</SetString>
   </Component>
-  <Canvas Name="MainScreen" Width="1024" Height="600" ColorDepth="Color16bpp" Fill="LightBlue">
+
+  <!-- Feeds & speeds images -->
+  <Set Name="SpCellWidth" Value="90"/>
+  <Set Name="SpCellHeight" Value="32"/>
+  <Set Name="SpColSpace" Value="10"/>
+  <Set Name="SpeedTextTop" Value="2"/>
+  <Set Name="SpeedDisplayWidth" Value="SpCellWidth * 4 + SpColSpace + 1"/>
+  <Set Name="SpeedDisplayHeight" Value="SpCellHeight * 3 + 1"/>
+  <Component Name="SpeedDisplay">
+    <Grid RowHeight="SpCellHeight" ColumnWidth="SpCellWidth">
+      <Default>
+        <Rectangle Name="Cell" Height="SpCellHeight + 1" Width="SpCellWidth + 1" Stroke="Black" StrokeThickness="1">
+          <TextBlock Name="SpeedText" Font="CalcSmall"/>
+        </Rectangle>
+      </Default>
+      <Row>
+        <Column>
+          <Set RefName="Cell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
+          <Set>SpeedText.Text = Speed</Set>
+          <HotSpot Name="ToolSfm" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+        </Column>
+        <Column Left="SpCellWidth + SpColSpace">
+          <Set RefName="Cell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
+          <Set>SpeedText.Text = Chip Load</Set>
+          <HotSpot Name="ToolChipLoad" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set RefName="SpeedText">Text = SFM; Name = SpeedTextSfm</Set>
+        </Column>
+        <Column>
+          <Rectangle Area="Sfm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+        <Column Left="SpColSpace">
+          <Set RefName="SpeedText">Text = in/tooth; Name = SpeedTextFeed</Set>
+        </Column>
+        <Column>
+          <Rectangle Area="ChipLoad" Left="8" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 9"/>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>SpeedText.Text = RPM</Set>
+        </Column>
+        <Column>
+          <Rectangle Area="Rpm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+        <Column Left="SpColSpace">
+          <Set RefName="SpeedText">Text = in/min; Name = SpeedTextLoad</Set>
+        </Column>
+        <Column>
+          <Rectangle Area="FeedRate" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+      </Row>
+    </Grid>
+  </Component>
+
+  <!-- Main Screen -->
+  <Canvas Name="MainScreen" Width="1024" Height="600" ColorDepth="Color16bpp" Fill="ScreenBackColor">
+
+    <!-- Axis displays -->
     <Set Name="DispHt" Value="DigitDisplay_Height"/>
     <Set Name="DispWd" Value="410" />
     <Set Name="DigHt" Value="96"/>
     <Set Name="LabHt" Value="72"/>
-    <Set Name="Vspace" Value="30"/>
+    <Set Name="Vspace" Value="25"/>
     <Set Name="LabTop" Value="(DispHt - DigHt) / 2"/>
+
     <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
       <Default>
         <Rectangle Height="DispHt" Width="DispWd" Fill="AxisBackColor">
@@ -60,7 +131,7 @@
         </Rectangle>
      </Default>
       <Row>
-        <Column Location="Xaxis">
+        <Column>
           <Set>AxisLabel.Text = X</Set>
           <Set>AxisButton.Name = Xbutton</Set>
           <Set>AxisDisplay.Area = Xdisplay</Set>
@@ -68,7 +139,7 @@
         </Column>
       </Row>
       <Row>
-        <Column Location="Yaxis">
+        <Column>
           <Set>AxisLabel.Text = Y</Set>
           <Set>AxisButton.Name = Ybutton</Set>
           <Set>AxisDisplay.Area = Ydisplay</Set>
@@ -76,7 +147,7 @@
         </Column>
       </Row>
       <Row>
-        <Column Location="Zaxis">
+        <Column>
           <Set>AxisLabel.Text = Z</Set>
           <Set>AxisButton.Name = Zbutton</Set>
           <Set>AxisDisplay.Area = Zdisplay</Set>
@@ -84,36 +155,43 @@
         </Column>
       </Row>
     </Grid>
-    <Set Name="KeypadLeft" Value="560"/>
+
+    <!-- Caculator displays -->
+    <Set Name="KeypadLeft" Value="580"/>
     <Set Name="KeypadWidth" Value="KeySpace + (BtnWidth + KeySpace) * 4"/>
+    <Set Name="KeypadRight" Value ="KeypadLeft + KeypadWidth"/>
     <Set Name="KeypadHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
     <Set Name="CalcTextHeight" Value="BtnHeight"/>
-    <Set Name="SmallTextHeight" Value="28"/>
-    <Set Name="Undo2Top" Value="Vspace/2 + SmallTextHeight"/>
+    <Set Name="Undo3Top" Value="Vspace"/>
+    <Set Name="Undo2Top" Value="Undo3Top + SmallTextHeight"/>
     <Set Name="Undo1Top" Value="Undo2Top + SmallTextHeight"/>
     <Set Name="CalcDispTop" Value="Undo1Top + SmallTextHeight + KeySpace"/>
     <Set Name="CalcTextTop" Value="CalcDispTop + CalcTextHeight + KeySpace"/>
     <Set Name="KeypadTop" Value="CalcTextTop + SmallTextHeight + KeySpace"/>
     <Set Name="KeypadBottom" Value="KeypadTop + KeypadHeight" />
-    <Ref RefName="InchMetric" Left="KeypadLeft - BtnWidth - 2 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
-      <Set>Button.Area = "InchMetric"; Button.HotSpot = "InchMetric"</Set>
-    </Ref>
-    <Ref RefName="Toggle" Left="KeypadLeft - 2 * BtnWidth - 4 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
-      <Set>Button.Area = "AbsInc"; Button.HotSpot = "AbsInc"</Set>
-    </Ref>
-    <Rectangle Left="KeypadLeft" Top="Vspace/2" Location="Undo3" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <Rectangle Location="Undo3" Left="KeypadLeft" Top="Undo3Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="Undo2Top" Location="Undo2" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <Rectangle Location="Undo2" Left="KeypadLeft" Top="Undo2Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="Undo1Top" Location="Undo1" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <Rectangle Location="Undo1" Left="KeypadLeft" Top="Undo1Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <HotSpot Name="Undo" Area="Undo" Left="KeypadLeft" Top="Vspace/2" Height="SmallTextHeight * 3" Width="KeypadWidth"/>
-    <Rectangle Left="KeypadLeft" Top="CalcDispTop" Area="CalcDisplay" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
+    <Rectangle Area="CalcDisplay" Left="KeypadLeft" Top="CalcDispTop" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
       <HotSpot Name="CalcDisplay"/>
     </Rectangle>
-    <Rectangle Left="KeypadLeft" Top="CalcTextTop" Area="CalcText" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <Rectangle Area="CalcText" Left="KeypadLeft" Top="CalcTextTop" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" Font="CalcSmall">Memories</TextBlock>
+
+    <!-- Toggle button locations (images overwritten) -->
+    <Ref RefName="InchMetric" Left="KeypadRight + Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>Button.Area = "InchMetric"; Button.HotSpot = "InchMetric"</Set>
+    </Ref>
+    <Ref RefName="Toggle" Left="KeypadRight + BtnWidth + 2 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>Button.Area = "AbsInc"; Button.HotSpot = "AbsInc"</Set>
+    </Ref>
+
+    <!-- Keypad -->
     <Rectangle Top="KeypadTop" Left="KeypadLeft" Height="KeypadHeight" Width="KeypadWidth" Fill="Black">
       <Grid Name="KeyPad" Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
         <Default>
@@ -233,43 +311,152 @@
             <Set>Label.Text = =</Set>
             <Set RefName="KeySpot">Group = "Operator"; Name = Key_equal</Set>
           </Column>
-          <ColumnNoDefault>
-            <Ref RefName="Memory"/>
-            <Set>Mem.Name = Mem5</Set>
-            <Set RefName="MemRect">Fill = MemColorOdd</Set>
-            <Set>MemDisp.Area = Mem5</Set>
-          </ColumnNoDefault>
         </Row>
       </Grid>
     </Rectangle>
+
+    <!-- Tool displays -->
+    <Set Name="ToolTop" Value="3 * DispHt + 5 * Vspace / 2 + KeySpace"/>
+    <Set Name="CellWidth" Value="70"/>
+    <Set Name="CellHeight" Value="SmallTextHeight + 2"/>
+    <Set Name="DescCellWidth" Value="KeypadLeft - CellWidth * 4 - KeySpace * 3 - BtnWidth"/>
+    <Set Name="ToolTextTop" Value="2"/>
+    <Set Name="LengthAdj" Value="15"/>
+    <Grid Left="KeySpace" Top="ToolTop" RowHeight="CellHeight" ColumnWidth="CellWidth">
+      <Default>
+        <Rectangle Name="Cell" Height="CellHeight + 1" Width="CellWidth + 1" Stroke="Black" StrokeThickness="1">
+          <TextBlock Name="CellText" Font="CalcSmall"/>
+        </Rectangle>
+      </Default>
+      <Row>
+        <Column>
+          <Set>CellText.Text = Tool</Set>
+          <HotSpot Name="ToolNumber" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth"/>
+        </Column>
+        <Column>
+          <Set>CellText.Text = Dia.</Set>
+          <HotSpot Name="ToolDiameter" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth"/>
+        </Column>
+        <Column>
+          <Set>CellText.Text = Flut.</Set>
+          <Set>Cell.Width = CellWidth + 1 - LengthAdj</Set>
+          <HotSpot Name="ToolFlutes" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth - LengthAdj"/>
+        </Column>
+        <Column>
+          <Set>CellText.Text = Length</Set>
+          <Set RefName="Cell">Left = -LengthAdj; Width = CellWidth + 1 + LengthAdj</Set>
+          <HotSpot Name="ToolLength" Group="ToolInfo" Left="-LengthAdj" Height="CellHeight * 2" Width="CellWidth + LengthAdj"/>
+        </Column>
+        <Column>
+          <Set>Cell.Width = DescCellWidth</Set>
+          <Set>CellText.Text = Description</Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Area="ToolNumber" Top="ToolTextTop" Left="12" Height="SmallTextHeight" Width="CellWidth - 13"/>
+        </Column>
+        <Column>
+          <Rectangle Area="ToolDiameter" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="CellWidth - 6"/>
+        </Column>
+        <Column>
+          <Set>Cell.Width = CellWidth + 1 - LengthAdj</Set>
+          <Rectangle Area="ToolFlutes" Top="ToolTextTop" Left="9" Height="SmallTextHeight" Width="CellWidth - LengthAdj - 10"/>
+        </Column>
+        <Column>
+          <Set RefName="Cell">Left = -LengthAdj; Width = CellWidth + 1 + LengthAdj</Set>
+          <Rectangle Area="ToolLength" Top="ToolTextTop" Left="6 - LengthAdj" Height="SmallTextHeight" Width="CellWidth + LengthAdj - 7"/>
+        </Column>
+        <Column>
+          <Rectangle Area="ToolDesc" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="DescCellWidth - 6"/>
+          <Set>Cell.Width = DescCellWidth</Set>
+        </Column>
+      </Row>
+    </Grid>
+    <!-- Tool select button -->
+    <Ref RefName="Key" Left="KeySpace * 2 + CellWidth * 4 + DescCellWidth" Top="ToolTop">
+      <Set>KeySpot.Name = ToolMenu</Set>
+      <Set RefName="Button">StrokeThickness = 0; Fill = BtnBackground</Set>
+      <Set RefName="Label">Foreground = ToggleOn; Text = "..."</Set>
+    </Ref>
+    <!-- Tool diagram -->
+    <Set Name="DiagramTop" Value="ToolTop + 2 * CellHeight + KeySpace"/>
+    <Set Name="DiagramHeight" Value="BtnHeight * 2"/>
+    <Set Name="ToolDia" Value="BtnWidth / 2"/>
+    <Set Name="ToolImageRadius" Value="ToolDia / 2" ShowValue=""/>
+    <Color Name="ToolColor" Color="0xC00000" ColorDepth="Color16bpp"/>
+    <Color Name="NoToolColor" Color="LightSkyBlue" ColorDepth="Color16bpp"/>
+    <Rectangle Top="DiagramTop" Left="KeySpace" Width="DescCellWidth" Height="DiagramHeight">
+      <Rectangle HotSpot="ToolLeft" Group="ToolSide" Top="DiagramHeight / 4" Width="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolBack" Group="ToolSide" Top="0" Width="BtnWidth" Left="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolFront" Group="ToolSide" Top="DiagramHeight / 2" Left="BtnWidth" Width="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolRight" Group="ToolSide" Top="DiagramHeight / 4" Left="BtnWidth * 2" Width="BtnWidth" Height="BtnHeight"/>
+      <Ellipse Location="ToolLeft" Top="(DiagramHeight - ToolDia) / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolRight" Top="(DiagramHeight - ToolDia) / 2" Left="BtnWidth * 5 / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolBack" Top="0" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolFront" Top="DiagramHeight * 3 / 4" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Rectangle Top="DiagramHeight / 4" Left="BtnWidth / 2" Width="BtnWidth * 2" Height="BtnHeight" Fill="DarkSlateGray"/>
+    </Rectangle>
+    <!-- Tool feeds & speeds -->
+    <Rectangle Area="SpeedDisplay" Top="DiagramTop" Left="BtnWidth * 3 + KeySpace * 2" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth">
+      <Ref RefName="SpeedDisplay"/>
+    </Rectangle>
   </Canvas>
+
+  <!-- Feeds & speeds images -->
+  <Set Name="SpeedDisplayWidth" Value="(SpeedDisplayWidth + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
+  <Canvas Name="InchSpeedDisplay" Type="Key" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Ref RefName="SpeedDisplay"/>
+  </Canvas>
+
+  <Canvas Name="MetricSpeedDisplay" Type="Key" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Ref RefName="SpeedDisplay"/>
+    <Set>SpeedTextSfm.Text = m/min</Set>
+    <Set>SpeedTextFeed.Text = mm/tth</Set>
+    <Set>SpeedTextLoad.Text = mm/min</Set>
+  </Canvas>
+
+  <!-- Key images -->
+
+  <!-- Absolute coordinates selected -->
   <Canvas Name="AbsCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="Toggle"/>
-    <SetString RefName="Upper">Foreground=ToggleOn</SetString>
+    <Set RefName="Upper">Foreground=ToggleOn</Set>
   </Canvas>
+
+  <!-- Incremental coordinates selected -->
   <Canvas Name="IncCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="Toggle"/>
-    <SetString RefName="Lower">Foreground=ToggleOn</SetString>
+    <Set RefName="Lower">Foreground=ToggleOn</Set>
   </Canvas>
+
+  <!-- Inch units selected -->
   <Canvas Name="Inch" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="InchMetric"/>
-    <SetString RefName="Upper">Foreground=ToggleOn</SetString>
+    <Set RefName="Upper">Foreground=ToggleOn</Set>
   </Canvas>
+
+  <!-- Millimeter units selected -->
   <Canvas Name="Metric" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="InchMetric"/>
-    <SetString RefName="Lower">Foreground=ToggleOn</SetString>
+    <Set RefName="Lower">Foreground=ToggleOn</Set>
   </Canvas>
+
+  <!-- Border fill pattern -->
   <Canvas Name="Pattern16" Height="16" Width="16" ColorDepth="Color16bpp" Type="Key" Fill="0">
     <Rectangle Height="8" Width="8" Fill="Red" />
     <Rectangle Left="8" Height="8" Width="8" Fill="Green" />
     <Rectangle Top="8" Height="8" Width="8" Fill="Blue" />
     <Rectangle Top="8" Left="8" Height="8" Width="8" Fill="Yellow" />
   </Canvas>
+
+  <!-- Keyboard constants -->
   <Set Name="KeyboardWidth" Value="KeySpace + (BtnWidth + KeySpace) * 12"/>
-  <!-- round up to multiple of 4 -->
-  <Set Name="KeyboardWidth" Value="(KeyboardWidth + 3) / 4 * 4"/>
+  <Set Name="KeyboardWidth" Value="(KeyboardWidth + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
   <Set Name="KeyboardHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
-  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+
+  <!-- Lower-case keyboard -->
+  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="32" Width="32" Fill="Black">
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
@@ -324,7 +511,9 @@
       </Row>
     </Grid>
   </Canvas>
-  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+
+  <!-- Upper-case keyboard -->
+  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="32" Width="32" Fill="Black">
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />

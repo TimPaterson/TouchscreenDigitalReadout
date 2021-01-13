@@ -289,12 +289,10 @@ public:
 		{}
 
 	NumberLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
-		TextLine(pCanvas, pArea,
+		TextLine(pCanvas, pArea, id, foreColor, backColor,
 		({union {void (NumberLine::*mf)(byte); _fdev_put_t *p;} u = {&NumberLine::WriteChar}; u.p;}))
 	{
-		SetFont(id);	// We need to use our local SetFont();
-		m_foreColor = foreColor;
-		m_backColor = backColor;
+		SetSpaceWidth(GetCharWidth('0'));
 	}
 
 public:

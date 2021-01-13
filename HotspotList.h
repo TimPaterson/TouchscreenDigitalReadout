@@ -36,8 +36,37 @@ enum ActionHotspots
 	Xdisplay,
 	Ydisplay,
 	Zdisplay,
+	ToolNumber,
+	ToolFlutes,
+	ToolSfm,
+	ToolDiameter,
+	ToolLength,
+	ToolChipLoad,
+
 	Key_mult = CH_Multiply,
 	Key_divide = CH_Divide,
+};
+
+enum ToolSides
+{
+	ToolMaskShift = 4,
+	// Bit flags
+	ToolSidesNone,
+	ToolLeftBit	= 1,
+	ToolRightBit= 2,
+	ToolBackBit	= 4,
+	ToolFrontBit= 8,
+
+	ToolLeftMask	= ToolLeftBit << ToolMaskShift,
+	ToolRightMask	= ToolRightBit << ToolMaskShift,
+	ToolBackMask	= ToolBackBit << ToolMaskShift,
+	ToolFrontMask	= ToolFrontBit << ToolMaskShift,
+
+
+	ToolLeft	= ToolLeftBit | ToolRightMask,
+	ToolRight	= ToolRightBit | ToolLeftMask,
+	ToolBack	= ToolBackBit | ToolFrontMask,
+	ToolFront	= ToolFrontBit | ToolBackMask,
 };
 
 //*************************************************************************
@@ -196,3 +225,10 @@ enum Colors
 {
 	#include "Images/Screen.h"
 };
+
+//*************************************************************************
+// Define values
+
+#define DEFINE_VALUE(name, val)	static const int name = val;
+
+#include "Images/Screen.h"

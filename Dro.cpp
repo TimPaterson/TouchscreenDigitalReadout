@@ -18,13 +18,25 @@
 
 
 //*********************************************************************
-// Functions in DroInit
+// References
 
+// DroInit.cpp
 void StartClock();
 void Init();
 
-//****************************************************************************
-// Static canvas data (RAM)
+// Generated bitmap files
+extern "C"
+{
+	extern const byte TargetCursor[256];
+	extern const byte PointerCursor[256];
+}
+
+//*********************************************************************
+// Static data
+//*********************************************************************
+
+//*********************************************************************
+// Image descriptors
 
 // "Canvas" images
 #define START_SCREEN(name)		TouchCanvas name(
@@ -50,8 +62,8 @@ void Init();
 
 #include "Images/Screen.h"
 
-//****************************************************************************
-// Static data
+//*********************************************************************
+// Component data
 
 Console_t	Console;
 FILE		Console_FILE;
@@ -66,12 +78,6 @@ FileOperations		FileOp;
 FAT_DRIVES_LIST(&FlashDrive, &Sd);
 //FAT_DRIVES_LIST(&Sd, &FlashDrive);
 
-extern "C"
-{
-	extern const byte TargetCursor[256];
-	extern const byte PointerCursor[256];
-}
-
 //********************************************************************
 // Define the four sensors
 
@@ -82,7 +88,7 @@ AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
 AxisDisplay Zpos(&Eeprom.Data.ZaxisInfo, &MainScreen_Areas.Zdisplay);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
 
-//****************************************************************************
+//********************************************************************
 // EEPROM data
 
 // Define initial EEPROM data
@@ -221,7 +227,7 @@ void NO_INLINE_ATTR EnableCursor()
 	Lcd.WriteReg(CCR1, CCR1_CharHeightX4);
 	Lcd.WriteReg(ICR, ICR_TextMode);
 	Lcd.WriteReg(GTCCR, GTCCR_TextCursorEnable | GTCCR_TextCursorBlink);
-	Lcd.WriteRegXY(F_CURX0, Zaxis_X + 54 * 3, Zaxis_Y - (32 * 4 - height));
+	//Lcd.WriteRegXY(F_CURX0, Zaxis_X + 54 * 3, Zaxis_Y - (32 * 4 - height));
 }
 
 //*********************************************************************
@@ -266,7 +272,6 @@ int main(void)
 	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect2);
 	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
 
-	Lcd.WriteReg(AW_COLOR, AW_COLOR_CanvasColor16 | AW_COLOR_AddrModeXY);
 	Lcd.SetMainImage(&MainScreen);
 	Lcd.DisplayOn();
 

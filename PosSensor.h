@@ -14,7 +14,6 @@ class PosSensor
 	static constexpr int MaxOrigins = 2;
 	static constexpr double InchRounding = 5000.0;		// 1/5000 inch
 	static constexpr double MmRounding = 100.0;			// 1/100 mm
-	static constexpr double MmPerInch = 25.4;
 	static constexpr double MaxCompensation = 0.001;	// max adjust of 0.1%
 
 public:
@@ -35,29 +34,43 @@ public:
 		long		pos;
 
 		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_posCur;
-		if (Eeprom.Data.fIsMetric)
-			return nearbyint(pos * m_scaleMm) / MmRounding;
+		if (IsMetric())
+			return nearbyint(pos * m_scaleMm - m_offsetMm) / MmRounding;
 
-		return nearbyint(pos *  m_scaleInch) / InchRounding;
+		return nearbyint(pos *  m_scaleInch - m_offsetInch) / InchRounding;
 	}
 
 	void SetPosition(double pos)
 	{
 		// Round to display value first
-		if (Eeprom.Data.fIsMetric)
+		if (IsMetric())
 		{
-			pos = nearbyint(pos * MmRounding);
+			pos = nearbyint(pos * MmRounding + m_offsetMm);
 			pos /= m_scaleMm;
 		}
 		else
 		{
-			pos = nearbyint(pos * InchRounding);
+			pos = nearbyint(pos * InchRounding + m_offsetInch);
 			pos /= m_scaleInch;
 		}
 
 		m_arOrigins[Eeprom.Data.OriginNum] = lround(pos) - m_posCur;
 	}
 
+	void SetOffset(double offset)
+	{
+		// Offset is in current units
+		if (IsMetric())
+		{
+			m_offsetMm = offset * MmRounding;
+			m_offsetInch = offset / MmPerInch * InchRounding;
+		}
+		else
+		{
+			m_offsetInch = offset * InchRounding;
+			m_offsetMm = offset * MmPerInch * MmRounding;
+		}
+	}
 
 	bool SetCompensation(double pos)
 	{
@@ -139,7 +152,9 @@ protected:
 protected:
 	AxisInfo	*m_pInfo;
 	double		m_scaleMm;
+	double		m_offsetMm;
 	double		m_scaleInch;
+	double		m_offsetInch;
 	long		m_arOrigins[MaxOrigins];
 	byte		m_bPrevSig;
 };

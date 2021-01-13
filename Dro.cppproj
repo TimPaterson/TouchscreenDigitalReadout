@@ -368,6 +368,9 @@
     <None Include="Fonts\Fonts.fnt">
       <SubType>compile</SubType>
     </None>
+    <None Include="Fonts\Fonts.xml">
+      <SubType>compile</SubType>
+    </None>
     <None Include="Images\Screen.xml">
       <SubType>compile</SubType>
     </None>

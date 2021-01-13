@@ -73,6 +73,11 @@ public:
 		WriteData(val | (pCanvas->GetColorDepth() << BTE_COLR_DestColor_Shft));
 	}
 
+	static void SetDrawCanvas(Canvas *pCanvas)
+	{
+		WriteSequentialRegisters(pCanvas, CVSSA0, CanvasViewDepthRegCount);
+	}
+
 	static void SetBteSrc0(const Image *pImage, uint bpp)
 	{
 		byte	val;

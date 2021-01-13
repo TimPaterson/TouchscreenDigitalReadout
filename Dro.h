@@ -17,6 +17,8 @@
 
 #define VERSION	0
 
+static constexpr double MmPerInch = 25.4;
+
 //*********************************************************************
 // Define port pins
 //

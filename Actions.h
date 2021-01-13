@@ -15,7 +15,7 @@
 class Actions
 {
 	static constexpr int InBufSize = 12;
-	static constexpr int MemoryCount = 5;
+	static constexpr int MemoryCount = 4;
 
 	enum ActionState
 	{
@@ -38,7 +38,7 @@ class Actions
 	public:
 		// Setting the TextLine backcolor to -1 causes transparent mode
 		CalcMemory(const Area *pArea, ulong backColor) :
-			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1) 
+			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1)
 		{
 			m_fillColor = backColor;
 		}
@@ -55,12 +55,45 @@ class Actions
 			// transparent background fill.
 			FillArea(m_fillColor);	// Clear existing value
 			if (val != 0)
-				printf("%.8g\n", val);
+				printf("\n%.8g", val);
 		}
 
 	protected:
 		double	m_val;
 		ulong	m_fillColor;
+	};
+
+	class ToolDisplay : public TextLine
+	{
+	public:
+		ToolDisplay() : TextLine(&MainScreen, &MainScreen_Areas.ToolNumber, FID_CalcSmall, 0, -1)
+		{
+			SetSpaceWidth(GetCharWidth('0'));
+		}
+
+		void SetArea(const Area *pArea)	
+		{ 
+			m_pArea = pArea;
+			ResetPosition();
+		}
+
+		void PrintNum(const Area *pArea, const char *fmt, double val)
+		{
+			SetArea(pArea);
+			FillArea(ScreenBackColor);	// Clear existing value
+			if (val == 0)
+				return;
+			printf(fmt, val);
+		}
+
+		void PrintNum(const Area *pArea, const char *fmt, uint val)
+		{
+			SetArea(pArea);
+			FillArea(ScreenBackColor);	// Clear existing value
+			if (val == 0)
+				return;
+			printf(fmt, val);
+		}
 	};
 
 public:
@@ -279,6 +312,96 @@ public:
 			break;
 
 		//*****************************************************************
+		// Press a tool info key
+		//
+
+		case HOTSPOT_GROUP_ToolInfo:
+			if (s_state == AS_Empty)
+			{
+				// Just reading the value
+				switch (spot)
+				{
+					case ToolDiameter:
+						val = Eeprom.Data.ToolDiameter;
+						break;
+
+					case ToolLength:
+						val = Eeprom.Data.ToolLength;
+						break;
+
+					case ToolFlutes:
+						val = Eeprom.Data.ToolFlutes;
+						break;
+
+					case ToolSfm:
+						val = Eeprom.Data.Sfm;
+						break;
+
+					case ToolChipLoad:
+						val = Eeprom.Data.ChipLoad;
+						break;
+
+					default:	// ToolNumber
+						val = Eeprom.Data.ToolNumber;
+						break;
+				}
+				if (val != 0)
+					ToValueState(val);
+				break;
+			}
+			else
+			{
+				// Setting the value
+				val = ToValueState();
+				// Negative values never allowed
+				if (val < 0)
+					val = - val;
+
+				switch (spot)
+				{
+					case ToolDiameter:
+						Eeprom.Data.ToolDiameter = LimitVal(val, 9.999);
+						break;
+
+					case ToolLength:
+						Eeprom.Data.ToolLength = LimitVal(val, 99.999);
+						break;
+
+					case ToolChipLoad:
+						Eeprom.Data.ChipLoad = LimitVal(val, 0.9999);
+						break;
+
+					case ToolFlutes:
+						val = std::min(val, 99.0);
+						Eeprom.Data.ToolFlutes = (byte)val;
+						break;
+
+					case ToolSfm:
+						val = std::min(val, 9999.0);
+						val = Eeprom.Data.Sfm = (ushort)val;
+						break;
+
+					default:	// ToolNumber
+						val = std::min(val, 511.0);
+						val = Eeprom.Data.ToolNumber = (ushort)val;
+						break;
+				}
+				// UNDONE: Save EEPROM
+				ShowToolInfo();
+			}
+			return;
+
+		//*****************************************************************
+		// Press a tool cutting side key
+		//
+
+		case HOTSPOT_GROUP_ToolSide:
+			Eeprom.Data.ToolSides = (Eeprom.Data.ToolSides & ~(spot >> ToolMaskShift)) ^ spot;
+			// UNDONE: Save EEPROM
+			ShowToolInfo();
+			return;
+
+		//*****************************************************************
 		// Press a PIP keyboard key
 		//
 
@@ -307,6 +430,7 @@ public:
 
 			case InchMetric:
 				Eeprom.Data.fIsMetric ^= true;
+				ConvertToolValues(Eeprom.Data.fIsMetric);
 				ShowInchMetric();
 				break;
 
@@ -332,16 +456,122 @@ public:
 			s_CalcText.printf("\n%.8g %c %s", s_arg1, s_op, pStr);
 	}
 
+	static bool IsMetric()
+	{
+		return Eeprom.Data.fIsMetric;
+	}
+
+	static double LimitVal(double val, double max) NO_INLINE_ATTR
+	{
+		if (IsMetric())
+			max *= 10.0;
+		return std::min(val, max);
+	}
+
 	static void ShowInchMetric()
 	{
-		ScreenMgr::CopyRect(Eeprom.Data.fIsMetric ? &Metric : &Inch, 
+		ScreenMgr::CopyRect(IsMetric() ? &Metric : &Inch,
 			0, 0, &MainScreen, &MainScreen_Areas.InchMetric);
+
+		ScreenMgr::CopyRect(IsMetric() ? &MetricSpeedDisplay : &InchSpeedDisplay,
+			0, 0, &MainScreen, &MainScreen_Areas.SpeedDisplay);
+
+		ShowToolInfo();
 	}
 
 	static void ShowAbsInc()
 	{
-		ScreenMgr::CopyRect(Eeprom.Data.OriginNum ?  &IncCoord : &AbsCoord, 
+		ScreenMgr::CopyRect(Eeprom.Data.OriginNum ?  &IncCoord : &AbsCoord,
 			0, 0, &MainScreen, &MainScreen_Areas.AbsInc);
+	}
+
+	static void PrepareDrawTool()
+	{
+		ScreenMgr::SetDrawCanvas(&MainScreen);
+		ScreenMgr::WriteRegXY(ELL_A0, ToolImageRadius, ToolImageRadius);
+	}
+
+	static void DrawTool(bool fEnable, uint x, uint y)
+	{
+		ScreenMgr::WriteRegXY(DEHR0, x, y);
+		ScreenMgr::SetForeColor(fEnable ? ToolColor : NoToolColor);
+		ScreenMgr::WriteReg(DCR1, DCR1_DrawEllipse | DCR1_FillOn | DCR1_DrawActive);
+		ScreenMgr::WaitWhileBusy();
+	}
+
+	static void ShowToolInfo()
+	{
+		double	val;
+		uint	sides;
+		ulong	color;
+
+		s_ToolDisplay.PrintNum(
+			&MainScreen_Areas.ToolDiameter,
+			IsMetric() ? "%5.2f" : "%5.3f",
+			Eeprom.Data.ToolDiameter);
+
+		s_ToolDisplay.PrintNum(
+			&MainScreen_Areas.ToolLength,
+			IsMetric() ? "%6.2f" : "%6.3f",
+			Eeprom.Data.ToolLength);
+
+		s_ToolDisplay.PrintNum(
+			&MainScreen_Areas.ChipLoad,
+			IsMetric() ? "%6.3f" : "%6.4f",
+			Eeprom.Data.ChipLoad);
+
+		s_ToolDisplay.PrintNum(&MainScreen_Areas.ToolFlutes, "%3u", (uint)Eeprom.Data.ToolFlutes);
+
+		s_ToolDisplay.PrintNum(&MainScreen_Areas.Sfm, "%5u", (uint)Eeprom.Data.Sfm);
+
+		// Compute and display RPM
+		if (Eeprom.Data.ToolDiameter != 0 && Eeprom.Data.Sfm != 0)
+		{
+			val = Eeprom.Data.Sfm / (Eeprom.Data.ToolDiameter * M_PI);
+			val *= IsMetric() ? 1000 : 12;
+			val = std::min(val, (double)Eeprom.Data.MaxRpm);
+		}
+		else
+			val = 0;
+
+		s_ToolDisplay.PrintNum(&MainScreen_Areas.Rpm, "%5u", (uint)val);
+
+		// Compute and display feed rate
+		val *= Eeprom.Data.ChipLoad * Eeprom.Data.ToolFlutes;
+		s_ToolDisplay.PrintNum(&MainScreen_Areas.FeedRate, "%5u", (uint)val);
+
+		// Update cutter radius offset
+		PrepareDrawTool();
+		sides = Eeprom.Data.ToolSides;
+		DrawTool(sides & ToolLeftBit,  ToolLeft_X,  ToolLeft_Y);
+		DrawTool(sides & ToolRightBit, ToolRight_X, ToolRight_Y);
+		DrawTool(sides & ToolBackBit,  ToolBack_X,  ToolBack_Y);
+		DrawTool(sides & ToolFrontBit, ToolFront_X, ToolFront_Y);
+
+		val = Eeprom.Data.ToolDiameter / 2;
+		Xpos.SetOffset(sides & ToolLeftBit ? -val : (sides & ToolRightBit ? val : 0));
+		Ypos.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
+		Zpos.SetOffset(Eeprom.Data.fToolLenAffectsZ ? Eeprom.Data.ToolLength : 0);
+
+		color = Eeprom.Data.fHighlightOffset && Eeprom.Data.ToolDiameter != 0 ? ToolColor : AxisForeColor;
+		Xpos.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
+		Ypos.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+	}
+
+	static void ConvertToolValues(bool fToMetric)
+	{
+		double	factor;
+
+		factor = fToMetric ? MmPerInch : 1.0 / MmPerInch;
+
+		Eeprom.Data.ToolDiameter *= factor;
+		Eeprom.Data.ToolLength *= factor;
+		Eeprom.Data.ChipLoad *= factor;
+
+		factor = MmPerInch * 12.0 / 1000.0;	// meters / foot
+		if (!fToMetric)
+			factor = 1 / factor;
+		Eeprom.Data.Sfm = lround(Eeprom.Data.Sfm * factor);
 	}
 
 protected:
@@ -390,10 +620,10 @@ protected:
 		{&MainScreen_Areas.Mem2, MemColorEven},
 		{&MainScreen_Areas.Mem3, MemColorOdd},
 		{&MainScreen_Areas.Mem4, MemColorEven},
-		{&MainScreen_Areas.Mem5, MemColorOdd}
 	};
 	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, CalcBackColor};
 	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, CalcBackColor};
+	inline static ToolDisplay s_ToolDisplay;
 	inline static char		s_arEntryBuf[InBufSize] = "\n ";
 	inline static byte		s_indBuf = 2;
 	inline static byte		s_op = OP_none;
