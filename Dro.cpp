@@ -47,11 +47,11 @@ extern "C"
 #define END_SCREEN(name)		&name##HotspotList);
 
 // "ColorImage" images
-#define START_SCREEN_Key(name)	const ColorImage name = {
-#define IMAGE_ADDRESS_Key(val)	val + RamScreenStart,
-#define IMAGE_WIDTH_Key(val)	val,
-#define IMAGE_DEPTH_Key(val)	val
-#define END_SCREEN_Key(name)	};
+#define START_SCREEN_Overlay(name)	const ColorImage name = {
+#define IMAGE_ADDRESS_Overlay(val)	val + RamScreenStart,
+#define IMAGE_WIDTH_Overlay(val)	val,
+#define IMAGE_DEPTH_Overlay(val)	val
+#define END_SCREEN_Overlay(name)	};
 
 #include "Images/Screen.h"
 
@@ -83,9 +83,9 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 
 static const int AxisUpdateRate = 20;	// updates per second
 
-AxisDisplay Xpos(&Eeprom.Data.XaxisInfo, &MainScreen_Areas.Xdisplay);
-AxisDisplay Ypos(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
-AxisDisplay Zpos(&Eeprom.Data.ZaxisInfo, &MainScreen_Areas.Zdisplay);
+AxisDisplay Xaxis(&Eeprom.Data.XaxisInfo, &MainScreen_Areas.Xdisplay);
+AxisDisplay Yaxis(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
+AxisDisplay Zaxis(&Eeprom.Data.ZaxisInfo, &MainScreen_Areas.Zdisplay);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
 
 //********************************************************************
@@ -231,6 +231,22 @@ void NO_INLINE_ATTR EnableCursor()
 }
 
 //*********************************************************************
+// Helpers
+//*********************************************************************
+
+void ChangeScreenBrightness(int change)
+{
+	change = LcdBacklightPwmMax * change / 100;	// change was %
+	change += Eeprom.Data.Brightness;
+	if (change < 0)
+		change = 0;
+	if (change > LcdBacklightPwmMax)
+		change = LcdBacklightPwmMax;
+	Eeprom.Data.Brightness = change;
+	TCC1->CC[1].reg = change;
+}
+
+//*********************************************************************
 // Main program
 //*********************************************************************
 
@@ -243,9 +259,9 @@ int main(void)
 
 	// Put EEPROM data into effect
 	TCC1->CC[1].reg = Eeprom.Data.Brightness;
-	Xpos.AxisInfoUpdate();
-	Ypos.AxisInfoUpdate();
-	Zpos.AxisInfoUpdate();
+	Xaxis.AxisInfoUpdate();
+	Yaxis.AxisInfoUpdate();
+	Zaxis.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
 	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
@@ -277,6 +293,7 @@ int main(void)
 
 	Actions::ShowAbsInc();
 	Actions::ShowInchMetric();
+	Actions::ShowToolInfo();
 
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
@@ -296,8 +313,6 @@ int main(void)
 
 	Timer	tmrAxis;
 	int		i;
-	bool	fPip = false;
-	bool	fBorder = false;
 	bool	fSdOut = true;
 
 	tmrAxis.Start();
@@ -406,15 +421,6 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
-			case 'b':
-				DEBUG_PRINT("Rectangle border\n");
-				if (fBorder)
-					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, 0xFFFFFF);
-				else
-					Lcd.RectBorder(&MainScreen, &MainScreen_Areas.Undo, &Pattern16);
-				fBorder = !fBorder;
-				break;
-
 			case 'c':
 				DEBUG_PRINT("Calibrate touch screen...");
 				CalibrateTouch();
@@ -431,24 +437,9 @@ int main(void)
 				FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
 				break;
 
-			case 'l':
+			case 'i':
 				DEBUG_PRINT("Loading image...");
 				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
-				break;
-
-			case 'p':
-				if (fPip)
-				{
-					DEBUG_PRINT("PIP off\n");
-					Lcd.DisablePip1();
-					fPip = false;
-				}
-				else
-				{
-					DEBUG_PRINT("PIP on\n");
-					Lcd.EnablePip1(&KeyUpper, 50, 200);
-					fPip = true;
-				}
 				break;
 
 			case 'r':
@@ -467,27 +458,6 @@ int main(void)
 				}
 				else
 					DEBUG_PRINT("...Not saved\n");
-				break;
-
-			case '+':
-			case '=':
-				i = Eeprom.Data.Brightness;
-				i += LcdBacklightPwmMax / 10;
-				if (i > LcdBacklightPwmMax)
-					i = LcdBacklightPwmMax;
-				Eeprom.Data.Brightness = i;
-				TCC1->CC[1].reg = i;
-				DEBUG_PRINT("up\n");
-				break;
-
-			case '-':
-				i = Eeprom.Data.Brightness;
-				i -= LcdBacklightPwmMax / 10;
-				if (i < 0)
-					i = 0;
-				Eeprom.Data.Brightness = i;
-				TCC1->CC[1].reg = i;
-				DEBUG_PRINT("down\n");
 				break;
 			}
 		}

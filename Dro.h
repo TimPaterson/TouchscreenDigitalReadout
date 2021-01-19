@@ -19,6 +19,9 @@
 
 static constexpr double MmPerInch = 25.4;
 
+// externs
+void ChangeScreenBrightness(int change);
+
 //*********************************************************************
 // Define port pins
 //
@@ -396,7 +399,7 @@ static constexpr byte BOD_LEVEL_2p7_REVG = 39;
 
 struct AxisInfo
 {
-	double	Compensation;
+	double	Correction;
 	byte	Resolution;		// microns (typically 5)
 	bool	Direction;
 };

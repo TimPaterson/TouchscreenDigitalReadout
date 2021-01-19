@@ -33,18 +33,26 @@ enum ActionHotspots
 	Key_backSpace,
 	Key_clear,
 	Key_pi,
-	Xdisplay,
-	Ydisplay,
-	Zdisplay,
 	ToolNumber,
 	ToolFlutes,
 	ToolSfm,
 	ToolDiameter,
 	ToolLength,
 	ToolChipLoad,
+	HighlightXY,
+	OffsetZ,
 
 	Key_mult = CH_Multiply,
 	Key_divide = CH_Divide,
+};
+
+// Index into array of PosSensor
+enum SensorIndex
+{
+	Xsensor,
+	Ysensor,
+	Zsensor,
+	Qsensor
 };
 
 enum ToolSides
@@ -197,9 +205,9 @@ extern "C"
 #include "Images/Screen.h"
 
 // Define the externs
-#define START_SCREEN(name)		extern TouchCanvas name;
-#define START_SCREEN_Key(name)	extern const ColorImage name;
-#define START_AREAS(name)		extern const name##_Areas_t name##_Areas;
+#define START_SCREEN(name)			extern TouchCanvas name;
+#define START_SCREEN_Overlay(name)	extern const ColorImage name;
+#define START_AREAS(name)			extern const name##_Areas_t name##_Areas;
 
 #include "Images/Screen.h"
 

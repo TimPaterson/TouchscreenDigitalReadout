@@ -16,6 +16,9 @@ class ScreenMgr : public RA8876
 	static const int BorderThickness = 4;
 
 public:
+	static TouchCanvas *GetPip1()	{ return s_pPip1Image; }
+	static TouchCanvas *GetPip2()	{ return s_pPip2Image; }
+
 	static void SetMainImage(TouchCanvas *pCanvas)
 	{
 		byte	val;
@@ -26,11 +29,12 @@ public:
 		WriteData(val | (pCanvas->GetColorDepth() << MPWCTR_MainImageColor_Shft));
 	}
 
-	static void EnablePip1(TouchCanvas *pCanvas, uint X, uint Y)
+	static void EnablePip1(TouchCanvas *pCanvas, uint X, uint Y, bool fModal = false)
 	{
 		byte	val;
 
 		s_pPip1Image = pCanvas;
+		s_fPip1Modal = fModal;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip1 | MPWCTR_Pip1Enable));
 		WriteRegXY(PWDULX0, X, Y);
@@ -49,7 +53,7 @@ public:
 	{
 		byte	val;
 
-		s_pPip1Image = pCanvas;
+		s_pPip2Image = pCanvas;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip2 | MPWCTR_Pip2Enable));
 		WriteRegXY(PWDULX0, X, Y);
@@ -96,19 +100,22 @@ public:
 		WriteData(val | (bpp << BTE_COLR_Src1Color_Shft));
 	}
 
-	static HotspotData *TestHit(int X, int Y)
+	static HotspotData *TestHit(int x, int y)
 	{
-		HotspotData		*pSpot;
-
-		// PIP1 is on top if enabled
-		if (s_pPip1Image != NULL && (pSpot = s_pPip1Image->TestHit(X, Y)) != NULL)
-			return pSpot;
+		// PIP1 is on top if enabled. If PIP1 is modal, don't look elsewhere
+		if (s_pPip1Image != NULL)
+		{
+			if (s_pPip1Image->OnCanvas(x, y))
+				return s_pPip1Image->TestHit(x, y);
+			else if (s_fPip1Modal)
+				return NULL;
+		}
 
 		// PIP2 is next if enabled
-		if (s_pPip2Image != NULL && (pSpot = s_pPip2Image->TestHit(X, Y)) != NULL)
-			return pSpot;
+		if (s_pPip2Image != NULL && s_pPip2Image->OnCanvas(x, y))
+			return s_pPip2Image->TestHit(x, y);
 
-		return s_pMainImage->TestHit(X, Y);
+		return s_pMainImage->TestHit(x, y);
 	}
 
 	static void CopyRect(const ColorImage *pSrc, uint srcX, uint srcY, Canvas *pDst, const Area *pAreaDst)
@@ -182,4 +189,5 @@ protected:
 	inline static TouchCanvas	*s_pMainImage;
 	inline static TouchCanvas	*s_pPip1Image;
 	inline static TouchCanvas	*s_pPip2Image;
+	inline static bool			s_fPip1Modal;
 };

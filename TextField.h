@@ -100,6 +100,9 @@ public:
 
 	void MakeActive()
 	{
+		byte	ctrl;
+		ulong	color;
+
 		ScreenMgr::SetBteDest(m_pCanvas);
 		WriteReg16(DT_Y0, m_curPosY);
 		RA8876::SetForeColor(m_foreColor);
@@ -107,9 +110,18 @@ public:
 		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, Color8bpp);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
-		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) |
-			(m_backColor < 0 ? BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent :
-			BTE_CTRL1_OpcodeMemoryCopyExpandMono));
+		if (m_backColor < 0)
+		{
+			color = ~m_foreColor;	// make sure it's different
+			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent;
+		}
+		else
+		{
+			color = m_backColor;
+			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMono;
+		}
+		RA8876::SetBackColor(color);
+		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) | ctrl);
 	}
 
 	void ResetPosition()

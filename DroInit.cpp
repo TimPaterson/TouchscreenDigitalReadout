@@ -23,8 +23,8 @@ void StartClock()
 	SYSCTRL_DFLLVAL_Type		dfllVal;
 	SYSCTRL_DFLLMUL_Type		dfflMul;
 	
-	// Start the 32kHz crystal oscillator, allow 32 clocks startup time
-	SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP(1) | SYSCTRL_XOSC32K_XTALEN | 
+	// Start the 32kHz crystal oscillator, allow 2048 clocks startup time
+	SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP(2) | SYSCTRL_XOSC32K_XTALEN | 
 		SYSCTRL_XOSC32K_ENABLE | SYSCTRL_XOSC32K_EN32K;
 	// Wait for it to be ready
 	while (!SYSCTRL->PCLKSR.bit.XOSC32KRDY);

@@ -130,6 +130,15 @@ public:
 		return NULL;
 	}
 
+	bool OnCanvas(int x, int y)
+	{
+		x -= m_viewPosX;
+		y -= m_viewPosY;
+		if (x < 0 || y < 0 || x >= m_viewWidth || y >= m_viewHeight)
+			return false;
+		return true;
+	}
+
 	//*********************************************************************
 	// instance data
 	//*********************************************************************

@@ -15,9 +15,9 @@
 
 class AxisDisplay;
 
-extern AxisDisplay	Xpos;
-extern AxisDisplay	Ypos;
-extern AxisDisplay	Zpos;
+extern AxisDisplay	Xaxis;
+extern AxisDisplay	Yaxis;
+extern AxisDisplay	Zaxis;
 extern PosSensor	Qpos;
 
 
@@ -43,8 +43,8 @@ public:
 public:
 	static void UpdateAll()
 	{
-		Xpos.UpdateDisplay();
-		Ypos.UpdateDisplay();
-		Zpos.UpdateDisplay();
+		Xaxis.UpdateDisplay();
+		Yaxis.UpdateDisplay();
+		Zaxis.UpdateDisplay();
 	}
 };

@@ -33,15 +33,17 @@ class Actions
 		OP_divide = Key_divide,
 	};
 
+	//*********************************************************************
+	// Local types
+	//*********************************************************************
+protected:
 	class CalcMemory : public TextLine
 	{
 	public:
 		// Setting the TextLine backcolor to -1 causes transparent mode
 		CalcMemory(const Area *pArea, ulong backColor) :
-			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1)
-		{
-			m_fillColor = backColor;
-		}
+			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1), m_fillColor{backColor}
+		{}
 
 	public:
 		double GetVal()	{ return m_val; }
@@ -63,10 +65,12 @@ class Actions
 		ulong	m_fillColor;
 	};
 
-	class ToolDisplay : public TextLine
+protected:
+	class ShareText : public TextLine
 	{
 	public:
-		ToolDisplay() : TextLine(&MainScreen, &MainScreen_Areas.ToolNumber, FID_CalcSmall, 0, -1)
+		ShareText(Canvas *pCanvas, FontId id, ulong foreColor, ulong backColor) : 
+			TextLine(pCanvas, NULL, id, foreColor, -1), m_fillColor{backColor}
 		{
 			SetSpaceWidth(GetCharWidth('0'));
 		}
@@ -80,7 +84,7 @@ class Actions
 		void PrintNum(const Area *pArea, const char *fmt, double val)
 		{
 			SetArea(pArea);
-			FillArea(ScreenBackColor);	// Clear existing value
+			FillArea(m_fillColor);	// Clear existing value
 			if (val == 0)
 				return;
 			printf(fmt, val);
@@ -89,13 +93,19 @@ class Actions
 		void PrintNum(const Area *pArea, const char *fmt, uint val)
 		{
 			SetArea(pArea);
-			FillArea(ScreenBackColor);	// Clear existing value
+			FillArea(m_fillColor);	// Clear existing value
 			if (val == 0)
 				return;
 			printf(fmt, val);
 		}
+
+	protected:
+		ulong	m_fillColor;
 	};
 
+	//*********************************************************************
+	// Public interface
+	//*********************************************************************
 public:
 	static void TakeAction(int X, int Y)
 	{
@@ -103,8 +113,9 @@ public:
 		uint		group;
 		uint		spot;
 		double		val;
-		AxisDisplay	*pAxis;
+		PosSensor	*pSensor;
 		char		*pStr;
+		bool		*pToggle;
 
 		pSpot = ScreenMgr::TestHit(X, Y);
 		if (pSpot == NULL)
@@ -259,32 +270,20 @@ public:
 		// to the axis.
 
 		case HOTSPOT_GROUP_Axis:
-			switch (spot)
-			{
-			case Xdisplay:
-				pAxis = &Xpos;
-				break;
+			pSensor = s_arSensor[spot];
 
-			case Ydisplay:
-				pAxis = &Ypos;
-				break;
+			if (s_state == AS_Empty)
+				ToValueState(pSensor->GetPosition());
+			else
+				pSensor->SetPosition(ToValueState());
+			break;
 
-			default:	// Zdisplay
-				pAxis = &Zpos;
-				break;
-			}
+		//*****************************************************************
+		// Press one of the axis zero buttons.
+		//
 
-			switch (s_state)
-			{
-			case AS_Empty:
-				val = pAxis->GetPosition();
-				ToValueState(val);
-				break;
-
-			default:
-				pAxis->SetPosition(ToValueState());
-				break;
-			}
+		case HOTSPOT_GROUP_AxisButton:
+			s_arSensor[spot]->SetPosition(0);
 			break;
 
 		//*****************************************************************
@@ -297,18 +296,14 @@ public:
 		case HOTSPOT_GROUP_Memory:
 			spot -= Mem1;
 
-			switch (s_state)
+			if (s_state == AS_Empty)
 			{
-			case AS_Empty:
 				val = s_memories[spot].GetVal();
 				if (val != 0)
 					ToValueState(val);
-				break;
-
-			default:
-				s_memories[spot].SetVal(ToValueState());
-				break;
 			}
+			else
+				s_memories[spot].SetVal(ToValueState());
 			break;
 
 		//*****************************************************************
@@ -355,7 +350,7 @@ public:
 				val = ToValueState();
 				// Negative values never allowed
 				if (val < 0)
-					val = - val;
+					val = -val;
 
 				switch (spot)
 				{
@@ -386,7 +381,7 @@ public:
 						val = Eeprom.Data.ToolNumber = (ushort)val;
 						break;
 				}
-				// UNDONE: Save EEPROM
+				UpdateEeprom();
 				ShowToolInfo();
 			}
 			return;
@@ -396,9 +391,80 @@ public:
 		//
 
 		case HOTSPOT_GROUP_ToolSide:
-			Eeprom.Data.ToolSides = (Eeprom.Data.ToolSides & ~(spot >> ToolMaskShift)) ^ spot;
-			// UNDONE: Save EEPROM
+			s_toolSides = (s_toolSides & ~(spot >> ToolMaskShift)) ^ spot;
 			ShowToolInfo();
+			return;
+
+		//*****************************************************************
+		// Settings screen
+		//
+
+		case HOTSPOT_GROUP_Resolution:
+			pSensor = s_arSensor[spot];
+			if (s_state == AS_Empty)
+			{
+				// Just reading the value
+				val = pSensor->GetResolution();
+				ToValueState(val);
+				break;
+			}
+			else
+			{
+				// Setting the value
+				val = ToValueState();
+				if (val > 10 || val < 1)
+					;// UNDONE: Display error
+				else
+				{
+					pSensor->SetResolution((uint)val);
+					ShowSettingsInfo();
+					UpdateEeprom();
+				}
+				return;
+			}
+
+		case HOTSPOT_GROUP_Correction:
+			pSensor = s_arSensor[spot];
+			if (s_state == AS_Empty)
+			{
+				// Just reading the value
+				val = pSensor->GetCorrectionPpm();
+				ToValueState(val);
+				break;
+			}
+			else
+			{
+				// Setting the value
+				val = ToValueState();
+				if (!pSensor->SetCorrectionPpm(val))
+					;	// UNDONE: Display error
+				ShowSettingsInfo();
+				UpdateEeprom();
+				return;
+			}
+
+		case HOTSPOT_GROUP_Invert:
+			pSensor = s_arSensor[spot];
+			pSensor->SetDirection(pSensor->GetDirection() ^ true);
+			ShowSettingsInfo();
+			UpdateEeprom();
+			return;
+
+		case HOTSPOT_GROUP_SettingToggle:
+			switch (spot)
+			{
+			case HighlightXY:
+				pToggle = &Eeprom.Data.fHighlightOffset;
+				break;
+
+			default:	// OffsetZ
+				pToggle = &Eeprom.Data.fToolLenAffectsZ;
+				break;
+			}
+			*pToggle ^= true;
+			ShowSettingsInfo();
+			ShowToolInfo();
+			UpdateEeprom();
 			return;
 
 		//*****************************************************************
@@ -416,27 +482,56 @@ public:
 		default:
 			switch (spot)
 			{
-			case Xbutton:
-				Xpos.SetPosition(0);
-				break;
-
-			case Ybutton:
-				Ypos.SetPosition(0);
-				break;
-
-			case Zbutton:
-				Zpos.SetPosition(0);
-				break;
-
 			case InchMetric:
 				Eeprom.Data.fIsMetric ^= true;
 				ConvertToolValues(Eeprom.Data.fIsMetric);
+				UpdateEeprom();
 				ShowInchMetric();
 				break;
 
 			case AbsInc:
 				Eeprom.Data.OriginNum ^= 1;
+				UpdateEeprom();
 				ShowAbsInc();
+				break;
+
+			case Settings:
+				if (ScreenMgr::GetPip2() == NULL)
+				{
+					ScreenMgr::EnablePip2(&SettingsScreen, 0, 0);
+					ShowSettingsInfo();
+				}
+				else
+					ScreenMgr::DisablePip2();
+				break;
+
+			case BrightUp:
+				ChangeScreenBrightness(10);
+				UpdateEeprom();
+				break;
+
+			case BrightDown:
+				ChangeScreenBrightness(-10);
+				UpdateEeprom();
+				break;
+
+			case MaxRpm:
+				if (s_state == AS_Empty)
+				{
+					// Just reading the value
+					ToValueState(Eeprom.Data.MaxRpm);
+				}
+				else
+				{
+					// Setting the value
+					val = ToValueState();
+					if (val < 100000 && val >= 100)
+					{
+						Eeprom.Data.MaxRpm = lround(val);
+						ShowSettingsInfo();
+						UpdateEeprom();
+					}
+				}
 				break;
 			}
 			return;
@@ -456,18 +551,7 @@ public:
 			s_CalcText.printf("\n%.8g %c %s", s_arg1, s_op, pStr);
 	}
 
-	static bool IsMetric()
-	{
-		return Eeprom.Data.fIsMetric;
-	}
-
-	static double LimitVal(double val, double max) NO_INLINE_ATTR
-	{
-		if (IsMetric())
-			max *= 10.0;
-		return std::min(val, max);
-	}
-
+public:
 	static void ShowInchMetric()
 	{
 		ScreenMgr::CopyRect(IsMetric() ? &Metric : &Inch,
@@ -479,26 +563,14 @@ public:
 		ShowToolInfo();
 	}
 
+public:
 	static void ShowAbsInc()
 	{
 		ScreenMgr::CopyRect(Eeprom.Data.OriginNum ?  &IncCoord : &AbsCoord,
 			0, 0, &MainScreen, &MainScreen_Areas.AbsInc);
 	}
 
-	static void PrepareDrawTool()
-	{
-		ScreenMgr::SetDrawCanvas(&MainScreen);
-		ScreenMgr::WriteRegXY(ELL_A0, ToolImageRadius, ToolImageRadius);
-	}
-
-	static void DrawTool(bool fEnable, uint x, uint y)
-	{
-		ScreenMgr::WriteRegXY(DEHR0, x, y);
-		ScreenMgr::SetForeColor(fEnable ? ToolColor : NoToolColor);
-		ScreenMgr::WriteReg(DCR1, DCR1_DrawEllipse | DCR1_FillOn | DCR1_DrawActive);
-		ScreenMgr::WaitWhileBusy();
-	}
-
+public:
 	static void ShowToolInfo()
 	{
 		double	val;
@@ -542,20 +614,55 @@ public:
 
 		// Update cutter radius offset
 		PrepareDrawTool();
-		sides = Eeprom.Data.ToolSides;
+		sides = s_toolSides;
 		DrawTool(sides & ToolLeftBit,  ToolLeft_X,  ToolLeft_Y);
 		DrawTool(sides & ToolRightBit, ToolRight_X, ToolRight_Y);
 		DrawTool(sides & ToolBackBit,  ToolBack_X,  ToolBack_Y);
 		DrawTool(sides & ToolFrontBit, ToolFront_X, ToolFront_Y);
 
 		val = Eeprom.Data.ToolDiameter / 2;
-		Xpos.SetOffset(sides & ToolLeftBit ? -val : (sides & ToolRightBit ? val : 0));
-		Ypos.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
-		Zpos.SetOffset(Eeprom.Data.fToolLenAffectsZ ? Eeprom.Data.ToolLength : 0);
+		Xaxis.SetOffset(sides & ToolLeftBit ? -val : (sides & ToolRightBit ? val : 0));
+		Yaxis.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
+		Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? Eeprom.Data.ToolLength : 0);
 
 		color = Eeprom.Data.fHighlightOffset && Eeprom.Data.ToolDiameter != 0 ? ToolColor : AxisForeColor;
-		Xpos.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
-		Ypos.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+		Xaxis.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
+		Yaxis.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+	}
+
+	//*********************************************************************
+	// Helper functions
+	//*********************************************************************
+protected:
+	static bool IsMetric()
+	{
+		return Eeprom.Data.fIsMetric;
+	}
+
+	static void UpdateEeprom()
+	{
+		//Eeprom.StartSave(); // UNDONE: enable auto save to EEPROM
+	}
+
+	static double LimitVal(double val, double max) NO_INLINE_ATTR
+	{
+		if (IsMetric())
+			max *= 10.0;
+		return std::min(val, max);
+	}
+
+	static void PrepareDrawTool()
+	{
+		ScreenMgr::SetDrawCanvas(&MainScreen);
+		ScreenMgr::WriteRegXY(ELL_A0, ToolImageRadius, ToolImageRadius);
+	}
+
+	static void DrawTool(bool fEnable, uint x, uint y)
+	{
+		ScreenMgr::WriteRegXY(DEHR0, x, y);
+		ScreenMgr::SetForeColor(fEnable ? ToolColor : NoToolColor);
+		ScreenMgr::WriteReg(DCR1, DCR1_DrawEllipse | DCR1_FillOn | DCR1_DrawActive);
+		ScreenMgr::WaitWhileBusy();
 	}
 
 	static void ConvertToolValues(bool fToMetric)
@@ -574,7 +681,6 @@ public:
 		Eeprom.Data.Sfm = lround(Eeprom.Data.Sfm * factor);
 	}
 
-protected:
 	static void ToValueState(double val)
 	{
 		s_CalcDisplay.ClearArea();
@@ -609,6 +715,55 @@ protected:
 		s_indBuf = 2;
 	}
 
+	static void ShowAxisInfo(AxisInfo axis, const Area *pRes, const Area *pCorrect, const Area *pInvert)
+	{
+		double	val;
+
+		ScreenMgr::CopyRect(axis.Direction ? &CheckedBox : &UncheckedBox,
+			0, 0, &SettingsScreen, pInvert);
+
+		s_SettingDisplay.PrintNum(pRes, "%i", (uint)axis.Resolution);
+
+		// Align signs for correction
+		s_SettingDisplay.SetArea(pCorrect);
+		s_SettingDisplay.FillArea(SettingBackColor);	// Clear existing value
+		val = (axis.Correction - 1.0) * 1E6;
+		if (val == 0)
+			return;
+		if (val < 0)
+			s_SettingDisplay.MoveXposition(s_SettingDisplay.GetCharWidth('+') - s_SettingDisplay.GetCharWidth('-'));
+		s_SettingDisplay.printf("%+6.1f", val);
+	}
+
+	static void ShowSettingsInfo()
+	{
+		ShowAxisInfo(Eeprom.Data.XaxisInfo, &SettingsScreen_Areas.Xresolution, 
+			&SettingsScreen_Areas.Xcorrection, &SettingsScreen_Areas.Xinvert);
+
+		ShowAxisInfo(Eeprom.Data.YaxisInfo, &SettingsScreen_Areas.Yresolution, 
+			&SettingsScreen_Areas.Ycorrection, &SettingsScreen_Areas.Yinvert);
+
+		ShowAxisInfo(Eeprom.Data.ZaxisInfo, &SettingsScreen_Areas.Zresolution, 
+			&SettingsScreen_Areas.Zcorrection, &SettingsScreen_Areas.Zinvert);
+
+		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qresolution, 
+			&SettingsScreen_Areas.Qcorrection, &SettingsScreen_Areas.Qinvert);
+
+		ScreenMgr::CopyRect(Eeprom.Data.fHighlightOffset ? &CheckedBox : &UncheckedBox,
+			0, 0, &SettingsScreen, &SettingsScreen_Areas.HighlightXY);
+
+		ScreenMgr::CopyRect(Eeprom.Data.fToolLenAffectsZ ? &CheckedBox : &UncheckedBox,
+			0, 0, &SettingsScreen, &SettingsScreen_Areas.OffsetZ);
+
+		s_SettingDisplay.PrintNum(&SettingsScreen_Areas.MaxRpm, "%5i", (uint)Eeprom.Data.MaxRpm);
+	}
+
+	//*********************************************************************
+	// const (flash) data
+	//*********************************************************************
+
+	inline static PosSensor	*const s_arSensor[4] = { &Xaxis, &Yaxis, &Zaxis, &Qpos };
+
 	//*********************************************************************
 	// static (RAM) data
 	//*********************************************************************
@@ -623,10 +778,12 @@ protected:
 	};
 	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, CalcBackColor};
 	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, CalcBackColor};
-	inline static ToolDisplay s_ToolDisplay;
+	inline static ShareText s_ToolDisplay{&MainScreen, FID_CalcSmall, 0, ScreenBackColor};
+	inline static ShareText s_SettingDisplay{&SettingsScreen, FID_SettingsFont, SettingForeColor, SettingBackColor};
 	inline static char		s_arEntryBuf[InBufSize] = "\n ";
 	inline static byte		s_indBuf = 2;
 	inline static byte		s_op = OP_none;
 	inline static byte		s_state;
 	inline static bool		s_fHaveDp;
+	inline static byte		s_toolSides;
 };

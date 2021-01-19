@@ -12,9 +12,9 @@
 class PosSensor
 {
 	static constexpr int MaxOrigins = 2;
-	static constexpr double InchRounding = 5000.0;		// 1/5000 inch
-	static constexpr double MmRounding = 100.0;			// 1/100 mm
-	static constexpr double MaxCompensation = 0.001;	// max adjust of 0.1%
+	static constexpr double InchRounding = 5000.0;			// 1/5000 inch
+	static constexpr double MmRounding = 100.0;				// 1/100 mm
+	static constexpr double MaxCompensationPpm = 1000.0;	// max adjust of 0.1%
 
 public:
 	PosSensor(AxisInfo *pInfo) : m_pInfo{pInfo}	{}
@@ -27,6 +27,11 @@ public:
 		m_posCur += s_arbQuadDecode[(m_bPrevSig << 2) + uSignal];
 		m_bPrevSig = uSignal;
 	}
+
+public:
+	uint GetResolution()		{ return m_pInfo->Resolution; }
+	bool GetDirection()			{ return m_pInfo->Direction; }
+	double GetCorrectionPpm()	{ return (m_pInfo->Correction - 1.0) * 1E6; }
 
 public:
 	double GetPosition()
@@ -72,22 +77,14 @@ public:
 		}
 	}
 
-	bool SetCompensation(double pos)
+	bool SetCorrectionPpm(double pos)
 	{
-		double	scale;
-		double	curPos;
+		if (fabs(pos) >= MaxCompensationPpm)
+			return false;
 
-		curPos = GetPosition();
-		if (curPos != 0)
-		{
-			scale = m_pInfo->Compensation * pos / curPos;
-			if (fabs(scale - 1.0) > MaxCompensation)
-				return false;
-			m_pInfo->Compensation = scale;
-			AxisInfoUpdate();
-			return true;
-		}
-		return false;
+		m_pInfo->Correction = pos / 1E6 + 1.0;
+		AxisInfoUpdate();
+		return true;
 	}
 
 	void SetResolution(uint res)
@@ -104,7 +101,7 @@ public:
 
 	void AxisInfoUpdate()
 	{
-		m_scaleMm = m_pInfo->Compensation * m_pInfo->Resolution * MmRounding / 1000.0;
+		m_scaleMm = m_pInfo->Correction * m_pInfo->Resolution * MmRounding / 1000.0;
 		if (m_pInfo->Direction)
 			m_scaleMm = -m_scaleMm;
 		m_scaleInch = m_scaleMm * InchRounding / MmRounding / MmPerInch;
@@ -158,3 +155,5 @@ protected:
 	long		m_arOrigins[MaxOrigins];
 	byte		m_bPrevSig;
 };
+
+constexpr double PosSensor::MmRounding;

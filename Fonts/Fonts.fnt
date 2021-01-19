@@ -24,8 +24,15 @@
     {
       "FontFamilyName": "Arial",
       "TypefaceName": "Regular",
-      "CharSetName": "Arithmetic",
-      "Size": 48,
+      "CharSetName": "Digits",
+      "Size": 36,
+      "Name": "SettingsFont"
+    },
+    {
+      "FontFamilyName": null,
+      "TypefaceName": null,
+      "CharSetName": null,
+      "Size": 0,
       "Name": "\u002B"
     }
   ],

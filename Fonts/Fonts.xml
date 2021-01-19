@@ -4,3 +4,5 @@
 <Set Name='Calculator_Height' Value='56'/>
 <Font Name='CalcSmall' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='24'/>
 <Set Name='CalcSmall_Height' Value='28'/>
+<Font Name='SettingsFont' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='36'/>
+<Set Name='SettingsFont_Height' Value='42'/>

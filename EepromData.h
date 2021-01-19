@@ -36,17 +36,15 @@ EepromData(byte, OriginNum, 0)
 EepromData(bool, fHighlightOffset, true)
 EepromData(bool, fToolLenAffectsZ, true)
 // 32-bit aligned here
+EepromData(double, ChipLoad, 0)
+EepromData(ushort, Sfm, 0)
+EepromData(ushort, MaxRpm, 10000)
+// 32-bit aligned here
 EepromData(double, ToolDiameter, 0)
 EepromData(double, ToolLength, 0)
 // 32-bit aligned here
 EepromData(ushort, ToolNumber, 0)
 EepromData(byte, ToolFlutes, 0)
-EepromData(byte, ToolSides, 0)
-// 32-bit aligned here
-EepromData(double, ChipLoad, 0)
-EepromData(ushort, Sfm, 0)
-EepromData(ushort, MaxRpm, 10000)
-// 32-bit aligned here
 
 // Undefine all the macros now
 #undef	EepromData

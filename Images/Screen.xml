@@ -6,8 +6,10 @@
   <Set Name="BtnHeight">60</Set>
   <Set Name="BtnWidth" Value="60"/>
   <Set Name="KeySpace" Value="10"/>
+  <Set Name="KeypadLeft" Value="584"/>
   <Set Name="BtnFontSize" Value="BtnHeight * 3 / 4" />
-  <Set Name="BtnSmallFont" Value="BtnFontSize * 3 / 4" />
+  <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
+  <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
   <Set Name="SmallTextHeight" Value="CalcSmall_Height"/>
   <Color Name="ScreenBackColor" Color="LightBlue" ColorDepth="Color16bpp"/>
   <Color Name="AxisForeColor" Color="Black" />
@@ -21,7 +23,7 @@
   <Component Name="Key">
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
       RadiusX="8" RadiusY="8" StrokeThickness="2" Stroke="0" Fill="White">
-      <TextBlock Name="Label" FontSize="BtnFontSize" Foreground="Black" FontFamily="Arial" />
+      <TextBlock Name="Label" Font="BtnFont" Foreground="Black"/>
     </Rectangle>
     <HotSpot Name="KeySpot" Height="BtnHeight" Width="BtnWidth" />
   </Component>
@@ -119,45 +121,58 @@
 
     <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
       <Default>
-        <Rectangle Height="DispHt" Width="DispWd" Fill="AxisBackColor">
-          <HotSpot Name="AxisDisplay" Group="Axis"/>
+        <Rectangle Name="AxisDisplay" Group="Axis" Height="DispHt" Width="DispWd" Fill="AxisBackColor">
         </Rectangle>
-        <Rectangle Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
+        <Rectangle Name="AxisButton" Group="AxisButton" Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
           StrokeThickness="5" Stroke="0" Fill="White">
           <TextBlock Name="AxisLabel" FontSize="LabHt" Foreground="Black" FontFamily="Arial" Left="13" />
           <TextBlock Name="AxisLabel" FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial"
             Text="0" Top="47" Left="59"/>
-          <HotSpot Name="AxisButton"/>
         </Rectangle>
      </Default>
       <Row>
         <Column>
           <Set>AxisLabel.Text = X</Set>
-          <Set>AxisButton.Name = Xbutton</Set>
-          <Set>AxisDisplay.Area = Xdisplay</Set>
-          <Set>AxisDisplay.Name = Xdisplay</Set>
+          <Set>AxisButton.HotSpot = Xsensor</Set>
+          <Set RefName="AxisDisplay">Area = Xdisplay; HotSpot = Xsensor</Set>
         </Column>
       </Row>
       <Row>
         <Column>
           <Set>AxisLabel.Text = Y</Set>
-          <Set>AxisButton.Name = Ybutton</Set>
-          <Set>AxisDisplay.Area = Ydisplay</Set>
-          <Set>AxisDisplay.Name = Ydisplay</Set>
+          <Set>AxisButton.HotSpot = Ysensor</Set>
+          <Set RefName="AxisDisplay">Area = Ydisplay; HotSpot = Ysensor</Set>
         </Column>
       </Row>
       <Row>
         <Column>
           <Set>AxisLabel.Text = Z</Set>
-          <Set>AxisButton.Name = Zbutton</Set>
-          <Set>AxisDisplay.Area = Zdisplay</Set>
-          <Set>AxisDisplay.Name = Zdisplay</Set>
+          <Set>AxisButton.HotSpot = Zsensor</Set>
+          <Set RefName="AxisDisplay">Area = Zdisplay; HotSpot = Zsensor</Set>
         </Column>
       </Row>
     </Grid>
 
+    <!-- Settings controls -->
+    <Set Name="LgBtnWidth" Value="BtnWidth * 2"/>
+    <Set Name="SettingLeft" Value="1024 - LgBtnWidth - KeySpace"/>
+    <Color Name="SetBtnText" Color="ToggleOn"/>
+    <Rectangle HotSpot="Settings" Top="KeySpace" Left="SettingLeft" Height="BtnHeight"
+      Width="LgBtnWidth" RadiusX="8" RadiusY="8" Fill="BtnBackground">
+      <TextBlock FontSize="BtnHeight * 2 / 5" FontFamily="Arial" Foreground="SetBtnText">Settings</TextBlock>
+    </Rectangle>
+    <Rectangle Top="BtnHeight + KeySpace * 2" Left="SettingLeft" Height="BtnHeight"
+      Width="LgBtnWidth" RadiusX="8" RadiusY="8" Fill="BtnBackground">
+      <TextBlock Top="5" FontSize="BtnHeight / 3" FontFamily="Arial" Foreground="SetBtnText">Brightness</TextBlock>
+      <Rectangle HotSpot="BrightDown" Width="BtnWidth" Height="BtnHeight">
+        <TextBlock Top="15" FontSize="BtnFontSize" FontFamily="Arial" Foreground="SetBtnText">−</TextBlock>
+      </Rectangle>
+      <Rectangle HotSpot="BrightUp" Left="BtnWidth" Width="BtnWidth" Height="BtnHeight">
+        <TextBlock Top="15" FontSize="BtnFontSize" FontFamily="Arial" Foreground="SetBtnText">+</TextBlock>
+      </Rectangle>
+    </Rectangle>
+
     <!-- Caculator displays -->
-    <Set Name="KeypadLeft" Value="580"/>
     <Set Name="KeypadWidth" Value="KeySpace + (BtnWidth + KeySpace) * 4"/>
     <Set Name="KeypadRight" Value ="KeypadLeft + KeypadWidth"/>
     <Set Name="KeypadHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
@@ -184,10 +199,10 @@
     <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" Font="CalcSmall">Memories</TextBlock>
 
     <!-- Toggle button locations (images overwritten) -->
-    <Ref RefName="InchMetric" Left="KeypadRight + Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+    <Ref RefName="InchMetric" Left="KeypadRight + KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
       <Set>Button.Area = "InchMetric"; Button.HotSpot = "InchMetric"</Set>
     </Ref>
-    <Ref RefName="Toggle" Left="KeypadRight + BtnWidth + 2 * Keyspace" Top="KeypadBottom - BtnHeight - KeySpace">
+    <Ref RefName="Toggle" Left="KeypadRight + BtnWidth + 2 * KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
       <Set>Button.Area = "AbsInc"; Button.HotSpot = "AbsInc"</Set>
     </Ref>
 
@@ -200,11 +215,11 @@
         </Default>
         <Row>
           <Column>
-            <Set RefName="Label">Text = ⌫; FontSize = BtnSmallFont</Set>
+            <Set RefName="Label">Text = ⌫; Font = BtnSmallFont</Set>
             <Set RefName="KeySpot">Group = "Edit"; Name = Key_backSpace</Set>
           </Column>
           <Column>
-            <Set RefName="Label">Text = CE; FontSize=BtnSmallFont</Set>
+            <Set RefName="Label">Text = CE; Font =BtnSmallFont</Set>
             <Set RefName="KeySpot">Group = "Edit"; Name = Key_clear</Set>
           </Column>
           <Column>
@@ -403,13 +418,180 @@
     </Rectangle>
   </Canvas>
 
+  <!-- Settings Screens (PIP) -->
+
+  <Color Name="SettingBackColor" Color="Black" ColorDepth="Color8bpp"/>
+  <Color Name="SettingForeColor" Color="White" ColorDepth="Color8bpp"/>
+  <Set Name="SettingsWidth" Value="(KeypadLeft - KeySpace + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
+  <Font Name="SettingsLabelFont" FontFamily="Arial" FontSize ="20"/>
+  <Set Name="CheckboxSize" Value="32"/>
+  <Color Name="CheckForeground" Color="SettingForeColor"/>
+  <Color Name="CheckBackground" Color="SettingBackColor"/>
+
+  <Component Name="UncheckedBox">
+    <Rectangle Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+    </Rectangle>
+  </Component>
+
+  <Component Name="CheckedBox">
+    <Rectangle Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+      <Line X1="0" Y1="0" X2="CheckboxSize" Y2="CheckboxSize" StrokeThickness="4" Stroke="CheckForeground"/>
+      <Line X1="0" Y1="CheckboxSize" X2="CheckboxSize" Y2="0" StrokeThickness="4" Stroke="CheckForeground"/>
+    </Rectangle>
+  </Component>
+
+  <!-- Main Settings Screen (PIP) -->
+  <Canvas Name="SettingsScreen" Width="SettingsWidth" Height="600" Fill="SettingBackColor" ColorDepth="Color8bpp">
+    <Set Name="AxisLabelWidth" Value="54"/>
+    <Font Name="AxisLabelFont" FontFamily="Arial" FontSize="48"/>
+    <Set Name="AxisSettingWidth" Value="120"/>
+    <Set Name="AxisSettingHeight" Value="BtnHeight + 1"/>
+    <Set Name="ColAdjust" Value="AxisLabelWidth - AxisSettingWidth"/>
+    <Set Name="SensorTextLeft" Value="50"/>
+    <Set Name="CorrectionTextLeft" Value="5"/>
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight" ColumnWidth="AxisSettingWidth - 1">
+      <Row>
+        <Column></Column>
+        <Column Left="ColAdjust">
+          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Sensor&#xA;Resolution" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Invert&#xA;Direction" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Linear&#xA;Correction" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="X" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Xsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Xsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Xsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Y" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Ysensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Yresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Ysensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Yinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Ysensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Ycorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Z" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Zsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Zsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Zsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Q" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Qsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Qsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Qsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+    </Grid>
+    <Set Name="BelowGrid" Value="BtnHeight * 5 + KeySpace * 2"/>
+    <Set Name="SetItemRight" Value="400 - 15"/>
+    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="BelowGrid" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
+      <Rectangle Area="HighlightXY" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="BelowGrid + BtnHeight + KeySpace" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Offset Z by tool length:</TextBlock>
+      <Rectangle Area="OffsetZ" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="MaxRpm" Top="BelowGrid + BtnHeight * 2 + KeySpace * 2" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Maximum machine RPM:</TextBlock>
+      <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - 5 * 20" Height="SettingsFont_Height" Width="5 * 20"/>
+    </Rectangle>
+    <Rectangle HotSpot="TouchCal" Top="BelowGrid + BtnHeight * 3 + KeySpace * 3" Left="KeySpace" Height="BtnHeight" Width="200" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+      <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Touch Calibration</TextBlock>
+    </Rectangle>
+  </Canvas>
+
+  <!-- Settings images -->
+  <Canvas Name="UncheckedBox" Type="Overlay" Height="CheckboxSize" Width="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
+    <Ref RefName="UncheckedBox"/>
+  </Canvas>
+
+  <Canvas Name="CheckedBox" Type="Overlay" Height="CheckboxSize" Width="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
+    <Ref RefName="CheckedBox"/>
+  </Canvas>
+
   <!-- Feeds & speeds images -->
   <Set Name="SpeedDisplayWidth" Value="(SpeedDisplayWidth + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
-  <Canvas Name="InchSpeedDisplay" Type="Key" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+  <Canvas Name="InchSpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
     <Ref RefName="SpeedDisplay"/>
   </Canvas>
 
-  <Canvas Name="MetricSpeedDisplay" Type="Key" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+  <Canvas Name="MetricSpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
     <Ref RefName="SpeedDisplay"/>
     <Set>SpeedTextSfm.Text = m/min</Set>
     <Set>SpeedTextFeed.Text = mm/tth</Set>
@@ -419,35 +601,27 @@
   <!-- Key images -->
 
   <!-- Absolute coordinates selected -->
-  <Canvas Name="AbsCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="AbsCoord" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="Toggle"/>
     <Set RefName="Upper">Foreground=ToggleOn</Set>
   </Canvas>
 
   <!-- Incremental coordinates selected -->
-  <Canvas Name="IncCoord" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="IncCoord" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="Toggle"/>
     <Set RefName="Lower">Foreground=ToggleOn</Set>
   </Canvas>
 
   <!-- Inch units selected -->
-  <Canvas Name="Inch" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="Inch" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="InchMetric"/>
     <Set RefName="Upper">Foreground=ToggleOn</Set>
   </Canvas>
 
   <!-- Millimeter units selected -->
-  <Canvas Name="Metric" Type="Key" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="Metric" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
     <Ref RefName="InchMetric"/>
     <Set RefName="Lower">Foreground=ToggleOn</Set>
-  </Canvas>
-
-  <!-- Border fill pattern -->
-  <Canvas Name="Pattern16" Height="16" Width="16" ColorDepth="Color16bpp" Type="Key" Fill="0">
-    <Rectangle Height="8" Width="8" Fill="Red" />
-    <Rectangle Left="8" Height="8" Width="8" Fill="Green" />
-    <Rectangle Top="8" Height="8" Width="8" Fill="Blue" />
-    <Rectangle Top="8" Left="8" Height="8" Width="8" Fill="Yellow" />
   </Canvas>
 
   <!-- Keyboard constants -->
