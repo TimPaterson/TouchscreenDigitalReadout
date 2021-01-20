@@ -418,7 +418,6 @@ public:
 				{
 					pSensor->SetResolution((uint)val);
 					ShowSettingsInfo();
-					UpdateEeprom();
 				}
 				return;
 			}
@@ -439,7 +438,6 @@ public:
 				if (!pSensor->SetCorrectionPpm(val))
 					;	// UNDONE: Display error
 				ShowSettingsInfo();
-				UpdateEeprom();
 				return;
 			}
 
@@ -447,7 +445,6 @@ public:
 			pSensor = s_arSensor[spot];
 			pSensor->SetDirection(pSensor->GetDirection() ^ true);
 			ShowSettingsInfo();
-			UpdateEeprom();
 			return;
 
 		case HOTSPOT_GROUP_SettingToggle:
@@ -468,7 +465,6 @@ public:
 			*pToggle ^= true;
 			ShowSettingsInfo();
 			ShowToolInfo();
-			UpdateEeprom();
 			return;
 
 		//*****************************************************************
@@ -506,7 +502,10 @@ public:
 					ShowSettingsInfo();
 				}
 				else
+				{
 					ScreenMgr::DisablePip2();
+					Eeprom.StartSave();	// save all changes
+				}
 				break;
 
 			case BrightUp:
@@ -533,7 +532,6 @@ public:
 					{
 						Eeprom.Data.MaxRpm = lround(val);
 						ShowSettingsInfo();
-						UpdateEeprom();
 					}
 				}
 				break;
