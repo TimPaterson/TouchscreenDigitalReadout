@@ -41,6 +41,7 @@ enum ActionHotspots
 	ToolChipLoad,
 	HighlightXY,
 	OffsetZ,
+	CncCoordinates,
 
 	Key_mult = CH_Multiply,
 	Key_divide = CH_Divide,

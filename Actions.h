@@ -457,6 +457,10 @@ public:
 				pToggle = &Eeprom.Data.fHighlightOffset;
 				break;
 
+			case CncCoordinates:
+				pToggle = &Eeprom.Data.fCncCoordinates;
+				break;
+
 			default:	// OffsetZ
 				pToggle = &Eeprom.Data.fToolLenAffectsZ;
 				break;
@@ -525,7 +529,7 @@ public:
 				{
 					// Setting the value
 					val = ToValueState();
-					if (val < 100000 && val >= 100)
+					if (val < 60000 && val >= 100)
 					{
 						Eeprom.Data.MaxRpm = lround(val);
 						ShowSettingsInfo();
@@ -621,9 +625,14 @@ public:
 		DrawTool(sides & ToolFrontBit, ToolFront_X, ToolFront_Y);
 
 		val = Eeprom.Data.ToolDiameter / 2;
-		Xaxis.SetOffset(sides & ToolLeftBit ? -val : (sides & ToolRightBit ? val : 0));
+		Xaxis.SetOffset(sides & ToolLeftBit ? val : (sides & ToolRightBit ? -val : 0));
+		if (Eeprom.Data.fCncCoordinates)
+			val = -val;
 		Yaxis.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
-		Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? Eeprom.Data.ToolLength : 0);
+		val = Eeprom.Data.ToolLength;
+		if (Eeprom.Data.fCncCoordinates)
+			val = -val;
+		Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? val : 0);
 
 		color = Eeprom.Data.fHighlightOffset && Eeprom.Data.ToolDiameter != 0 ? ToolColor : AxisForeColor;
 		Xaxis.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
@@ -754,6 +763,9 @@ protected:
 
 		ScreenMgr::CopyRect(Eeprom.Data.fToolLenAffectsZ ? &CheckedBox : &UncheckedBox,
 			0, 0, &SettingsScreen, &SettingsScreen_Areas.OffsetZ);
+
+		ScreenMgr::CopyRect(Eeprom.Data.fCncCoordinates ? &CheckedBox : &UncheckedBox,
+			0, 0, &SettingsScreen, &SettingsScreen_Areas.CncCoordinates);
 
 		s_SettingDisplay.PrintNum(&SettingsScreen_Areas.MaxRpm, "%5i", (uint)Eeprom.Data.MaxRpm);
 	}

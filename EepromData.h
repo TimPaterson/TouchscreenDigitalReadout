@@ -45,6 +45,8 @@ EepromData(double, ToolLength, 0)
 // 32-bit aligned here
 EepromData(ushort, ToolNumber, 0)
 EepromData(byte, ToolFlutes, 0)
+EepromData(bool, fCncCoordinates, false)
+// 32-bit aligned here
 
 // Undefine all the macros now
 #undef	EepromData

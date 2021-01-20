@@ -558,20 +558,25 @@
       </Row>
     </Grid>
     <Set Name="BelowGrid" Value="BtnHeight * 5 + KeySpace * 2"/>
-    <Set Name="SetItemRight" Value="400 - 15"/>
-    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="BelowGrid" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
+    <Set Name="OptionWidth" Value="345"/>
+    <Set Name="SetItemRight" Value="OptionWidth - KeySpace"/>
+    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="BelowGrid" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
       <Rectangle Area="HighlightXY" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
     </Rectangle>
-    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="BelowGrid + BtnHeight + KeySpace" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
+    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="BelowGrid + BtnHeight + KeySpace" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Offset Z by tool length:</TextBlock>
       <Rectangle Area="OffsetZ" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
     </Rectangle>
-    <Rectangle HotSpot="MaxRpm" Top="BelowGrid + BtnHeight * 2 + KeySpace * 2" Left="KeySpace" Height="BtnHeight" Width="400" Stroke="SettingForeColor" StrokeThickness="1">
-      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Maximum machine RPM:</TextBlock>
+    <Rectangle HotSpot="CncCoordinates" Group="SettingToggle" Top="BelowGrid + (BtnHeight + KeySpace) * 2" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">CNC-style coordinates:</TextBlock>
+      <Rectangle Area="CncCoordinates" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="MaxRpm" Top="BelowGrid + (BtnHeight + KeySpace) * 3" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Max machine RPM:</TextBlock>
       <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - 5 * 20" Height="SettingsFont_Height" Width="5 * 20"/>
     </Rectangle>
-    <Rectangle HotSpot="TouchCal" Top="BelowGrid + BtnHeight * 3 + KeySpace * 3" Left="KeySpace" Height="BtnHeight" Width="200" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+    <Rectangle HotSpot="TouchCal" Top="BelowGrid" Left="OptionWidth + KeySpace * 2" Height="BtnHeight" Width="200" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
       <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Touch Calibration</TextBlock>
     </Rectangle>
   </Canvas>

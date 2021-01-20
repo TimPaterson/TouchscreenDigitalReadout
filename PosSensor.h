@@ -40,9 +40,9 @@ public:
 
 		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_posCur;
 		if (IsMetric())
-			return nearbyint(pos * m_scaleMm - m_offsetMm) / MmRounding;
+			return nearbyint(pos * m_scaleMm + m_offsetMm) / MmRounding;
 
-		return nearbyint(pos *  m_scaleInch - m_offsetInch) / InchRounding;
+		return nearbyint(pos *  m_scaleInch + m_offsetInch) / InchRounding;
 	}
 
 	void SetPosition(double pos)
@@ -50,12 +50,12 @@ public:
 		// Round to display value first
 		if (IsMetric())
 		{
-			pos = nearbyint(pos * MmRounding + m_offsetMm);
+			pos = nearbyint(pos * MmRounding - m_offsetMm);
 			pos /= m_scaleMm;
 		}
 		else
 		{
-			pos = nearbyint(pos * InchRounding + m_offsetInch);
+			pos = nearbyint(pos * InchRounding - m_offsetInch);
 			pos /= m_scaleInch;
 		}
 
