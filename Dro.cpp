@@ -43,13 +43,14 @@ extern "C"
 #define IMAGE_ADDRESS(val)		val + RamScreenStart,
 #define IMAGE_WIDTH(val)		val,
 #define IMAGE_HEIGHT(val)		val,
+#define IMAGE_STRIDE(val)		val,
 #define IMAGE_DEPTH(val)		val,
 #define END_SCREEN(name)		&name##HotspotList);
 
 // "ColorImage" images
 #define START_SCREEN_Overlay(name)	const ColorImage name = {
 #define IMAGE_ADDRESS_Overlay(val)	val + RamScreenStart,
-#define IMAGE_WIDTH_Overlay(val)	val,
+#define IMAGE_STRIDE_Overlay(val)	val,
 #define IMAGE_DEPTH_Overlay(val)	val
 #define END_SCREEN_Overlay(name)	};
 

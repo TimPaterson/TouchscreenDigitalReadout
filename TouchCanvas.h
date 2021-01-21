@@ -10,6 +10,9 @@
 #include "Hotspot.h"
 
 
+#define NOT_ON_CANVAS	((HotspotData *)-1)
+
+
 enum ColorDepths
 {
 	Color8bpp,
@@ -45,8 +48,8 @@ struct Area
 class Canvas
 {
 public:
-	Canvas(ulong addr, ushort width, ushort height, byte depth) : 
-		m_imageAddress{addr}, m_imageWidth{width}, m_viewWidth{width},
+	Canvas(ulong addr, ushort width, ushort height, ushort stride, byte depth) : 
+		m_imageAddress{addr}, m_imageWidth{stride}, m_viewWidth{width},
 		m_viewHeight{height}, m_colorDepth{depth} {}
 
 public:
@@ -107,19 +110,19 @@ static constexpr int CanvasViewDepthRegCount = CanvasViewRegCount + 1;
 class TouchCanvas : public Canvas
 {
 public:
-	TouchCanvas(ulong addr, ushort width, ushort height, byte depth, HotspotList *list) :
-		Canvas(addr, width, height, depth),  m_pSpots{list} {}
+	TouchCanvas(ulong addr, ushort width, ushort height, ushort stride, byte depth, HotspotList *list) :
+		Canvas(addr, width, height, stride, depth),  m_pSpots{list} {}
 
 public:
-	HotspotData *TestHit(int x, int y)
+	HotspotData *TestHit(int x, int y) NO_INLINE_ATTR
 	{
 		int		i;
 
-		x -= m_viewPosX;
-		y -= m_viewPosY;
-		if (x < 0 || y < 0)
-			return NULL;
+		if (x < 0 || y < 0 || x >= m_viewWidth || y >= m_viewHeight)
+			return NOT_ON_CANVAS;
 
+		x += m_viewPosX;
+		y += m_viewPosY;
 		for (i = 0; i < m_pSpots->count; i++)
 		{
 			if (x >= m_pSpots->HotspotList[i].X1 && x <= m_pSpots->HotspotList[i].X2 &&
@@ -128,15 +131,6 @@ public:
 		}
 
 		return NULL;
-	}
-
-	bool OnCanvas(int x, int y)
-	{
-		x -= m_viewPosX;
-		y -= m_viewPosY;
-		if (x < 0 || y < 0 || x >= m_viewWidth || y >= m_viewHeight)
-			return false;
-		return true;
 	}
 
 	//*********************************************************************

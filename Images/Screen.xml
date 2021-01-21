@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Project [<!ENTITY Fonts SYSTEM "../Fonts/Fonts.xml">]>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd">
+         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd"
+         StrideMultiple="4">
   &Fonts;
   <Set Name="BtnHeight">60</Set>
   <Set Name="BtnWidth" Value="60"/>
@@ -11,6 +12,7 @@
   <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
   <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
   <Set Name="SmallTextHeight" Value="CalcSmall_Height"/>
+  <Set Name="SettingsWidth" Value="KeypadLeft - KeySpace"/>
   <Color Name="ScreenBackColor" Color="LightBlue" ColorDepth="Color16bpp"/>
   <Color Name="AxisForeColor" Color="Black" />
   <Color Name="AxisBackColor" Color="Yellow" />
@@ -61,18 +63,18 @@
   <Component Name="SpeedDisplay">
     <Grid RowHeight="SpCellHeight" ColumnWidth="SpCellWidth">
       <Default>
-        <Rectangle Name="Cell" Height="SpCellHeight + 1" Width="SpCellWidth + 1" Stroke="Black" StrokeThickness="1">
+        <Rectangle Name="ToolCell" Height="SpCellHeight + 1" Width="SpCellWidth + 1" Stroke="Black" StrokeThickness="1">
           <TextBlock Name="SpeedText" Font="CalcSmall"/>
         </Rectangle>
       </Default>
       <Row>
         <Column>
-          <Set RefName="Cell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
+          <Set RefName="ToolCell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
           <Set>SpeedText.Text = Speed</Set>
           <HotSpot Name="ToolSfm" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
         <Column Left="SpCellWidth + SpColSpace">
-          <Set RefName="Cell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
+          <Set RefName="ToolCell">StrokeThickness = 0; Width = SpCellWidth * 2</Set>
           <Set>SpeedText.Text = Chip Load</Set>
           <HotSpot Name="ToolChipLoad" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
@@ -332,70 +334,73 @@
 
     <!-- Tool displays -->
     <Set Name="ToolTop" Value="3 * DispHt + 5 * Vspace / 2 + KeySpace"/>
-    <Set Name="CellWidth" Value="70"/>
-    <Set Name="CellHeight" Value="SmallTextHeight + 2"/>
-    <Set Name="DescCellWidth" Value="KeypadLeft - CellWidth * 4 - KeySpace * 3 - BtnWidth"/>
+    <Set Name="ToolCellWidth" Value="70"/>
+    <Set Name="ToolCellHeight" Value="SmallTextHeight + 2"/>
+    <Set Name="DescCellWidth" Value="KeypadLeft - ToolCellWidth * 4 - KeySpace * 3 - BtnWidth"/>
     <Set Name="ToolTextTop" Value="2"/>
     <Set Name="LengthAdj" Value="15"/>
-    <Grid Left="KeySpace" Top="ToolTop" RowHeight="CellHeight" ColumnWidth="CellWidth">
+    <Set Name="FluteCellWidth" Value="ToolCellWidth - LengthAdj"/>
+    <Set Name="LengthCellWidth" Value="ToolCellWidth + LengthAdj"/>
+    <Grid Left="KeySpace" Top="ToolTop" RowHeight="ToolCellHeight" ColumnWidth="ToolCellWidth">
       <Default>
-        <Rectangle Name="Cell" Height="CellHeight + 1" Width="CellWidth + 1" Stroke="Black" StrokeThickness="1">
-          <TextBlock Name="CellText" Font="CalcSmall"/>
+        <Rectangle Name="ToolCell" Height="ToolCellHeight + 1" Width="ToolCellWidth + 1" Stroke="Black" StrokeThickness="1">
+          <TextBlock Name="ToolCellText" Font="CalcSmall"/>
         </Rectangle>
       </Default>
       <Row>
         <Column>
-          <Set>CellText.Text = Tool</Set>
-          <HotSpot Name="ToolNumber" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth"/>
+          <Set>ToolCellText.Text = Tool</Set>
+          <HotSpot Name="ToolNumber" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth"/>
         </Column>
         <Column>
-          <Set>CellText.Text = Dia.</Set>
-          <HotSpot Name="ToolDiameter" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth"/>
+          <Set>ToolCellText.Text = Dia.</Set>
+          <HotSpot Name="ToolDiameter" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth"/>
         </Column>
         <Column>
-          <Set>CellText.Text = Flut.</Set>
-          <Set>Cell.Width = CellWidth + 1 - LengthAdj</Set>
-          <HotSpot Name="ToolFlutes" Group="ToolInfo" Height="CellHeight * 2" Width="CellWidth - LengthAdj"/>
+          <Set>ToolCellText.Text = Flut.</Set>
+          <Set>ToolCell.Width = FluteCellWidth + 1</Set>
+          <HotSpot Name="ToolFlutes" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth - LengthAdj"/>
         </Column>
         <Column>
-          <Set>CellText.Text = Length</Set>
-          <Set RefName="Cell">Left = -LengthAdj; Width = CellWidth + 1 + LengthAdj</Set>
-          <HotSpot Name="ToolLength" Group="ToolInfo" Left="-LengthAdj" Height="CellHeight * 2" Width="CellWidth + LengthAdj"/>
+          <Set>ToolCellText.Text = Length</Set>
+          <Set RefName="ToolCell">Left = -LengthAdj; Width = LengthCellWidth + 1</Set>
+          <HotSpot Name="ToolLength" Group="ToolInfo" Left="-LengthAdj" Height="ToolCellHeight * 2" Width="ToolCellWidth + LengthAdj"/>
         </Column>
         <Column>
-          <Set>Cell.Width = DescCellWidth</Set>
-          <Set>CellText.Text = Description</Set>
+          <Set>ToolCell.Width = DescCellWidth</Set>
+          <Set>ToolCellText.Text = Description</Set>
         </Column>
       </Row>
       <Row>
         <Column>
-          <Rectangle Area="ToolNumber" Top="ToolTextTop" Left="12" Height="SmallTextHeight" Width="CellWidth - 13"/>
+          <Rectangle Area="ToolNumber" Top="ToolTextTop" Left="12" Height="SmallTextHeight" Width="ToolCellWidth - 13"/>
         </Column>
         <Column>
-          <Rectangle Area="ToolDiameter" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="CellWidth - 6"/>
+          <Rectangle Area="ToolDiameter" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="ToolCellWidth - 6"/>
         </Column>
         <Column>
-          <Set>Cell.Width = CellWidth + 1 - LengthAdj</Set>
-          <Rectangle Area="ToolFlutes" Top="ToolTextTop" Left="9" Height="SmallTextHeight" Width="CellWidth - LengthAdj - 10"/>
+          <Set>ToolCell.Width = ToolCellWidth + 1 - LengthAdj</Set>
+          <Rectangle Area="ToolFlutes" Top="ToolTextTop" Left="9" Height="SmallTextHeight" Width="ToolCellWidth - LengthAdj - 10"/>
         </Column>
         <Column>
-          <Set RefName="Cell">Left = -LengthAdj; Width = CellWidth + 1 + LengthAdj</Set>
-          <Rectangle Area="ToolLength" Top="ToolTextTop" Left="6 - LengthAdj" Height="SmallTextHeight" Width="CellWidth + LengthAdj - 7"/>
+          <Set RefName="ToolCell">Left = -LengthAdj; Width = ToolCellWidth + 1 + LengthAdj</Set>
+          <Rectangle Area="ToolLength" Top="ToolTextTop" Left="6 - LengthAdj" Height="SmallTextHeight" Width="ToolCellWidth + LengthAdj - 7"/>
         </Column>
         <Column>
           <Rectangle Area="ToolDesc" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="DescCellWidth - 6"/>
-          <Set>Cell.Width = DescCellWidth</Set>
+          <Set>ToolCell.Width = DescCellWidth</Set>
         </Column>
       </Row>
     </Grid>
     <!-- Tool select button -->
-    <Ref RefName="Key" Left="KeySpace * 2 + CellWidth * 4 + DescCellWidth" Top="ToolTop">
+    <Set Name="ToolSelectLeft" Value="KeySpace * 2 + ToolCellWidth * 4 + DescCellWidth"/>
+    <Ref RefName="Key" Left="ToolSelectLeft" Top="ToolTop">
       <Set>KeySpot.Name = ToolMenu</Set>
       <Set RefName="Button">StrokeThickness = 0; Fill = BtnBackground</Set>
       <Set RefName="Label">Foreground = ToggleOn; Text = "..."</Set>
     </Ref>
     <!-- Tool diagram -->
-    <Set Name="DiagramTop" Value="ToolTop + 2 * CellHeight + KeySpace"/>
+    <Set Name="DiagramTop" Value="ToolTop + 2 * ToolCellHeight + KeySpace"/>
     <Set Name="DiagramHeight" Value="BtnHeight * 2"/>
     <Set Name="ToolDia" Value="BtnWidth / 2"/>
     <Set Name="ToolImageRadius" Value="ToolDia / 2" ShowValue=""/>
@@ -422,7 +427,6 @@
 
   <Color Name="SettingBackColor" Color="Black" ColorDepth="Color8bpp"/>
   <Color Name="SettingForeColor" Color="White" ColorDepth="Color8bpp"/>
-  <Set Name="SettingsWidth" Value="(KeypadLeft - KeySpace + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
   <Font Name="SettingsLabelFont" FontFamily="Arial" FontSize ="20"/>
   <Set Name="CheckboxSize" Value="32"/>
   <Color Name="CheckForeground" Color="SettingForeColor"/>
@@ -441,7 +445,7 @@
   </Component>
 
   <!-- Main Settings Screen (PIP) -->
-  <Canvas Name="SettingsScreen" Width="SettingsWidth" Height="600" Fill="SettingBackColor" ColorDepth="Color8bpp">
+  <Canvas Name="SettingsScreen" Width="SettingsWidth" Height="600" Fill="SettingBackColor" ColorDepth="Color8bpp" WidthMultiple="4">
     <Set Name="AxisLabelWidth" Value="54"/>
     <Font Name="AxisLabelFont" FontFamily="Arial" FontSize="48"/>
     <Set Name="AxisSettingWidth" Value="120"/>
@@ -591,7 +595,6 @@
   </Canvas>
 
   <!-- Feeds & speeds images -->
-  <Set Name="SpeedDisplayWidth" Value="(SpeedDisplayWidth + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
   <Canvas Name="InchSpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
     <Ref RefName="SpeedDisplay"/>
   </Canvas>
@@ -631,7 +634,6 @@
 
   <!-- Keyboard constants -->
   <Set Name="KeyboardWidth" Value="KeySpace + (BtnWidth + KeySpace) * 12"/>
-  <Set Name="KeyboardWidth" Value="(KeyboardWidth + 3) / 4 * 4"/> <!-- round up to multiple of 4 -->
   <Set Name="KeyboardHeight" Value="KeySpace + (BtnHeight + KeySpace) * 5"/>
 
   <!-- Lower-case keyboard -->

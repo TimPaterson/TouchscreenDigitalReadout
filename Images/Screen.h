@@ -13,6 +13,9 @@
 #ifndef IMAGE_HEIGHT
 #define IMAGE_HEIGHT(a)
 #endif
+#ifndef IMAGE_STRIDE
+#define IMAGE_STRIDE(a)
+#endif
 #ifndef IMAGE_DEPTH
 #define IMAGE_DEPTH(a)
 #endif
@@ -104,6 +107,7 @@ START_SCREEN(MainScreen)
 	IMAGE_SIZE(1228800)
 	IMAGE_WIDTH(1024)
 	IMAGE_HEIGHT(600)
+	IMAGE_STRIDE(1024)
 	IMAGE_DEPTH(Color16bpp)
 END_SCREEN(MainScreen)
 
@@ -207,6 +211,7 @@ START_SCREEN(SettingsScreen)
 	IMAGE_SIZE(345600)
 	IMAGE_WIDTH(576)
 	IMAGE_HEIGHT(600)
+	IMAGE_STRIDE(576)
 	IMAGE_DEPTH(Color8bpp)
 END_SCREEN(SettingsScreen)
 
@@ -314,6 +319,7 @@ START_SCREEN(KeyLower)
 	IMAGE_SIZE(1024)
 	IMAGE_WIDTH(32)
 	IMAGE_HEIGHT(32)
+	IMAGE_STRIDE(32)
 	IMAGE_DEPTH(Color8bpp)
 END_SCREEN(KeyLower)
 
@@ -366,6 +372,7 @@ START_SCREEN(KeyUpper)
 	IMAGE_SIZE(1024)
 	IMAGE_WIDTH(32)
 	IMAGE_HEIGHT(32)
+	IMAGE_STRIDE(32)
 	IMAGE_DEPTH(Color8bpp)
 END_SCREEN(KeyUpper)
 
@@ -1008,6 +1015,9 @@ END_GROUP_Keyboard(Keyboard)
 #ifndef IMAGE_HEIGHT_Overlay
 #define IMAGE_HEIGHT_Overlay(a)
 #endif
+#ifndef IMAGE_STRIDE_Overlay
+#define IMAGE_STRIDE_Overlay(a)
+#endif
 #ifndef IMAGE_DEPTH_Overlay
 #define IMAGE_DEPTH_Overlay(a)
 #endif
@@ -1020,6 +1030,7 @@ START_SCREEN_Overlay(UncheckedBox)
 	IMAGE_SIZE_Overlay(1024)
 	IMAGE_WIDTH_Overlay(32)
 	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(32)
 	IMAGE_DEPTH_Overlay(Color8bpp)
 END_SCREEN_Overlay(UncheckedBox)
 
@@ -1028,22 +1039,25 @@ START_SCREEN_Overlay(CheckedBox)
 	IMAGE_SIZE_Overlay(1024)
 	IMAGE_WIDTH_Overlay(32)
 	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(32)
 	IMAGE_DEPTH_Overlay(Color8bpp)
 END_SCREEN_Overlay(CheckedBox)
 
 START_SCREEN_Overlay(InchSpeedDisplay)
 	IMAGE_ADDRESS_Overlay(1576448)
 	IMAGE_SIZE_Overlay(72168)
-	IMAGE_WIDTH_Overlay(372)
+	IMAGE_WIDTH_Overlay(371)
 	IMAGE_HEIGHT_Overlay(97)
+	IMAGE_STRIDE_Overlay(372)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(InchSpeedDisplay)
 
 START_SCREEN_Overlay(MetricSpeedDisplay)
 	IMAGE_ADDRESS_Overlay(1648616)
 	IMAGE_SIZE_Overlay(72168)
-	IMAGE_WIDTH_Overlay(372)
+	IMAGE_WIDTH_Overlay(371)
 	IMAGE_HEIGHT_Overlay(97)
+	IMAGE_STRIDE_Overlay(372)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(MetricSpeedDisplay)
 
@@ -1052,6 +1066,7 @@ START_SCREEN_Overlay(AbsCoord)
 	IMAGE_SIZE_Overlay(7200)
 	IMAGE_WIDTH_Overlay(60)
 	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(60)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(AbsCoord)
 
@@ -1060,6 +1075,7 @@ START_SCREEN_Overlay(IncCoord)
 	IMAGE_SIZE_Overlay(7200)
 	IMAGE_WIDTH_Overlay(60)
 	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(60)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(IncCoord)
 
@@ -1068,6 +1084,7 @@ START_SCREEN_Overlay(Inch)
 	IMAGE_SIZE_Overlay(7200)
 	IMAGE_WIDTH_Overlay(60)
 	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(60)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(Inch)
 
@@ -1076,6 +1093,7 @@ START_SCREEN_Overlay(Metric)
 	IMAGE_SIZE_Overlay(7200)
 	IMAGE_WIDTH_Overlay(60)
 	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(60)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(Metric)
 
@@ -1084,6 +1102,7 @@ END_SCREEN_Overlay(Metric)
 #undef IMAGE_SIZE_Overlay
 #undef IMAGE_WIDTH_Overlay
 #undef IMAGE_HEIGHT_Overlay
+#undef IMAGE_STRIDE_Overlay
 #undef IMAGE_DEPTH_Overlay
 #undef END_SCREEN_Overlay
 
@@ -1094,6 +1113,7 @@ SCREEN_FILE_LENGTH(1751632)
 #undef IMAGE_SIZE
 #undef IMAGE_WIDTH
 #undef IMAGE_HEIGHT
+#undef IMAGE_STRIDE
 #undef IMAGE_DEPTH
 #undef END_SCREEN
 #undef START_HOTSPOTS

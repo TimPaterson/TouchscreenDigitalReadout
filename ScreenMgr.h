@@ -29,15 +29,17 @@ public:
 		WriteData(val | (pCanvas->GetColorDepth() << MPWCTR_MainImageColor_Shft));
 	}
 
-	static void EnablePip1(TouchCanvas *pCanvas, uint X, uint Y, bool fModal = false)
+	static void EnablePip1(TouchCanvas *pCanvas, uint x, uint y, bool fModal = false)
 	{
 		byte	val;
 
 		s_pPip1Image = pCanvas;
+		s_pip1x = x;
+		s_pip1y = y;
 		s_fPip1Modal = fModal;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip1 | MPWCTR_Pip1Enable));
-		WriteRegXY(PWDULX0, X, Y);
+		WriteRegXY(PWDULX0, x, y);
 		val = ReadReg(PIPCDEP) & ~PIPCDEP_Pip1Color_Mask;
 		WriteData(val | (pCanvas->GetColorDepth() << PIPCDEP_Pip1Color_Shft));
 		WriteSequentialRegisters(pCanvas, PISA0, CanvasViewRegCount);
@@ -49,14 +51,16 @@ public:
 		s_pPip1Image = NULL;
 	}
 
-	static void EnablePip2(TouchCanvas *pCanvas, uint X, uint Y)
+	static void EnablePip2(TouchCanvas *pCanvas, uint x, uint y)
 	{
 		byte	val;
 
 		s_pPip2Image = pCanvas;
+		s_pip2x = x;
+		s_pip2y = y;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip2 | MPWCTR_Pip2Enable));
-		WriteRegXY(PWDULX0, X, Y);
+		WriteRegXY(PWDULX0, x, y);
 		val = ReadReg(PIPCDEP) & ~PIPCDEP_Pip2Color_Mask;
 		WriteData(val | (pCanvas->GetColorDepth() << PIPCDEP_Pip2Color_Shft));
 		WriteSequentialRegisters(pCanvas, PISA0, CanvasViewRegCount);
@@ -102,20 +106,33 @@ public:
 
 	static HotspotData *TestHit(int x, int y)
 	{
+		HotspotData	*pSpot;
+
 		// PIP1 is on top if enabled. If PIP1 is modal, don't look elsewhere
 		if (s_pPip1Image != NULL)
 		{
-			if (s_pPip1Image->OnCanvas(x, y))
-				return s_pPip1Image->TestHit(x, y);
-			else if (s_fPip1Modal)
+			pSpot = s_pPip1Image->TestHit(x - s_pip1x, y - s_pip1y);
+			if (pSpot != NOT_ON_CANVAS)
+				return pSpot;
+			if (s_fPip1Modal)
 				return NULL;
 		}
 
 		// PIP2 is next if enabled
-		if (s_pPip2Image != NULL && s_pPip2Image->OnCanvas(x, y))
-			return s_pPip2Image->TestHit(x, y);
+		if (s_pPip2Image != NULL)
+		{
+			pSpot = s_pPip2Image->TestHit(x - s_pip2x, y - s_pip2y);
+			if (pSpot != NOT_ON_CANVAS)
+				return pSpot;
+		}
 
-		return s_pMainImage->TestHit(x, y);
+		pSpot = s_pMainImage->TestHit(x, y);
+		if (pSpot == NOT_ON_CANVAS)
+		{
+			DEBUG_PRINT("Unexpected off-screen touch coordinates\n");
+			return NULL;
+		}
+		return pSpot;
 	}
 
 	static void CopyRect(const ColorImage *pSrc, uint srcX, uint srcY, Canvas *pDst, const Area *pAreaDst)
@@ -189,5 +206,9 @@ protected:
 	inline static TouchCanvas	*s_pMainImage;
 	inline static TouchCanvas	*s_pPip1Image;
 	inline static TouchCanvas	*s_pPip2Image;
+	inline static ushort		s_pip1x;
+	inline static ushort		s_pip1y;
+	inline static ushort		s_pip2x;
+	inline static ushort		s_pip2y;
 	inline static bool			s_fPip1Modal;
 };
