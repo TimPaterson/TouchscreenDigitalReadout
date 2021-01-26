@@ -207,6 +207,12 @@ public:
 		} while (--cnt > 0);
 	}
 
+	static void WaitVsync()
+	{
+		WriteReg(INTF, INTF_Vsync);
+		while ((ReadData() & INTF_Vsync) == 0);
+	}
+
 	//*********************************************************************
 	// Function-specific handlers
 

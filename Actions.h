@@ -7,10 +7,9 @@
 
 #pragma once
 
-
 #include "ScreenMgr.h"
 #include "AxisDisplay.h"
-
+#include "ListScroll.h"
 
 class Actions
 {
@@ -69,16 +68,10 @@ protected:
 	class ShareText : public TextLine
 	{
 	public:
-		ShareText(Canvas *pCanvas, FontId id, ulong foreColor, ulong backColor) : 
+		ShareText(Canvas *pCanvas, FontId id, ulong foreColor, ulong backColor) :
 			TextLine(pCanvas, NULL, id, foreColor, -1), m_fillColor{backColor}
 		{
 			SetSpaceWidth(GetCharWidth('0'));
-		}
-
-		void SetArea(const Area *pArea)	
-		{ 
-			m_pArea = pArea;
-			ResetPosition();
 		}
 
 		void PrintNum(const Area *pArea, const char *fmt, double val)
@@ -107,7 +100,38 @@ protected:
 	// Public interface
 	//*********************************************************************
 public:
-	static void TakeAction(int X, int Y)
+	static void Init()
+	{
+		ShowAbsInc();
+		ShowInchMetric();
+		ShowToolInfo();
+
+		s_scroll.Init();
+		ScrollTest::pText = &s_scrollTest;
+	}
+
+	static void TakeAction(int x, int y, uint flags)
+	{
+		PipInfo		*pPipInfo;
+
+		if (flags & TOUCH_Start)
+			TakeAction(x, y);
+		else if (s_pCapture != NULL)
+		{
+			if (flags & TOUCH_End)
+			{
+				s_pCapture->EndCapture();
+				s_pCapture = NULL;
+			}
+			else
+			{
+				pPipInfo = ScreenMgr::GetPip(s_pCapture);
+				s_pCapture->NewPosition(x - pPipInfo->x, y - pPipInfo->y);
+			}
+		}			
+	}
+
+	static void TakeAction(int x, int y)
 	{
 		HotspotData	*pSpot;
 		uint		group;
@@ -116,13 +140,34 @@ public:
 		PosSensor	*pSensor;
 		char		*pStr;
 		bool		*pToggle;
+		ListScroll	*pScroll;
+		PipInfo		*pPipInfo;
 
-		pSpot = ScreenMgr::TestHit(X, Y);
+		pSpot = ScreenMgr::TestHit(x, y);
 		if (pSpot == NULL)
 			return;
 
 		group = pSpot->group;
 		spot = pSpot->id;
+
+		if (group < HOTSPOT_GROUP_CaptureEnd)
+		{
+			switch (group)
+			{
+			case HOTSPOT_GROUP_ToolDisplay:
+				pScroll = &s_scroll;
+				break;
+
+			default:
+				return;
+			}
+
+			// Adjust screen coordinates to canvas
+			pPipInfo = ScreenMgr::GetPip(pScroll);
+			if (pScroll->StartCapture(x - pPipInfo->x, y - pPipInfo->y, (ScrollAreas)spot))
+				s_pCapture = pScroll;
+			return;
+		}
 
 		switch (group)
 		{
@@ -744,16 +789,16 @@ protected:
 
 	static void ShowSettingsInfo()
 	{
-		ShowAxisInfo(Eeprom.Data.XaxisInfo, &SettingsScreen_Areas.Xresolution, 
+		ShowAxisInfo(Eeprom.Data.XaxisInfo, &SettingsScreen_Areas.Xresolution,
 			&SettingsScreen_Areas.Xcorrection, &SettingsScreen_Areas.Xinvert);
 
-		ShowAxisInfo(Eeprom.Data.YaxisInfo, &SettingsScreen_Areas.Yresolution, 
+		ShowAxisInfo(Eeprom.Data.YaxisInfo, &SettingsScreen_Areas.Yresolution,
 			&SettingsScreen_Areas.Ycorrection, &SettingsScreen_Areas.Yinvert);
 
-		ShowAxisInfo(Eeprom.Data.ZaxisInfo, &SettingsScreen_Areas.Zresolution, 
+		ShowAxisInfo(Eeprom.Data.ZaxisInfo, &SettingsScreen_Areas.Zresolution,
 			&SettingsScreen_Areas.Zcorrection, &SettingsScreen_Areas.Zinvert);
 
-		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qresolution, 
+		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qresolution,
 			&SettingsScreen_Areas.Qcorrection, &SettingsScreen_Areas.Qinvert);
 
 		ScreenMgr::CopyRect(Eeprom.Data.fHighlightOffset ? &CheckedBox : &UncheckedBox,
@@ -779,6 +824,8 @@ protected:
 	//*********************************************************************
 protected:
 	inline static double	s_arg1;
+	inline static ListScroll	*s_pCapture;
+
 	inline static CalcMemory s_memories[MemoryCount]
 	{
 		{&MainScreen_Areas.Mem1, MemColorOdd},
@@ -796,4 +843,8 @@ protected:
 	inline static byte		s_state;
 	inline static bool		s_fHaveDp;
 	inline static byte		s_toolSides;
+
+public:
+	inline static ListScroll	s_scroll{300, 500, 60, Color16bpp};
+	inline static TextField		s_scrollTest{&s_scroll, NULL, FID_Calculator, 0xFFFFFF, 0x0000F0};
 };

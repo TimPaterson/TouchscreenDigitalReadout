@@ -383,6 +383,23 @@ namespace RA8876const
 	};
 
 	//************************************************************************
+	// Interrupt Control Registers
+
+	// These bits apply to all three interrupt control registers,
+	// INTEN, INTF, and MINTFR
+	enum INTF_Bits
+	{
+		INTF_Pwm0 = 0x01,
+		INTF_Pwm1 = 0x02,
+		INTF_TackComplete = 0x04,
+		INTF_KeyScan = 0x08,
+		INTF_Vsync = 0x10,
+		INTF_I2C = 0x20,
+		INTF_ExtInt = 0x40,
+		INTF_Wakeup = 0x80,
+	};
+
+	//************************************************************************
 	// LCD Display Control Registers
 
 	// Main/PIP Window Control Register

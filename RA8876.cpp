@@ -68,13 +68,6 @@ enum RA8876_InitValues
 		SPIMCR_OvfIrqMasked | SPIMCR_SlaveSelectCs1 | SPIMCR_IrqEnable,
 };
 
-//****************************************************************************
-// Static data
-
-// Make LCD accessible to text through printf
-FILE	Lcd_FILE = FDEV_SETUP_STREAM(RA8876::WriteChar, NULL, _FDEV_SETUP_WRITE);
-FDEV_STANDARD_STREAMS(&Lcd_FILE, NULL);
-
 //*********************************************************************
 // Helpers
 

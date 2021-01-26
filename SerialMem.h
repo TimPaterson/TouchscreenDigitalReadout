@@ -26,3 +26,4 @@ static const int FlashScreenStart = SerialFlashBlockSize;
 static const int FlashFontStart = 14 * MegaByte;
 static const int RamScreenStart = 0;
 static const int RamFontStart = RamScreenStart + ScreenFileLength;
+static const int RamFreeStart = RamFontStart + FontFileLength;

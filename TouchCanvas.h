@@ -20,6 +20,8 @@ enum ColorDepths
 	Color24bpp
 };
 
+inline int PixelSizeFromDepth(ColorDepths color) { return color + 1; }
+
 
 struct Image
 {
@@ -48,17 +50,17 @@ struct Area
 class Canvas
 {
 public:
-	Canvas(ulong addr, ushort width, ushort height, ushort stride, byte depth) : 
+	Canvas(ulong addr, ushort width, ushort height, ushort stride, ColorDepths depth) : 
 		m_imageAddress{addr}, m_imageWidth{stride}, m_viewWidth{width},
 		m_viewHeight{height}, m_colorDepth{depth} {}
 
 public:
 	byte GetColorDepth()	{ return m_colorDepth; }
 
-	void SetWindowSize(uint width, uint height)
+	void SetViewPos(uint x, uint y)
 	{
-		m_viewWidth = width;
-		m_viewHeight = height;
+		m_viewPosX = x;
+		m_viewPosY = y;
 	}
 
 	//*********************************************************************
@@ -110,7 +112,7 @@ static constexpr int CanvasViewDepthRegCount = CanvasViewRegCount + 1;
 class TouchCanvas : public Canvas
 {
 public:
-	TouchCanvas(ulong addr, ushort width, ushort height, ushort stride, byte depth, HotspotList *list) :
+	TouchCanvas(ulong addr, ushort width, ushort height, ushort stride, ColorDepths depth, HotspotList *list) :
 		Canvas(addr, width, height, stride, depth),  m_pSpots{list} {}
 
 public:

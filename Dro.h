@@ -21,6 +21,7 @@ static constexpr double MmPerInch = 25.4;
 
 // externs
 void ChangeScreenBrightness(int change);
+void DumpCanvas(uint addr);
 
 //*********************************************************************
 // Define port pins
@@ -367,7 +368,7 @@ static constexpr int CONSOLE_BAUD_RATE = 500000;
 typedef DECLARE_USART(SERCOM0, 100, 100)	Console_t;
 
 #ifdef DEBUG
-#define DEBUG_PRINT(...)	fprintf(&Console_FILE, __VA_ARGS__)
+#define DEBUG_PRINT	printf
 #else
 #define DEBUG_PRINT(...)
 #endif

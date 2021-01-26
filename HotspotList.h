@@ -78,6 +78,12 @@ enum ToolSides
 	ToolFront	= ToolFrontBit | ToolBackMask,
 };
 
+enum ScrollAreas
+{
+	ScrollDisplay,
+	ScrollThumb
+};
+
 //*************************************************************************
 // Define the hotspot values for keyboard keys, just assigning them
 // their character code.
@@ -168,6 +174,10 @@ enum KeyboardHotspots
 
 enum HotspotGroups
 {
+	// First set of groups can capture the position
+	HOTSPOT_GROUP_ToolDisplay,
+	HOTSPOT_GROUP_CaptureEnd,	// end of capture list
+
 	#include "Images/Screen.h"
 };
 

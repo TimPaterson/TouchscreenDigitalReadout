@@ -68,6 +68,7 @@ extern "C"
 
 Console_t	Console;
 FILE		Console_FILE;
+FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 
 Xtp2046		Touch;
 ScreenMgr	Lcd;
@@ -292,9 +293,7 @@ int main(void)
 	Lcd.SetMainImage(&MainScreen);
 	Lcd.DisplayOn();
 
-	Actions::ShowAbsInc();
-	Actions::ShowInchMetric();
-	Actions::ShowToolInfo();
+	Actions::Init();
 
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
@@ -315,6 +314,7 @@ int main(void)
 	Timer	tmrAxis;
 	int		i;
 	bool	fSdOut = true;
+	bool	fScrollTest = false;
 
 	tmrAxis.Start();
 
@@ -401,13 +401,13 @@ int main(void)
 
 			// Touch sensor has an update
 			flags = Touch.GetTouch();
-			if (flags & TOUCH_Start)
+			if (flags != TOUCH_None)
 			{
-				int	X, Y;
+				int	x, y;
 
-				X = Touch.GetX();
-				Y = Touch.GetY();
-				Actions::TakeAction(X, Y);
+				x = Touch.GetX();
+				y = Touch.GetY();
+				Actions::TakeAction(x, y, flags);
 			}
 		}
 
@@ -441,6 +441,19 @@ int main(void)
 			case 'i':
 				DEBUG_PRINT("Loading image...");
 				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
+				break;
+
+			case 'l':
+				if (fScrollTest)
+					ScreenMgr::DisablePip2();
+				else
+				{
+					Actions::s_scroll.Invalidate();
+					Actions::s_scroll.SetTotalLines(100);
+					Actions::s_scroll.SetScrollPosition(0);
+					ScreenMgr::EnablePip2(&Actions::s_scroll, 50, 50);
+				}
+				fScrollTest = !fScrollTest;
 				break;
 
 			case 'r':

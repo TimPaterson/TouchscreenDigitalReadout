@@ -98,6 +98,12 @@ public:
 		m_backColor = color;
 	}
 
+	void SetArea(const Area *pArea)
+	{
+		m_pArea = pArea;
+		ResetPosition();
+	}
+
 	void MakeActive()
 	{
 		byte	ctrl;
@@ -179,7 +185,7 @@ public:
 		}
 	}
 
-	int printf(const char *fmt, ...)
+	int printf(const char *fmt, ...) __attribute__ ((format (printf, 2, 3)))
 	{
 		va_list ap;
 		int i;

@@ -11,13 +11,21 @@
 #include "TouchCanvas.h"
 
 
+struct PipInfo
+{
+	TouchCanvas	*pImage;
+	ushort		x;
+	ushort		y;
+};
+
+
 class ScreenMgr : public RA8876
 {
 	static const int BorderThickness = 4;
 
 public:
-	static TouchCanvas *GetPip1()	{ return s_pPip1Image; }
-	static TouchCanvas *GetPip2()	{ return s_pPip2Image; }
+	static PipInfo *GetPip1()	{ return &s_pip1; }
+	static PipInfo *GetPip2()	{ return &s_pip2; }
 
 	static void SetMainImage(TouchCanvas *pCanvas)
 	{
@@ -33,9 +41,9 @@ public:
 	{
 		byte	val;
 
-		s_pPip1Image = pCanvas;
-		s_pip1x = x;
-		s_pip1y = y;
+		s_pip1.pImage = pCanvas;
+		s_pip1.x = x;
+		s_pip1.y = y;
 		s_fPip1Modal = fModal;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip1 | MPWCTR_Pip1Enable));
@@ -48,16 +56,16 @@ public:
 	static void DisablePip1()
 	{
 		WriteData(ReadReg(MPWCTR) & ~MPWCTR_Pip1_Mask);
-		s_pPip1Image = NULL;
+		s_pip1.pImage = NULL;
 	}
 
 	static void EnablePip2(TouchCanvas *pCanvas, uint x, uint y)
 	{
 		byte	val;
 
-		s_pPip2Image = pCanvas;
-		s_pip2x = x;
-		s_pip2y = y;
+		s_pip2.pImage = pCanvas;
+		s_pip2.x = x;
+		s_pip2.y = y;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip2 | MPWCTR_Pip2Enable));
 		WriteRegXY(PWDULX0, x, y);
@@ -69,7 +77,36 @@ public:
 	static void DisablePip2()
 	{
 		WriteData(ReadReg(MPWCTR) & ~MPWCTR_Pip2_Mask);
-		s_pPip2Image = NULL;
+		s_pip2.pImage = NULL;
+	}
+
+	static void SetViewPos(TouchCanvas *pCanvas, uint x, uint y)
+	{
+		byte	val;
+
+		pCanvas->SetViewPos(x, y);
+		if (s_pMainImage == pCanvas)
+		{
+			WriteRegXY(MWULX0, x, y);
+			return;
+		}
+
+		if (pCanvas == s_pip1.pImage || pCanvas == s_pip2.pImage)
+		{
+			val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
+			val |= pCanvas == s_pip1.pImage ? MPWCTR_ConfigurePip1 : MPWCTR_ConfigurePip2;
+			WriteData(val);
+			WriteRegXY(PWIULX0, x, y);
+		}
+	}
+
+	static PipInfo *GetPip(TouchCanvas *pCanvas)
+	{
+		if (s_pip1.pImage == pCanvas)
+			return &s_pip1;
+		if (s_pip2.pImage == pCanvas)
+			return &s_pip2;
+		return NULL; 
 	}
 
 	static void SetBteDest(Canvas *pCanvas)
@@ -109,9 +146,9 @@ public:
 		HotspotData	*pSpot;
 
 		// PIP1 is on top if enabled. If PIP1 is modal, don't look elsewhere
-		if (s_pPip1Image != NULL)
+		if (s_pip1.pImage != NULL)
 		{
-			pSpot = s_pPip1Image->TestHit(x - s_pip1x, y - s_pip1y);
+			pSpot = s_pip1.pImage->TestHit(x - s_pip1.x, y - s_pip1.y);
 			if (pSpot != NOT_ON_CANVAS)
 				return pSpot;
 			if (s_fPip1Modal)
@@ -119,9 +156,9 @@ public:
 		}
 
 		// PIP2 is next if enabled
-		if (s_pPip2Image != NULL)
+		if (s_pip2.pImage != NULL)
 		{
-			pSpot = s_pPip2Image->TestHit(x - s_pip2x, y - s_pip2y);
+			pSpot = s_pip2.pImage->TestHit(x - s_pip2.x, y - s_pip2.y);
 			if (pSpot != NOT_ON_CANVAS)
 				return pSpot;
 		}
@@ -204,11 +241,7 @@ protected:
 	//*********************************************************************
 protected:
 	inline static TouchCanvas	*s_pMainImage;
-	inline static TouchCanvas	*s_pPip1Image;
-	inline static TouchCanvas	*s_pPip2Image;
-	inline static ushort		s_pip1x;
-	inline static ushort		s_pip1y;
-	inline static ushort		s_pip2x;
-	inline static ushort		s_pip2y;
+	inline static PipInfo		s_pip1;
+	inline static PipInfo		s_pip2;
 	inline static bool			s_fPip1Modal;
 };

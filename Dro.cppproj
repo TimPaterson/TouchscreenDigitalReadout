@@ -274,6 +274,9 @@
     <Compile Include="Images\TargetCursor.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ListScroll.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ScreenMgr.h">
       <SubType>compile</SubType>
     </Compile>

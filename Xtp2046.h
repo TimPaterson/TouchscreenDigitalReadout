@@ -29,10 +29,12 @@ struct TouchScale_t
 class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN)
 {
 public:
+	static constexpr int UpdateRate = 30;	// full touch scans per second
+
 	static constexpr int BaudRate = 1000000;
 	static constexpr int AverageShift = 4;
 	static constexpr int AverageCount = 1 << AverageShift;
-	static constexpr int ScanRate = 100 * AverageCount;
+	static constexpr int ScanRate = UpdateRate * AverageCount;
 
 public:
 	// Types

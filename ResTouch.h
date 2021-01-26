@@ -107,7 +107,12 @@ protected:
 public:
 	uint GetX()		{ return m_posX.Get(); }
 	uint GetY()		{ return m_posY.Get(); }
-	uint GetTouch()	{ return m_touchFlags; }
+	uint GetTouch()	
+	{
+		uint flags = m_touchFlags;
+		m_touchFlags &= ~(TOUCH_Start | TOUCH_End);	//  clear edge triggered events
+		return flags;
+	}
 
 	void CalibrateX(int posRead, int posTarget, int posAnchor)
 		{ m_posX.Calibrate(posRead, posTarget, posAnchor); }
