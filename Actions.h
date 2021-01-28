@@ -178,7 +178,16 @@ public:
 
 		case HOTSPOT_GROUP_Digit:
 			if (s_state == AS_Value)
+			{
+				if (spot == Key_sign)
+				{
+					// Treat as operator, change sign
+					ToValueState(-s_arg1);
+					break;
+				}
+				// Otherwise start new entry
 				ClearEntry();
+			}
 
 			s_state = AS_Entering;
 			if (spot == Key_sign)
