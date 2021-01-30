@@ -16,6 +16,8 @@ struct PipInfo
 	TouchCanvas	*pImage;
 	ushort		x;
 	ushort		y;
+
+	bool IsEnabled()	{ return pImage != NULL; }
 };
 
 
@@ -59,13 +61,14 @@ public:
 		s_pip1.pImage = NULL;
 	}
 
-	static void EnablePip2(TouchCanvas *pCanvas, uint x, uint y)
+	static void EnablePip2(TouchCanvas *pCanvas, uint x, uint y, bool fModal = false)
 	{
 		byte	val;
 
 		s_pip2.pImage = pCanvas;
 		s_pip2.x = x;
 		s_pip2.y = y;
+		s_fPip2Modal = fModal;
 		val = ReadReg(MPWCTR) & ~MPWCTR_ConfigurePip_Mask;
 		WriteData(val | (MPWCTR_ConfigurePip2 | MPWCTR_Pip2Enable));
 		WriteRegXY(PWDULX0, x, y);
@@ -146,7 +149,7 @@ public:
 		HotspotData	*pSpot;
 
 		// PIP1 is on top if enabled. If PIP1 is modal, don't look elsewhere
-		if (s_pip1.pImage != NULL)
+		if (s_pip1.IsEnabled())
 		{
 			pSpot = s_pip1.pImage->TestHit(x - s_pip1.x, y - s_pip1.y);
 			if (pSpot != NOT_ON_CANVAS)
@@ -156,11 +159,13 @@ public:
 		}
 
 		// PIP2 is next if enabled
-		if (s_pip2.pImage != NULL)
+		if (s_pip2.IsEnabled())
 		{
 			pSpot = s_pip2.pImage->TestHit(x - s_pip2.x, y - s_pip2.y);
 			if (pSpot != NOT_ON_CANVAS)
 				return pSpot;
+			if (s_fPip2Modal)
+				return NULL;
 		}
 
 		pSpot = s_pMainImage->TestHit(x, y);
@@ -244,4 +249,5 @@ protected:
 	inline static PipInfo		s_pip1;
 	inline static PipInfo		s_pip2;
 	inline static bool			s_fPip1Modal;
+	inline static bool			s_fPip2Modal;
 };

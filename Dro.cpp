@@ -314,7 +314,6 @@ int main(void)
 	Timer	tmrAxis;
 	int		i;
 	bool	fSdOut = true;
-	bool	fScrollTest = false;
 
 	tmrAxis.Start();
 
@@ -441,19 +440,6 @@ int main(void)
 			case 'i':
 				DEBUG_PRINT("Loading image...");
 				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
-				break;
-
-			case 'l':
-				if (fScrollTest)
-					ScreenMgr::DisablePip2();
-				else
-				{
-					Actions::s_scroll.Invalidate();
-					Actions::s_scroll.SetTotalLines(100);
-					Actions::s_scroll.SetScrollPosition(0);
-					ScreenMgr::EnablePip2(&Actions::s_scroll, 50, 50);
-				}
-				fScrollTest = !fScrollTest;
 				break;
 
 			case 'r':

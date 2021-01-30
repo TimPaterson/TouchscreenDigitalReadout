@@ -12,24 +12,6 @@
 #include "TextField.h"
 
 
-class ScrollTest
-{
-public:
-	static bool FillLine(int lineNum, Area *pArea)
-	{
-		pText->SetArea(pArea);
-		pText->ClearArea();
-		if (lineNum >= 100)
-			return false;
-
-		pText->printf("%i", lineNum);
-		return true;
-	}
-
-	inline static TextField *pText;
-};
-
-
 class ListScroll : public TouchCanvas, public RA8876
 {
 	// Make these variables?
@@ -267,7 +249,7 @@ protected:
 
 	void MakeActive()
 	{
-		ScreenMgr::SetBteSrc0((const Image *)this, m_colorDepth);
+		ScreenMgr::SetBteSrc0((const Image *)(TouchCanvas *)this, m_colorDepth);
 		WriteReg16(S0_X0, 0);
 		ScreenMgr::SetBteDest(this);
 		WriteReg16(DT_X0, 0);
@@ -276,10 +258,7 @@ protected:
 	}
 
 protected:
-	bool FillLine(int lineNum, Area *pArea)
-	{
-		return ScrollTest::FillLine(lineNum, pArea);
-	}
+	virtual bool FillLine(int lineNum, Area *pArea) = 0;
 
 protected:
 	int		m_posCur;
@@ -306,4 +285,25 @@ protected:
 
 protected:
 	inline static int s_NextFreeRam{RamFreeStart};
+};
+
+
+class ScrollTest : public ListScroll
+{
+public:
+	ScrollTest() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, Color16bpp) {}
+
+protected:
+	virtual bool FillLine(int lineNum, Area *pArea)
+	{
+		text.SetArea(pArea);
+		text.ClearArea();
+		if (lineNum >= 100)
+			return false;
+
+		text.printf("%i", lineNum);
+		return true;
+	}
+
+	TextField		text{this, NULL, FID_Calculator, ToolLibraryForeground, ToolLibraryBackground};
 };

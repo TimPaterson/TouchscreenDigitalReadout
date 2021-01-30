@@ -62,22 +62,22 @@
 #define END_GROUP(a)
 #endif
 #ifndef START_VALUES
-#define START_VALUES(a)
+#define START_VALUES()
 #endif
 #ifndef DEFINE_VALUE
 #define DEFINE_VALUE(a,b)
 #endif
 #ifndef END_VALUES
-#define END_VALUES(a)
+#define END_VALUES()
 #endif
 #ifndef START_STR_VALUES
-#define START_STR_VALUES(a)
+#define START_STR_VALUES()
 #endif
 #ifndef DEFINE_STR_VALUE
 #define DEFINE_STR_VALUE(a,b)
 #endif
 #ifndef END_STR_VALUES
-#define END_STR_VALUES(a)
+#define END_STR_VALUES()
 #endif
 #ifndef DEFINE_COLOR
 #define DEFINE_COLOR(a,b)
@@ -93,6 +93,8 @@ DEFINE_COLOR(CalcBackColor, 0xFFFFFF)
 DEFINE_COLOR(MemColorOdd, 0xD6C3D6)
 DEFINE_COLOR(MemColorEven, 0x9CFB9C)
 DEFINE_COLOR(BtnBackground, 0x606060)
+DEFINE_COLOR(ToolLibraryBackground, 0x00008C)
+DEFINE_COLOR(ToolLibraryForeground, 0xFFFFFF)
 DEFINE_COLOR(ToggleOn, 0xFFFF00)
 DEFINE_COLOR(SetBtnText, 0xFFFF00)
 DEFINE_COLOR(ToolColor, 0xC60000)
@@ -101,6 +103,17 @@ DEFINE_COLOR(SettingBackColor, 0x000000)
 DEFINE_COLOR(SettingForeColor, 0xFFFFFF)
 DEFINE_COLOR(CheckForeground, 0xFFFFFF)
 DEFINE_COLOR(CheckBackground, 0x000000)
+
+START_VALUES()
+	DEFINE_VALUE(ToolImageRadius, 15)
+	DEFINE_VALUE(ToolListHeight, 481)
+	DEFINE_VALUE(ToolListWidth, 576)
+	DEFINE_VALUE(ToolRowHeight, 50)
+	DEFINE_VALUE(ToolListTop, 119)
+END_VALUES()
+
+START_STR_VALUES()
+END_STR_VALUES()
 
 START_SCREEN(MainScreen)
 	IMAGE_ADDRESS(0)
@@ -121,7 +134,7 @@ START_HOTSPOTS(MainScreen)
 	DEFINE_HOTSPOT(Settings, , 894, 10, 1013, 69)
 	DEFINE_HOTSPOT(BrightDown, , 894, 80, 953, 139)
 	DEFINE_HOTSPOT(BrightUp, , 954, 80, 1013, 139)
-	DEFINE_HOTSPOT(Undo, , 584, 12, 873, 95)
+	DEFINE_HOTSPOT(Undo, , 584, 25, 873, 108)
 	DEFINE_HOTSPOT(CalcDisplay, , 584, 119, 873, 178)
 	DEFINE_HOTSPOT(InchMetric, , 884, 517, 943, 576)
 	DEFINE_HOTSPOT(AbsInc, , 954, 517, 1013, 576)
@@ -178,7 +191,7 @@ START_AREAS(MainScreen)
 	DEFINE_AREA(Xdisplay, 0, 12, 410, 111)
 	DEFINE_AREA(Ydisplay, 0, 148, 410, 111)
 	DEFINE_AREA(Zdisplay, 0, 284, 410, 111)
-	DEFINE_AREA(Undo, 584, 12, 290, 84)
+	DEFINE_AREA(Undo, 584, 25, 290, 84)
 	DEFINE_AREA(CalcDisplay, 584, 119, 290, 60)
 	DEFINE_AREA(CalcText, 584, 189, 290, 28)
 	DEFINE_AREA(InchMetric, 884, 517, 60, 60)
@@ -198,13 +211,6 @@ START_AREAS(MainScreen)
 	DEFINE_AREA(Rpm, 305, 541, 74, 28)
 	DEFINE_AREA(FeedRate, 495, 541, 74, 28)
 END_AREAS(MainScreen)
-
-START_VALUES(MainScreen)
-	DEFINE_VALUE(ToolImageRadius, 15)
-END_VALUES(MainScreen)
-
-START_STR_VALUES(MainScreen)
-END_STR_VALUES(MainScreen)
 
 START_SCREEN(SettingsScreen)
 	IMAGE_ADDRESS(1228800)
@@ -314,8 +320,45 @@ END_HOTSPOTS(Metric)
 
 HOTSPOT_COUNT(Metric, 0)
 
+START_HOTSPOTS(ToolNormalButtons)
+END_HOTSPOTS(ToolNormalButtons)
+
+HOTSPOT_COUNT(ToolNormalButtons, 0)
+
+START_HOTSPOTS(ToolDeleteButtons)
+END_HOTSPOTS(ToolDeleteButtons)
+
+HOTSPOT_COUNT(ToolDeleteButtons, 0)
+
+START_SCREEN(ToolLibrary)
+	IMAGE_ADDRESS(1836784)
+	IMAGE_SIZE(208488)
+	IMAGE_WIDTH(876)
+	IMAGE_HEIGHT(119)
+	IMAGE_STRIDE(876)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolLibrary)
+
+START_HOTSPOTS(ToolLibrary)
+	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 10, 80, 70)
+	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 80, 10, 150, 70)
+	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 150, 10, 205, 70)
+	DEFINE_HOTSPOT(ToolLength, ToolLib, 205, 10, 290, 70)
+	DEFINE_HOTSPOT(ToolDescription, , 290, 10, 653, 70)
+	DEFINE_HOTSPOT(ToolsDone, , 664, 10, 723, 69)
+	DEFINE_HOTSPOT(ToolDelete, , 734, 10, 793, 69)
+	DEFINE_HOTSPOT(ToolImportExport, , 804, 10, 863, 69)
+END_HOTSPOTS(ToolLibrary)
+
+HOTSPOT_COUNT(ToolLibrary, 8)
+
+START_HOTSPOTS(ToolRow)
+END_HOTSPOTS(ToolRow)
+
+HOTSPOT_COUNT(ToolRow, 0)
+
 START_SCREEN(KeyLower)
-	IMAGE_ADDRESS(1749584)
+	IMAGE_ADDRESS(2104024)
 	IMAGE_SIZE(1024)
 	IMAGE_WIDTH(32)
 	IMAGE_HEIGHT(32)
@@ -368,7 +411,7 @@ END_HOTSPOTS(KeyLower)
 HOTSPOT_COUNT(KeyLower, 39)
 
 START_SCREEN(KeyUpper)
-	IMAGE_ADDRESS(1750608)
+	IMAGE_ADDRESS(2105048)
 	IMAGE_SIZE(1024)
 	IMAGE_WIDTH(32)
 	IMAGE_HEIGHT(32)
@@ -438,13 +481,17 @@ START_GROUP()
 	GROUP_HOTSPOT(Settings, , 894, 10, 1013, 69)
 	GROUP_HOTSPOT(BrightDown, , 894, 80, 953, 139)
 	GROUP_HOTSPOT(BrightUp, , 954, 80, 1013, 139)
-	GROUP_HOTSPOT(Undo, , 584, 12, 873, 95)
+	GROUP_HOTSPOT(Undo, , 584, 25, 873, 108)
 	GROUP_HOTSPOT(CalcDisplay, , 584, 119, 873, 178)
 	GROUP_HOTSPOT(InchMetric, , 884, 517, 943, 576)
 	GROUP_HOTSPOT(AbsInc, , 954, 517, 1013, 576)
 	GROUP_HOTSPOT(ToolMenu, , 514, 405, 573, 464)
 	GROUP_HOTSPOT(MaxRpm, , 10, 530, 354, 589)
 	GROUP_HOTSPOT(TouchCal, , 365, 320, 564, 379)
+	GROUP_HOTSPOT(ToolDescription, , 290, 10, 653, 70)
+	GROUP_HOTSPOT(ToolsDone, , 664, 10, 723, 69)
+	GROUP_HOTSPOT(ToolDelete, , 734, 10, 793, 69)
+	GROUP_HOTSPOT(ToolImportExport, , 804, 10, 863, 69)
 END_GROUP()
 
 START_GROUP(Edit)
@@ -529,6 +576,13 @@ START_GROUP(SettingToggle)
 	GROUP_HOTSPOT(OffsetZ, SettingToggle, 10, 390, 354, 449)
 	GROUP_HOTSPOT(CncCoordinates, SettingToggle, 10, 460, 354, 519)
 END_GROUP(SettingToggle)
+
+START_GROUP(ToolLib)
+	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 10, 80, 70)
+	GROUP_HOTSPOT(ToolDiameter, ToolLib, 80, 10, 150, 70)
+	GROUP_HOTSPOT(ToolFlutes, ToolLib, 150, 10, 205, 70)
+	GROUP_HOTSPOT(ToolLength, ToolLib, 205, 10, 290, 70)
+END_GROUP(ToolLib)
 
 START_GROUP(Keyboard)
 	GROUP_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
@@ -667,13 +721,17 @@ START_GROUP_()
 	GROUP_HOTSPOT_(Settings, , 894, 10, 1013, 69)
 	GROUP_HOTSPOT_(BrightDown, , 894, 80, 953, 139)
 	GROUP_HOTSPOT_(BrightUp, , 954, 80, 1013, 139)
-	GROUP_HOTSPOT_(Undo, , 584, 12, 873, 95)
+	GROUP_HOTSPOT_(Undo, , 584, 25, 873, 108)
 	GROUP_HOTSPOT_(CalcDisplay, , 584, 119, 873, 178)
 	GROUP_HOTSPOT_(InchMetric, , 884, 517, 943, 576)
 	GROUP_HOTSPOT_(AbsInc, , 954, 517, 1013, 576)
 	GROUP_HOTSPOT_(ToolMenu, , 514, 405, 573, 464)
 	GROUP_HOTSPOT_(MaxRpm, , 10, 530, 354, 589)
 	GROUP_HOTSPOT_(TouchCal, , 365, 320, 564, 379)
+	GROUP_HOTSPOT_(ToolDescription, , 290, 10, 653, 70)
+	GROUP_HOTSPOT_(ToolsDone, , 664, 10, 723, 69)
+	GROUP_HOTSPOT_(ToolDelete, , 734, 10, 793, 69)
+	GROUP_HOTSPOT_(ToolImportExport, , 804, 10, 863, 69)
 END_GROUP_()
 
 #undef START_GROUP_
@@ -903,6 +961,27 @@ END_GROUP_SettingToggle(SettingToggle)
 #undef GROUP_HOTSPOT_SettingToggle
 #undef END_GROUP_SettingToggle
 
+#ifndef START_GROUP_ToolLib
+#define START_GROUP_ToolLib(a)
+#endif
+#ifndef GROUP_HOTSPOT_ToolLib
+#define GROUP_HOTSPOT_ToolLib(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_ToolLib
+#define END_GROUP_ToolLib(a)
+#endif
+
+START_GROUP_ToolLib(ToolLib)
+	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 10, 80, 70)
+	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 80, 10, 150, 70)
+	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 150, 10, 205, 70)
+	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 205, 10, 290, 70)
+END_GROUP_ToolLib(ToolLib)
+
+#undef START_GROUP_ToolLib
+#undef GROUP_HOTSPOT_ToolLib
+#undef END_GROUP_ToolLib
+
 #ifndef START_GROUP_Keyboard
 #define START_GROUP_Keyboard(a)
 #endif
@@ -1097,6 +1176,33 @@ START_SCREEN_Overlay(Metric)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(Metric)
 
+START_SCREEN_Overlay(ToolNormalButtons)
+	IMAGE_ADDRESS_Overlay(1749584)
+	IMAGE_SIZE_Overlay(43600)
+	IMAGE_WIDTH_Overlay(200)
+	IMAGE_HEIGHT_Overlay(109)
+	IMAGE_STRIDE_Overlay(200)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ToolNormalButtons)
+
+START_SCREEN_Overlay(ToolDeleteButtons)
+	IMAGE_ADDRESS_Overlay(1793184)
+	IMAGE_SIZE_Overlay(43600)
+	IMAGE_WIDTH_Overlay(200)
+	IMAGE_HEIGHT_Overlay(109)
+	IMAGE_STRIDE_Overlay(200)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ToolDeleteButtons)
+
+START_SCREEN_Overlay(ToolRow)
+	IMAGE_ADDRESS_Overlay(2045272)
+	IMAGE_SIZE_Overlay(58752)
+	IMAGE_WIDTH_Overlay(576)
+	IMAGE_HEIGHT_Overlay(51)
+	IMAGE_STRIDE_Overlay(576)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ToolRow)
+
 #undef START_SCREEN_Overlay
 #undef IMAGE_ADDRESS_Overlay
 #undef IMAGE_SIZE_Overlay
@@ -1106,7 +1212,7 @@ END_SCREEN_Overlay(Metric)
 #undef IMAGE_DEPTH_Overlay
 #undef END_SCREEN_Overlay
 
-SCREEN_FILE_LENGTH(1751632)
+SCREEN_FILE_LENGTH(2106072)
 
 #undef START_SCREEN
 #undef IMAGE_ADDRESS

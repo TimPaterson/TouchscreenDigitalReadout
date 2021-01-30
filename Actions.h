@@ -107,7 +107,6 @@ public:
 		ShowToolInfo();
 
 		s_scroll.Init();
-		ScrollTest::pText = &s_scrollTest;
 	}
 
 	static void TakeAction(int x, int y, uint flags)
@@ -128,7 +127,7 @@ public:
 				pPipInfo = ScreenMgr::GetPip(s_pCapture);
 				s_pCapture->NewPosition(x - pPipInfo->x, y - pPipInfo->y);
 			}
-		}			
+		}
 	}
 
 	static void TakeAction(int x, int y)
@@ -536,6 +535,19 @@ public:
 		default:
 			switch (spot)
 			{
+			case ToolMenu:
+				s_scroll.Invalidate();
+				s_scroll.SetTotalLines(100);
+				s_scroll.SetScrollPosition(0);
+				ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
+				ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
+				break;
+
+			case ToolsDone:
+				ScreenMgr::DisablePip1();
+				ScreenMgr::DisablePip2();
+				break;
+
 			case InchMetric:
 				Eeprom.Data.fIsMetric ^= true;
 				ConvertToolValues(Eeprom.Data.fIsMetric);
@@ -550,7 +562,7 @@ public:
 				break;
 
 			case Settings:
-				if (ScreenMgr::GetPip2() == NULL)
+				if (!ScreenMgr::GetPip2()->IsEnabled())
 				{
 					ScreenMgr::EnablePip2(&SettingsScreen, 0, 0);
 					ShowSettingsInfo();
@@ -854,6 +866,5 @@ protected:
 	inline static byte		s_toolSides;
 
 public:
-	inline static ListScroll	s_scroll{300, 500, 60, Color16bpp};
-	inline static TextField		s_scrollTest{&s_scroll, NULL, FID_Calculator, 0xFFFFFF, 0x0000F0};
+	inline static ScrollTest	s_scroll;
 };
