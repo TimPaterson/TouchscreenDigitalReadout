@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Project [<!ENTITY Fonts SYSTEM "../Fonts/Fonts.xml">]>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd"
+         xsi:noNamespaceSchemaLocation="C:\Users\Tim\OneDrive\Tim\Documents\Technical\Develop\TimTools\ScreenDesigner\ScreenDesigner.xsd"
          StrideMultiple="4">
   &Fonts;
   <Set>
@@ -79,7 +79,7 @@
       <Row>
         <Column>
           <Set>
-            ToolCell.StrokeThickness = 0; 
+            ToolCell.StrokeThickness = 0;
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Speed;
           </Set>
@@ -87,7 +87,7 @@
         </Column>
         <Column Left="SpCellWidth + SpColSpace">
           <Set>
-            ToolCell.StrokeThickness = 0; 
+            ToolCell.StrokeThickness = 0;
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Chip Load;
           </Set>
@@ -97,21 +97,21 @@
       <Row>
         <Column>
           <Set>
-            SpeedText.Text = SFM; 
+            SpeedText.Text = SFM;
             SpeedText.Name = SpeedTextSfm;
           </Set>
         </Column>
         <Column>
-          <Rectangle Area="Sfm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+          <Rectangle Name="Sfm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
         </Column>
         <Column Left="SpColSpace">
           <Set>
-            SpeedText.Text = in/tooth; 
+            SpeedText.Text = in/tooth;
             SpeedText.Name = SpeedTextFeed;
           </Set>
         </Column>
         <Column>
-          <Rectangle Area="ChipLoad" Left="8" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 9"/>
+          <Rectangle Name="ChipLoad" Left="8" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 9"/>
         </Column>
       </Row>
       <Row>
@@ -121,26 +121,27 @@
           </Set>
         </Column>
         <Column>
-          <Rectangle Area="Rpm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+          <Rectangle Name="Rpm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
         </Column>
         <Column Left="SpColSpace">
           <Set>
-            SpeedText.Text = in/min; 
+            SpeedText.Text = in/min;
             SpeedText.Name = SpeedTextLoad;
           </Set>
         </Column>
         <Column>
-          <Rectangle Area="FeedRate" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+          <Rectangle Name="FeedRate" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
         </Column>
       </Row>
     </Grid>
   </Component>
 
   <!-- Main Screen -->
-  <Canvas Name="MainScreen" Width="ScreenWidth" Height="ScreenHeight" ColorDepth="Color16bpp" Fill="ScreenBackColor">
 
+  <Canvas Name="MainScreen" Width="ScreenWidth" Height="ScreenHeight" ColorDepth="Color16bpp" Fill="ScreenBackColor">
     <!-- Axis displays -->
-    <Set>DispHt = DigitDisplay_Height;
+    <Set>
+      DispHt = DigitDisplay_Height;
     	DispWd = 410;
     	DigHt = 96;
     	LabHt = 72;
@@ -164,7 +165,7 @@
           <Set>
             AxisLabel.Text = X;
           	AxisButton.HotSpot = Xsensor;
-          	AxisDisplay.Area = Xdisplay; 
+          	AxisDisplay.Area = Xdisplay;
             AxisDisplay.HotSpot = Xsensor;
           </Set>
         </Column>
@@ -174,7 +175,7 @@
           <Set>
             AxisLabel.Text = Y;
           	AxisButton.HotSpot = Ysensor;
-          	AxisDisplay.Area = Ydisplay; 
+          	AxisDisplay.Area = Ydisplay;
             AxisDisplay.HotSpot = Ysensor;
           </Set>
         </Column>
@@ -184,7 +185,7 @@
           <Set>
             AxisLabel.Text = Z;
           	AxisButton.HotSpot = Zsensor;
-          	AxisDisplay.Area = Zdisplay; 
+          	AxisDisplay.Area = Zdisplay;
             AxisDisplay.HotSpot = Zsensor;
           </Set>
         </Column>
@@ -245,13 +246,13 @@
     <!-- Toggle button locations (images overwritten) -->
     <Ref RefName="InchMetric" Left="KeypadRight + KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
       <Set>
-        Button.Area = "InchMetric"; 
+        Button.Area = "InchMetric";
         Button.HotSpot = "InchMetric"
       </Set>
     </Ref>
     <Ref RefName="Toggle" Left="KeypadRight + BtnWidth + 2 * KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
       <Set>
-        Button.Area = "AbsInc"; 
+        Button.Area = "AbsInc";
         Button.HotSpot = "AbsInc"
       </Set>
     </Ref>
@@ -268,31 +269,31 @@
         <Row>
           <Column>
             <Set>
-              Label.Text = ⌫; 
+              Label.Text = ⌫;
               Label.Font = BtnSmallFont;
-            	KeySpot.Group = "Edit"; 
+            	KeySpot.Group = "Edit";
               KeySpot.Name = Key_backSpace;
             </Set>
           </Column>
           <Column>
             <Set>
-              Label.Text = CE; 
+              Label.Text = CE;
               Label.Font =BtnSmallFont;
-            	KeySpot.Group = "Edit"; 
+            	KeySpot.Group = "Edit";
               KeySpot.Name = Key_clear;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = π;
-            	KeySpot.Group = "Edit"; 
+            	KeySpot.Group = "Edit";
               KeySpot.Name = Key_pi;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = +;
-            	KeySpot.Group = "Operator"; 
+            	KeySpot.Group = "Operator";
               KeySpot.Name = Key_plus;
             </Set>
           </Column>
@@ -327,7 +328,7 @@
           <Column>
             <Set>
               Label.Text = −;
-            	KeySpot.Group = Operator; 
+            	KeySpot.Group = Operator;
               KeySpot.Name = Key_minus;
             </Set>
           </Column>
@@ -362,7 +363,7 @@
           <Column>
             <Set>
               Label.Text = ×;
-            	KeySpot.Group = "Operator"; 
+            	KeySpot.Group = "Operator";
               KeySpot.Name = Key_mult;
             </Set>
           </Column>
@@ -397,7 +398,7 @@
           <Column>
             <Set>
               Label.Text = ÷;
-            	KeySpot.Group = "Operator"; 
+            	KeySpot.Group = "Operator";
               KeySpot.Name = Key_divide;
             </Set>
           </Column>
@@ -432,7 +433,7 @@
           <Column>
             <Set>
               Label.Text = =;
-            	KeySpot.Group = "Operator"; 
+            	KeySpot.Group = "Operator";
               KeySpot.Name = Key_equal;
             </Set>
           </Column>
@@ -480,7 +481,7 @@
         <Column>
           <Set>
             ToolCellText.Text = Length;
-          	ToolCell.Left = -LengthAdj; 
+          	ToolCell.Left = -LengthAdj;
             ToolCell.Width = LengthCellWidth + 1;
           </Set>
           <HotSpot Name="ToolLength" Group="ToolInfo" Left="-LengthAdj" Height="ToolCellHeight * 2" Width="ToolCellWidth + LengthAdj"/>
@@ -507,7 +508,7 @@
         </Column>
         <Column>
           <Set>
-            ToolCell.Left = -LengthAdj; 
+            ToolCell.Left = -LengthAdj;
             ToolCell.Width = ToolCellWidth + 1 + LengthAdj;
           </Set>
           <Rectangle Area="ToolLength" Top="ToolTextTop" Left="6 - LengthAdj" Height="SmallTextHeight" Width="ToolCellWidth + LengthAdj - 7"/>
@@ -527,9 +528,9 @@
     <Ref RefName="Key" Left="ToolSelectLeft" Top="ToolTop">
       <Set>
         KeySpot.Name = ToolMenu;
-      	Button.StrokeThickness = 0; 
+      	Button.StrokeThickness = 0;
         Button.Fill = BtnBackground;
-      	Label.Foreground = ToggleOn; 
+      	Label.Foreground = ToggleOn;
         Label.Text = "...";
       </Set>
     </Ref>
@@ -556,7 +557,14 @@
     </Rectangle>
     <!-- Tool feeds & speeds -->
     <Rectangle Area="SpeedDisplay" Top="DiagramTop" Left="BtnWidth * 3 + KeySpace * 2" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth">
-      <Ref RefName="SpeedDisplay"/>
+      <Ref RefName="SpeedDisplay">
+        <Set>
+          Sfm.Area = Sfm;
+          ChipLoad.Area = ChipLoad;
+          Rpm.Area = Rpm;
+          FeedRate.Area = FeedRate;
+        </Set>
+      </Ref>
     </Rectangle>
   </Canvas>
 
@@ -727,52 +735,58 @@
   </Canvas>
 
   <!-- Settings images -->
-  <Canvas Name="UncheckedBox" Type="Overlay" Height="CheckboxSize" Width="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
-    <Ref RefName="UncheckedBox"/>
-  </Canvas>
-
-  <Canvas Name="CheckedBox" Type="Overlay" Height="CheckboxSize" Width="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
-    <Ref RefName="CheckedBox"/>
+  <Canvas Name="CheckBox" Type="Overlay" Height="CheckboxSize" ItemWidth="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
+    <Item>
+      <Ref RefName="UncheckedBox"/>
+    </Item>
+    <Item>
+      <Ref RefName="CheckedBox"/>
+    </Item>
   </Canvas>
 
   <!-- Feeds & speeds images -->
-  <Canvas Name="InchSpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
-    <Ref RefName="SpeedDisplay"/>
-  </Canvas>
-
-  <Canvas Name="MetricSpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
-    <Ref RefName="SpeedDisplay"/>
-    <Set>
-      SpeedTextSfm.Text = m/min;
-    	SpeedTextFeed.Text = mm/tth;
-    	SpeedTextLoad.Text = mm/min;
-    </Set>
+  <Canvas Name="SpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" ItemWidth="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+    </Item>
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+      <Set>
+        SpeedTextSfm.Text = m/min;
+    	  SpeedTextFeed.Text = mm/tth;
+    	  SpeedTextLoad.Text = mm/min;
+      </Set>
+    </Item>
   </Canvas>
 
   <!-- Key images -->
 
-  <!-- Absolute coordinates selected -->
-  <Canvas Name="AbsCoord" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Ref RefName="Toggle"/>
-    <Set>Upper.Foreground=ToggleOn;</Set>
+  <!-- Coordinate system -->
+  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
   </Canvas>
 
-  <!-- Incremental coordinates selected -->
-  <Canvas Name="IncCoord" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Ref RefName="Toggle"/>
-    <Set>Lower.Foreground=ToggleOn;</Set>
-  </Canvas>
-
-  <!-- Inch units selected -->
-  <Canvas Name="Inch" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Ref RefName="InchMetric"/>
-    <Set>Upper.Foreground=ToggleOn;</Set>
-  </Canvas>
-
-  <!-- Millimeter units selected -->
-  <Canvas Name="Metric" Type="Overlay" Height="BtnHeight" Width="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Ref RefName="InchMetric"/>
-    <Set>Lower.Foreground=ToggleOn;</Set>
+  <!-- Inch/Mectic units -->
+  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
   </Canvas>
 
   <!-- Tool Library (PIP) -->
@@ -944,31 +958,32 @@
     </Ref>
   </Component>
 
-  <Canvas Name="ToolNormalButtons" Type="Overlay" Width="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolLibraryBackground" ColorDepth="Color16bpp">
-    <Ref RefName="ToolButtons"/>
-  </Canvas>
-
-  <Canvas Name="ToolDeleteButtons" Type="Overlay" Width="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolLibraryBackground" ColorDepth="Color16bpp">
-    <Ref RefName="ToolButton">
-      <Set>
-        Icon.Source = Trash128.png;
-        Icon.Height = ToolBtnHeight - TrashIconAdj;
-        Icon.Width = ToolBtnWidth - TrashIconAdj;
-        Icon.Top = TrashIconAdj / 2;
-        Icon.Left = TrashIconAdj / 2;
-        Label.Text = Confirm&#xA; Delete
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-      <Set>
-        Icon.Source = Cancel128.png;
-        Icon.Height = ToolBtnHeight - CancelIconAdj;
-        Icon.Width = ToolBtnWidth - CancelIconAdj;
-        Icon.Top = CancelIconAdj / 2;
-        Icon.Left = CancelIconAdj / 2;
-        Label.Text = Cancel&#xA;Delete
-      </Set>
-    </Ref>
+  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolLibraryBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="ToolButtons"/>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = Trash128.png;
+          Icon.Height = ToolBtnHeight - TrashIconAdj;
+          Icon.Width = ToolBtnWidth - TrashIconAdj;
+          Icon.Top = TrashIconAdj / 2;
+          Icon.Left = TrashIconAdj / 2;
+          Label.Text = Confirm&#xA; Delete
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Cancel128.png;
+          Icon.Height = ToolBtnHeight - CancelIconAdj;
+          Icon.Width = ToolBtnWidth - CancelIconAdj;
+          Icon.Top = CancelIconAdj / 2;
+          Icon.Left = CancelIconAdj / 2;
+          Label.Text = Cancel&#xA;Delete
+        </Set>
+      </Ref>
+    </Item>
   </Canvas>
 
   <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground" WidthMultiple="4">

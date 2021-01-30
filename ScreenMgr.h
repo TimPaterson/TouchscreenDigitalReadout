@@ -177,7 +177,12 @@ public:
 		return pSpot;
 	}
 
-	static void CopyRect(const ColorImage *pSrc, uint srcX, uint srcY, Canvas *pDst, const Area *pAreaDst)
+	static void SelectImage(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint index)
+	{
+		CopyRect(pDst, pAreaDst, pSrc, pAreaDst->Width * index, 0);
+	}
+
+	static void CopyRect(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint srcX, uint srcY)
 	{
 		SetBteSrc0((Image *)pSrc, pSrc->GetColorDepth());
 		WriteRegXY(S0_X0, srcX, srcY);

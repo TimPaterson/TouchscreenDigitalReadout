@@ -622,11 +622,8 @@ public:
 public:
 	static void ShowInchMetric()
 	{
-		ScreenMgr::CopyRect(IsMetric() ? &Metric : &Inch,
-			0, 0, &MainScreen, &MainScreen_Areas.InchMetric);
-
-		ScreenMgr::CopyRect(IsMetric() ? &MetricSpeedDisplay : &InchSpeedDisplay,
-			0, 0, &MainScreen, &MainScreen_Areas.SpeedDisplay);
+		SelectImage(&MainScreen_Areas.InchMetric, &InchMetricBtn, IsMetric());
+		SelectImage(&MainScreen_Areas.SpeedDisplay, &SpeedDisplay, IsMetric());
 
 		ShowToolInfo();
 	}
@@ -634,8 +631,7 @@ public:
 public:
 	static void ShowAbsInc()
 	{
-		ScreenMgr::CopyRect(Eeprom.Data.OriginNum ?  &IncCoord : &AbsCoord,
-			0, 0, &MainScreen, &MainScreen_Areas.AbsInc);
+		SelectImage(&MainScreen_Areas.AbsInc, &Coord, Eeprom.Data.OriginNum);
 	}
 
 public:
@@ -704,9 +700,14 @@ public:
 	}
 
 	//*********************************************************************
-	// Helper functions
+	// Helper functions - Main screen
 	//*********************************************************************
 protected:
+	static void SelectImage(const Area *pAreaDst, const ColorImage *pSrc, uint index)
+	{
+		ScreenMgr::SelectImage(&MainScreen, pAreaDst, pSrc, index);
+	}
+
 	static bool IsMetric()
 	{
 		return Eeprom.Data.fIsMetric;
@@ -788,12 +789,20 @@ protected:
 		s_indBuf = 2;
 	}
 
+	//*********************************************************************
+	// Helper functions - Settings screen
+	//*********************************************************************
+protected:
+	static void SettingsCheckBox(const Area *pAreaDst, bool f)
+	{
+		ScreenMgr::SelectImage(&SettingsScreen, pAreaDst, &CheckBox, f);
+	}
+
 	static void ShowAxisInfo(AxisInfo axis, const Area *pRes, const Area *pCorrect, const Area *pInvert)
 	{
 		double	val;
 
-		ScreenMgr::CopyRect(axis.Direction ? &CheckedBox : &UncheckedBox,
-			0, 0, &SettingsScreen, pInvert);
+		SettingsCheckBox(pInvert, axis.Direction);
 
 		s_SettingDisplay.PrintNum(pRes, "%i", (uint)axis.Resolution);
 
@@ -822,14 +831,9 @@ protected:
 		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qresolution,
 			&SettingsScreen_Areas.Qcorrection, &SettingsScreen_Areas.Qinvert);
 
-		ScreenMgr::CopyRect(Eeprom.Data.fHighlightOffset ? &CheckedBox : &UncheckedBox,
-			0, 0, &SettingsScreen, &SettingsScreen_Areas.HighlightXY);
-
-		ScreenMgr::CopyRect(Eeprom.Data.fToolLenAffectsZ ? &CheckedBox : &UncheckedBox,
-			0, 0, &SettingsScreen, &SettingsScreen_Areas.OffsetZ);
-
-		ScreenMgr::CopyRect(Eeprom.Data.fCncCoordinates ? &CheckedBox : &UncheckedBox,
-			0, 0, &SettingsScreen, &SettingsScreen_Areas.CncCoordinates);
+		SettingsCheckBox(&SettingsScreen_Areas.HighlightXY, Eeprom.Data.fHighlightOffset);
+		SettingsCheckBox(&SettingsScreen_Areas.OffsetZ, Eeprom.Data.fToolLenAffectsZ);
+		SettingsCheckBox(&SettingsScreen_Areas.CncCoordinates, Eeprom.Data.fCncCoordinates);
 
 		s_SettingDisplay.PrintNum(&SettingsScreen_Areas.MaxRpm, "%5i", (uint)Eeprom.Data.MaxRpm);
 	}
