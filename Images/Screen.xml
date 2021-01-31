@@ -17,6 +17,7 @@
   </Set>
   <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
   <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
+  <Color Name="ScreenForeColor" Color="Black" ColorDepth="Color16bpp"/>
   <Color Name="ScreenBackColor" Color="LightBlue" ColorDepth="Color16bpp"/>
   <Color Name="AxisForeColor" Color="Black" />
   <Color Name="AxisBackColor" Color="Yellow" />
@@ -30,7 +31,7 @@
   <!-- Components -->
   <Component Name="Key">
     <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
-      RadiusX="8" RadiusY="8" StrokeThickness="0" Stroke="0" Fill="White">
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="White">
       <TextBlock Name="Label" Font="BtnFont" Foreground="Black"/>
     </Rectangle>
     <HotSpot Name="KeySpot" Height="BtnHeight" Width="BtnWidth" />
@@ -59,6 +60,177 @@
       Upper.Text = "inch";
     	Lower.Text = "mm";
     </Set>
+  </Component>
+
+  <Set>
+    <!-- Axis displays -->
+    DispHt = DigitDisplay_Height;
+    DispWd = 410;
+    DigHt = 96;
+    LabHt = 72;
+    Vspace = 25;
+    LabTop = (DispHt - DigHt) / 2;
+
+    <!-- Caculator displays -->
+    KeypadWidth = KeySpace + (BtnWidth + KeySpace) * 4;
+    KeypadRight = KeypadLeft + KeypadWidth;
+    KeypadHeight = KeySpace + (BtnHeight + KeySpace) * 5;
+    CalcTextHeight = BtnHeight;
+    Undo3Top = Vspace;
+    Undo2Top = Undo3Top + SmallTextHeight;
+    Undo1Top = Undo2Top + SmallTextHeight;
+    CalcDispTop = Undo1Top + SmallTextHeight + KeySpace;
+    CalcTextTop = CalcDispTop + CalcTextHeight + KeySpace;
+    KeypadTop = CalcTextTop + SmallTextHeight + KeySpace;
+    KeypadBottom = KeypadTop + KeypadHeight;
+    UndoTop = Undo3Top;
+    UndoHeight = SmallTextHeight * 3;
+
+    <!-- Tool display column widths & positions -->
+    ToolNumWidth = 70;
+    ToolDiamWidth = 70;
+    ToolFluteWidth = 55;
+    ToolLengthWidth = 85;
+
+    ToolTextLeft = ToolNumWidth - 3 * 14 - 4;
+
+    ToolNumLeft = 0;
+    ToolDiamLeft = ToolNumLeft + ToolNumWidth;
+    ToolFluteLeft = ToolDiamLeft + ToolDiamWidth;
+    ToolLengthLeft = ToolFluteLeft + ToolFluteWidth;
+    ToolDescLeft = ToolLengthLeft + ToolLengthWidth;
+
+    <!-- Tool Library -->
+    ToolLibHeight = CalcDispTop;
+    ToolLibWidth = KeypadRight;
+    ToolListHeight = ScreenHeight - ToolLibHeight;
+    ToolListWidth = KeypadLeft - 8;
+
+    <!-- Controls -->
+    ToolBtnHeight = BtnHeight;
+    ToolBtnWidth = BtnWidth;
+    ToolCtrlHeight = ToolLibHeight - KeySpace;
+    ToolButtonsWidth = ToolBtnWidth * 3 + KeySpace * 2;
+    ToolButtonsLeft = ToolLibWidth - ToolButtonsWidth - KeySpace;
+
+    ToolInfoDescWidth = ToolButtonsLeft - KeySpace * 2 - ToolDescLeft;
+    ToolListDescWidth = ToolListWidth - KeySpace - ToolDescLeft;
+    ToolDescTextLeft = 5;
+
+    ToolInfoHeight = 60;
+    ToolLabelHeight = ToolLibHeight - ToolInfoHeight - KeySpace;
+    ToolRowHeight = 50;
+  </Set>
+
+  <!-- Tool label line -->
+  <Component Name="ToolLabel">
+    <Rectangle Name="Item" Height="40" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
+      <TextBlock Name="Label" Font="CalcSmall" Foreground="ToolLibraryForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ToolLabels">
+    <Ref RefName="ToolLabel" Left="ToolNumLeft">
+      <Set>
+        Item.Width = ToolNumWidth + 1;
+        Label.Text = Tool;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolDiamLeft">
+      <Set>
+        Item.Width = ToolDiamWidth + 1;
+        Label.Text = Dia.;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolFluteLeft">
+      <Set>
+        Item.Width = ToolFluteWidth + 1;
+        Label.Text = Flut.;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolLengthLeft">
+      <Set>
+        Item.Width = ToolLengthWidth + 1;
+        Label.Text = Length;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolDescLeft">
+      <Set>
+        Label.Text = Description;
+        Item.Name = ToolLabelDesc;
+        Label.Name = ToolTextDesc;
+      </Set>
+    </Ref>
+  </Component>
+
+  <!-- Tool info line -->
+  <Component Name="ToolItem">
+    <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
+      <Rectangle Name="TextAreaTop" Height="ToolInfoHeight + 1" Width="ToolNumWidth">
+        <Rectangle Name="TextArea" Height="ToolInfoHeight + 1" Width="ToolNumWidth">
+          <TextBlock Name="DummyText" Left="0" Top="0" Font="CalcSmall"/>
+        </Rectangle>
+      </Rectangle>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ToolInfo">
+    <Ref RefName="ToolItem" Left="ToolNumLeft">
+      <Set>
+        Item.Width = ToolNumWidth + 1;
+        Item.HotSpot = ToolNumber;
+        TextArea.Left = ToolTextLeft;
+        TextArea.Width = ToolNumWidth - ToolTextLeft - 1;
+        TextArea.Area = ToolNumber;
+        TextArea.Name = ToolNumber;
+        DummyText.Text = 100;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolDiamLeft">
+      <Set>
+        Item.Width = ToolDiamWidth + 1;
+        Item.HotSpot = ToolDiameter;
+        TextArea.Left = 5;
+        TextArea.Width = ToolDiamWidth - 6;
+        TextArea.Area = ToolDiameter;
+        TextArea.Name = ToolDiameter;
+        DummyText.Text = 0.375;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolFluteLeft">
+      <Set>
+        Item.Width = ToolFluteWidth + 1;
+        Item.HotSpot = ToolFlutes;
+        TextArea.Left = 9;
+        TextArea.Width = ToolFluteWidth - 10;
+        TextArea.Area = ToolFlutes;
+        TextArea.Name = ToolFlutes;
+        DummyText.Text = 003;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolLengthLeft">
+      <Set>
+        Item.Width = ToolLengthWidth + 1;
+        Item.HotSpot = ToolLength;
+        TextArea.Left = 6;
+        TextArea.Width = ToolLengthWidth - 7;
+        TextArea.Area = ToolLength;
+        TextArea.Name = ToolLength;
+        DummyText.Text = 12.897;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolDescLeft">
+      <Set>
+        Item.Width = ToolInfoDescWidth;
+        Item.HotSpot = ToolDesc;
+        Item.Name = ToolItemDesc;
+        TextArea.Left = ToolDescTextLeft;
+        TextArea.Width = ToolInfoDescWidth - ToolDescTextLeft - 1;
+        TextArea.Area = ToolDesc;
+        TextArea.Name = ToolDesc;
+        DummyText.Text = 1/4\" carbide;
+      </Set>
+    </Ref>
   </Component>
 
   <!-- Feeds & speeds images -->
@@ -139,25 +311,14 @@
   <!-- Main Screen -->
 
   <Canvas Name="MainScreen" Width="ScreenWidth" Height="ScreenHeight" ColorDepth="Color16bpp" Fill="ScreenBackColor">
-    <!-- Axis displays -->
-    <Set>
-      DispHt = DigitDisplay_Height;
-    	DispWd = 410;
-    	DigHt = 96;
-    	LabHt = 72;
-    	Vspace = 25;
-    	LabTop = (DispHt - DigHt) / 2;
-    </Set>
-
     <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
       <Default>
         <Rectangle Name="AxisDisplay" Group="Axis" Height="DispHt" Width="DispWd" Fill="AxisBackColor">
         </Rectangle>
         <Rectangle Name="AxisButton" Group="AxisButton" Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
-          StrokeThickness="5" Stroke="0" Fill="White">
+          StrokeThickness="5" Stroke="ScreenForeColor" Fill="White">
           <TextBlock Name="AxisLabel" FontSize="LabHt" Foreground="Black" FontFamily="Arial" Left="13" />
-          <TextBlock Name="AxisLabel" FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial"
-            Text="0" Top="47" Left="59"/>
+          <TextBlock FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial" Text="0" Top="47" Left="59"/>
         </Rectangle>
      </Default>
       <Row>
@@ -213,22 +374,6 @@
       </Rectangle>
     </Rectangle>
 
-    <!-- Caculator displays -->
-    <Set>
-      KeypadWidth = KeySpace + (BtnWidth + KeySpace) * 4;
-    	KeypadRight = KeypadLeft + KeypadWidth;
-    	KeypadHeight = KeySpace + (BtnHeight + KeySpace) * 5;
-    	CalcTextHeight = BtnHeight;
-    	Undo3Top = Vspace;
-    	Undo2Top = Undo3Top + SmallTextHeight;
-    	Undo1Top = Undo2Top + SmallTextHeight;
-    	CalcDispTop = Undo1Top + SmallTextHeight + KeySpace;
-    	CalcTextTop = CalcDispTop + CalcTextHeight + KeySpace;
-    	KeypadTop = CalcTextTop + SmallTextHeight + KeySpace;
-    	KeypadBottom = KeypadTop + KeypadHeight;
-    	UndoTop = Undo3Top;
-    	UndoHeight = SmallTextHeight * 3;
-    </Set>
     <Rectangle Location="Undo3" Left="KeypadLeft" Top="Undo3Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <Rectangle Location="Undo2" Left="KeypadLeft" Top="Undo2Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
@@ -444,86 +589,43 @@
     <!-- Tool displays -->
     <Set>
       ToolTop = 3 * DispHt + 5 * Vspace / 2 + KeySpace;
-    	ToolCellWidth = 70;
-    	ToolCellHeight = SmallTextHeight + 2;
-    	DescCellWidth = KeypadLeft - ToolCellWidth * 4 - KeySpace * 3 - BtnWidth;
-    	ToolTextTop = 2;
-    	LengthAdj = 15;
-    	FluteCellWidth = ToolCellWidth - LengthAdj;
-    	LengthCellWidth = ToolCellWidth + LengthAdj;
+      ToolCellHeight = SmallTextHeight + 2;
+      DescCellWidth = KeypadLeft - ToolDescLeft - KeySpace * 3 - BtnWidth;
     </Set>
-    <Grid Left="KeySpace" Top="ToolTop" RowHeight="ToolCellHeight" ColumnWidth="ToolCellWidth">
-      <Default>
-        <Rectangle Name="ToolCell" Height="ToolCellHeight + 1" Width="ToolCellWidth + 1" Stroke="Black" StrokeThickness="1">
-          <TextBlock Name="ToolCellText" Font="CalcSmall"/>
-        </Rectangle>
-      </Default>
-      <Row>
-        <Column>
-          <Set>
-            ToolCellText.Text = Tool;
-          </Set>
-          <HotSpot Name="ToolNumber" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCellText.Text = Dia.;
-          </Set>
-          <HotSpot Name="ToolDiameter" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCellText.Text = Flut.;
-          	ToolCell.Width = FluteCellWidth + 1;
-          </Set>
-          <HotSpot Name="ToolFlutes" Group="ToolInfo" Height="ToolCellHeight * 2" Width="ToolCellWidth - LengthAdj"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCellText.Text = Length;
-          	ToolCell.Left = -LengthAdj;
-            ToolCell.Width = LengthCellWidth + 1;
-          </Set>
-          <HotSpot Name="ToolLength" Group="ToolInfo" Left="-LengthAdj" Height="ToolCellHeight * 2" Width="ToolCellWidth + LengthAdj"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCell.Width = DescCellWidth;
-          	ToolCellText.Text = Description;
-          </Set>
-        </Column>
-      </Row>
-      <Row>
-        <Column>
-          <Rectangle Area="ToolNumber" Top="ToolTextTop" Left="12" Height="SmallTextHeight" Width="ToolCellWidth - 13"/>
-        </Column>
-        <Column>
-          <Rectangle Area="ToolDiameter" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="ToolCellWidth - 6"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCell.Width = ToolCellWidth + 1 - LengthAdj;
-          </Set>
-          <Rectangle Area="ToolFlutes" Top="ToolTextTop" Left="9" Height="SmallTextHeight" Width="ToolCellWidth - LengthAdj - 10"/>
-        </Column>
-        <Column>
-          <Set>
-            ToolCell.Left = -LengthAdj;
-            ToolCell.Width = ToolCellWidth + 1 + LengthAdj;
-          </Set>
-          <Rectangle Area="ToolLength" Top="ToolTextTop" Left="6 - LengthAdj" Height="SmallTextHeight" Width="ToolCellWidth + LengthAdj - 7"/>
-        </Column>
-        <Column>
-          <Rectangle Area="ToolDesc" Top="ToolTextTop" Left="5" Height="SmallTextHeight" Width="DescCellWidth - 6"/>
-          <Set>
-            ToolCell.Width = DescCellWidth;
-          </Set>
-        </Column>
-      </Row>
-    </Grid>
+    <Ref RefName="ToolLabels" Left="KeySpace" Top="ToolTop">
+      <Set>
+        Item.Height = ToolCellHeight + 1;
+        ToolLabelDesc.Height = ToolCellHeight + 1;
+        Item.Stroke = Black;
+        ToolLabelDesc.Stroke = Black;
+        Label.Foreground = Black;
+        ToolTextDesc.Foreground = Black;
+        ToolLabelDesc.Width = DescCellWidth;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolInfo" Left="KeySpace" Top="ToolTop">
+      <Set>
+        TextAreaTop.Top = ToolCellHeight + 2;
+        ToolNumber.Height = SmallTextHeight;
+        ToolDiameter.Height = SmallTextHeight;
+        ToolFlutes.Height = SmallTextHeight;
+        ToolLength.Height = SmallTextHeight;
+        ToolDesc.Height = SmallTextHeight;
+        ToolDesc.Width = DescCellWidth - ToolDescTextLeft - 1;
+        Item.Height = ToolCellHeight * 2 + 1;
+        ToolItemDesc.Height = ToolCellHeight * 2 + 1;
+        Item.Group = ToolInfo;
+        ToolItemDesc.Group = ToolInfo;
+        Item.Stroke = Black;
+        ToolItemDesc.Stroke = Black;
+        ToolItemDesc.Width = DescCellWidth;
+        <!-- Hide the dummy text -->
+        DummyText.Foreground = ScreenBackColor;
+      </Set>
+    </Ref>
     <!-- Tool select button -->
     <Set>
-      ToolSelectLeft = KeySpace * 2 + ToolCellWidth * 4 + DescCellWidth;
+      ToolSelectLeft = KeySpace * 2 + ToolDescLeft + DescCellWidth;
     </Set>
     <Ref RefName="Key" Left="ToolSelectLeft" Top="ToolTop">
       <Set>
@@ -791,124 +893,14 @@
 
   <!-- Tool Library (PIP) -->
 
-  <Set>
-    <!-- Overall size -->
-    ToolLibHeight = CalcDispTop;
-    ToolLibWidth = KeypadRight;
-    ToolListHeight = ScreenHeight - ToolLibHeight;
-    ToolListWidth = KeypadLeft - 8;
-
-    <!-- Controls -->
-    ToolBtnHeight = BtnHeight;
-    ToolBtnWidth = BtnWidth;
-    ToolCtrlHeight = ToolLibHeight - KeySpace;
-    ToolButtonsWidth = ToolBtnWidth * 3 + KeySpace * 2;
-    ToolButtonsLeft = ToolLibWidth - ToolButtonsWidth - KeySpace;
-
-    <!-- Column widths & positions -->
-    ToolNumWidth = 70;
-    ToolDiamWidth = 70;
-    ToolFluteWidth = 55;
-    ToolLengthWidth = 85;
-
-    ToolNumLeft = 0;
-    ToolDiamLeft = ToolNumLeft + ToolNumWidth;
-    ToolFluteLeft = ToolDiamLeft + ToolDiamWidth;
-    ToolLengthLeft = ToolFluteLeft + ToolFluteWidth;
-    ToolDescLeft = ToolLengthLeft + ToolLengthWidth;
-
-    ToolInfoDescWidth = ToolButtonsLeft - KeySpace * 2 - ToolDescLeft;
-    ToolListDescWidth = ToolListWidth - KeySpace - ToolDescLeft;
-
-    ToolInfoHeight = 60;
-    ToolLabelHeight = ToolLibHeight - ToolInfoHeight - KeySpace;
-    ToolRowHeight = 50;
-  </Set>
   <Set ShowValue="ToolListHeight">ToolListHeight</Set>
   <Set ShowValue="ToolListWidth">ToolListWidth</Set>
   <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
   <Set ShowValue="ToolListTop">ToolLibHeight</Set>
 
-  <Component Name="ToolItem">
-    <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
-  </Component>
-
-  <Component Name="ToolLabel">
-    <Rectangle Name="Item" Height="ToolLabelHeight" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
-      <TextBlock Name="Label" Font="CalcSmall" Foreground="ToolLibraryForeground"/>
-    </Rectangle>
-  </Component>
-
-  <Component Name="ToolInfo">
-    <Ref RefName="ToolItem" Left="ToolNumLeft">
-      <Set>
-        Item.Width = ToolNumWidth + 1;
-        Item.HotSpot = ToolNumber;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolItem" Left="ToolDiamLeft">
-      <Set>
-        Item.Width = ToolDiamWidth + 1;
-        Item.HotSpot = ToolDiameter;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolItem" Left="ToolFluteLeft">
-      <Set>
-        Item.Width = ToolFluteWidth + 1;
-        Item.HotSpot = ToolFlutes;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolItem" Left="ToolLengthLeft">
-      <Set>
-        Item.Width = ToolLengthWidth + 1;
-        Item.HotSpot = ToolLength;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolItem" Left="ToolDescLeft">
-      <Set>
-        Item.Width = ToolInfoDescWidth;
-        Item.HotSpot = ToolDescription;
-        Item.Group = "";
-      </Set>
-    </Ref>
-  </Component>
-
-  <Component Name="ToolLabels">
-    <Ref RefName="ToolLabel" Left="ToolNumLeft">
-      <Set>
-        Item.Width = ToolNumWidth + 1;
-        Label.Text = Tool;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolLabel" Left="ToolDiamLeft">
-      <Set>
-        Item.Width = ToolDiamWidth + 1;
-        Label.Text = Dia.;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolLabel" Left="ToolFluteLeft">
-      <Set>
-        Item.Width = ToolFluteWidth + 1;
-        Label.Text = Flut.;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolLabel" Left="ToolLengthLeft">
-      <Set>
-        Item.Width = ToolLengthWidth + 1;
-        Label.Text = Length;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolLabel" Left="ToolDescLeft">
-      <Set>
-        Item.Width = ToolInfoDescWidth;
-        Label.Text = Description;
-      </Set>
-    </Ref>
-  </Component>
-
   <Component Name="ToolButton">
     <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
-      RadiusX="8" RadiusY="8" StrokeThickness="0" Stroke="0" Fill="ToolLibraryForeground">
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolLibraryForeground">
       <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
       <TextBlock Name="Label" Top="ToolBtnHeight + 5" Font="BtnFont" FontSize="18" Foreground="ToolLibraryForeground"/>
     </Rectangle>
@@ -987,24 +979,47 @@
   </Canvas>
 
   <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground" WidthMultiple="4">
-    <Ref RefName="ToolInfo" Left="KeySpace" Top="KeySpace"/>
-    <Ref RefName="ToolLabels" Left="KeySpace" Top="KeySpace + ToolInfoHeight"/>
+    <Ref RefName="ToolInfo" Left="KeySpace" Top="KeySpace">
+      <Set>
+        TextAreaTop.Top = 18;
+        <!-- Hide the dummy text -->
+        DummyText.Foreground = ToolLibraryBackground;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabels" Left="KeySpace" Top="KeySpace + ToolInfoHeight">
+      <Set>
+        Item.Height = ToolLabelHeight;
+        ToolLabelDesc.Height = ToolLabelHeight;
+        ToolLabelDesc.Width = ToolInfoDescWidth;
+        ToolTextDesc.Left = 80;
+      </Set>
+    </Ref>
     <Ref RefName="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace">
       <Set>
+        OkButton.Group = ToolLib;
         OkButton.HotSpot = ToolsDone;
         DeleteButton.HotSpot = ToolDelete;
+        DeleteButton.Group = ToolLib;
         FileButton.HotSpot = ToolImportExport;
+        FileButton.Group = ToolLib;
       </Set>
     </Ref>
   </Canvas>
 
   <Canvas Name="ToolRow" Type="Overlay" Height="ToolRowHeight + 1" Width="ToolListWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground">
     <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="ToolListWidth - KeySpace">
-      <Rectangle Left="ToolNumLeft" Height="ToolRowHeight + 1" Width="ToolNumWidth + 1" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
-      <Rectangle Left="ToolDiamLeft" Height="ToolRowHeight + 1" Width="ToolDiamWidth + 1" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
-      <Rectangle Left="ToolFluteLeft" Height="ToolRowHeight + 1" Width="ToolFluteWidth + 1" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
-      <Rectangle Left="ToolLengthLeft" Height="ToolRowHeight + 1" Width="ToolLengthWidth + 1" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
-      <Rectangle Left="ToolDescLeft" Height="ToolRowHeight + 1" Width="ToolListDescWidth + 1" StrokeThickness="1" Stroke="ToolLibraryForeground"/>
+      <Ref RefName="ToolInfo">
+        <Set>
+          Item.Height = ToolRowHeight + 1;
+          ToolItemDesc.Height = ToolRowHeight + 1;
+          Item.HotSpot = "";
+          ToolItemDesc.HotSpot = "";
+          ToolItemDesc.Width = ToolListDescWidth;
+          TextAreaTop.Top = 12;
+          <!-- Hide the dummy text -->
+          DummyText.Foreground = ToolLibraryBackground;
+        </Set>
+      </Ref>
     </Rectangle>
   </Canvas>
 

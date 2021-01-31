@@ -286,24 +286,3 @@ protected:
 protected:
 	inline static int s_NextFreeRam{RamFreeStart};
 };
-
-
-class ScrollTest : public ListScroll
-{
-public:
-	ScrollTest() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, Color16bpp) {}
-
-protected:
-	virtual bool FillLine(int lineNum, Area *pArea)
-	{
-		text.SetArea(pArea);
-		text.ClearArea();
-		if (lineNum >= 100)
-			return false;
-
-		text.printf("%i", lineNum);
-		return true;
-	}
-
-	TextField		text{this, NULL, FID_Calculator, ToolLibraryForeground, ToolLibraryBackground};
-};

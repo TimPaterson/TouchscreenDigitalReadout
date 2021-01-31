@@ -38,10 +38,14 @@ struct ColorImage
 	byte		m_colorDepth;
 };
 
-struct Area
+struct Location
 {
 	ushort	Xpos;
 	ushort	Ypos;
+};
+
+struct Area : public Location
+{
 	ushort	Width;
 	ushort	Height;
 };

@@ -33,10 +33,6 @@ enum ActionHotspots
 	Key_backSpace,
 	Key_clear,
 	Key_pi,
-	ToolNumber,
-	ToolDiameter,
-	ToolFlutes,
-	ToolLength,
 	ToolSfm,
 	ToolChipLoad,
 	HighlightXY,
@@ -82,6 +78,18 @@ enum ScrollAreas
 {
 	ScrollDisplay,
 	ScrollThumb
+};
+
+enum ToolLibAreas
+{
+	ToolNumber,
+	ToolDiameter,
+	ToolFlutes,
+	ToolLength,
+	ToolDesc,
+	ToolsDone,
+	ToolDelete,
+	ToolImportExport,
 };
 
 //*************************************************************************

@@ -9,7 +9,8 @@
 
 #include "ScreenMgr.h"
 #include "AxisDisplay.h"
-#include "ListScroll.h"
+#include "ToolLib.h"
+
 
 class Actions
 {
@@ -36,12 +37,11 @@ class Actions
 	// Local types
 	//*********************************************************************
 protected:
-	class CalcMemory : public TextLine
+	class CalcMemory : public NumberLineBlankZ
 	{
 	public:
-		// Setting the TextLine backcolor to -1 causes transparent mode
 		CalcMemory(const Area *pArea, ulong backColor) :
-			TextLine(&MainScreen, pArea, FID_CalcSmall, 0, -1), m_fillColor{backColor}
+			NumberLineBlankZ(&MainScreen, pArea, FID_CalcSmall, 0, backColor)
 		{}
 
 	public:
@@ -50,50 +50,11 @@ protected:
 		void SetVal(double val)
 		{
 			m_val = val;
-			// The RA8876 has a bug when performing color expansion
-			// It does not correctly fill in the 16-bit background color.
-			// We work around that by erasing the previous text and using
-			// transparent background fill.
-			FillArea(m_fillColor);	// Clear existing value
-			if (val != 0)
-				printf("\n%.8g", val);
+			PrintDbl("%.8g\n", val);
 		}
 
 	protected:
 		double	m_val;
-		ulong	m_fillColor;
-	};
-
-protected:
-	class ShareText : public TextLine
-	{
-	public:
-		ShareText(Canvas *pCanvas, FontId id, ulong foreColor, ulong backColor) :
-			TextLine(pCanvas, NULL, id, foreColor, -1), m_fillColor{backColor}
-		{
-			SetSpaceWidth(GetCharWidth('0'));
-		}
-
-		void PrintNum(const Area *pArea, const char *fmt, double val)
-		{
-			SetArea(pArea);
-			FillArea(m_fillColor);	// Clear existing value
-			if (val == 0)
-				return;
-			printf(fmt, val);
-		}
-
-		void PrintNum(const Area *pArea, const char *fmt, uint val)
-		{
-			SetArea(pArea);
-			FillArea(m_fillColor);	// Clear existing value
-			if (val == 0)
-				return;
-			printf(fmt, val);
-		}
-
-	protected:
-		ulong	m_fillColor;
 	};
 
 	//*********************************************************************
@@ -105,8 +66,7 @@ public:
 		ShowAbsInc();
 		ShowInchMetric();
 		ShowToolInfo();
-
-		s_scroll.Init();
+		ToolLib::Init();
 	}
 
 	static void TakeAction(int x, int y, uint flags)
@@ -139,8 +99,6 @@ public:
 		PosSensor	*pSensor;
 		char		*pStr;
 		bool		*pToggle;
-		ListScroll	*pScroll;
-		PipInfo		*pPipInfo;
 
 		pSpot = ScreenMgr::TestHit(x, y);
 		if (pSpot == NULL)
@@ -154,22 +112,25 @@ public:
 			switch (group)
 			{
 			case HOTSPOT_GROUP_ToolDisplay:
-				pScroll = &s_scroll;
+				s_pCapture = ToolLib::ListCapture(x, y, (ScrollAreas)spot);
 				break;
 
 			default:
 				return;
 			}
-
-			// Adjust screen coordinates to canvas
-			pPipInfo = ScreenMgr::GetPip(pScroll);
-			if (pScroll->StartCapture(x - pPipInfo->x, y - pPipInfo->y, (ScrollAreas)spot))
-				s_pCapture = pScroll;
 			return;
 		}
 
 		switch (group)
 		{
+
+		//*****************************************************************
+		// Dispatch to other handlers
+		//
+
+		case HOTSPOT_GROUP_ToolLib:
+			ToolLib::ToolAction(spot);
+			return;
 
 		//*****************************************************************
 		// Press a numeric entry key
@@ -536,16 +497,7 @@ public:
 			switch (spot)
 			{
 			case ToolMenu:
-				s_scroll.Invalidate();
-				s_scroll.SetTotalLines(100);
-				s_scroll.SetScrollPosition(0);
-				ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
-				ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
-				break;
-
-			case ToolsDone:
-				ScreenMgr::DisablePip1();
-				ScreenMgr::DisablePip2();
+				ToolLib::ShowToolLib();
 				break;
 
 			case InchMetric:
@@ -641,24 +593,24 @@ public:
 		uint	sides;
 		ulong	color;
 
-		s_ToolDisplay.PrintNum(
-			&MainScreen_Areas.ToolDiameter,
+		s_ToolDisplay.PrintDbl(
 			IsMetric() ? "%5.2f" : "%5.3f",
-			Eeprom.Data.ToolDiameter);
+			Eeprom.Data.ToolDiameter,
+			&MainScreen_Areas.ToolDiameter);
 
-		s_ToolDisplay.PrintNum(
-			&MainScreen_Areas.ToolLength,
+		s_ToolDisplay.PrintDbl(
 			IsMetric() ? "%6.2f" : "%6.3f",
-			Eeprom.Data.ToolLength);
+			Eeprom.Data.ToolLength,
+			&MainScreen_Areas.ToolLength);
 
-		s_ToolDisplay.PrintNum(
-			&MainScreen_Areas.ChipLoad,
+		s_ToolDisplay.PrintDbl(
 			IsMetric() ? "%6.3f" : "%6.4f",
-			Eeprom.Data.ChipLoad);
+			Eeprom.Data.ChipLoad,
+			&MainScreen_Areas.ChipLoad);
 
-		s_ToolDisplay.PrintNum(&MainScreen_Areas.ToolFlutes, "%3u", (uint)Eeprom.Data.ToolFlutes);
+		s_ToolDisplay.PrintUint("%3u", Eeprom.Data.ToolFlutes, &MainScreen_Areas.ToolFlutes);
 
-		s_ToolDisplay.PrintNum(&MainScreen_Areas.Sfm, "%5u", (uint)Eeprom.Data.Sfm);
+		s_ToolDisplay.PrintUint("%5u", Eeprom.Data.Sfm, &MainScreen_Areas.Sfm);
 
 		// Compute and display RPM
 		if (Eeprom.Data.ToolDiameter != 0 && Eeprom.Data.Sfm != 0)
@@ -670,11 +622,11 @@ public:
 		else
 			val = 0;
 
-		s_ToolDisplay.PrintNum(&MainScreen_Areas.Rpm, "%5u", (uint)val);
+		s_ToolDisplay.PrintUint("%5u", (uint)val, &MainScreen_Areas.Rpm);
 
 		// Compute and display feed rate
 		val *= Eeprom.Data.ChipLoad * Eeprom.Data.ToolFlutes;
-		s_ToolDisplay.PrintNum(&MainScreen_Areas.FeedRate, "%5u", (uint)val);
+		s_ToolDisplay.PrintUint("%5u", (uint)val, &MainScreen_Areas.FeedRate);
 
 		// Update cutter radius offset
 		PrepareDrawTool();
@@ -804,17 +756,10 @@ protected:
 
 		SettingsCheckBox(pInvert, axis.Direction);
 
-		s_SettingDisplay.PrintNum(pRes, "%i", (uint)axis.Resolution);
+		s_SettingDisplay.PrintUint("%i", (uint)axis.Resolution, pRes);
 
-		// Align signs for correction
-		s_SettingDisplay.SetArea(pCorrect);
-		s_SettingDisplay.FillArea(SettingBackColor);	// Clear existing value
 		val = (axis.Correction - 1.0) * 1E6;
-		if (val == 0)
-			return;
-		if (val < 0)
-			s_SettingDisplay.MoveXposition(s_SettingDisplay.GetCharWidth('+') - s_SettingDisplay.GetCharWidth('-'));
-		s_SettingDisplay.printf("%+6.1f", val);
+		s_SettingDisplay.PrintDbl("%+6.1f", val, pCorrect);
 	}
 
 	static void ShowSettingsInfo()
@@ -835,7 +780,7 @@ protected:
 		SettingsCheckBox(&SettingsScreen_Areas.OffsetZ, Eeprom.Data.fToolLenAffectsZ);
 		SettingsCheckBox(&SettingsScreen_Areas.CncCoordinates, Eeprom.Data.fCncCoordinates);
 
-		s_SettingDisplay.PrintNum(&SettingsScreen_Areas.MaxRpm, "%5i", (uint)Eeprom.Data.MaxRpm);
+		s_SettingDisplay.PrintUint("%5i", Eeprom.Data.MaxRpm, &SettingsScreen_Areas.MaxRpm);
 	}
 
 	//*********************************************************************
@@ -858,17 +803,14 @@ protected:
 		{&MainScreen_Areas.Mem3, MemColorOdd},
 		{&MainScreen_Areas.Mem4, MemColorEven},
 	};
-	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, 0, CalcBackColor};
-	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, 0, CalcBackColor};
-	inline static ShareText s_ToolDisplay{&MainScreen, FID_CalcSmall, 0, ScreenBackColor};
-	inline static ShareText s_SettingDisplay{&SettingsScreen, FID_SettingsFont, SettingForeColor, SettingBackColor};
+	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, FID_Calculator, ScreenForeColor, CalcBackColor};
+	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, FID_CalcSmall, ScreenForeColor, CalcBackColor};
+	inline static NumberLineBlankZ s_ToolDisplay{&MainScreen, NULL, FID_CalcSmall, ScreenForeColor, ScreenBackColor};
+	inline static NumberLineBlankZ s_SettingDisplay{&SettingsScreen, NULL, FID_SettingsFont, SettingForeColor, SettingBackColor};
 	inline static char		s_arEntryBuf[InBufSize] = "\n ";
 	inline static byte		s_indBuf = 2;
 	inline static byte		s_op = OP_none;
 	inline static byte		s_state;
 	inline static bool		s_fHaveDp;
 	inline static byte		s_toolSides;
-
-public:
-	inline static ScrollTest	s_scroll;
 };
