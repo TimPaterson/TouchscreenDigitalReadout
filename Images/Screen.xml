@@ -92,13 +92,14 @@
     ToolFluteWidth = 55;
     ToolLengthWidth = 85;
 
-    ToolTextLeft = ToolNumWidth - 3 * 14 - 4;
-
     ToolNumLeft = 0;
     ToolDiamLeft = ToolNumLeft + ToolNumWidth;
     ToolFluteLeft = ToolDiamLeft + ToolDiamWidth;
     ToolLengthLeft = ToolFluteLeft + ToolFluteWidth;
     ToolDescLeft = ToolLengthLeft + ToolLengthWidth;
+
+    ToolTextHeight = SmallTextHeight;
+    ToolTextNumLeft = ToolNumWidth - 3 * 14 - 4;
 
     <!-- Tool Library -->
     ToolLibHeight = CalcDispTop;
@@ -166,8 +167,8 @@
   <!-- Tool info line -->
   <Component Name="ToolItem">
     <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
-      <Rectangle Name="TextAreaTop" Height="ToolInfoHeight + 1" Width="ToolNumWidth">
-        <Rectangle Name="TextArea" Height="ToolInfoHeight + 1" Width="ToolNumWidth">
+      <Rectangle Name="TextAreaTop" Height="ToolTextHeight" Width="ToolNumWidth">
+        <Rectangle Name="TextArea" Height="ToolTextHeight" Width="ToolNumWidth">
           <TextBlock Name="DummyText" Left="0" Top="0" Font="CalcSmall"/>
         </Rectangle>
       </Rectangle>
@@ -179,8 +180,8 @@
       <Set>
         Item.Width = ToolNumWidth + 1;
         Item.HotSpot = ToolNumber;
-        TextArea.Left = ToolTextLeft;
-        TextArea.Width = ToolNumWidth - ToolTextLeft - 1;
+        TextArea.Left = ToolTextNumLeft;
+        TextArea.Width = ToolNumWidth - ToolTextNumLeft - 1;
         TextArea.Area = ToolNumber;
         TextArea.Name = ToolNumber;
         DummyText.Text = 100;
@@ -255,7 +256,7 @@
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Speed;
           </Set>
-          <HotSpot Name="ToolSfm" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+          <HotSpot Name="ToolSfm" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
         <Column Left="SpCellWidth + SpColSpace">
           <Set>
@@ -263,7 +264,7 @@
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Chip Load;
           </Set>
-          <HotSpot Name="ToolChipLoad" Group="ToolInfo" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+          <HotSpot Name="ToolChipLoad" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
       </Row>
       <Row>
@@ -606,16 +607,9 @@
     <Ref RefName="ToolInfo" Left="KeySpace" Top="ToolTop">
       <Set>
         TextAreaTop.Top = ToolCellHeight + 2;
-        ToolNumber.Height = SmallTextHeight;
-        ToolDiameter.Height = SmallTextHeight;
-        ToolFlutes.Height = SmallTextHeight;
-        ToolLength.Height = SmallTextHeight;
-        ToolDesc.Height = SmallTextHeight;
         ToolDesc.Width = DescCellWidth - ToolDescTextLeft - 1;
         Item.Height = ToolCellHeight * 2 + 1;
         ToolItemDesc.Height = ToolCellHeight * 2 + 1;
-        Item.Group = ToolInfo;
-        ToolItemDesc.Group = ToolInfo;
         Item.Stroke = Black;
         ToolItemDesc.Stroke = Black;
         ToolItemDesc.Width = DescCellWidth;
@@ -1006,7 +1000,7 @@
     </Ref>
   </Canvas>
 
-  <Canvas Name="ToolRow" Type="Overlay" Height="ToolRowHeight + 1" Width="ToolListWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground">
+  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolListWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground">
     <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="ToolListWidth - KeySpace">
       <Ref RefName="ToolInfo">
         <Set>

@@ -34,16 +34,16 @@ class ListScroll : public TouchCanvas, public RA8876
 	};
 
 public:
-	ListScroll(ushort width, ushort height, short lineHeight, ColorDepths depth) :
+	ListScroll(ushort width, ushort height, ushort lineHeight, ColorDepths depth) :
 		TouchCanvas(s_NextFreeRam, width, height, width, depth, (HotspotList *)&m_hotSpots),
 		m_lineHeight{lineHeight}
 	{
-		// Allocate image RAM
 		m_extraLineCnt = ExtraLines;
 		m_lineViewCnt = height / lineHeight;
 		m_lineCnt = m_lineViewCnt + 2 * ExtraLines + 2;
 		height = m_lineCnt * lineHeight;
 		m_imageHeight = height;
+		// Allocate image RAM
 		s_NextFreeRam += (int)width * height * PixelSizeFromDepth(depth);
 		Invalidate();
 	}
@@ -74,6 +74,8 @@ public:
 	void SetTotalLines(int lines)	
 	{
 		m_posMax = (lines - m_lineViewCnt + 1) * m_lineHeight;
+		if (m_posMax < 0)
+			m_posMax = 0;
 	}
 
 	bool StartCapture(int x, int y, ScrollAreas spot)
@@ -264,7 +266,7 @@ protected:
 	int		m_posCur;
 	int		m_posMax;
 	int		m_lineTop;
-	short	m_lineHeight;
+	ushort	m_lineHeight;
 	short	m_lineCnt;		// Total lines on canvas
 	short	m_extraLineCnt;
 	short	m_imageHeight;

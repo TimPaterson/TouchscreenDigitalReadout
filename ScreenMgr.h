@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "LcdDef.h"
 #include "RA8876.h"
 #include "TouchCanvas.h"
 
@@ -126,6 +127,16 @@ public:
 		WriteSequentialRegisters(pCanvas, CVSSA0, CanvasViewDepthRegCount);
 	}
 
+	static void SetBteSrc0(const TouchCanvas *pCanvas, uint bpp)
+	{
+		SetBteSrc0((const Image *)pCanvas, bpp);
+	}
+
+	static void SetBteSrc0(const ColorImage *pImage, uint bpp)
+	{
+		SetBteSrc0((const Image *)pImage, bpp);
+	}
+
 	static void SetBteSrc0(const Image *pImage, uint bpp)
 	{
 		byte	val;
@@ -184,13 +195,19 @@ public:
 
 	static void CopyRect(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint srcX, uint srcY)
 	{
-		SetBteSrc0((Image *)pSrc, pSrc->GetColorDepth());
+		SetBteSrc0(pSrc, pSrc->GetColorDepth());
 		WriteRegXY(S0_X0, srcX, srcY);
-		SetBteDest(pDst);
-		WriteSequentialRegisters(pAreaDst, DT_X0, sizeof *pAreaDst);
-		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
-		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
-		WaitWhileBusy();
+		CopyRectSrcSet(pDst, pAreaDst);
+	}
+
+	static void CopyRect(Canvas *pDst, const Area *pAreaDst, Canvas *pSrc)
+	{
+		byte	val;
+
+		WriteSequentialRegisters(pSrc, S0_STR0, CanvasRegCount);
+		val = ReadReg(BTE_COLR) & ~BTE_COLR_Src0Color_Mask;
+		WriteData(val | (pSrc->GetColorDepth() << BTE_COLR_Src0Color_Shft));
+		CopyRectSrcSet(pDst, pAreaDst);
 	}
 
 	static void FillRect(Canvas *pDst, const Area *pAreaDst, ulong color)
@@ -205,7 +222,7 @@ public:
 
 	static void RectBorder(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc)
 	{
-		SetBteSrc0((Image *)pSrc, pSrc->GetColorDepth());
+		SetBteSrc0(pSrc, pSrc->GetColorDepth());
 		WriteRegXY(S0_X0, 0, 0);
 		SetBteDest(pDst);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodePatternFillWithRop | BTE_CTRL1_RopS0);
@@ -221,6 +238,15 @@ public:
 	}
 
 protected:
+	static void CopyRectSrcSet(Canvas *pDst, const Area *pAreaDst)
+	{
+		SetBteDest(pDst);
+		WriteSequentialRegisters(pAreaDst, DT_X0, sizeof *pAreaDst);
+		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
+		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+		WaitWhileBusy();
+	}
+
 	static void RectBorderDraw(const Area *pAreaDst, uint pattern = BTE_CTRL0_Pattern8x8)
 	{
 		pattern |= BTE_CTRL0_Enable;

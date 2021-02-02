@@ -199,6 +199,9 @@
     <Compile Include="SerialMem.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ToolLib.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ToolLib.h">
       <SubType>compile</SubType>
     </Compile>

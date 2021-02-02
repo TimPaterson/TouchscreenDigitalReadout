@@ -163,18 +163,18 @@ START_HOTSPOTS(MainScreen)
 	DEFINE_HOTSPOT(Key_0, Digit, 664, 517, 723, 576)
 	DEFINE_HOTSPOT(Key_decimal, Digit, 734, 517, 793, 576)
 	DEFINE_HOTSPOT(Key_equal, Operator, 804, 517, 863, 576)
-	DEFINE_HOTSPOT(ToolNumber, ToolInfo, 10, 405, 80, 465)
-	DEFINE_HOTSPOT(ToolDiameter, ToolInfo, 80, 405, 150, 465)
-	DEFINE_HOTSPOT(ToolFlutes, ToolInfo, 150, 405, 205, 465)
-	DEFINE_HOTSPOT(ToolLength, ToolInfo, 205, 405, 290, 465)
-	DEFINE_HOTSPOT(ToolDesc, ToolInfo, 290, 405, 503, 465)
+	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 405, 80, 465)
+	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 80, 405, 150, 465)
+	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 150, 405, 205, 465)
+	DEFINE_HOTSPOT(ToolLength, ToolLib, 205, 405, 290, 465)
+	DEFINE_HOTSPOT(ToolDesc, ToolLib, 290, 405, 503, 465)
 	DEFINE_HOTSPOT(ToolMenu, , 514, 405, 573, 464)
 	DEFINE_HOTSPOT(ToolLeft, ToolSide, 10, 505, 69, 564)
 	DEFINE_HOTSPOT(ToolBack, ToolSide, 70, 475, 129, 534)
 	DEFINE_HOTSPOT(ToolFront, ToolSide, 70, 535, 129, 594)
 	DEFINE_HOTSPOT(ToolRight, ToolSide, 130, 505, 189, 564)
-	DEFINE_HOTSPOT(ToolSfm, ToolInfo, 200, 475, 379, 570)
-	DEFINE_HOTSPOT(ToolChipLoad, ToolInfo, 390, 475, 569, 570)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 200, 475, 379, 570)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 390, 475, 569, 570)
 END_HOTSPOTS(MainScreen)
 
 HOTSPOT_COUNT(MainScreen, 49)
@@ -270,10 +270,10 @@ END_HOTSPOTS(CheckBox)
 HOTSPOT_COUNT(CheckBox, 0)
 
 START_HOTSPOTS(SpeedDisplay)
-	DEFINE_HOTSPOT(ToolSfm, ToolInfo, 0, 0, 179, 95)
-	DEFINE_HOTSPOT(ToolChipLoad, ToolInfo, 190, 0, 369, 95)
-	DEFINE_HOTSPOT(ToolSfm, ToolInfo, 371, 0, 550, 95)
-	DEFINE_HOTSPOT(ToolChipLoad, ToolInfo, 561, 0, 740, 95)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 0, 0, 179, 95)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 371, 0, 550, 95)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 561, 0, 740, 95)
 END_HOTSPOTS(SpeedDisplay)
 
 HOTSPOT_COUNT(SpeedDisplay, 4)
@@ -316,12 +316,21 @@ END_HOTSPOTS(ToolLibrary)
 HOTSPOT_COUNT(ToolLibrary, 8)
 
 START_AREAS(ToolLibrary)
-	DEFINE_AREA(ToolNumber, 34, 28, 45, 61)
-	DEFINE_AREA(ToolDiameter, 85, 28, 64, 61)
-	DEFINE_AREA(ToolFlutes, 159, 28, 45, 61)
-	DEFINE_AREA(ToolLength, 211, 28, 78, 61)
-	DEFINE_AREA(ToolDesc, 295, 28, 358, 61)
+	DEFINE_AREA(ToolNumber, 34, 28, 45, 28)
+	DEFINE_AREA(ToolDiameter, 85, 28, 64, 28)
+	DEFINE_AREA(ToolFlutes, 159, 28, 45, 28)
+	DEFINE_AREA(ToolLength, 211, 28, 78, 28)
+	DEFINE_AREA(ToolDesc, 295, 28, 358, 28)
 END_AREAS(ToolLibrary)
+
+START_SCREEN(ToolRow)
+	IMAGE_ADDRESS(2045272)
+	IMAGE_SIZE(58752)
+	IMAGE_WIDTH(576)
+	IMAGE_HEIGHT(51)
+	IMAGE_STRIDE(576)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolRow)
 
 START_HOTSPOTS(ToolRow)
 END_HOTSPOTS(ToolRow)
@@ -329,11 +338,11 @@ END_HOTSPOTS(ToolRow)
 HOTSPOT_COUNT(ToolRow, 0)
 
 START_AREAS(ToolRow)
-	DEFINE_AREA(ToolNumber, 34, 12, 45, 61)
-	DEFINE_AREA(ToolDiameter, 85, 12, 64, 61)
-	DEFINE_AREA(ToolFlutes, 159, 12, 45, 61)
-	DEFINE_AREA(ToolLength, 211, 12, 78, 61)
-	DEFINE_AREA(ToolDesc, 295, 12, 358, 61)
+	DEFINE_AREA(ToolNumber, 34, 12, 45, 28)
+	DEFINE_AREA(ToolDiameter, 85, 12, 64, 28)
+	DEFINE_AREA(ToolFlutes, 159, 12, 45, 28)
+	DEFINE_AREA(ToolLength, 211, 12, 78, 28)
+	DEFINE_AREA(ToolDesc, 295, 12, 358, 28)
 END_AREAS(ToolRow)
 
 START_SCREEN(KeyLower)
@@ -505,19 +514,27 @@ START_GROUP(Digit)
 	GROUP_HOTSPOT(Key_decimal, Digit, 734, 517, 793, 576)
 END_GROUP(Digit)
 
-START_GROUP(ToolInfo)
-	GROUP_HOTSPOT(ToolNumber, ToolInfo, 10, 405, 80, 465)
-	GROUP_HOTSPOT(ToolDiameter, ToolInfo, 80, 405, 150, 465)
-	GROUP_HOTSPOT(ToolFlutes, ToolInfo, 150, 405, 205, 465)
-	GROUP_HOTSPOT(ToolLength, ToolInfo, 205, 405, 290, 465)
-	GROUP_HOTSPOT(ToolDesc, ToolInfo, 290, 405, 503, 465)
-	GROUP_HOTSPOT(ToolSfm, ToolInfo, 200, 475, 379, 570)
-	GROUP_HOTSPOT(ToolChipLoad, ToolInfo, 390, 475, 569, 570)
-	GROUP_HOTSPOT(ToolSfm, ToolInfo, 0, 0, 179, 95)
-	GROUP_HOTSPOT(ToolChipLoad, ToolInfo, 190, 0, 369, 95)
-	GROUP_HOTSPOT(ToolSfm, ToolInfo, 371, 0, 550, 95)
-	GROUP_HOTSPOT(ToolChipLoad, ToolInfo, 561, 0, 740, 95)
-END_GROUP(ToolInfo)
+START_GROUP(ToolLib)
+	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 405, 80, 465)
+	GROUP_HOTSPOT(ToolDiameter, ToolLib, 80, 405, 150, 465)
+	GROUP_HOTSPOT(ToolFlutes, ToolLib, 150, 405, 205, 465)
+	GROUP_HOTSPOT(ToolLength, ToolLib, 205, 405, 290, 465)
+	GROUP_HOTSPOT(ToolDesc, ToolLib, 290, 405, 503, 465)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 200, 475, 379, 570)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 390, 475, 569, 570)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 0, 0, 179, 95)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 371, 0, 550, 95)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 561, 0, 740, 95)
+	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 10, 80, 70)
+	GROUP_HOTSPOT(ToolDiameter, ToolLib, 80, 10, 150, 70)
+	GROUP_HOTSPOT(ToolFlutes, ToolLib, 150, 10, 205, 70)
+	GROUP_HOTSPOT(ToolLength, ToolLib, 205, 10, 290, 70)
+	GROUP_HOTSPOT(ToolDesc, ToolLib, 290, 10, 653, 70)
+	GROUP_HOTSPOT(ToolsDone, ToolLib, 664, 10, 723, 69)
+	GROUP_HOTSPOT(ToolDelete, ToolLib, 734, 10, 793, 69)
+	GROUP_HOTSPOT(ToolImportExport, ToolLib, 804, 10, 863, 69)
+END_GROUP(ToolLib)
 
 START_GROUP(ToolSide)
 	GROUP_HOTSPOT(ToolLeft, ToolSide, 10, 505, 69, 564)
@@ -552,17 +569,6 @@ START_GROUP(SettingToggle)
 	GROUP_HOTSPOT(OffsetZ, SettingToggle, 10, 390, 354, 449)
 	GROUP_HOTSPOT(CncCoordinates, SettingToggle, 10, 460, 354, 519)
 END_GROUP(SettingToggle)
-
-START_GROUP(ToolLib)
-	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 10, 80, 70)
-	GROUP_HOTSPOT(ToolDiameter, ToolLib, 80, 10, 150, 70)
-	GROUP_HOTSPOT(ToolFlutes, ToolLib, 150, 10, 205, 70)
-	GROUP_HOTSPOT(ToolLength, ToolLib, 205, 10, 290, 70)
-	GROUP_HOTSPOT(ToolDesc, ToolLib, 290, 10, 653, 70)
-	GROUP_HOTSPOT(ToolsDone, ToolLib, 664, 10, 723, 69)
-	GROUP_HOTSPOT(ToolDelete, ToolLib, 734, 10, 793, 69)
-	GROUP_HOTSPOT(ToolImportExport, ToolLib, 804, 10, 863, 69)
-END_GROUP(ToolLib)
 
 START_GROUP(Keyboard)
 	GROUP_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
@@ -806,33 +812,41 @@ END_GROUP_Digit(Digit)
 #undef GROUP_HOTSPOT_Digit
 #undef END_GROUP_Digit
 
-#ifndef START_GROUP_ToolInfo
-#define START_GROUP_ToolInfo(a)
+#ifndef START_GROUP_ToolLib
+#define START_GROUP_ToolLib(a)
 #endif
-#ifndef GROUP_HOTSPOT_ToolInfo
-#define GROUP_HOTSPOT_ToolInfo(a,b,c,d,e,f)
+#ifndef GROUP_HOTSPOT_ToolLib
+#define GROUP_HOTSPOT_ToolLib(a,b,c,d,e,f)
 #endif
-#ifndef END_GROUP_ToolInfo
-#define END_GROUP_ToolInfo(a)
+#ifndef END_GROUP_ToolLib
+#define END_GROUP_ToolLib(a)
 #endif
 
-START_GROUP_ToolInfo(ToolInfo)
-	GROUP_HOTSPOT_ToolInfo(ToolNumber, ToolInfo, 10, 405, 80, 465)
-	GROUP_HOTSPOT_ToolInfo(ToolDiameter, ToolInfo, 80, 405, 150, 465)
-	GROUP_HOTSPOT_ToolInfo(ToolFlutes, ToolInfo, 150, 405, 205, 465)
-	GROUP_HOTSPOT_ToolInfo(ToolLength, ToolInfo, 205, 405, 290, 465)
-	GROUP_HOTSPOT_ToolInfo(ToolDesc, ToolInfo, 290, 405, 503, 465)
-	GROUP_HOTSPOT_ToolInfo(ToolSfm, ToolInfo, 200, 475, 379, 570)
-	GROUP_HOTSPOT_ToolInfo(ToolChipLoad, ToolInfo, 390, 475, 569, 570)
-	GROUP_HOTSPOT_ToolInfo(ToolSfm, ToolInfo, 0, 0, 179, 95)
-	GROUP_HOTSPOT_ToolInfo(ToolChipLoad, ToolInfo, 190, 0, 369, 95)
-	GROUP_HOTSPOT_ToolInfo(ToolSfm, ToolInfo, 371, 0, 550, 95)
-	GROUP_HOTSPOT_ToolInfo(ToolChipLoad, ToolInfo, 561, 0, 740, 95)
-END_GROUP_ToolInfo(ToolInfo)
+START_GROUP_ToolLib(ToolLib)
+	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 405, 80, 465)
+	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 80, 405, 150, 465)
+	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 150, 405, 205, 465)
+	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 205, 405, 290, 465)
+	GROUP_HOTSPOT_ToolLib(ToolDesc, ToolLib, 290, 405, 503, 465)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 200, 475, 379, 570)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 390, 475, 569, 570)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 0, 0, 179, 95)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 371, 0, 550, 95)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 561, 0, 740, 95)
+	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 10, 80, 70)
+	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 80, 10, 150, 70)
+	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 150, 10, 205, 70)
+	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 205, 10, 290, 70)
+	GROUP_HOTSPOT_ToolLib(ToolDesc, ToolLib, 290, 10, 653, 70)
+	GROUP_HOTSPOT_ToolLib(ToolsDone, ToolLib, 664, 10, 723, 69)
+	GROUP_HOTSPOT_ToolLib(ToolDelete, ToolLib, 734, 10, 793, 69)
+	GROUP_HOTSPOT_ToolLib(ToolImportExport, ToolLib, 804, 10, 863, 69)
+END_GROUP_ToolLib(ToolLib)
 
-#undef START_GROUP_ToolInfo
-#undef GROUP_HOTSPOT_ToolInfo
-#undef END_GROUP_ToolInfo
+#undef START_GROUP_ToolLib
+#undef GROUP_HOTSPOT_ToolLib
+#undef END_GROUP_ToolLib
 
 #ifndef START_GROUP_ToolSide
 #define START_GROUP_ToolSide(a)
@@ -937,31 +951,6 @@ END_GROUP_SettingToggle(SettingToggle)
 #undef START_GROUP_SettingToggle
 #undef GROUP_HOTSPOT_SettingToggle
 #undef END_GROUP_SettingToggle
-
-#ifndef START_GROUP_ToolLib
-#define START_GROUP_ToolLib(a)
-#endif
-#ifndef GROUP_HOTSPOT_ToolLib
-#define GROUP_HOTSPOT_ToolLib(a,b,c,d,e,f)
-#endif
-#ifndef END_GROUP_ToolLib
-#define END_GROUP_ToolLib(a)
-#endif
-
-START_GROUP_ToolLib(ToolLib)
-	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 10, 80, 70)
-	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 80, 10, 150, 70)
-	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 150, 10, 205, 70)
-	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 205, 10, 290, 70)
-	GROUP_HOTSPOT_ToolLib(ToolDesc, ToolLib, 290, 10, 653, 70)
-	GROUP_HOTSPOT_ToolLib(ToolsDone, ToolLib, 664, 10, 723, 69)
-	GROUP_HOTSPOT_ToolLib(ToolDelete, ToolLib, 734, 10, 793, 69)
-	GROUP_HOTSPOT_ToolLib(ToolImportExport, ToolLib, 804, 10, 863, 69)
-END_GROUP_ToolLib(ToolLib)
-
-#undef START_GROUP_ToolLib
-#undef GROUP_HOTSPOT_ToolLib
-#undef END_GROUP_ToolLib
 
 #ifndef START_GROUP_Keyboard
 #define START_GROUP_Keyboard(a)
@@ -1129,15 +1118,6 @@ START_SCREEN_Overlay(ToolButtons)
 	IMAGE_STRIDE_Overlay(400)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(ToolButtons)
-
-START_SCREEN_Overlay(ToolRow)
-	IMAGE_ADDRESS_Overlay(2045272)
-	IMAGE_SIZE_Overlay(58752)
-	IMAGE_WIDTH_Overlay(576)
-	IMAGE_HEIGHT_Overlay(51)
-	IMAGE_STRIDE_Overlay(576)
-	IMAGE_DEPTH_Overlay(Color16bpp)
-END_SCREEN_Overlay(ToolRow)
 
 #undef START_SCREEN_Overlay
 #undef IMAGE_ADDRESS_Overlay

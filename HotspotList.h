@@ -33,8 +33,6 @@ enum ActionHotspots
 	Key_backSpace,
 	Key_clear,
 	Key_pi,
-	ToolSfm,
-	ToolChipLoad,
 	HighlightXY,
 	OffsetZ,
 	CncCoordinates,
@@ -80,13 +78,15 @@ enum ScrollAreas
 	ScrollThumb
 };
 
-enum ToolLibAreas
+enum ToolAreas
 {
 	ToolNumber,
 	ToolDiameter,
 	ToolFlutes,
 	ToolLength,
 	ToolDesc,
+	ToolSfm,
+	ToolChipLoad,
 	ToolsDone,
 	ToolDelete,
 	ToolImportExport,
