@@ -61,11 +61,13 @@ protected:
 	// Public interface
 	//*********************************************************************
 public:
+	static bool HasCalcValue()  {return s_state != AS_Empty; }
+
+public:
 	static void Init()
 	{
 		ShowAbsInc();
 		ShowInchMetric();
-		ShowToolInfo();
 		ToolLib::Init();
 	}
 
@@ -326,7 +328,6 @@ public:
 
 		case HOTSPOT_GROUP_ToolSide:
 			ToolLib::SetToolSide(spot);
-			ShowToolInfo();
 			return;
 
 		//*****************************************************************
@@ -398,7 +399,7 @@ public:
 			}
 			*pToggle ^= true;
 			ShowSettingsInfo();
-			ShowToolInfo();
+			ToolLib::ShowToolInfo();
 			return;
 
 		//*****************************************************************
@@ -423,7 +424,7 @@ public:
 			case InchMetric:
 				Eeprom.Data.fIsMetric ^= true;
 				ShowInchMetric();
-				ToolLib::ShowToolInfo();
+				ToolLib::ChangeUnits();
 				UpdateEeprom();
 				break;
 
@@ -492,43 +493,21 @@ public:
 	}
 
 public:
-	static double GetSetValue(double val)
+	static double GetCalcValue()
 	{
-		if (s_state == AS_Empty)
-		{
-			if (val != 0)
-				ToValueState(val);
-		}
-		else
-		{
-			// Setting the value
-			val = ToValueState();
-			// Negative values never allowed
-			if (val < 0)
-				val = -val;
-		}
+		double	val;
+
+		val = ToValueState();
+		// Negative values never allowed
+		if (val < 0)
+			val = -val;
 		return val;
 	}
 
-public:
-	static void ShowInchMetric()
+	static void SetCalcValue(double val)
 	{
-		SelectImage(&MainScreen_Areas.InchMetric, &InchMetricBtn, Eeprom.Data.fIsMetric);
-		SelectImage(&MainScreen_Areas.SpeedDisplay, &SpeedDisplay, Eeprom.Data.fIsMetric);
-
-		ShowToolInfo();
-	}
-
-public:
-	static void ShowAbsInc()
-	{
-		SelectImage(&MainScreen_Areas.AbsInc, &Coord, Eeprom.Data.OriginNum);
-	}
-
-public:
-	static void ShowToolInfo()
-	{
-		ToolLib::ShowToolInfo();
+		if (val != 0)
+			ToValueState(val);
 	}
 
 	//*********************************************************************
@@ -577,6 +556,17 @@ protected:
 		s_arEntryBuf[1] = ' ';
 		s_arEntryBuf[2] = '\0';
 		s_indBuf = 2;
+	}
+
+	static void ShowInchMetric()
+	{
+		SelectImage(&MainScreen_Areas.InchMetric, &InchMetricBtn, Eeprom.Data.fIsMetric);
+		SelectImage(&MainScreen_Areas.SpeedDisplay, &SpeedDisplay, Eeprom.Data.fIsMetric);
+	}
+
+	static void ShowAbsInc()
+	{
+		SelectImage(&MainScreen_Areas.AbsInc, &Coord, Eeprom.Data.OriginNum);
 	}
 
 	//*********************************************************************

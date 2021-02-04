@@ -80,14 +80,28 @@ enum ScrollAreas
 
 enum ToolAreas
 {
+	// The first 7 entries are both Hotspots and Areas.
+	// They are all values that can read or set by
+	// the calculator.
+	//
+	// The first 5 entries match the order in which 
+	// they appear in Screen.xml. This allows them 
+	// to be used as an index into an array of Areas.
 	ToolNumber,
 	ToolDiameter,
 	ToolFlutes,
 	ToolLength,
 	ToolDesc,
-	ToolSfm,
+	ToolInfoLast,
+	// End of area sequence
+
+	ToolSfm = ToolInfoLast,
 	ToolChipLoad,
-	ToolsDone,
+	ToolLastValue,
+	// End of value sequence
+
+	// Only Hotspots
+	ToolsDone = ToolLastValue,
 	ToolDelete,
 	ToolImportExport,
 };

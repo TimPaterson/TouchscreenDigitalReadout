@@ -14,16 +14,56 @@
 
 class ToolLib
 {
+	static constexpr int ToolEntrySize = 64;
+	static constexpr int MaxToolCount = 20;
+	static constexpr ushort NoCurrentLine = 0xFFFF;		// occurs in s_curLineNum
+	static constexpr ushort ToolBufIndex = 0xFFFF;		// occurs in s_arSortList[]
+	static constexpr ushort ToolNotModified = 0xFFFF;	// occurs in s_modToolIndex
+
 	//*********************************************************************
 	// Types
 	//*********************************************************************
 
-	struct ToolLibInfo
+	struct ToolLibBase
 	{
 		ushort	number;
 		ushort	flutes;
 		double	diameter;
 		double	length;
+	};
+
+	struct ToolLibInfo : public ToolLibBase
+	{
+		char	arDesc[ToolEntrySize - sizeof(ToolLibBase)];
+
+		bool HasData()
+		{
+			return diameter != 0 || length != 0 || flutes != 0 || arDesc[0] != 0;
+		}
+
+		bool IsValid()
+		{
+			if (number == 0)
+				return false;
+
+			return HasData();
+		}
+
+		ToolLibInfo & operator= (const ToolLibInfo &src)
+		{
+			*(ToolLibBase *)this = *(ToolLibBase *)&src;
+			strcpy(arDesc, src.arDesc);
+			return *this;
+		}
+
+		void ClearData()
+		{
+			number = 0;
+			flutes = 0;
+			diameter = 0;
+			length = 0;
+			arDesc[0] = 0;
+		}
 	};
 
 	class ToolScroll : public ListScroll
@@ -36,13 +76,13 @@ class ToolLib
 		{
 			if (lineNum < s_toolCount)
 			{
-				s_textList.DisplayLine(&s_arToolInfo[lineNum]);
+				s_textList.DisplayLine(PtrFromLine(lineNum));
+				ScreenMgr::CopyRect(this, pArea, &ToolRow);
 			}
 			else
 			{
-				s_textList.DisplayLine(&s_toolBlank);
+				ScreenMgr::FillRect(this, pArea, ToolLibraryBackground);
 			}
-			ScreenMgr::CopyRect(this, pArea, &ToolRow);
 			return true;
 		}
 	};
@@ -70,24 +110,29 @@ class ToolLib
 
 	//*********************************************************************
 	// Public interface
-	//*********************************************************************
-
+	//*********************************************************************3
 public:
 	// .cpp file
 	static void ToolAction(uint spot);
+	static void ShowToolInfo();
 
 public:
 	static void Init()
 	{
 		s_scroll.Init();
+
+		s_modToolIndex = ToolNotModified;
+		if (s_toolCount == 0)
+			s_curLineNum = NoCurrentLine;
+
+		s_scroll.SetTotalLines(s_toolCount);
+		s_scroll.ScrollToLine(s_curLineNum);
 	}
 
 	static void ShowToolLib()
 	{
-		s_scroll.SetTotalLines(20);
-		s_scroll.SetScrollPosition(0);
-		ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
-		ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
+		ScreenMgr::EnablePip1(&s_scroll, 0, ToolListTop);
+		ScreenMgr::EnablePip2(&ToolLibrary, 0, 0);
 	}
 
 	static ListScroll *ListCapture(int x, int y, ScrollAreas spot)
@@ -103,76 +148,110 @@ public:
 		ShowToolInfo();
 	}
 
-	static void ShowToolInfo()
+	static void ChangeUnits()
 	{
-		double	val;
-		uint	sides;
-		ulong	color;
-
-		// Tool info
-		s_textMain.DisplayLine(&s_toolDisplay);
-
-		// SFM
-		s_textMain.PrintDbl(
-			IsMetric() ? "%5.1f" : "%5.0f",
-			CheckMetricSurface(Eeprom.Data.Sfm), 
-			&MainScreen_Areas.Sfm);
-
-		// Chip load
-		s_textMain.PrintDbl(
-			IsMetric() ? "%6.3f" : "%6.4f",
-			CheckMetric(Eeprom.Data.ChipLoad),
-			&MainScreen_Areas.ChipLoad);
-
-		// Compute and display RPM
-		if (s_toolDisplay.diameter != 0 && Eeprom.Data.Sfm != 0)
-		{
-			val = Eeprom.Data.Sfm / (s_toolDisplay.diameter * M_PI);
-			val *= Eeprom.Data.fToolLibMetric ? 1000 : 12;
-			val = std::min(val, (double)Eeprom.Data.MaxRpm);
-		}
-		else
-			val = 0;
-
-		s_textMain.PrintUint("%5u", (uint)val, &MainScreen_Areas.Rpm);
-
-		// Compute and display feed rate
-		val *= CheckMetric(Eeprom.Data.ChipLoad) * s_toolDisplay.flutes;
-		s_textMain.PrintUint("%5u", (uint)val, &MainScreen_Areas.FeedRate);
-
-		// Update cutter radius offset
-		PrepareDrawTool();
-		sides = s_toolSides;
-		DrawTool(sides & ToolLeftBit,  ToolLeft_X,  ToolLeft_Y);
-		DrawTool(sides & ToolRightBit, ToolRight_X, ToolRight_Y);
-		DrawTool(sides & ToolBackBit,  ToolBack_X,  ToolBack_Y);
-		DrawTool(sides & ToolFrontBit, ToolFront_X, ToolFront_Y);
-
-		val = CheckMetric(s_toolDisplay.diameter / 2);
-		Xaxis.SetOffset(sides & ToolLeftBit ? val : (sides & ToolRightBit ? -val : 0));
-		if (Eeprom.Data.fCncCoordinates)
-			val = -val;
-		Yaxis.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
-		val = CheckMetric(s_toolDisplay.length);
-		if (Eeprom.Data.fCncCoordinates)
-			val = -val;
-		Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? val : 0);
-
-		color = Eeprom.Data.fHighlightOffset && s_toolDisplay.diameter != 0 ? ToolColor : AxisForeColor;
-		Xaxis.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
-		Yaxis.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+		s_scroll.InvalidateLines(0, s_toolCount - 1);
+		ShowToolInfo();
 	}
 
 	//*********************************************************************
 	// Helpers
 	//*********************************************************************
 protected:
+	static ToolLibInfo *PtrFromIndex(uint index)
+	{
+		if (index == ToolBufIndex)
+			return &s_bufTool;
+
+		return &s_arToolInfo[index];
+	}
+
+	static ToolLibInfo *PtrFromLine(uint line)
+	{
+		return PtrFromIndex(s_arSortList[line]);
+	}
+
+	static bool IsToolBuffered()
+	{
+		return s_curLineNum == NoCurrentLine || s_arSortList[s_curLineNum] == ToolBufIndex;
+	}
+
+	static uint FindTool(uint num)
+	{
+		uint	line;
+
+		for (line = 0; line < s_toolCount; line++)
+		{
+			if (PtrFromLine(line)->number == num)
+			{
+				s_curLineNum = line;
+				s_modToolIndex = ToolNotModified;
+				s_scroll.ScrollToLine(line);
+				return line;
+			}
+		}
+		return NoCurrentLine;
+	}
+
+	static void SaveTool()
+	{
+		if (s_curLineNum == NoCurrentLine)
+			return;
+
+		if (s_modToolIndex != ToolNotModified)
+		{
+			// Update existing tool
+			s_arToolInfo[s_modToolIndex] = s_bufTool;
+			s_arSortList[s_curLineNum] = s_modToolIndex;
+			s_modToolIndex = ToolNotModified;
+		}
+		else if (s_arSortList[s_curLineNum] == ToolBufIndex)
+		{
+			// New tool
+			if (s_freeToolIndex >= MaxToolCount)
+			{
+				// UNDONE: garbage collect tool list
+				return;
+			}
+
+			s_arSortList[s_curLineNum] = s_freeToolIndex;
+			s_arToolInfo[s_freeToolIndex++] = s_bufTool;
+		}
+	}
+
+	static uint InsertTool(uint bufIndex)
+	{
+		uint	line;
+		uint	num;
+
+		if (s_toolCount >= MaxToolCount)
+			return NoCurrentLine;
+
+		num = PtrFromIndex(bufIndex)->number;
+
+		for (line = 0; line < s_toolCount && PtrFromLine(line)->number < num; line++);
+
+		memmove(&s_arSortList[line + 1], &s_arSortList[line], (s_toolCount - line) * sizeof s_arSortList[0]);
+		s_arSortList[line] = bufIndex;
+		s_curLineNum = line;
+		s_modToolIndex = ToolNotModified;
+		s_toolCount++;
+		s_scroll.SetTotalLines(s_toolCount);
+		return line;
+	}
+
+protected:
 	static bool IsMetric()
 	{
 		return Eeprom.Data.fIsMetric;
 	}
 
-	static double LimitVal(double val, double max) NO_INLINE_ATTR
+	static bool IsLibShown()
+	{
+		return ScreenMgr::GetPip2()->pImage == &ToolLibrary;
+	}
+
+	static double LimitVal(double val, double max)
 	{
 		if (IsMetric())
 			max *= 10.0;
@@ -229,9 +308,11 @@ protected:
 		ToolLibraryForeground, ToolLibraryBackground};
 	inline static ToolScroll	s_scroll;
 	inline static ushort		s_toolCount;
-	inline static ushort		s_arToolSort[20];
-	inline static ToolLibInfo	s_toolDisplay;
-	inline static ToolLibInfo	s_toolBlank;
-	inline static ToolLibInfo	s_arToolInfo[20];
+	inline static ushort		s_curLineNum;
+	inline static ushort		s_modToolIndex;
+	inline static ushort		s_freeToolIndex;
 	inline static byte			s_toolSides;
+	inline static ToolLibInfo	s_bufTool;
+	inline static ushort		s_arSortList[MaxToolCount];
+	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];
 };

@@ -110,6 +110,42 @@ public:
 	{
 	}
 
+	void ScrollToLine(int line)
+	{
+		int		posLine;
+
+		posLine = line * m_lineHeight;
+
+		// See if line is in buffer
+		if (line >= m_lineTop && line < m_lineTop + m_lineCnt)
+		{
+			// In buffer, just make sure it's visible
+			if (posLine >= m_posCur)
+			{
+				posLine -= m_viewHeight - m_lineHeight;
+				if (posLine <= m_posCur)
+					return; 
+			}
+		}
+		SetScrollPosition(posLine);
+	}
+
+	void InvalidateLines(int lineStart, int lineEnd)
+	{
+		int		lineLast;
+
+		lineLast = m_lineTop + m_lineCnt - 1;
+		if (lineStart > lineLast || lineEnd < m_lineTop)
+			return;
+
+		if (lineStart < m_lineTop)
+			lineStart = m_lineTop;
+		if (lineEnd > lineLast)
+			lineEnd = lineLast;
+
+		FillLines(lineStart, lineStart - m_lineTop, lineEnd - lineStart + 1);
+	}
+
 	void NewPosition(int x, int y)
 	{
 		int		delta;
