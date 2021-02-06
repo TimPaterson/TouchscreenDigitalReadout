@@ -459,6 +459,11 @@ int main(void)
 				else
 					DEBUG_PRINT("...Not saved\n");
 				break;
+
+			case 't':
+				DEBUG_PRINT("Importing tools...");
+				FileOp.ToolImport("DRO.csv");
+				break;
 			}
 		}
     }

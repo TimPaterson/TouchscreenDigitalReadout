@@ -10,6 +10,7 @@
 #include "Dro.h"
 #include "ToolLib.h"
 #include "Actions.h"
+#include <FatFile/FatSys.h>
 
 
 void ToolLib::ToolAction(uint spot)
@@ -44,7 +45,7 @@ void ToolLib::ToolAction(uint spot)
 					s_bufTool.ClearData();
 
 				s_bufTool.number = tool;
-				s_curLineNum = NoCurrentLine;
+				SelectLine(NoCurrentLine);
 				goto InsertIfValid;
 			}
 			else
@@ -82,7 +83,7 @@ void ToolLib::ToolAction(uint spot)
 					{
 						// If changing something, tool number no longer valid.
 						s_bufTool.number = 0;
-						s_curLineNum = NoCurrentLine;
+						SelectLine(NoCurrentLine);
 					}
 				}
 			}
@@ -128,12 +129,12 @@ InsertIfValid:
 				{
 					// Tool now valid, insert it
 					line = InsertTool(ToolBufIndex);
-					s_scroll.InvalidateLines(line, s_toolCount - 1);
-					s_scroll.ScrollToLine(line);
+					SelectLine(line);
+					s_scroll.InvalidateLines(line + 1, s_toolCount - 1);
 				}
 			}
 			else
-				s_scroll.InvalidateLines(s_curLineNum, s_curLineNum);
+				s_scroll.InvalidateLine(s_curLineNum);
 
 			ShowToolInfo();
 		}
@@ -195,12 +196,12 @@ void ToolLib::ShowToolInfo()
 		pInfo = PtrFromLine(s_curLineNum);
 
 	s_textMain.DisplayLine(pInfo);
-	s_textLib.DisplayLine(pInfo);
+	s_textInfo.DisplayLine(pInfo);
 
 	// SFM
 	s_textMain.PrintDbl(
 		"%5.0f",
-		CheckMetricSurface(Eeprom.Data.Sfm), 
+		CheckMetricSurface(Eeprom.Data.Sfm),
 		&MainScreen_Areas.Sfm);
 
 	// Chip load
@@ -246,4 +247,133 @@ void ToolLib::ShowToolInfo()
 	color = Eeprom.Data.fHighlightOffset && pInfo->diameter != 0 ? ToolColor : AxisForeColor;
 	Xaxis.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
 	Yaxis.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+}
+
+
+int ToolLib::ImportTool(char *pchBuf)
+{
+	int		cb;
+	char	*pchDesc;
+	char	*pch;
+
+	s_bufTool.number = strtoul(pchBuf, &pchBuf, 0);
+	if (*pchBuf++ != ',')
+		return -1;	// UNDONE: error handling on tool import
+
+	s_bufTool.diameter = strtod(pchBuf, &pchBuf);
+	if (*pchBuf++ != ',')
+		return -1;	// UNDONE: error handling on tool import
+
+	s_bufTool.length = strtod(pchBuf, &pchBuf);
+	if (*pchBuf++ != ',')
+		return -1;	// UNDONE: error handling on tool import
+
+	s_bufTool.flutes = strtoul(pchBuf, &pchBuf, 0);
+	if (*pchBuf++ != ',')
+		return -1;	// UNDONE: error handling on tool import
+
+	if (*pchBuf == '"')
+	{
+		// See if there are any "" (escaped quote) in the string
+		for (pchDesc = s_bufTool.arDesc;;)
+		{
+			pchBuf++;	// skip "
+			pch = strstr(pchBuf, "\"\"");
+			if (pch == NULL)
+				break;
+			// Copy string up to one "
+			cb = pch - pchBuf + 1;
+			memcpy(pchDesc, pchBuf, cb);
+			pchDesc += cb;
+			pchBuf += cb;
+		}
+		// Find final trailing quote
+		pch = strchr(pchBuf, '"');
+		if (pch == NULL)
+			return -1;	// UNDONE: error handling on tool import
+		cb = pch - pchBuf;
+		memcpy(pchDesc, pchBuf, cb);
+		pchDesc[cb] = '\0';
+	}
+	else
+	{
+		strncpy(s_bufTool.arDesc, pchBuf, ToolDescSize - 1);
+		s_bufTool.arDesc[ToolDescSize - 1] = '\0';	// ensure null terminated
+	}
+
+	s_curLineNum = InsertTool(ToolBufIndex);
+	SaveTool();
+
+	return 0;
+}
+
+int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
+{
+	char	*pch;
+	int		cbLine;
+	int		err;
+
+	if (pchBuf == NULL)
+	{
+		// special flag to indicate start of import
+		pch = (char *)memchr(s_arImportBuf, '\r', cb);
+		if (pch == NULL)
+			return -1;	// UNDONE: error handling on tool import
+
+		cbLine = pch - (char *)s_arImportBuf;
+		if (cbLine != sizeof s_archImportHead - 1)
+			return -1;	// UNDONE: error handling on tool import
+
+		if (memcmp(s_arImportBuf, s_archImportHead, cbLine) != 0)
+			return -1;	// UNDONE: error handling on tool import
+
+		pchBuf = pch + 1;
+		cb -= cbLine + 1;
+		Eeprom.Data.fToolLibMetric = Eeprom.Data.fIsMetric;
+	}
+
+	if (cbWrap != 0)
+	{
+		// We reached the end of the last buffer before finding EOL.
+		// Wrap around to the first buffer and search from there.
+		pch = (char *)memchr(s_arImportBuf, '\r', cbWrap);
+		if (pch == NULL)
+			return -1;	// UNDONE: error handling on tool import
+
+		*pch = '\0';		// zero terminate
+		cbLine = pch - (char *)s_arImportBuf + 1;
+
+		// Build complete line
+		memmove(pchBuf - cbLine, pchBuf, cb);
+		pchBuf -= cbLine;
+		memcpy(pchBuf + cb, s_arImportBuf, cbLine);
+
+		err = ImportTool(pchBuf);
+		if (err < 0)
+			return err;
+
+		pchBuf = (char *)s_arImportBuf + cbLine;
+		cb = cbWrap - cbLine;
+	}
+
+	while ((pch = (char *)memchr(pchBuf, '\r', cb)) != NULL)
+	{
+		*pch = '\0';		// zero terminate
+		cbLine = pch - pchBuf + 1;
+
+		err = ImportTool(pchBuf);
+		if (err < 0)
+			return err;
+
+		pchBuf += cbLine;
+		cb -= cbLine;
+	}
+
+	return cb;
+}
+
+void ToolLib::ImportDone()
+{
+	s_scroll.InvalidateLines(0, s_toolCount - 1);
+	SelectLine(0);
 }

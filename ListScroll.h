@@ -21,10 +21,7 @@ class ListScroll : public TouchCanvas, public RA8876
 
 	static constexpr int JitterIgnore = 8;
 	static constexpr int ThumbHeight = 60;
-	static constexpr int ThumbWidth = 60;
-	static constexpr int ThumbGap = 4;
 	static constexpr int ExtraLines = 2;	// at both top and bottom
-	static constexpr int RightMargin = ThumbWidth + ThumbGap;
 
 	// Imitate HotpostList
 	struct ScrollHotspots
@@ -58,14 +55,14 @@ public:
 
 		// Initialize gap
 		area.Height = m_imageHeight;
-		area.Width = ThumbGap;
-		area.Xpos = m_viewWidth - RightMargin;
+		area.Width = ScrollGapLeft;
+		area.Xpos = m_viewWidth - ScrollBarWidth;
 		area.Ypos = 0;
 		ScreenMgr::FillRect(this, &area, ThumbGapColor);
 
 		// Initialize scroll bar
-		area.Width = ThumbWidth;
-		area.Xpos = m_viewWidth - ThumbWidth;
+		area.Width = ScrollThumbWidth;
+		area.Xpos = m_viewWidth - ScrollThumbWidth;
 		ScreenMgr::FillRect(this, &area, ScrollBarColor);
 
 		DEBUG_PRINT("Graphics memory allocated: %i bytes\n", s_NextFreeRam);
@@ -128,6 +125,11 @@ public:
 			}
 		}
 		SetScrollPosition(posLine);
+	}
+
+	void InvalidateLine(int line)
+	{
+		InvalidateLines(line, line);
 	}
 
 	void InvalidateLines(int lineStart, int lineEnd)
@@ -224,8 +226,8 @@ public:
 
 		// We have all the lines we need to display
 		// Erase thumb
-		WriteRegXY(DT_X0, m_viewWidth - ThumbWidth, m_thumbPos);
-		WriteRegXY(BTE_WTH0, ThumbWidth, ThumbHeight);
+		WriteRegXY(DT_X0, m_viewWidth - ScrollThumbWidth, m_thumbPos);
+		WriteRegXY(BTE_WTH0, ScrollThumbWidth, ThumbHeight);
 		SetForeColor(ScrollBarColor);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
 		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
@@ -309,13 +311,13 @@ protected:
 	short	m_lineViewCnt;
 	short	m_thumbPos;
 	short	m_capturePos;
-	Area	m_lineArea{0, 0, (ushort)(m_viewWidth - RightMargin), (ushort)m_lineHeight}; // Area for a single line
+	Area	m_lineArea{0, 0, (ushort)(m_viewWidth - ScrollBarWidth), (ushort)m_lineHeight}; // Area for a single line
 
 	ScrollHotspots	m_hotSpots{ 2, {
 		// Array of Hotspots: the display area, and the scroll thumb
-		{0, 0, (ushort)(m_viewWidth - RightMargin - 1), (ushort)(m_imageHeight - 1), 
+		{0, 0, (ushort)(m_viewWidth - ScrollBarWidth - 1), (ushort)(m_imageHeight - 1), 
 			{ScrollDisplay, HOTSPOT_GROUP_ToolDisplay}},
-		{(ushort)(m_viewWidth - ThumbWidth), 0, (ushort)(m_viewWidth - 1), (ushort)(m_imageHeight - 1), 
+		{(ushort)(m_viewWidth - ScrollThumbWidth), 0, (ushort)(m_viewWidth - 1), (ushort)(m_imageHeight - 1), 
 			{ScrollThumb, HOTSPOT_GROUP_ToolDisplay}}
 	}};
 

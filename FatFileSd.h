@@ -49,5 +49,3 @@ public:
 };
 
 typedef SdCard<SpiBase> FatSd;
-
-inline FatDateTime GetFatTime()		{ FatDateTime dt; dt.ul = 0; return dt; }

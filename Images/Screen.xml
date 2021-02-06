@@ -14,7 +14,17 @@
   	BtnFontSize = BtnHeight * 3 / 4;
   	SmallTextHeight = CalcSmall_Height;
   	SettingsWidth = KeypadLeft - KeySpace;
+
+    <!-- ListScroll parameters -->
+    ScrollGapLeft = 4;
+    ScrollGapRight = 0;
+    ScrollThumbWidth = 60;
+    ScrollBarWidth = ScrollGapLeft + ScrollThumbWidth + ScrollGapRight;
   </Set>
+  <Set ShowValue="ScrollGapLeft">ScrollGapLeft</Set>
+  <Set ShowValue="ScrollGapRight">ScrollGapRight</Set>
+  <Set ShowValue="ScrollThumbWidth">ScrollThumbWidth</Set>
+  <Set ShowValue="ScrollBarWidth">ScrollBarWidth</Set>
   <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
   <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
   <Color Name="ScreenForeColor" Color="Black" ColorDepth="Color16bpp"/>
@@ -25,8 +35,11 @@
   <Color Name="MemColorOdd" Color="0xD0C0D0" ColorDepth="Color16bpp"/>
   <Color Name="MemColorEven" Color="PaleGreen" ColorDepth="Color16bpp"/>
   <Color Name="BtnBackground" Color="0x606060"/>
-  <Color Name="ToolLibraryBackground" Color="DarkBlue" ColorDepth="Color16bpp"/>
-  <Color Name="ToolLibraryForeground" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ToolInfoBackground" Color="Blue" ColorDepth="Color16bpp"/>
+  <Color Name="ToolInfoForeground" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibBackground" Color="DarkBlue" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibForeground" Color="LightGray" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibSelected" Color="White" ColorDepth="Color16bpp"/>
 
   <!-- Components -->
   <Component Name="Key">
@@ -87,7 +100,7 @@
     UndoHeight = SmallTextHeight * 3;
 
     <!-- Tool display column widths & positions -->
-    ToolNumWidth = 70;
+    ToolNumWidth = 54;
     ToolDiamWidth = 70;
     ToolFluteWidth = 55;
     ToolLengthWidth = 85;
@@ -102,10 +115,11 @@
     ToolTextNumLeft = ToolNumWidth - 3 * 14 - 4;
 
     <!-- Tool Library -->
-    ToolLibHeight = CalcDispTop;
+    ToolLibHeight = CalcDispTop - 2;
     ToolLibWidth = KeypadRight;
     ToolListHeight = ScreenHeight - ToolLibHeight;
     ToolListWidth = KeypadLeft - 8;
+    ToolRowWidth = ToolListWidth - ScrollBarWidth;
 
     <!-- Controls -->
     ToolBtnHeight = BtnHeight;
@@ -115,7 +129,7 @@
     ToolButtonsLeft = ToolLibWidth - ToolButtonsWidth - KeySpace;
 
     ToolInfoDescWidth = ToolButtonsLeft - KeySpace * 2 - ToolDescLeft;
-    ToolListDescWidth = ToolListWidth - KeySpace - ToolDescLeft;
+    ToolListDescWidth = ToolRowWidth - KeySpace - ToolDescLeft;
     ToolDescTextLeft = 5;
 
     ToolInfoHeight = 60;
@@ -125,8 +139,8 @@
 
   <!-- Tool label line -->
   <Component Name="ToolLabel">
-    <Rectangle Name="Item" Height="40" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
-      <TextBlock Name="Label" Font="CalcSmall" Foreground="ToolLibraryForeground"/>
+    <Rectangle Name="Item" Height="40" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <TextBlock Name="Label" Font="CalcSmall" Foreground="ToolInfoForeground"/>
     </Rectangle>
   </Component>
 
@@ -166,7 +180,7 @@
 
   <!-- Tool info line -->
   <Component Name="ToolItem">
-    <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolLibraryForeground">
+    <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
       <Rectangle Name="TextAreaTop" Height="ToolTextHeight" Width="ToolNumWidth">
         <Rectangle Name="TextArea" Height="ToolTextHeight" Width="ToolNumWidth">
           <TextBlock Name="DummyText" Left="0" Top="0" Font="CalcSmall"/>
@@ -664,6 +678,184 @@
     </Rectangle>
   </Canvas>
 
+  <!-- Key images -->
+
+  <!-- Coordinate system -->
+  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <!-- Inch/Mectic units -->
+  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <!-- Feeds & speeds images -->
+  <Canvas Name="SpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" ItemWidth="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+    </Item>
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+      <Set>
+        SpeedTextSfm.Text = m/min;
+        SpeedTextFeed.Text = mm/tth;
+        SpeedTextLoad.Text = mm/min;
+      </Set>
+    </Item>
+  </Canvas>
+
+  <!-- Tool Library (PIP) -->
+
+  <Set ShowValue="ToolListHeight">ToolListHeight</Set>
+  <Set ShowValue="ToolListWidth">ToolListWidth</Set>
+  <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
+  <Set ShowValue="ToolListTop">ToolLibHeight</Set>
+
+  <Component Name="ToolButton">
+    <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolInfoForeground">
+      <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
+      <TextBlock Name="Label" Top="ToolBtnHeight + 3" Font="BtnFont" FontSize="17" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Set>
+    <!-- Adjust size of icon, keeping it centered -->
+    OkIconAdj = 0;
+    TrashIconAdj = 10;
+    FolderIconAdj = 12;
+    CancelIconAdj = 0;
+  </Set>
+
+  <Component Name="ToolButtons">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Ok128.png;
+        Icon.Height = ToolBtnHeight - OkIconAdj;
+        Icon.Width = ToolBtnWidth - OkIconAdj;
+        Icon.Top = OkIconAdj / 2;
+        Icon.Left = OkIconAdj / 2;
+        Label.Text = Done;
+        Button.Name = OkButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
+      <Set>
+        Icon.Source = Trash128.png;
+        Icon.Height = ToolBtnHeight - TrashIconAdj;
+        Icon.Width = ToolBtnWidth - TrashIconAdj;
+        Icon.Top = TrashIconAdj / 2;
+        Icon.Left = TrashIconAdj / 2;
+        Label.Text = Delete;
+        Button.Name = DeleteButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+      <Set>
+        Icon.Source = Folder128.png;
+        Icon.Height = ToolBtnHeight - FolderIconAdj;
+        Icon.Width = ToolBtnWidth - FolderIconAdj;
+        Icon.Top = FolderIconAdj / 2;
+        Icon.Left = FolderIconAdj / 2;
+        Label.Text = "Import/&#xA;Export";
+        Button.Name = FileButton;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Ref RefName="ToolInfo" Left="KeySpace" Top="KeySpace">
+      <Set>
+        TextAreaTop.Top = 18;
+        <!-- Hide the dummy text -->
+        DummyText.Foreground = ToolInfoBackground;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabels" Left="KeySpace" Top="KeySpace + ToolInfoHeight">
+      <Set>
+        Item.Height = ToolLabelHeight;
+        ToolLabelDesc.Height = ToolLabelHeight;
+        ToolLabelDesc.Width = ToolInfoDescWidth;
+        ToolTextDesc.Left = 80;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace">
+      <Set>
+        OkButton.Group = ToolLib;
+        OkButton.HotSpot = ToolsDone;
+        DeleteButton.HotSpot = ToolDelete;
+        DeleteButton.Group = ToolLib;
+        FileButton.HotSpot = ToolImportExport;
+        FileButton.Group = ToolLib;
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="ToolRowWidth - KeySpace">
+      <Ref RefName="ToolInfo">
+        <Set>
+          Item.Height = ToolRowHeight + 1;
+          ToolItemDesc.Height = ToolRowHeight + 1;
+          Item.HotSpot = "";
+          ToolItemDesc.HotSpot = "";
+          ToolItemDesc.Width = ToolListDescWidth;
+          TextAreaTop.Top = 12;
+          ToolDesc.Width = ToolListDescWidth - ToolDescTextLeft - 1;
+          <!-- Hide the dummy text -->
+          DummyText.Foreground = ToolLibBackground;
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolInfoBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="ToolButtons"/>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = Trash128.png;
+          Icon.Height = ToolBtnHeight - TrashIconAdj;
+          Icon.Width = ToolBtnWidth - TrashIconAdj;
+          Icon.Top = TrashIconAdj / 2;
+          Icon.Left = TrashIconAdj / 2;
+          Label.Text = Confirm&#xA; Delete
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Cancel128.png;
+          Icon.Height = ToolBtnHeight - CancelIconAdj;
+          Icon.Width = ToolBtnWidth - CancelIconAdj;
+          Icon.Top = CancelIconAdj / 2;
+          Icon.Left = CancelIconAdj / 2;
+          Label.Text = Cancel&#xA;Delete
+        </Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
   <!-- Settings Screens (PIP) -->
 
   <Color Name="SettingBackColor" Color="Black" ColorDepth="Color8bpp"/>
@@ -691,10 +883,10 @@
     <Set>
       AxisLabelWidth = 54;
       AxisSettingWidth = 120;
-    	AxisSettingHeight = BtnHeight + 1;
-    	ColAdjust = AxisLabelWidth - AxisSettingWidth;
-    	SensorTextLeft = 50;
-    	CorrectionTextLeft = 5;
+      AxisSettingHeight = BtnHeight + 1;
+      ColAdjust = AxisLabelWidth - AxisSettingWidth;
+      SensorTextLeft = 50;
+      CorrectionTextLeft = 5;
     </Set>
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight" ColumnWidth="AxisSettingWidth - 1">
       <Row>
@@ -806,8 +998,8 @@
     </Grid>
     <Set>
       BelowGrid = BtnHeight * 5 + KeySpace * 2;
-    	OptionWidth = 345;
-    	SetItemRight = OptionWidth - KeySpace;
+      OptionWidth = 345;
+      SetItemRight = OptionWidth - KeySpace;
     </Set>
     <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="BelowGrid" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
@@ -840,191 +1032,15 @@
     </Item>
   </Canvas>
 
-  <!-- Feeds & speeds images -->
-  <Canvas Name="SpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" ItemWidth="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
-    <Item>
-      <Ref RefName="SpeedDisplay"/>
-    </Item>
-    <Item>
-      <Ref RefName="SpeedDisplay"/>
-      <Set>
-        SpeedTextSfm.Text = m/min;
-    	  SpeedTextFeed.Text = mm/tth;
-    	  SpeedTextLoad.Text = mm/min;
-      </Set>
-    </Item>
-  </Canvas>
-
-  <!-- Key images -->
-
-  <!-- Coordinate system -->
-  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Item>
-      <Ref RefName="Toggle">
-        <Set>Upper.Foreground=ToggleOn;</Set>
-      </Ref>
-    </Item>
-    <Item>
-      <Ref RefName="Toggle">
-        <Set>Lower.Foreground=ToggleOn;</Set>
-      </Ref>
-    </Item>
-  </Canvas>
-
-  <!-- Inch/Mectic units -->
-  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
-    <Item>
-      <Ref RefName="InchMetric">
-        <Set>Upper.Foreground=ToggleOn;</Set>
-      </Ref>
-    </Item>
-    <Item>
-      <Ref RefName="InchMetric">
-        <Set>Lower.Foreground=ToggleOn;</Set>
-      </Ref>
-    </Item>
-  </Canvas>
-
-  <!-- Tool Library (PIP) -->
-
-  <Set ShowValue="ToolListHeight">ToolListHeight</Set>
-  <Set ShowValue="ToolListWidth">ToolListWidth</Set>
-  <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
-  <Set ShowValue="ToolListTop">ToolLibHeight</Set>
-
-  <Component Name="ToolButton">
-    <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
-      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolLibraryForeground">
-      <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
-      <TextBlock Name="Label" Top="ToolBtnHeight + 5" Font="BtnFont" FontSize="18" Foreground="ToolLibraryForeground"/>
-    </Rectangle>
-  </Component>
-
-  <Set>
-    <!-- Adjust size of icon, keeping it centered -->
-    OkIconAdj = 0;
-    TrashIconAdj = 10;
-    FolderIconAdj = 12;
-    CancelIconAdj = 0;
-  </Set>
-
-  <Component Name="ToolButtons">
-    <Ref RefName="ToolButton">
-      <Set>
-        Icon.Source = Ok128.png;
-        Icon.Height = ToolBtnHeight - OkIconAdj;
-        Icon.Width = ToolBtnWidth - OkIconAdj;
-        Icon.Top = OkIconAdj / 2;
-        Icon.Left = OkIconAdj / 2;
-        Label.Text = Done;
-        Button.Name = OkButton;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
-      <Set>
-        Icon.Source = Trash128.png;
-        Icon.Height = ToolBtnHeight - TrashIconAdj;
-        Icon.Width = ToolBtnWidth - TrashIconAdj;
-        Icon.Top = TrashIconAdj / 2;
-        Icon.Left = TrashIconAdj / 2;
-        Label.Text = Delete;
-        Button.Name = DeleteButton;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-      <Set>
-        Icon.Source = Folder128.png;
-        Icon.Height = ToolBtnHeight - FolderIconAdj;
-        Icon.Width = ToolBtnWidth - FolderIconAdj;
-        Icon.Top = FolderIconAdj / 2;
-        Icon.Left = FolderIconAdj / 2;
-        Label.Text = "Import/&#xA;Export";
-        Button.Name = FileButton;
-      </Set>
-    </Ref>
-  </Component>
-
-  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolLibraryBackground" ColorDepth="Color16bpp">
-    <Item>
-      <Ref RefName="ToolButtons"/>
-    </Item>
-    <Item>
-      <Ref RefName="ToolButton">
-        <Set>
-          Icon.Source = Trash128.png;
-          Icon.Height = ToolBtnHeight - TrashIconAdj;
-          Icon.Width = ToolBtnWidth - TrashIconAdj;
-          Icon.Top = TrashIconAdj / 2;
-          Icon.Left = TrashIconAdj / 2;
-          Label.Text = Confirm&#xA; Delete
-        </Set>
-      </Ref>
-      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-        <Set>
-          Icon.Source = Cancel128.png;
-          Icon.Height = ToolBtnHeight - CancelIconAdj;
-          Icon.Width = ToolBtnWidth - CancelIconAdj;
-          Icon.Top = CancelIconAdj / 2;
-          Icon.Left = CancelIconAdj / 2;
-          Label.Text = Cancel&#xA;Delete
-        </Set>
-      </Ref>
-    </Item>
-  </Canvas>
-
-  <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground" WidthMultiple="4">
-    <Ref RefName="ToolInfo" Left="KeySpace" Top="KeySpace">
-      <Set>
-        TextAreaTop.Top = 18;
-        <!-- Hide the dummy text -->
-        DummyText.Foreground = ToolLibraryBackground;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolLabels" Left="KeySpace" Top="KeySpace + ToolInfoHeight">
-      <Set>
-        Item.Height = ToolLabelHeight;
-        ToolLabelDesc.Height = ToolLabelHeight;
-        ToolLabelDesc.Width = ToolInfoDescWidth;
-        ToolTextDesc.Left = 80;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace">
-      <Set>
-        OkButton.Group = ToolLib;
-        OkButton.HotSpot = ToolsDone;
-        DeleteButton.HotSpot = ToolDelete;
-        DeleteButton.Group = ToolLib;
-        FileButton.HotSpot = ToolImportExport;
-        FileButton.Group = ToolLib;
-      </Set>
-    </Ref>
-  </Canvas>
-
-  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolListWidth" ColorDepth="Color16bpp" Fill="ToolLibraryBackground">
-    <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="ToolListWidth - KeySpace">
-      <Ref RefName="ToolInfo">
-        <Set>
-          Item.Height = ToolRowHeight + 1;
-          ToolItemDesc.Height = ToolRowHeight + 1;
-          Item.HotSpot = "";
-          ToolItemDesc.HotSpot = "";
-          ToolItemDesc.Width = ToolListDescWidth;
-          TextAreaTop.Top = 12;
-          <!-- Hide the dummy text -->
-          DummyText.Foreground = ToolLibraryBackground;
-        </Set>
-      </Ref>
-    </Rectangle>
-  </Canvas>
-
   <!-- Keyboard constants -->
   <Set>
-    KeyboardWidth = KeySpace + (BtnWidth + KeySpace) * 12;
-  	KeyboardHeight = KeySpace + (BtnHeight + KeySpace) * 5;
+    KeyboardWidth = KeySpace + (BtnWidth + KeySpace) * 11 + BtnWidth / 2;
+    KeyboardHeight = KeySpace + (BtnHeight + KeySpace) * 5;
+    SpacebarWidth = KeyboardWidth - KeySpace * 7 - BtnWidth * 13 / 2;
   </Set>
 
   <!-- Lower-case keyboard -->
-  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="32" Width="32" Fill="Black">
+  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
@@ -1041,6 +1057,7 @@
         <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
         <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
         <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
         <Column><Set>Label.Text=q; KeySpot.Name=Key_q</Set></Column>
@@ -1053,6 +1070,7 @@
         <Column><Set>Label.Text=i; KeySpot.Name=Key_i</Set></Column>
         <Column><Set>Label.Text=o; KeySpot.Name=Key_o</Set></Column>
         <Column><Set>Label.Text=p; KeySpot.Name=Key_p</Set></Column>
+        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
       </Row>
       <Row Left="BtnWidth">
         <Column><Set>Label.Text=a; KeySpot.Name=Key_a</Set></Column>
@@ -1064,10 +1082,31 @@
         <Column><Set>Label.Text=j; KeySpot.Name=Key_j</Set></Column>
         <Column><Set>Label.Text=k; KeySpot.Name=Key_k</Set></Column>
         <Column><Set>Label.Text=l; KeySpot.Name=Key_l</Set></Column>
-        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
+        <Column>
+          <Set>
+            Label.Text=⏎;
+            Button.Width=BtnWidth * 3 / 2 + KeySpace;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight=Bold;
+            Label.FontSize = 56;
+            Label.Top = 0;
+            KeySpot.Name=Key_enter;
+          </Set>
+        </Column>
       </Row>
-      <Row Left="BtnWidth + BtnWidth / 2">
-        <Column><Set>Label.Text=z; KeySpot.Name=Key_z</Set></Column>
+      <Row>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 92;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=z; KeySpot.Name=Key_z</Set></Column>
         <Column><Set>Label.Text=x; KeySpot.Name=Key_x</Set></Column>
         <Column><Set>Label.Text=c; KeySpot.Name=Key_c</Set></Column>
         <Column><Set>Label.Text=v; KeySpot.Name=Key_v</Set></Column>
@@ -1076,12 +1115,32 @@
         <Column><Set>Label.Text=m; KeySpot.Name=Key_m</Set></Column>
         <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
         <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 86;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
       </Row>
     </Grid>
   </Canvas>
 
   <!-- Upper-case keyboard -->
-  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="32" Width="32" Fill="Black">
+  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
@@ -1098,6 +1157,7 @@
         <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
         <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
         <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
         <Column><Set>Label.Text=Q; KeySpot.Name=Key_Q</Set></Column>
@@ -1110,6 +1170,7 @@
         <Column><Set>Label.Text=I; KeySpot.Name=Key_I</Set></Column>
         <Column><Set>Label.Text=O; KeySpot.Name=Key_O</Set></Column>
         <Column><Set>Label.Text=P; KeySpot.Name=Key_P</Set></Column>
+        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
       </Row>
       <Row Left="BtnWidth">
         <Column><Set>Label.Text=A; KeySpot.Name=Key_A</Set></Column>
@@ -1121,10 +1182,30 @@
         <Column><Set>Label.Text=J; KeySpot.Name=Key_J</Set></Column>
         <Column><Set>Label.Text=K; KeySpot.Name=Key_K</Set></Column>
         <Column><Set>Label.Text=L; KeySpot.Name=Key_L</Set></Column>
-        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
+        <Column>
+          <Set>
+            Label.Text=⏎;
+            Button.Width=BtnWidth * 3 / 2 + KeySpace;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight=Bold;
+            Label.FontSize = 56;
+            Label.Top = 0;
+            KeySpot.Name=Key_enter;
+          </Set>
+        </Column>
       </Row>
       <Row>
-        <Column><Set>Button.Width=BtnWidth * 3 / 2; Label.Text=shft; KeySpot.Name=Key_shift;</Set></Column>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 92;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+        </Column>
         <Column Left="BtnWidth / 2"><Set>Label.Text=Z; KeySpot.Name=Key_Z</Set></Column>
         <Column><Set>Label.Text=X; KeySpot.Name=Key_X</Set></Column>
         <Column><Set>Label.Text=C; KeySpot.Name=Key_C</Set></Column>
@@ -1134,9 +1215,126 @@
         <Column><Set>Label.Text=M; KeySpot.Name=Key_M</Set></Column>
         <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
         <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
       </Row>
-      <Row Left="BtnWidth * 3 / 2">
-        <Column Left="BtnWidth * 2"><Set>Label.Text=" "; KeySpot.Name=Key_Space; Button.Width=360</Set></Column>
+      <Row>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 86;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
+      </Row>
+    </Grid>
+  </Canvas>
+
+  <!-- Symbol keyboard -->
+  <Canvas Name="KeySymbol" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+      <Default>
+        <Ref RefName="Key" />
+        <Set>KeySpot.Group = Keyboard</Set>
+      </Default>
+      <Row>
+        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
+      </Row>
+      <Row Left="BtnWidth / 2">
+        <Column><Set>Label.Text=~; KeySpot.Name=Key_tilde</Set></Column>
+        <Column><Set>Label.Text=!; KeySpot.Name=Key_exclamation</Set></Column>
+        <Column><Set>Label.Text=@; KeySpot.Name=Key_at</Set></Column>
+        <Column><Set>Label.Text=#; KeySpot.Name=Key_hash</Set></Column>
+        <Column><Set>Label.Text=$; KeySpot.Name=Key_dollar</Set></Column>
+        <Column><Set>Label.Text=%; KeySpot.Name=Key_percent</Set></Column>
+        <Column><Set>Label.Text=^; KeySpot.Name=Key_hat</Set></Column>
+        <Column><Set>Label.Text=*; KeySpot.Name=Key_star</Set></Column>
+        <Column><Set>Label.Text=(; KeySpot.Name=Key_lparen</Set></Column>
+        <Column><Set>Label.Text=); KeySpot.Name=Key_rparen</Set></Column>
+        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
+      </Row>
+      <Row Left="BtnWidth">
+        <Column><Set>Label.Text=`; KeySpot.Name=Key_backApostrophe</Set></Column>
+        <Column><Set>Label.Text=&amp;; KeySpot.Name=Key_ampersand</Set></Column>
+        <Column><Set>Label.Text=_; KeySpot.Name=Key_underscore</Set></Column>
+        <Column><Set>Label.Text=+; KeySpot.Name=Key_plus</Set></Column>
+        <Column><Set>Label.Text="="; KeySpot.Name=Key_equal</Set></Column>
+        <Column><Set>Label.Text=[; KeySpot.Name=Key_lbracket</Set></Column>
+        <Column><Set>Label.Text=]; KeySpot.Name=Key_rbracket</Set></Column>
+        <Column><Set>Label.Text={; KeySpot.Name=Key_lbrace</Set></Column>
+        <Column><Set>Label.Text=}; KeySpot.Name=Key_rbrace</Set></Column>
+        <Column>
+          <Set>
+            Label.Text=⏎;
+            Button.Width=BtnWidth * 3 / 2 + KeySpace;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight=Bold;
+            Label.FontSize = 56;
+            Label.Top = 0;
+            KeySpot.Name=Key_enter;
+          </Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 92;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=|; KeySpot.Name=Key_vbar</Set></Column>
+        <Column><Set>Label.Text="\\"; KeySpot.Name=Key_backslash</Set></Column>
+        <Column><Set>Label.Text=:; KeySpot.Name=Key_colon</Set></Column>
+        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
+        <Column><Set>Label.Text='; KeySpot.Name=Key_apostrophe</Set></Column>
+        <Column><Set>Label.Text=&lt;; KeySpot.Name=Key_lessthan</Set></Column>
+        <Column><Set>Label.Text=>; KeySpot.Name=Key_greaterthan</Set></Column>
+        <Column><Set>Label.Text="?"; KeySpot.Name=Key_question</Set></Column>
+        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            Button.Width=BtnWidth * 3 / 2;
+            Label.Text=⇧;
+            Label.FontFamily="Global Sans Serif";
+            Label.FontWeight = Bold;
+            Label.FontSize = 86;
+            Label.Top = -18;
+            KeySpot.Name=Key_shift;
+          </Set>
+          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="abc"; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
       </Row>
     </Grid>
   </Canvas>

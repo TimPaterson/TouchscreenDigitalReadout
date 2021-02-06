@@ -8,13 +8,14 @@
 #pragma once
 
 #include "FatFileDef.h"
-#include <FatFile/FatDrive.h>
+#include <FatFile/FatSys.h>
 
 
 // Use macros for state definitions
 #define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
 #define DIR_OP_STATES(op) OP_STATE(op, enumNext)
 #define SINGLE_OP_STATES(op) OP_STATE(op, ready)
+#define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, read0) OP_STATE(op, read1)
 
 #define OP_STATE(op, st)	ST_##op##_##st,
 
@@ -24,6 +25,7 @@ enum
 	FLASH_OP_STATES(flash)
 	DIR_OP_STATES(dir)
 	SINGLE_OP_STATES(single)
+	IMPORT_OP_STATES(import)
 };
 
 #undef OP_STATE
@@ -36,124 +38,14 @@ enum
 class FileOperations : public FatSys
 {
 public:
-	void WriteFileToFlash(const char *psz, ulong addr)
-	{
-		flash.addr = addr;
-		hFile = StartOpen(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
-		TO_STATE(flash, open);
-	}
-
-	void FileDirectory(char *psz, int cb)
-	{
-		dir.psz = psz;
-		dir.cb = cb;
-		dir.cnt = 0;
-		hFile = EnumBegin(0);
-		StartEnumNext(hFile, psz, cb);
-		TO_STATE(dir, enumNext);
-	}
-
-	void Mount(int drv)
-	{
-		drive = drv;
-		StartMount(drv);
-		TO_STATE(single, ready);
-	}
+	void Process();
+	void WriteFileToFlash(const char *psz, ulong addr);
+	void FileDirectory(char *psz, int cb);
+	void Mount(int drv);
+	void ToolImport(const char *psz);
 
 public:
 	bool IsBusy()	{ return state != ST_Idle; }
-
-public:
-	void Process()
-	{
-		int		status;
-
-		if (state == ST_Idle)
-			return;
-
-		if (hFile != 0)
-			status = GetStatus(hFile);
-		else
-			status = GetDriveStatus(drive);
-
-		if (status == FATERR_Busy)
-			return;
-
-		if (IsError(status) && status != FATERR_FileNotFound)
-			DEBUG_PRINT("File error %i\n", status);
-		else
-		{
-			switch (state)
-			{
-				//*************************************************************
-				// WriteFileToFlash
-
-				OP_STATE(flash, open)
-					int cb = GetSize(hFile);
-					// Round up to full block size for erasure
-					cb = (cb + SerialFlashBlockSize - 1) & ~(SerialFlashBlockSize - 1);
-					StartRead(hFile, NULL, FAT_SECT_SIZE);
-					TO_STATE(flash, read);
-
-					WDT->CTRL.reg = 0;	// disable watchdog during long process
-					RA8876::SerialMemErase(flash.addr, cb, 1);
-					WDT->CTRL.reg = WDT_CTRL_ENABLE;
-				END_STATE
-
-				OP_STATE(flash, read)
-					// status is no. of bytes read
-					int cb = status;
-					if (cb > 0)
-					{
-						RA8876::SerialMemWrite(flash.addr, cb, GetDataBuf(), 1);
-						flash.addr += cb;
-						StartRead(hFile, NULL, FAT_SECT_SIZE);
-					}
-					else
-					{
-						Close(hFile);
-						DEBUG_PRINT("complete\n");
-						OP_DONE;
-					}
-				END_STATE
-
-				//*************************************************************
-				// FileDirectory
-
-				OP_STATE(dir, enumNext)
-					// status is handle of next file
-					int h = status;
-
-					if (IsError(h))
-					{
-						Close(hFile);
-						DEBUG_PRINT("%i files\n", dir.cnt);
-						OP_DONE;
-					}
-					DEBUG_PRINT("%-20s", dir.psz);
-					if (!IsFolder(h))
-						DEBUG_PRINT(" %6li\n", GetSize(h));
-					else
-						DEBUG_PRINT("\n");
-					Close(h);
-					dir.cnt++;
-					StartEnumNext(hFile, dir.psz, dir.cb);
-				END_STATE
-
-				//*************************************************************
-				// Single operation (Mount)
-
-				OP_STATE(single, ready)
-					DEBUG_PRINT("Complete\n");
-					OP_DONE;
-				END_STATE
-			}
-		}
-
-		// Executed only when operation completed
-		state = ST_Idle;
-		hFile = 0;
-	}
 
 protected:
 	union
@@ -171,6 +63,11 @@ protected:
 			ushort	cb;
 			ushort	cnt;
 		} dir;
+
+		struct  
+		{
+			ushort	cbLeft;
+		} import;
 	};
 	byte	state;
 	byte	hFile;

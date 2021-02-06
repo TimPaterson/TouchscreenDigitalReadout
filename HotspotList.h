@@ -20,7 +20,7 @@
 #include "Fonts/Fonts.h"
 
 //*************************************************************************
-// Define the hotspot values for action keys on main screen. 
+// Define the hotspot values for action keys on main screen.
 
 enum ActionHotspots
 {
@@ -84,8 +84,8 @@ enum ToolAreas
 	// They are all values that can read or set by
 	// the calculator.
 	//
-	// The first 5 entries match the order in which 
-	// they appear in Screen.xml. This allows them 
+	// The first 5 entries match the order in which
+	// they appear in Screen.xml. This allows them
 	// to be used as an index into an array of Areas.
 	ToolNumber,
 	ToolDiameter,
@@ -112,6 +112,13 @@ enum ToolAreas
 
 enum KeyboardHotspots
 {
+	Key_enter,
+	Key_left,
+	Key_right,
+	Key_backspace,
+	Key_shift,
+	Key_symbols,
+
 	Key_1 = '1',
 	Key_2 = '2',
 	Key_3 = '3',
@@ -177,7 +184,7 @@ enum KeyboardHotspots
 	Key_N = 'N',
 	Key_M = 'M',
 
-	Key_Space = ' ',
+	Key_space = ' ',
 	Key_semi = ';',
 	Key_comma = ',',
 	Key_period = '.',
@@ -185,8 +192,32 @@ enum KeyboardHotspots
 	Key_plus = '+',
 	Key_minus = '-',
 	Key_equal = '=',
-
-	Key_shift = -1,
+	Key_underscore = '_',
+	Key_quote = '"',
+	Key_slash = '/',
+	Key_tilde = '~',
+	Key_exclamation = '!',
+	Key_at = '@',
+	Key_hash = '#',
+	Key_dollar = '$',
+	Key_percent = '%',
+	Key_hat = '^',
+	Key_star = '*',
+	Key_lparen = '(',
+	Key_rparen = ')',
+	Key_apostrophe = '\'',
+	Key_backApostrophe = '`',
+	Key_ampersand = '&',
+	Key_lbracket = '[',
+	Key_rbracket = ']',
+	Key_lbrace = '{',
+	Key_rbrace = '}',
+	Key_vbar = '|',
+	Key_backslash = '\\',
+	Key_colon = ':',
+	Key_lessthan = '<',
+	Key_greaterthan = '>',
+	Key_question = '?',
 };
 
 //*************************************************************************

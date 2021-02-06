@@ -10,3 +10,6 @@
 #define FAT_SECT_BUF_CNT	4
 #define FAT_MAX_HANDLES		12
 #define FAT_NUM_DRIVES		2
+
+#include <FatFile\Fat.h>
+inline FatDateTime GetFatTime()		{ FatDateTime dt; dt.ul = 0; return dt; }

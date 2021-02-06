@@ -89,6 +89,11 @@ public:
 		m_spaceWidth = width;
 	}
 
+	uint GetSpaceWidth()
+	{
+		return m_spaceWidth;
+	}
+
 	void SetForeColor(ulong color)
 	{
 		m_foreColor = color;

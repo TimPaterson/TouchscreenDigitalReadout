@@ -10,6 +10,7 @@
 #include "HotspotList.h"
 #include "ListScroll.h"
 #include "AxisDisplay.h"
+#include <FatFile/FatFileConst.h>
 
 
 class ToolLib
@@ -32,9 +33,11 @@ class ToolLib
 		double	length;
 	};
 
+	static constexpr int ToolDescSize = ToolEntrySize - sizeof(ToolLibBase);
+
 	struct ToolLibInfo : public ToolLibBase
 	{
-		char	arDesc[ToolEntrySize - sizeof(ToolLibBase)];
+		char	arDesc[ToolDescSize];
 
 		bool HasData()
 		{
@@ -76,12 +79,15 @@ class ToolLib
 		{
 			if (lineNum < s_toolCount)
 			{
+				if (lineNum == s_curLineNum)
+					s_textList.SetForeColor(ToolLibSelected);
 				s_textList.DisplayLine(PtrFromLine(lineNum));
+				s_textList.SetForeColor(ToolLibForeground);
 				ScreenMgr::CopyRect(this, pArea, &ToolRow);
 			}
 			else
 			{
-				ScreenMgr::FillRect(this, pArea, ToolLibraryBackground);
+				ScreenMgr::FillRect(this, pArea, ToolLibBackground);
 			}
 			return true;
 		}
@@ -91,17 +97,26 @@ class ToolLib
 	{
 	public:
 		ToolDisplay(Canvas *pCanvas, const Area *pArea, ulong foreColor, ulong backColor) :
-			NumberLineBlankZ(pCanvas, NULL, FID_CalcSmall, foreColor, backColor), arItemAreas{pArea}
+			NumberLineBlankZ(pCanvas, pArea, FID_CalcSmall, foreColor, backColor), arItemAreas{pArea}
 			{}
 
 	public:
 		void DisplayLine(ToolLibInfo *pTool)
 		{
+			uint	widthSpace;
+
 			PrintDbl(IsMetric() ? "%5.2f" : "%5.3f", CheckMetric(pTool->diameter), &arItemAreas[ToolDiameter]);
 			PrintDbl(IsMetric() ? "%6.2f" : "%6.3f", CheckMetric(pTool->length), &arItemAreas[ToolLength]);
 
 			PrintUint("%3u", pTool->number, &arItemAreas[ToolNumber]);
 			PrintUint("%3u", pTool->flutes, &arItemAreas[ToolFlutes]);
+
+			SetArea(&arItemAreas[ToolDesc]);
+			ClearArea();
+			widthSpace = GetSpaceWidth();
+			SetSpaceWidth(0);
+			WriteString(pTool->arDesc);
+			SetSpaceWidth(widthSpace);
 		}
 
 	protected:
@@ -115,6 +130,9 @@ public:
 	// .cpp file
 	static void ToolAction(uint spot);
 	static void ShowToolInfo();
+	static int ImportTools(char *pb, uint cb, uint cbWrap);
+	static int ImportTool(char *pchBuf);
+	static void ImportDone();
 
 public:
 	static void Init()
@@ -176,6 +194,21 @@ protected:
 		return s_curLineNum == NoCurrentLine || s_arSortList[s_curLineNum] == ToolBufIndex;
 	}
 
+	static void SelectLine(uint line)
+	{
+		uint	oldLine;
+
+		oldLine = s_curLineNum;
+		s_curLineNum = line;
+		if (oldLine != NoCurrentLine)
+			s_scroll.InvalidateLine(oldLine);
+		if (line != NoCurrentLine)
+		{
+			s_scroll.InvalidateLine(line);
+			s_scroll.ScrollToLine(line);
+		}
+	}
+
 	static uint FindTool(uint num)
 	{
 		uint	line;
@@ -184,9 +217,8 @@ protected:
 		{
 			if (PtrFromLine(line)->number == num)
 			{
-				s_curLineNum = line;
+				SelectLine(line);
 				s_modToolIndex = ToolNotModified;
-				s_scroll.ScrollToLine(line);
 				return line;
 			}
 		}
@@ -231,9 +263,9 @@ protected:
 
 		for (line = 0; line < s_toolCount && PtrFromLine(line)->number < num; line++);
 
+		// We do not update the display in case this is a mass import
 		memmove(&s_arSortList[line + 1], &s_arSortList[line], (s_toolCount - line) * sizeof s_arSortList[0]);
 		s_arSortList[line] = bufIndex;
-		s_curLineNum = line;
 		s_modToolIndex = ToolNotModified;
 		s_toolCount++;
 		s_scroll.SetTotalLines(s_toolCount);
@@ -297,15 +329,21 @@ protected:
 	}
 
 	//*********************************************************************
+	// const (flash) data
+	//*********************************************************************
+protected:
+	inline static const char s_archImportHead[] = "Tool,Diameter,Length,Flutes,Description";
+
+	//*********************************************************************
 	// static (RAM) data
 	//*********************************************************************
 protected:
 	inline static ToolDisplay	s_textMain {&MainScreen, &MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};
-	inline static ToolDisplay	s_textLib  {&ToolLibrary, &ToolLibrary_Areas.ToolNumber,
-		ToolLibraryForeground, ToolLibraryBackground};
+	inline static ToolDisplay	s_textInfo  {&ToolLibrary, &ToolLibrary_Areas.ToolNumber,
+		ToolInfoForeground, ToolInfoBackground};
 	inline static ToolDisplay	s_textList  {&ToolRow, &ToolRow_Areas.ToolNumber,
-		ToolLibraryForeground, ToolLibraryBackground};
+		ToolLibForeground, ToolLibBackground};
 	inline static ToolScroll	s_scroll;
 	inline static ushort		s_toolCount;
 	inline static ushort		s_curLineNum;
@@ -313,6 +351,9 @@ protected:
 	inline static ushort		s_freeToolIndex;
 	inline static byte			s_toolSides;
 	inline static ToolLibInfo	s_bufTool;
+	inline static FILE			s_fileImport;
 	inline static ushort		s_arSortList[MaxToolCount];
 	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];
+public:
+	inline static byte			s_arImportBuf[2][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 };
