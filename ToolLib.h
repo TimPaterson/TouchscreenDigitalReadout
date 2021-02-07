@@ -16,7 +16,7 @@
 class ToolLib
 {
 	static constexpr int ToolEntrySize = 64;
-	static constexpr int MaxToolCount = 20;
+	static constexpr int MaxToolCount = 100;
 	static constexpr ushort NoCurrentLine = 0xFFFF;		// occurs in s_curLineNum
 	static constexpr ushort ToolBufIndex = 0xFFFF;		// occurs in s_arSortList[]
 	static constexpr ushort ToolNotModified = 0xFFFF;	// occurs in s_modToolIndex
@@ -24,6 +24,13 @@ class ToolLib
 	//*********************************************************************
 	// Types
 	//*********************************************************************
+
+	enum ToolButtonImages
+	{
+		TOOL_IMAGE_NotModified,
+		TOOL_IMAGE_ConfirmDelete,
+		TOOL_IMAGE_IsModified,
+	};
 
 	struct ToolLibBase
 	{
@@ -75,7 +82,7 @@ class ToolLib
 		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, Color16bpp) {}
 
 	protected:
-		virtual bool FillLine(int lineNum, Area *pArea)
+		virtual void FillLine(int lineNum, Area *pArea)
 		{
 			if (lineNum < s_toolCount)
 			{
@@ -88,8 +95,25 @@ class ToolLib
 			else
 			{
 				ScreenMgr::FillRect(this, pArea, ToolLibBackground);
+				if (lineNum == s_toolCount)
+				{
+					// Draw bottom line of last grid entry.
+					// Note that most destination graphics registers are already set up
+					WriteReg16(BTE_HIG0, 1);	// one pixel height
+					SetForeColor(ToolInfoForeground);
+					ScreenMgr::SetBteSrc0(&ToolRow);
+					WriteRegXY(S0_X0, 0, 0);
+					WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
+					WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+					WaitWhileBusy();
+				}
 			}
-			return true;
+		}
+
+		virtual void LineSelected(int lineNum)
+		{
+			SelectLine(lineNum);
+			ShowToolInfo();
 		}
 	};
 
@@ -111,10 +135,11 @@ class ToolLib
 			PrintUint("%3u", pTool->number, &arItemAreas[ToolNumber]);
 			PrintUint("%3u", pTool->flutes, &arItemAreas[ToolFlutes]);
 
+			// Set the space width to normal for the description field
 			SetArea(&arItemAreas[ToolDesc]);
 			ClearArea();
 			widthSpace = GetSpaceWidth();
-			SetSpaceWidth(0);
+			SetSpaceWidth();
 			WriteString(pTool->arDesc);
 			SetSpaceWidth(widthSpace);
 		}
@@ -149,8 +174,8 @@ public:
 
 	static void ShowToolLib()
 	{
-		ScreenMgr::EnablePip1(&s_scroll, 0, ToolListTop);
-		ScreenMgr::EnablePip2(&ToolLibrary, 0, 0);
+		ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
+		ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
 	}
 
 	static ListScroll *ListCapture(int x, int y, ScrollAreas spot)
@@ -189,6 +214,13 @@ protected:
 		return PtrFromIndex(s_arSortList[line]);
 	}
 
+	static ToolLibInfo *PtrCurrentTool()
+	{
+		if (s_curLineNum == NoCurrentLine)
+			return &s_bufTool;
+		return PtrFromLine(s_curLineNum);
+	}
+
 	static bool IsToolBuffered()
 	{
 		return s_curLineNum == NoCurrentLine || s_arSortList[s_curLineNum] == ToolBufIndex;
@@ -218,6 +250,8 @@ protected:
 			if (PtrFromLine(line)->number == num)
 			{
 				SelectLine(line);
+				if (s_modToolIndex != ToolNotModified)
+					DEBUG_PRINT("Find replacing modified tool\n");
 				s_modToolIndex = ToolNotModified;
 				return line;
 			}
@@ -236,6 +270,7 @@ protected:
 			s_arToolInfo[s_modToolIndex] = s_bufTool;
 			s_arSortList[s_curLineNum] = s_modToolIndex;
 			s_modToolIndex = ToolNotModified;
+			SetToolButtonImage(TOOL_IMAGE_NotModified);
 		}
 		else if (s_arSortList[s_curLineNum] == ToolBufIndex)
 		{
@@ -266,10 +301,40 @@ protected:
 		// We do not update the display in case this is a mass import
 		memmove(&s_arSortList[line + 1], &s_arSortList[line], (s_toolCount - line) * sizeof s_arSortList[0]);
 		s_arSortList[line] = bufIndex;
+		if (s_modToolIndex != ToolNotModified)
+			DEBUG_PRINT("Inserting  modified tool\n");
 		s_modToolIndex = ToolNotModified;
 		s_toolCount++;
 		s_scroll.SetTotalLines(s_toolCount);
 		return line;
+	}
+
+	static void DeleteTool()
+	{
+		uint	line;
+
+		// We should only be here when displaying an unmodified tool
+		line = s_curLineNum;
+
+		// Overwrite tool data -- UNDONE: handle for flash
+		s_arToolInfo[s_arSortList[line]].ClearData();
+
+		// Remove from sort list
+		s_toolCount--;
+		memmove(&s_arSortList[line], &s_arSortList[line + 1], (s_toolCount - line) * sizeof s_arSortList[0]);
+		if (line >= s_toolCount)
+		{
+			line--;
+			SelectLine(line);
+		}
+		s_scroll.SetTotalLines(s_toolCount);
+		s_scroll.InvalidateLines(line, s_toolCount + 1);
+		ShowToolInfo();
+	}
+
+	static void SetToolButtonImage(ToolButtonImages image)
+	{
+		ScreenMgr::SelectImage(&ToolLibrary, &ToolLibrary_Areas.ToolButtons, &ToolButtons, image);
 	}
 
 protected:
@@ -280,7 +345,7 @@ protected:
 
 	static bool IsLibShown()
 	{
-		return ScreenMgr::GetPip2()->pImage == &ToolLibrary;
+		return ScreenMgr::GetPip1()->pImage == &ToolLibrary;
 	}
 
 	static double LimitVal(double val, double max)
@@ -350,6 +415,7 @@ protected:
 	inline static ushort		s_modToolIndex;
 	inline static ushort		s_freeToolIndex;
 	inline static byte			s_toolSides;
+	inline static bool			s_fConfirmDelete;
 	inline static ToolLibInfo	s_bufTool;
 	inline static FILE			s_fileImport;
 	inline static ushort		s_arSortList[MaxToolCount];

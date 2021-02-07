@@ -56,6 +56,11 @@ public:
 		WriteSequentialRegisters(pCanvas, PISA0, CanvasViewRegCount);
 	}
 
+	static void SetPip1Modal(bool fModal)
+	{
+		s_fPip1Modal = fModal;
+	}
+
 	static void DisablePip1()
 	{
 		WriteData(ReadReg(MPWCTR) & ~MPWCTR_Pip1_Mask);
@@ -76,6 +81,11 @@ public:
 		val = ReadReg(PIPCDEP) & ~PIPCDEP_Pip2Color_Mask;
 		WriteData(val | (pCanvas->GetColorDepth() << PIPCDEP_Pip2Color_Shft));
 		WriteSequentialRegisters(pCanvas, PISA0, CanvasViewRegCount);
+	}
+
+	static void SetPip2Modal(bool fModal)
+	{
+		s_fPip2Modal = fModal;
 	}
 
 	static void DisablePip2()
@@ -127,14 +137,14 @@ public:
 		WriteSequentialRegisters(pCanvas, CVSSA0, CanvasViewDepthRegCount);
 	}
 
-	static void SetBteSrc0(const TouchCanvas *pCanvas, uint bpp)
+	static void SetBteSrc0(const TouchCanvas *pCanvas)
 	{
-		SetBteSrc0((const Image *)pCanvas, bpp);
+		SetBteSrc0((const Image *)pCanvas, pCanvas->GetColorDepth());
 	}
 
-	static void SetBteSrc0(const ColorImage *pImage, uint bpp)
+	static void SetBteSrc0(const ColorImage *pImage)
 	{
-		SetBteSrc0((const Image *)pImage, bpp);
+		SetBteSrc0((const Image *)pImage, pImage->GetColorDepth());
 	}
 
 	static void SetBteSrc0(const Image *pImage, uint bpp)
@@ -195,7 +205,7 @@ public:
 
 	static void CopyRect(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint srcX, uint srcY)
 	{
-		SetBteSrc0(pSrc, pSrc->GetColorDepth());
+		SetBteSrc0(pSrc);
 		WriteRegXY(S0_X0, srcX, srcY);
 		CopyRectSrcSet(pDst, pAreaDst);
 	}
@@ -222,7 +232,7 @@ public:
 
 	static void RectBorder(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc)
 	{
-		SetBteSrc0(pSrc, pSrc->GetColorDepth());
+		SetBteSrc0(pSrc);
 		WriteRegXY(S0_X0, 0, 0);
 		SetBteDest(pDst);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodePatternFillWithRop | BTE_CTRL1_RopS0);

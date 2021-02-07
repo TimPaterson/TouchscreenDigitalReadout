@@ -59,7 +59,7 @@ public:
 		m_viewHeight{height}, m_colorDepth{depth} {}
 
 public:
-	byte GetColorDepth()	{ return m_colorDepth; }
+	byte GetColorDepth() const	{ return m_colorDepth; }
 
 	void SetViewPos(uint x, uint y)
 	{

@@ -100,11 +100,17 @@ public:
 			return true;
 		}
 		m_fTrackThumb = false;
+		m_fDidMove  = false;
 		return true;
 	}
 
 	void EndCapture()
 	{
+		if (m_fDidMove)
+			return;
+
+		// No movement on last touch, select the line instead
+		LineSelected((m_posCur + m_capturePos) / m_lineHeight);
 	}
 
 	void ScrollToLine(int line)
@@ -160,6 +166,7 @@ public:
 			return;
 
 		m_capturePos = y;
+		m_fDidMove = true;
 
 		if (m_fTrackThumb)
 		{
@@ -298,7 +305,8 @@ protected:
 	}
 
 protected:
-	virtual bool FillLine(int lineNum, Area *pArea) = 0;
+	virtual void FillLine(int lineNum, Area *pArea) = 0;
+	virtual void LineSelected(int lineNum) = 0;
 
 protected:
 	int		m_posCur;
@@ -322,6 +330,7 @@ protected:
 	}};
 
 	bool	m_fTrackThumb;
+	bool	m_fDidMove;
 
 protected:
 	inline static int s_NextFreeRam{RamFreeStart};

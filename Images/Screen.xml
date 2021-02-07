@@ -116,7 +116,7 @@
 
     <!-- Tool Library -->
     ToolLibHeight = CalcDispTop - 2;
-    ToolLibWidth = KeypadRight;
+    ToolLibWidth = ScreenWidth;
     ToolListHeight = ScreenHeight - ToolLibHeight;
     ToolListWidth = KeypadLeft - 8;
     ToolRowWidth = ToolListWidth - ScrollBarWidth;
@@ -798,16 +798,18 @@
         ToolTextDesc.Left = 80;
       </Set>
     </Ref>
-    <Ref RefName="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace">
-      <Set>
-        OkButton.Group = ToolLib;
-        OkButton.HotSpot = ToolsDone;
-        DeleteButton.HotSpot = ToolDelete;
-        DeleteButton.Group = ToolLib;
-        FileButton.HotSpot = ToolImportExport;
-        FileButton.Group = ToolLib;
-      </Set>
-    </Ref>
+    <Rectangle Area="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace" Width="ToolButtonsWidth" Height="ToolCtrlHeight">
+      <Ref RefName="ToolButtons">
+        <Set>
+          OkButton.Group = ToolLib;
+          OkButton.HotSpot = ToolsDone;
+          DeleteButton.HotSpot = ToolDelete;
+          DeleteButton.Group = ToolLib;
+          FileButton.HotSpot = ToolImportExport;
+          FileButton.Group = ToolLib;
+        </Set>
+      </Ref>
+    </Rectangle>
   </Canvas>
 
   <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
@@ -851,6 +853,38 @@
           Icon.Top = CancelIconAdj / 2;
           Icon.Left = CancelIconAdj / 2;
           Label.Text = Cancel&#xA;Delete
+        </Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = Ok128.png;
+          Icon.Height = ToolBtnHeight - OkIconAdj;
+          Icon.Width = ToolBtnWidth - OkIconAdj;
+          Icon.Top = OkIconAdj / 2;
+          Icon.Left = OkIconAdj / 2;
+          Label.Text = Done;
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
+        <Set>
+          Icon.Source = Cancel128.png;
+          Icon.Height = ToolBtnHeight - CancelIconAdj;
+          Icon.Width = ToolBtnWidth - CancelIconAdj;
+          Icon.Top = CancelIconAdj / 2;
+          Icon.Left = CancelIconAdj / 2;
+          Label.Text = Cancel;
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Folder128.png;
+          Icon.Height = ToolBtnHeight - FolderIconAdj;
+          Icon.Width = ToolBtnWidth - FolderIconAdj;
+          Icon.Top = FolderIconAdj / 2;
+          Icon.Left = FolderIconAdj / 2;
+          Label.Text = "Import/&#xA;Export";
         </Set>
       </Ref>
     </Item>

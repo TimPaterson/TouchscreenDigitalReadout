@@ -18,6 +18,23 @@ void ToolLib::ToolAction(uint spot)
 	double	val;
 	uint	tool;
 	uint	line;
+	ToolLibInfo	*pTool;
+
+	if (s_fConfirmDelete)
+	{
+		// Lock out anything but Confirm or Cancel deletion of a tool.
+		// Confirm is ToolDone, Cancel is ToolImportExport.
+		if (spot != ToolsDone && spot != ToolImportExport)
+			return;
+
+		if (spot == ToolsDone)
+			DeleteTool();
+
+		s_fConfirmDelete = false;
+		ScreenMgr::SetPip1Modal(false);
+		SetToolButtonImage(TOOL_IMAGE_NotModified);
+		return;
+	}
 
 	if (spot == ToolNumber)
 	{
@@ -78,6 +95,7 @@ void ToolLib::ToolAction(uint spot)
 						// We're in the tool library
 						s_modToolIndex = s_arSortList[s_curLineNum];
 						s_arSortList[s_curLineNum] = ToolBufIndex;
+						SetToolButtonImage(TOOL_IMAGE_IsModified);
 					}
 					else
 					{
@@ -141,18 +159,20 @@ InsertIfValid:
 		else
 		{
 			// Just reading the entry
+			pTool = PtrCurrentTool();
+
 			switch (spot)
 			{
 			case ToolFlutes:
-				val = s_bufTool.flutes;
+				val = pTool->flutes;
 				break;
 
 			case ToolDiameter:
-				val = CheckMetric(s_bufTool.diameter);
+				val = CheckMetric(pTool->diameter);
 				break;
 
 			case ToolLength:
-				val = CheckMetric(s_bufTool.length);
+				val = CheckMetric(pTool->length);
 				break;
 
 			case ToolChipLoad:
@@ -178,7 +198,29 @@ InsertIfValid:
 		ScreenMgr::DisablePip2();
 		SaveTool();
 		return;
+
+	case ToolDelete:
+		if (s_curLineNum == NoCurrentLine)
+		{
+			s_bufTool.ClearData();
+			break;
+		}
+		else if (s_arSortList[s_curLineNum] == ToolBufIndex && s_modToolIndex != ToolNotModified)
+		{
+			// Tool is modified, treat as Cancel
+			s_bufTool.ClearData();
+			s_arSortList[s_curLineNum] = s_modToolIndex;
+			s_modToolIndex = ToolNotModified;
+			s_scroll.InvalidateLine(s_curLineNum);
+			SetToolButtonImage(TOOL_IMAGE_NotModified);
+			break;
+		}
+		s_fConfirmDelete = true;
+		ScreenMgr::SetPip1Modal(true);
+		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
+		return;
 	}
+	ShowToolInfo();
 }
 
 
@@ -190,10 +232,7 @@ void ToolLib::ShowToolInfo()
 	ToolLibInfo	*pInfo;
 
 	// Tool info
-	if (s_curLineNum == NoCurrentLine)
-		pInfo = &s_bufTool;
-	else
-		pInfo = PtrFromLine(s_curLineNum);
+	pInfo = PtrCurrentTool();
 
 	s_textMain.DisplayLine(pInfo);
 	s_textInfo.DisplayLine(pInfo);
@@ -252,9 +291,8 @@ void ToolLib::ShowToolInfo()
 
 int ToolLib::ImportTool(char *pchBuf)
 {
-	int		cb;
+	char	ch;
 	char	*pchDesc;
-	char	*pch;
 
 	s_bufTool.number = strtoul(pchBuf, &pchBuf, 0);
 	if (*pchBuf++ != ',')
@@ -274,33 +312,27 @@ int ToolLib::ImportTool(char *pchBuf)
 
 	if (*pchBuf == '"')
 	{
-		// See if there are any "" (escaped quote) in the string
-		for (pchDesc = s_bufTool.arDesc;;)
+		pchBuf++;
+		pchDesc = s_bufTool.arDesc;
+		while (pchDesc < &s_bufTool.arDesc[ToolDescSize - 2])
 		{
-			pchBuf++;	// skip "
-			pch = strstr(pchBuf, "\"\"");
-			if (pch == NULL)
+			ch = *pchBuf++;
+			if (ch == '"')
+			{
+				if (*pchBuf == '"')
+					pchBuf++;	// skip escaped quote
+				else
+					ch = 0;		// closing quote
+			}
+			*pchDesc++ = ch;
+			if (ch == 0)
 				break;
-			// Copy string up to one "
-			cb = pch - pchBuf + 1;
-			memcpy(pchDesc, pchBuf, cb);
-			pchDesc += cb;
-			pchBuf += cb;
 		}
-		// Find final trailing quote
-		pch = strchr(pchBuf, '"');
-		if (pch == NULL)
-			return -1;	// UNDONE: error handling on tool import
-		cb = pch - pchBuf;
-		memcpy(pchDesc, pchBuf, cb);
-		pchDesc[cb] = '\0';
 	}
 	else
-	{
 		strncpy(s_bufTool.arDesc, pchBuf, ToolDescSize - 1);
-		s_bufTool.arDesc[ToolDescSize - 1] = '\0';	// ensure null terminated
-	}
 
+	s_bufTool.arDesc[ToolDescSize - 1] = '\0';	// ensure null terminated
 	s_curLineNum = InsertTool(ToolBufIndex);
 	SaveTool();
 
@@ -376,4 +408,5 @@ void ToolLib::ImportDone()
 {
 	s_scroll.InvalidateLines(0, s_toolCount - 1);
 	SelectLine(0);
+	ShowToolInfo();
 }
