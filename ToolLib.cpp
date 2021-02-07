@@ -68,7 +68,7 @@ void ToolLib::ToolAction(uint spot)
 			else
 			{
 				// Didn't find tool, display error
-				s_textMain.SetArea(&MainScreen_Areas.ToolNumber);
+				s_textMain.SetArea(MainScreen_Areas.ToolNumber);
 				s_textMain.ClearArea();
 				s_textMain.WriteString("???");
 				return;		// don't show tool info
@@ -241,13 +241,13 @@ void ToolLib::ShowToolInfo()
 	s_textMain.PrintDbl(
 		"%5.0f",
 		CheckMetricSurface(Eeprom.Data.Sfm),
-		&MainScreen_Areas.Sfm);
+		MainScreen_Areas.Sfm);
 
 	// Chip load
 	s_textMain.PrintDbl(
 		IsMetric() ? "%6.3f" : "%6.4f",
 		CheckMetric(Eeprom.Data.ChipLoad),
-		&MainScreen_Areas.ChipLoad);
+		MainScreen_Areas.ChipLoad);
 
 	// Compute and display RPM
 	if (pInfo->diameter != 0 && Eeprom.Data.Sfm != 0)
@@ -259,11 +259,11 @@ void ToolLib::ShowToolInfo()
 	else
 		val = 0;
 
-	s_textMain.PrintUint("%5u", (uint)val, &MainScreen_Areas.Rpm);
+	s_textMain.PrintUint("%5u", (uint)val, MainScreen_Areas.Rpm);
 
 	// Compute and display feed rate
 	val *= CheckMetric(Eeprom.Data.ChipLoad) * pInfo->flutes;
-	s_textMain.PrintUint("%5u", (uint)val, &MainScreen_Areas.FeedRate);
+	s_textMain.PrintUint("%5u", (uint)val, MainScreen_Areas.FeedRate);
 
 	// Update cutter radius offset
 	PrepareDrawTool();

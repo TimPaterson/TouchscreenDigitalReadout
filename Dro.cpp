@@ -85,9 +85,9 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 
 static const int AxisUpdateRate = 20;	// updates per second
 
-AxisDisplay Xaxis(&Eeprom.Data.XaxisInfo, &MainScreen_Areas.Xdisplay);
-AxisDisplay Yaxis(&Eeprom.Data.YaxisInfo, &MainScreen_Areas.Ydisplay);
-AxisDisplay Zaxis(&Eeprom.Data.ZaxisInfo, &MainScreen_Areas.Zdisplay);
+AxisDisplay Xaxis(&Eeprom.Data.XaxisInfo, MainScreen_Areas.Xdisplay);
+AxisDisplay Yaxis(&Eeprom.Data.YaxisInfo, MainScreen_Areas.Ydisplay);
+AxisDisplay Zaxis(&Eeprom.Data.ZaxisInfo, MainScreen_Areas.Zdisplay);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
 
 //********************************************************************

@@ -40,8 +40,8 @@ protected:
 	class CalcMemory : public NumberLineBlankZ
 	{
 	public:
-		CalcMemory(const Area *pArea, ulong backColor) :
-			NumberLineBlankZ(&MainScreen, pArea, FID_CalcSmall, 0, backColor)
+		CalcMemory(const Area &area, ulong backColor) :
+			NumberLineBlankZ(MainScreen, area, FID_CalcSmall, 0, backColor)
 		{}
 
 	public:
@@ -573,12 +573,12 @@ protected:
 	// Helper functions - Settings screen
 	//*********************************************************************
 protected:
-	static void SettingsCheckBox(const Area *pAreaDst, bool f)
+	static void SettingsCheckBox(const Area &pAreaDst, bool f)
 	{
-		ScreenMgr::SelectImage(&SettingsScreen, pAreaDst, &CheckBox, f);
+		ScreenMgr::SelectImage(&SettingsScreen, &pAreaDst, &CheckBox, f);
 	}
 
-	static void ShowAxisInfo(AxisInfo axis, const Area *pRes, const Area *pCorrect, const Area *pInvert)
+	static void ShowAxisInfo(AxisInfo axis, const Area &pRes, const Area &pCorrect, const Area &pInvert)
 	{
 		double	val;
 
@@ -592,23 +592,23 @@ protected:
 
 	static void ShowSettingsInfo()
 	{
-		ShowAxisInfo(Eeprom.Data.XaxisInfo, &SettingsScreen_Areas.Xresolution,
-			&SettingsScreen_Areas.Xcorrection, &SettingsScreen_Areas.Xinvert);
+		ShowAxisInfo(Eeprom.Data.XaxisInfo, SettingsScreen_Areas.Xresolution,
+			SettingsScreen_Areas.Xcorrection, SettingsScreen_Areas.Xinvert);
 
-		ShowAxisInfo(Eeprom.Data.YaxisInfo, &SettingsScreen_Areas.Yresolution,
-			&SettingsScreen_Areas.Ycorrection, &SettingsScreen_Areas.Yinvert);
+		ShowAxisInfo(Eeprom.Data.YaxisInfo, SettingsScreen_Areas.Yresolution,
+			SettingsScreen_Areas.Ycorrection, SettingsScreen_Areas.Yinvert);
 
-		ShowAxisInfo(Eeprom.Data.ZaxisInfo, &SettingsScreen_Areas.Zresolution,
-			&SettingsScreen_Areas.Zcorrection, &SettingsScreen_Areas.Zinvert);
+		ShowAxisInfo(Eeprom.Data.ZaxisInfo, SettingsScreen_Areas.Zresolution,
+			SettingsScreen_Areas.Zcorrection, SettingsScreen_Areas.Zinvert);
 
-		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qresolution,
-			&SettingsScreen_Areas.Qcorrection, &SettingsScreen_Areas.Qinvert);
+		ShowAxisInfo(Eeprom.Data.QaxisInfo, SettingsScreen_Areas.Qresolution,
+			SettingsScreen_Areas.Qcorrection, SettingsScreen_Areas.Qinvert);
 
-		SettingsCheckBox(&SettingsScreen_Areas.HighlightXY, Eeprom.Data.fHighlightOffset);
-		SettingsCheckBox(&SettingsScreen_Areas.OffsetZ, Eeprom.Data.fToolLenAffectsZ);
-		SettingsCheckBox(&SettingsScreen_Areas.CncCoordinates, Eeprom.Data.fCncCoordinates);
+		SettingsCheckBox(SettingsScreen_Areas.HighlightXY, Eeprom.Data.fHighlightOffset);
+		SettingsCheckBox(SettingsScreen_Areas.OffsetZ, Eeprom.Data.fToolLenAffectsZ);
+		SettingsCheckBox(SettingsScreen_Areas.CncCoordinates, Eeprom.Data.fCncCoordinates);
 
-		s_SettingDisplay.PrintUint("%5i", Eeprom.Data.MaxRpm, &SettingsScreen_Areas.MaxRpm);
+		s_SettingDisplay.PrintUint("%5i", Eeprom.Data.MaxRpm, SettingsScreen_Areas.MaxRpm);
 	}
 
 	//*********************************************************************
@@ -626,16 +626,16 @@ protected:
 
 	inline static CalcMemory s_memories[MemoryCount]
 	{
-		{&MainScreen_Areas.Mem1, MemColorOdd},
-		{&MainScreen_Areas.Mem2, MemColorEven},
-		{&MainScreen_Areas.Mem3, MemColorOdd},
-		{&MainScreen_Areas.Mem4, MemColorEven},
+		{MainScreen_Areas.Mem1, MemColorOdd},
+		{MainScreen_Areas.Mem2, MemColorEven},
+		{MainScreen_Areas.Mem3, MemColorOdd},
+		{MainScreen_Areas.Mem4, MemColorEven},
 	};
-	inline static NumberLine s_CalcDisplay{&MainScreen, &MainScreen_Areas.CalcDisplay, 
+	inline static NumberLine s_CalcDisplay{MainScreen, MainScreen_Areas.CalcDisplay, 
 		FID_Calculator, ScreenForeColor, CalcBackColor};
-	inline static TextLine	s_CalcText{&MainScreen, &MainScreen_Areas.CalcText, 
+	inline static TextLine	s_CalcText{MainScreen, MainScreen_Areas.CalcText, 
 		FID_CalcSmall, ScreenForeColor, CalcBackColor};
-	inline static NumberLineBlankZ s_SettingDisplay{&SettingsScreen, NULL, 
+	inline static NumberLineBlankZ s_SettingDisplay{SettingsScreen, SettingsScreen_Areas.MaxRpm, 
 		FID_SettingsFont, SettingForeColor, SettingBackColor};
 	inline static char		s_arEntryBuf[InBufSize] = "\n ";
 	inline static byte		s_indBuf = 2;

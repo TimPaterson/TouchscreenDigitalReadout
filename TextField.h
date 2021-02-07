@@ -13,8 +13,6 @@
 
 EXTERN_C FontInfo *FontList[];
 
-void DumpCanvas(uint addr);
-
 //****************************************************************************
 // Enumeration of font names in FontList
 
@@ -39,44 +37,41 @@ extern "C"
 class TextField : public RA8876
 {
 public:
-	TextField(Canvas *pCanvas, const Area *pArea):
-		TextField(pCanvas, pArea, 
+	TextField(Canvas &canvas, const Area &area):
+		TextField(canvas, area, 
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
 		{}
 
-	TextField(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor):
-		TextField(pCanvas, pArea, id, foreColor, backColor,
+	TextField(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor):
+		TextField(canvas, area, id, foreColor, backColor,
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
 		{}
 
 protected:
-	TextField(Canvas *pCanvas, const Area *pArea, _fdev_put_t *put):
-		m_pCanvas{pCanvas},
-		m_pArea{pArea},
+	TextField(Canvas &canvas, const Area &area, _fdev_put_t *put):
+		m_pCanvas{&canvas},
+		m_pArea{&area},
 		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
-		m_curPosX{pArea->Xpos},
-		m_curPosY{pArea->Ypos}
+		m_curPosX{area.Xpos},
+		m_curPosY{area.Ypos}
 		{}
 
-	TextField(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
-		m_pCanvas{pCanvas},
-		m_pArea{pArea},
+	TextField(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+		m_pCanvas{&canvas},
+		m_pFontInfo{FontList[id]},
+		m_pArea{&area},
+		m_foreColor{foreColor},
+		m_backColor{backColor},
 		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
-		m_curPosX{pArea->Xpos},
-		m_curPosY{pArea->Ypos}
-	{
-		SetFont(id);
-		m_foreColor = foreColor;
-		m_backColor = backColor;
-		ResetPosition();
-	}
+		m_curPosX{area.Xpos},
+		m_curPosY{area.Ypos}
+		{}
 
 public:
 	void SetFont(FontId id)
 	{
 		m_pFontInfo = FontList[id];
 		SetSpaceWidth();
-		MakeActive();
 	}
 
 	void SetBackgroundTransparent(bool fTransparent)
@@ -99,14 +94,14 @@ public:
 		m_foreColor = color;
 	}
 
-	void SetBackColor(long color)
+	void SetBackColor(ulong color)
 	{
 		m_backColor = color;
 	}
 
-	void SetArea(const Area *pArea)
+	void SetArea(const Area &area)
 	{
-		m_pArea = pArea;
+		m_pArea = &area;
 		ResetPosition();
 	}
 
@@ -260,22 +255,22 @@ protected:
 class TextLine : public TextField
 {
 public:
-	TextLine(Canvas *pCanvas, const Area *pArea): 
-		TextLine(pCanvas, pArea,
+	TextLine(Canvas &canvas, const Area &area): 
+		TextLine(canvas, area,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
 		{}
 
-	TextLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
-		TextLine(pCanvas, pArea, id, foreColor, backColor,
+	TextLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+		TextLine(canvas, area, id, foreColor, backColor,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
 		{}
 
 protected:
-	TextLine(Canvas *pCanvas, const Area *pArea, _fdev_put_t *put):
-		TextField(pCanvas, pArea, put) {}
+	TextLine(Canvas &canvas, const Area &area, _fdev_put_t *put):
+		TextField(canvas, area, put) {}
 
-	TextLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
-		TextField(pCanvas, pArea, id, foreColor, backColor, put) {}
+	TextLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+		TextField(canvas, area, id, foreColor, backColor, put) {}
 
 public:
 	void WriteChar(byte ch)
@@ -309,14 +304,14 @@ public:
 class NumberLine : public TextLine
 {
 public:
-	NumberLine(Canvas *pCanvas, const Area *pArea): 
-		TextLine(pCanvas, pArea)
+	NumberLine(Canvas &canvas, const Area &area): 
+		TextLine(canvas, area)
 	{
 		SetSpaceWidth(GetCharWidth('0'));
 	}
 
-	NumberLine(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
-		TextLine(pCanvas, pArea, id, foreColor, backColor)
+	NumberLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+		TextLine(canvas, area, id, foreColor, backColor)
 	{
 		SetSpaceWidth(GetCharWidth('0'));
 	}
@@ -341,14 +336,14 @@ public:
 class NumberLineBlankZ : public NumberLine
 {
 public:
-	NumberLineBlankZ(Canvas *pCanvas, const Area *pArea): 
-		NumberLine(pCanvas, pArea)
+	NumberLineBlankZ(Canvas &canvas, const Area &area): 
+		NumberLine(canvas, area)
 	{
 		SetBackgroundTransparent(true);
 	}
 
-	NumberLineBlankZ(Canvas *pCanvas, const Area *pArea, FontId id, ulong foreColor, ulong backColor): 
-		NumberLine(pCanvas, pArea, id, foreColor, backColor)
+	NumberLineBlankZ(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+		NumberLine(canvas, area, id, foreColor, backColor)
 	{
 		SetBackgroundTransparent(true);
 	}
@@ -365,9 +360,9 @@ public:
 		return printf(fmt, val);
 	}
 
-	int PrintDbl(const char *fmt, double val, const Area *pArea)
+	int PrintDbl(const char *fmt, double val, const Area &area)
 	{
-		SetArea(pArea);
+		SetArea(area);
 		return PrintDbl(fmt, val);
 	}
 
@@ -382,9 +377,9 @@ public:
 		return printf(fmt, val);
 	}
 
-	int PrintInt(const char *fmt, int val, const Area *pArea)
+	int PrintInt(const char *fmt, int val, const Area &area)
 	{
-		SetArea(pArea);
+		SetArea(area);
 		return PrintInt(fmt, val);
 	}
 
@@ -397,9 +392,9 @@ public:
 		return printf(fmt, val);
 	}
 
-	int PrintUint(const char *fmt, uint val, const Area *pArea)
+	int PrintUint(const char *fmt, uint val, const Area &area)
 	{
-		SetArea(pArea);
+		SetArea(area);
 		return PrintInt(fmt, val);
 	}
 };

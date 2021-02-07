@@ -24,8 +24,8 @@ extern PosSensor	Qpos;
 class AxisDisplay : public PosSensor, public NumberLine
 {
 public:
-	AxisDisplay(AxisInfo *pInfo, const Area *pArea) :
-		PosSensor(pInfo), NumberLine(&MainScreen, pArea, FID_DigitDisplay, AxisForeColor, AxisBackColor)
+	AxisDisplay(AxisInfo *pInfo, const Area &area) :
+		PosSensor(pInfo), NumberLine(MainScreen, area, FID_DigitDisplay, AxisForeColor, AxisBackColor)
 		{}
 
 	void UpdateDisplay()

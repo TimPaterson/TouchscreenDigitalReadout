@@ -120,8 +120,8 @@ class ToolLib
 	class ToolDisplay : public NumberLineBlankZ
 	{
 	public:
-		ToolDisplay(Canvas *pCanvas, const Area *pArea, ulong foreColor, ulong backColor) :
-			NumberLineBlankZ(pCanvas, pArea, FID_CalcSmall, foreColor, backColor), arItemAreas{pArea}
+		ToolDisplay(Canvas &canvas, const Area &area, ulong foreColor, ulong backColor) :
+			NumberLineBlankZ(canvas, area, FID_CalcSmall, foreColor, backColor), arItemAreas{&area}
 			{}
 
 	public:
@@ -129,14 +129,14 @@ class ToolLib
 		{
 			uint	widthSpace;
 
-			PrintDbl(IsMetric() ? "%5.2f" : "%5.3f", CheckMetric(pTool->diameter), &arItemAreas[ToolDiameter]);
-			PrintDbl(IsMetric() ? "%6.2f" : "%6.3f", CheckMetric(pTool->length), &arItemAreas[ToolLength]);
+			PrintDbl(IsMetric() ? "%5.2f" : "%5.3f", CheckMetric(pTool->diameter), arItemAreas[ToolDiameter]);
+			PrintDbl(IsMetric() ? "%6.2f" : "%6.3f", CheckMetric(pTool->length), arItemAreas[ToolLength]);
 
-			PrintUint("%3u", pTool->number, &arItemAreas[ToolNumber]);
-			PrintUint("%3u", pTool->flutes, &arItemAreas[ToolFlutes]);
+			PrintUint("%3u", pTool->number, arItemAreas[ToolNumber]);
+			PrintUint("%3u", pTool->flutes, arItemAreas[ToolFlutes]);
 
 			// Set the space width to normal for the description field
-			SetArea(&arItemAreas[ToolDesc]);
+			SetArea(arItemAreas[ToolDesc]);
 			ClearArea();
 			widthSpace = GetSpaceWidth();
 			SetSpaceWidth();
@@ -403,11 +403,11 @@ protected:
 	// static (RAM) data
 	//*********************************************************************
 protected:
-	inline static ToolDisplay	s_textMain {&MainScreen, &MainScreen_Areas.ToolNumber,
+	inline static ToolDisplay	s_textMain {MainScreen, MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};
-	inline static ToolDisplay	s_textInfo  {&ToolLibrary, &ToolLibrary_Areas.ToolNumber,
+	inline static ToolDisplay	s_textInfo  {ToolLibrary, ToolLibrary_Areas.ToolNumber,
 		ToolInfoForeground, ToolInfoBackground};
-	inline static ToolDisplay	s_textList  {&ToolRow, &ToolRow_Areas.ToolNumber,
+	inline static ToolDisplay	s_textList  {ToolRow, ToolRow_Areas.ToolNumber,
 		ToolLibForeground, ToolLibBackground};
 	inline static ToolScroll	s_scroll;
 	inline static ushort		s_toolCount;
