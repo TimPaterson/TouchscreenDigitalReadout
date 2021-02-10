@@ -10,6 +10,8 @@
 #include "HotspotList.h"
 #include "ListScroll.h"
 #include "AxisDisplay.h"
+#include "EditLine.h"
+#include "KeyboardMgr.h"
 #include <FatFile/FatFileConst.h>
 
 
@@ -30,6 +32,13 @@ class ToolLib
 		TOOL_IMAGE_NotModified,
 		TOOL_IMAGE_ConfirmDelete,
 		TOOL_IMAGE_IsModified,
+	};
+
+	enum EditMode
+	{
+		EDIT_None,
+		EDIT_ConfirmDelete,
+		EDIT_Description,
 	};
 
 	struct ToolLibBase
@@ -87,9 +96,9 @@ class ToolLib
 			if (lineNum < s_toolCount)
 			{
 				if (lineNum == s_curLineNum)
-					s_textList.SetForeColor(ToolLibSelected);
+					s_textList.SetTextColor(ToolLibSelected);
 				s_textList.DisplayLine(PtrFromLine(lineNum));
-				s_textList.SetForeColor(ToolLibForeground);
+				s_textList.SetTextColor(ToolLibForeground);
 				ScreenMgr::CopyRect(this, pArea, &ToolRow);
 			}
 			else
@@ -153,7 +162,7 @@ class ToolLib
 	//*********************************************************************3
 public:
 	// .cpp file
-	static void ToolAction(uint spot);
+	static void ToolAction(uint spot, int x, int y);
 	static void ShowToolInfo();
 	static int ImportTools(char *pb, uint cb, uint cbWrap);
 	static int ImportTool(char *pchBuf);
@@ -195,6 +204,25 @@ public:
 	{
 		s_scroll.InvalidateLines(0, s_toolCount - 1);
 		ShowToolInfo();
+	}
+
+	static void KeyHit(void *pvUser, uint key)
+	{
+		EditLine::EditStatus	edit;
+
+		edit = s_editLine.ProcessKey(key);
+		if (edit == EditLine::EditDone)
+		{
+			// See if setting tool info made it "valid"
+			if (s_curLineNum == NoCurrentLine)
+				InsertIfValid();
+			else
+				s_scroll.InvalidateLine(s_curLineNum);
+
+			ShowToolInfo();
+			s_editMode = EDIT_None;
+			KeyboardMgr::CloseKb();
+		}
 	}
 
 	//*********************************************************************
@@ -286,6 +314,19 @@ protected:
 		}
 	}
 
+	static void InsertIfValid()
+	{
+		uint	line;
+
+		if (s_bufTool.IsValid())
+		{
+			// Tool now valid, insert it
+			line = InsertTool(ToolBufIndex);
+			SelectLine(line);
+			s_scroll.InvalidateLines(line + 1, s_toolCount);
+		}
+	}
+
 	static uint InsertTool(uint bufIndex)
 	{
 		uint	line;
@@ -317,7 +358,8 @@ protected:
 		line = s_curLineNum;
 
 		// Overwrite tool data -- UNDONE: handle for flash
-		s_arToolInfo[s_arSortList[line]].ClearData();
+		// Tool might be in buffer only, not yet saved
+		PtrFromLine(line)->ClearData();
 
 		// Remove from sort list
 		s_toolCount--;
@@ -403,20 +445,23 @@ protected:
 	// static (RAM) data
 	//*********************************************************************
 protected:
+	inline static ToolLibInfo	s_bufTool;
 	inline static ToolDisplay	s_textMain {MainScreen, MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};
 	inline static ToolDisplay	s_textInfo  {ToolLibrary, ToolLibrary_Areas.ToolNumber,
 		ToolInfoForeground, ToolInfoBackground};
 	inline static ToolDisplay	s_textList  {ToolRow, ToolRow_Areas.ToolNumber,
 		ToolLibForeground, ToolLibBackground};
+	inline static EditLine		s_editLine {ToolLibrary, ToolLibrary_Areas.ToolDesc,
+		s_bufTool.arDesc, ToolDescSize, FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+
 	inline static ToolScroll	s_scroll;
 	inline static ushort		s_toolCount;
-	inline static ushort		s_curLineNum;
-	inline static ushort		s_modToolIndex;
+	inline static ushort		s_curLineNum {NoCurrentLine};
+	inline static ushort		s_modToolIndex {ToolNotModified};
 	inline static ushort		s_freeToolIndex;
 	inline static byte			s_toolSides;
-	inline static bool			s_fConfirmDelete;
-	inline static ToolLibInfo	s_bufTool;
+	inline static byte			s_editMode;
 	inline static FILE			s_fileImport;
 	inline static ushort		s_arSortList[MaxToolCount];
 	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];

@@ -131,7 +131,11 @@ public:
 		//
 
 		case HOTSPOT_GROUP_ToolLib:
-			ToolLib::ToolAction(spot);
+			ToolLib::ToolAction(spot, x, y);
+			return;
+
+		case HOTSPOT_GROUP_Keyboard:
+			KeyboardMgr::KeyHit(spot);
 			return;
 
 		//*****************************************************************
@@ -400,14 +404,6 @@ public:
 			*pToggle ^= true;
 			ShowSettingsInfo();
 			ToolLib::ShowToolInfo();
-			return;
-
-		//*****************************************************************
-		// Press a PIP keyboard key
-		//
-
-		case HOTSPOT_GROUP_Keyboard:
-			// UNDONE: keyboard keys
 			return;
 
 		//*****************************************************************

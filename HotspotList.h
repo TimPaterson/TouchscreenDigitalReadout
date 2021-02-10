@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Hotspot.h"
+#include <Usb/Host/Drivers/KeyboardDef.h>
 
 
 //*************************************************************************
@@ -112,12 +113,16 @@ enum ToolAreas
 
 enum KeyboardHotspots
 {
-	Key_enter,
-	Key_left,
-	Key_right,
-	Key_backspace,
+	Key_normal,
 	Key_shift,
+	Key_shiftLock,
 	Key_symbols,
+
+	// Defined for USB keyboard in KeyboardDef.h
+	Key_enter = CR,
+	Key_left = Lf,
+	Key_right = Rt,
+	Key_backspace = BS,
 
 	Key_1 = '1',
 	Key_2 = '2',

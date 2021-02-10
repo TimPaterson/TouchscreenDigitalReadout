@@ -31,6 +31,8 @@ class ListScroll : public TouchCanvas, public RA8876
 	};
 
 public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 	ListScroll(ushort width, ushort height, ushort lineHeight, ColorDepths depth) :
 		TouchCanvas(s_NextFreeRam, width, height, width, depth, (HotspotList *)&m_hotSpots),
 		m_lineHeight{lineHeight}
@@ -44,6 +46,7 @@ public:
 		s_NextFreeRam += (int)width * height * PixelSizeFromDepth(depth);
 		Invalidate();
 	}
+#pragma GCC diagnostic pop
 
 public:
 	void Invalidate()	{ m_lineTop = m_posCur = 0x40000000; }

@@ -47,12 +47,10 @@
       RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="White">
       <TextBlock Name="Label" Font="BtnFont" Foreground="Black"/>
     </Rectangle>
-    <HotSpot Name="KeySpot" Height="BtnHeight" Width="BtnWidth" />
   </Component>
 
   <Component Name="Memory">
-    <Rectangle Name="MemRect" Height="BtnHeight" Width="150">
-      <HotSpot Name="Mem" Group="Memory"/>
+    <Rectangle Name="MemRect" Group="Memory" Height="BtnHeight" Width="150">
       <Rectangle Name="MemDisp" Top="BtnHeight / 4" Left="10" Height="BtnHeight / 2" Width="140"/>
     </Rectangle>
   </Component>
@@ -270,7 +268,7 @@
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Speed;
           </Set>
-          <HotSpot Name="ToolSfm" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+          <Rectangle HotSpot="ToolSfm" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
         <Column Left="SpCellWidth + SpColSpace">
           <Set>
@@ -278,7 +276,7 @@
             ToolCell.Width = SpCellWidth * 2;
           	SpeedText.Text = Chip Load;
           </Set>
-          <HotSpot Name="ToolChipLoad" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+          <Rectangle HotSpot="ToolChipLoad" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
         </Column>
       </Row>
       <Row>
@@ -395,9 +393,8 @@
     </Rectangle>
     <Rectangle Location="Undo1" Left="KeypadLeft" Top="Undo1Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
-    <HotSpot Name="Undo" Area="Undo" Left="KeypadLeft" Top="UndoTop" Height="UndoHeight" Width="KeypadWidth"/>
+    <Rectangle HotSpot="Undo" Left="KeypadLeft" Top="UndoTop" Height="UndoHeight" Width="KeypadWidth"/>
     <Rectangle Area="CalcDisplay" Left="KeypadLeft" Top="CalcDispTop" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
-      <HotSpot Name="CalcDisplay"/>
     </Rectangle>
     <Rectangle Area="CalcText" Left="KeypadLeft" Top="CalcTextTop" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
     </Rectangle>
@@ -423,7 +420,7 @@
         <Default>
           <Ref RefName="Key" />
           <Set>
-            KeySpot.Group = Digit;
+            Button.Group = Digit;
           </Set>
         </Default>
         <Row>
@@ -431,36 +428,36 @@
             <Set>
               Label.Text = ⌫;
               Label.Font = BtnSmallFont;
-            	KeySpot.Group = "Edit";
-              KeySpot.Name = Key_backSpace;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_backSpace;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = CE;
               Label.Font =BtnSmallFont;
-            	KeySpot.Group = "Edit";
-              KeySpot.Name = Key_clear;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_clear;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = π;
-            	KeySpot.Group = "Edit";
-              KeySpot.Name = Key_pi;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_pi;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = +;
-            	KeySpot.Group = "Operator";
-              KeySpot.Name = Key_plus;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_plus;
             </Set>
           </Column>
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>
-              Mem.Name = Mem1;
+              MemRect.HotSpot = Mem1;
             	MemRect.Fill = MemColorOdd;
             	MemDisp.Area = Mem1;
             </Set>
@@ -470,32 +467,32 @@
           <Column>
             <Set>
               Label.Text = 7;
-            	KeySpot.Name = Key_7;
+            	Button.HotSpot = Key_7;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 8;
-            	KeySpot.Name = Key_8;
+            	Button.HotSpot = Key_8;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 9;
-            	KeySpot.Name = Key_9;
+            	Button.HotSpot = Key_9;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = −;
-            	KeySpot.Group = Operator;
-              KeySpot.Name = Key_minus;
+            	Button.Group = Operator;
+              Button.HotSpot = Key_minus;
             </Set>
           </Column>
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>
-              Mem.Name = Mem2;
+              MemRect.HotSpot = Mem2;
             	MemRect.Fill = MemColorEven;
             	MemDisp.Area = Mem2;
             </Set>
@@ -505,32 +502,32 @@
           <Column>
             <Set>
               Label.Text = 4;
-            	KeySpot.Name = Key_4;
+            	Button.HotSpot = Key_4;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 5;
-            	KeySpot.Name = Key_5;
+            	Button.HotSpot = Key_5;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 6;
-            	KeySpot.Name = Key_6;
+            	Button.HotSpot = Key_6;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = ×;
-            	KeySpot.Group = "Operator";
-              KeySpot.Name = Key_mult;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_mult;
             </Set>
           </Column>
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>
-              Mem.Name = Mem3;
+              MemRect.HotSpot = Mem3;
             	MemRect.Fill = MemColorOdd;
             	MemDisp.Area = Mem3;
             </Set>
@@ -540,32 +537,32 @@
           <Column>
             <Set>
               Label.Text = 1;
-            	KeySpot.Name = Key_1;
+            	Button.HotSpot = Key_1;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 2;
-            	KeySpot.Name = Key_2;
+            	Button.HotSpot = Key_2;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 3;
-            	KeySpot.Name = Key_3;
+            	Button.HotSpot = Key_3;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = ÷;
-            	KeySpot.Group = "Operator";
-              KeySpot.Name = Key_divide;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_divide;
             </Set>
           </Column>
           <ColumnNoDefault>
             <Ref RefName="Memory"/>
             <Set>
-              Mem.Name = Mem4;
+              MemRect.HotSpot = Mem4;
             	MemRect.Fill = MemColorEven;
             	MemDisp.Area = Mem4;
             </Set>
@@ -575,26 +572,26 @@
           <Column>
             <Set>
               Label.Text = ±;
-            	KeySpot.Name = Key_sign;
+            	Button.HotSpot = Key_sign;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = 0;
-            	KeySpot.Name = Key_0;
+            	Button.HotSpot = Key_0;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = ∙;
-            	KeySpot.Name = Key_decimal;
+            	Button.HotSpot = Key_decimal;
             </Set>
           </Column>
           <Column>
             <Set>
               Label.Text = =;
-            	KeySpot.Group = "Operator";
-              KeySpot.Name = Key_equal;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_equal;
             </Set>
           </Column>
         </Row>
@@ -637,7 +634,7 @@
     </Set>
     <Ref RefName="Key" Left="ToolSelectLeft" Top="ToolTop">
       <Set>
-        KeySpot.Name = ToolMenu;
+        Button.HotSpot = ToolMenu;
       	Button.StrokeThickness = 0;
         Button.Fill = BtnBackground;
       	Label.Foreground = ToggleOn;
@@ -1072,50 +1069,52 @@
     KeyboardHeight = KeySpace + (BtnHeight + KeySpace) * 5;
     SpacebarWidth = KeyboardWidth - KeySpace * 7 - BtnWidth * 13 / 2;
   </Set>
+  <Set ShowValue="KeyboardTop">KeypadTop</Set>
+  <Set ShowValue="KeyboardLeft">KeypadRight - KeyboardWidth</Set>
 
   <!-- Lower-case keyboard -->
   <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
-        <Set>KeySpot.Group = Keyboard</Set>
+        <Set>Button.Group = Keyboard</Set>
       </Default>
       <Row>
-        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
-        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
-        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
-        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
-        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
-        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
-        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
-        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
-        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
-        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
-        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
+        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=q; KeySpot.Name=Key_q</Set></Column>
-        <Column><Set>Label.Text=w; KeySpot.Name=Key_w</Set></Column>
-        <Column><Set>Label.Text=e; KeySpot.Name=Key_e</Set></Column>
-        <Column><Set>Label.Text=r; KeySpot.Name=Key_r</Set></Column>
-        <Column><Set>Label.Text=t; KeySpot.Name=Key_t</Set></Column>
-        <Column><Set>Label.Text=y; KeySpot.Name=Key_y</Set></Column>
-        <Column><Set>Label.Text=u; KeySpot.Name=Key_u</Set></Column>
-        <Column><Set>Label.Text=i; KeySpot.Name=Key_i</Set></Column>
-        <Column><Set>Label.Text=o; KeySpot.Name=Key_o</Set></Column>
-        <Column><Set>Label.Text=p; KeySpot.Name=Key_p</Set></Column>
-        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
+        <Column><Set>Label.Text=q; Button.HotSpot=Key_q</Set></Column>
+        <Column><Set>Label.Text=w; Button.HotSpot=Key_w</Set></Column>
+        <Column><Set>Label.Text=e; Button.HotSpot=Key_e</Set></Column>
+        <Column><Set>Label.Text=r; Button.HotSpot=Key_r</Set></Column>
+        <Column><Set>Label.Text=t; Button.HotSpot=Key_t</Set></Column>
+        <Column><Set>Label.Text=y; Button.HotSpot=Key_y</Set></Column>
+        <Column><Set>Label.Text=u; Button.HotSpot=Key_u</Set></Column>
+        <Column><Set>Label.Text=i; Button.HotSpot=Key_i</Set></Column>
+        <Column><Set>Label.Text=o; Button.HotSpot=Key_o</Set></Column>
+        <Column><Set>Label.Text=p; Button.HotSpot=Key_p</Set></Column>
+        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
       </Row>
       <Row Left="BtnWidth">
-        <Column><Set>Label.Text=a; KeySpot.Name=Key_a</Set></Column>
-        <Column><Set>Label.Text=s; KeySpot.Name=Key_s</Set></Column>
-        <Column><Set>Label.Text=d; KeySpot.Name=Key_d</Set></Column>
-        <Column><Set>Label.Text=f; KeySpot.Name=Key_f</Set></Column>
-        <Column><Set>Label.Text=g; KeySpot.Name=Key_g</Set></Column>
-        <Column><Set>Label.Text=h; KeySpot.Name=Key_h</Set></Column>
-        <Column><Set>Label.Text=j; KeySpot.Name=Key_j</Set></Column>
-        <Column><Set>Label.Text=k; KeySpot.Name=Key_k</Set></Column>
-        <Column><Set>Label.Text=l; KeySpot.Name=Key_l</Set></Column>
+        <Column><Set>Label.Text=a; Button.HotSpot=Key_a</Set></Column>
+        <Column><Set>Label.Text=s; Button.HotSpot=Key_s</Set></Column>
+        <Column><Set>Label.Text=d; Button.HotSpot=Key_d</Set></Column>
+        <Column><Set>Label.Text=f; Button.HotSpot=Key_f</Set></Column>
+        <Column><Set>Label.Text=g; Button.HotSpot=Key_g</Set></Column>
+        <Column><Set>Label.Text=h; Button.HotSpot=Key_h</Set></Column>
+        <Column><Set>Label.Text=j; Button.HotSpot=Key_j</Set></Column>
+        <Column><Set>Label.Text=k; Button.HotSpot=Key_k</Set></Column>
+        <Column><Set>Label.Text=l; Button.HotSpot=Key_l</Set></Column>
         <Column>
           <Set>
             Label.Text=⏎;
@@ -1124,7 +1123,7 @@
             Label.FontWeight=Bold;
             Label.FontSize = 56;
             Label.Top = 0;
-            KeySpot.Name=Key_enter;
+            Button.HotSpot=Key_enter;
           </Set>
         </Column>
       </Row>
@@ -1137,19 +1136,19 @@
             Label.FontWeight = Bold;
             Label.FontSize = 92;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shift;
           </Set>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=z; KeySpot.Name=Key_z</Set></Column>
-        <Column><Set>Label.Text=x; KeySpot.Name=Key_x</Set></Column>
-        <Column><Set>Label.Text=c; KeySpot.Name=Key_c</Set></Column>
-        <Column><Set>Label.Text=v; KeySpot.Name=Key_v</Set></Column>
-        <Column><Set>Label.Text=b; KeySpot.Name=Key_b</Set></Column>
-        <Column><Set>Label.Text=n; KeySpot.Name=Key_n</Set></Column>
-        <Column><Set>Label.Text=m; KeySpot.Name=Key_m</Set></Column>
-        <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
-        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
-        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=z; Button.HotSpot=Key_z</Set></Column>
+        <Column><Set>Label.Text=x; Button.HotSpot=Key_x</Set></Column>
+        <Column><Set>Label.Text=c; Button.HotSpot=Key_c</Set></Column>
+        <Column><Set>Label.Text=v; Button.HotSpot=Key_v</Set></Column>
+        <Column><Set>Label.Text=b; Button.HotSpot=Key_b</Set></Column>
+        <Column><Set>Label.Text=n; Button.HotSpot=Key_n</Set></Column>
+        <Column><Set>Label.Text=m; Button.HotSpot=Key_m</Set></Column>
+        <Column><Set>Label.Text=","; Button.HotSpot=Key_comma</Set></Column>
+        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
       </Row>
       <Row>
         <Column>
@@ -1160,15 +1159,15 @@
             Label.FontWeight = Bold;
             Label.FontSize = 86;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shiftLock;
           </Set>
           <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
       </Row>
     </Grid>
   </Canvas>
@@ -1178,44 +1177,44 @@
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
-        <Set>KeySpot.Group = Keyboard</Set>
+        <Set>Button.Group = Keyboard</Set>
       </Default>
       <Row>
-        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
-        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
-        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
-        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
-        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
-        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
-        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
-        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
-        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
-        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
-        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
+        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=Q; KeySpot.Name=Key_Q</Set></Column>
-        <Column><Set>Label.Text=W; KeySpot.Name=Key_W</Set></Column>
-        <Column><Set>Label.Text=E; KeySpot.Name=Key_E</Set></Column>
-        <Column><Set>Label.Text=R; KeySpot.Name=Key_R</Set></Column>
-        <Column><Set>Label.Text=T; KeySpot.Name=Key_T</Set></Column>
-        <Column><Set>Label.Text=Y; KeySpot.Name=Key_Y</Set></Column>
-        <Column><Set>Label.Text=U; KeySpot.Name=Key_U</Set></Column>
-        <Column><Set>Label.Text=I; KeySpot.Name=Key_I</Set></Column>
-        <Column><Set>Label.Text=O; KeySpot.Name=Key_O</Set></Column>
-        <Column><Set>Label.Text=P; KeySpot.Name=Key_P</Set></Column>
-        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
+        <Column><Set>Label.Text=Q; Button.HotSpot=Key_Q</Set></Column>
+        <Column><Set>Label.Text=W; Button.HotSpot=Key_W</Set></Column>
+        <Column><Set>Label.Text=E; Button.HotSpot=Key_E</Set></Column>
+        <Column><Set>Label.Text=R; Button.HotSpot=Key_R</Set></Column>
+        <Column><Set>Label.Text=T; Button.HotSpot=Key_T</Set></Column>
+        <Column><Set>Label.Text=Y; Button.HotSpot=Key_Y</Set></Column>
+        <Column><Set>Label.Text=U; Button.HotSpot=Key_U</Set></Column>
+        <Column><Set>Label.Text=I; Button.HotSpot=Key_I</Set></Column>
+        <Column><Set>Label.Text=O; Button.HotSpot=Key_O</Set></Column>
+        <Column><Set>Label.Text=P; Button.HotSpot=Key_P</Set></Column>
+        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
       </Row>
       <Row Left="BtnWidth">
-        <Column><Set>Label.Text=A; KeySpot.Name=Key_A</Set></Column>
-        <Column><Set>Label.Text=S; KeySpot.Name=Key_S</Set></Column>
-        <Column><Set>Label.Text=D; KeySpot.Name=Key_D</Set></Column>
-        <Column><Set>Label.Text=F; KeySpot.Name=Key_F</Set></Column>
-        <Column><Set>Label.Text=G; KeySpot.Name=Key_G</Set></Column>
-        <Column><Set>Label.Text=H; KeySpot.Name=Key_H</Set></Column>
-        <Column><Set>Label.Text=J; KeySpot.Name=Key_J</Set></Column>
-        <Column><Set>Label.Text=K; KeySpot.Name=Key_K</Set></Column>
-        <Column><Set>Label.Text=L; KeySpot.Name=Key_L</Set></Column>
+        <Column><Set>Label.Text=A; Button.HotSpot=Key_A</Set></Column>
+        <Column><Set>Label.Text=S; Button.HotSpot=Key_S</Set></Column>
+        <Column><Set>Label.Text=D; Button.HotSpot=Key_D</Set></Column>
+        <Column><Set>Label.Text=F; Button.HotSpot=Key_F</Set></Column>
+        <Column><Set>Label.Text=G; Button.HotSpot=Key_G</Set></Column>
+        <Column><Set>Label.Text=H; Button.HotSpot=Key_H</Set></Column>
+        <Column><Set>Label.Text=J; Button.HotSpot=Key_J</Set></Column>
+        <Column><Set>Label.Text=K; Button.HotSpot=Key_K</Set></Column>
+        <Column><Set>Label.Text=L; Button.HotSpot=Key_L</Set></Column>
         <Column>
           <Set>
             Label.Text=⏎;
@@ -1224,7 +1223,7 @@
             Label.FontWeight=Bold;
             Label.FontSize = 56;
             Label.Top = 0;
-            KeySpot.Name=Key_enter;
+            Button.HotSpot=Key_enter;
           </Set>
         </Column>
       </Row>
@@ -1232,24 +1231,24 @@
         <Column>
           <Set>
             Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
+            Label.Text=⇩;
             Label.FontFamily="Global Sans Serif";
             Label.FontWeight = Bold;
             Label.FontSize = 92;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shift;
           </Set>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=Z; KeySpot.Name=Key_Z</Set></Column>
-        <Column><Set>Label.Text=X; KeySpot.Name=Key_X</Set></Column>
-        <Column><Set>Label.Text=C; KeySpot.Name=Key_C</Set></Column>
-        <Column><Set>Label.Text=V; KeySpot.Name=Key_V</Set></Column>
-        <Column><Set>Label.Text=B; KeySpot.Name=Key_B</Set></Column>
-        <Column><Set>Label.Text=N; KeySpot.Name=Key_N</Set></Column>
-        <Column><Set>Label.Text=M; KeySpot.Name=Key_M</Set></Column>
-        <Column><Set>Label.Text=","; KeySpot.Name=Key_comma</Set></Column>
-        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
-        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=Z; Button.HotSpot=Key_Z</Set></Column>
+        <Column><Set>Label.Text=X; Button.HotSpot=Key_X</Set></Column>
+        <Column><Set>Label.Text=C; Button.HotSpot=Key_C</Set></Column>
+        <Column><Set>Label.Text=V; Button.HotSpot=Key_V</Set></Column>
+        <Column><Set>Label.Text=B; Button.HotSpot=Key_B</Set></Column>
+        <Column><Set>Label.Text=N; Button.HotSpot=Key_N</Set></Column>
+        <Column><Set>Label.Text=M; Button.HotSpot=Key_M</Set></Column>
+        <Column><Set>Label.Text=","; Button.HotSpot=Key_comma</Set></Column>
+        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
       </Row>
       <Row>
         <Column>
@@ -1260,15 +1259,15 @@
             Label.FontWeight = Bold;
             Label.FontSize = 86;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shiftLock;
           </Set>
           <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
       </Row>
     </Grid>
   </Canvas>
@@ -1278,44 +1277,44 @@
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
-        <Set>KeySpot.Group = Keyboard</Set>
+        <Set>Button.Group = Keyboard</Set>
       </Default>
       <Row>
-        <Column><Set>Label.Text=1; KeySpot.Name=Key_1</Set></Column>
-        <Column><Set>Label.Text=2; KeySpot.Name=Key_2</Set></Column>
-        <Column><Set>Label.Text=3; KeySpot.Name=Key_3</Set></Column>
-        <Column><Set>Label.Text=4; KeySpot.Name=Key_4</Set></Column>
-        <Column><Set>Label.Text=5; KeySpot.Name=Key_5</Set></Column>
-        <Column><Set>Label.Text=6; KeySpot.Name=Key_6</Set></Column>
-        <Column><Set>Label.Text=7; KeySpot.Name=Key_7</Set></Column>
-        <Column><Set>Label.Text=8; KeySpot.Name=Key_8</Set></Column>
-        <Column><Set>Label.Text=9; KeySpot.Name=Key_9</Set></Column>
-        <Column><Set>Label.Text=0; KeySpot.Name=Key_0</Set></Column>
-        <Column><Set>Label.Text="-"; KeySpot.Name=Key_minus</Set></Column>
+        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=~; KeySpot.Name=Key_tilde</Set></Column>
-        <Column><Set>Label.Text=!; KeySpot.Name=Key_exclamation</Set></Column>
-        <Column><Set>Label.Text=@; KeySpot.Name=Key_at</Set></Column>
-        <Column><Set>Label.Text=#; KeySpot.Name=Key_hash</Set></Column>
-        <Column><Set>Label.Text=$; KeySpot.Name=Key_dollar</Set></Column>
-        <Column><Set>Label.Text=%; KeySpot.Name=Key_percent</Set></Column>
-        <Column><Set>Label.Text=^; KeySpot.Name=Key_hat</Set></Column>
-        <Column><Set>Label.Text=*; KeySpot.Name=Key_star</Set></Column>
-        <Column><Set>Label.Text=(; KeySpot.Name=Key_lparen</Set></Column>
-        <Column><Set>Label.Text=); KeySpot.Name=Key_rparen</Set></Column>
-        <Column><Set>Label.Text="\""; KeySpot.Name=Key_quote</Set></Column>
+        <Column><Set>Label.Text=~; Button.HotSpot=Key_tilde</Set></Column>
+        <Column><Set>Label.Text=!; Button.HotSpot=Key_exclamation</Set></Column>
+        <Column><Set>Label.Text=@; Button.HotSpot=Key_at</Set></Column>
+        <Column><Set>Label.Text=#; Button.HotSpot=Key_hash</Set></Column>
+        <Column><Set>Label.Text=$; Button.HotSpot=Key_dollar</Set></Column>
+        <Column><Set>Label.Text=%; Button.HotSpot=Key_percent</Set></Column>
+        <Column><Set>Label.Text=^; Button.HotSpot=Key_hat</Set></Column>
+        <Column><Set>Label.Text=*; Button.HotSpot=Key_star</Set></Column>
+        <Column><Set>Label.Text=(; Button.HotSpot=Key_lparen</Set></Column>
+        <Column><Set>Label.Text=); Button.HotSpot=Key_rparen</Set></Column>
+        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
       </Row>
       <Row Left="BtnWidth">
-        <Column><Set>Label.Text=`; KeySpot.Name=Key_backApostrophe</Set></Column>
-        <Column><Set>Label.Text=&amp;; KeySpot.Name=Key_ampersand</Set></Column>
-        <Column><Set>Label.Text=_; KeySpot.Name=Key_underscore</Set></Column>
-        <Column><Set>Label.Text=+; KeySpot.Name=Key_plus</Set></Column>
-        <Column><Set>Label.Text="="; KeySpot.Name=Key_equal</Set></Column>
-        <Column><Set>Label.Text=[; KeySpot.Name=Key_lbracket</Set></Column>
-        <Column><Set>Label.Text=]; KeySpot.Name=Key_rbracket</Set></Column>
-        <Column><Set>Label.Text={; KeySpot.Name=Key_lbrace</Set></Column>
-        <Column><Set>Label.Text=}; KeySpot.Name=Key_rbrace</Set></Column>
+        <Column><Set>Label.Text=`; Button.HotSpot=Key_backApostrophe</Set></Column>
+        <Column><Set>Label.Text=&amp;; Button.HotSpot=Key_ampersand</Set></Column>
+        <Column><Set>Label.Text=_; Button.HotSpot=Key_underscore</Set></Column>
+        <Column><Set>Label.Text=+; Button.HotSpot=Key_plus</Set></Column>
+        <Column><Set>Label.Text="="; Button.HotSpot=Key_equal</Set></Column>
+        <Column><Set>Label.Text=[; Button.HotSpot=Key_lbracket</Set></Column>
+        <Column><Set>Label.Text=]; Button.HotSpot=Key_rbracket</Set></Column>
+        <Column><Set>Label.Text={; Button.HotSpot=Key_lbrace</Set></Column>
+        <Column><Set>Label.Text=}; Button.HotSpot=Key_rbrace</Set></Column>
         <Column>
           <Set>
             Label.Text=⏎;
@@ -1324,7 +1323,7 @@
             Label.FontWeight=Bold;
             Label.FontSize = 56;
             Label.Top = 0;
-            KeySpot.Name=Key_enter;
+            Button.HotSpot=Key_enter;
           </Set>
         </Column>
       </Row>
@@ -1337,19 +1336,19 @@
             Label.FontWeight = Bold;
             Label.FontSize = 92;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shift;
           </Set>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=|; KeySpot.Name=Key_vbar</Set></Column>
-        <Column><Set>Label.Text="\\"; KeySpot.Name=Key_backslash</Set></Column>
-        <Column><Set>Label.Text=:; KeySpot.Name=Key_colon</Set></Column>
-        <Column><Set>Label.Text=";"; KeySpot.Name=Key_semi</Set></Column>
-        <Column><Set>Label.Text='; KeySpot.Name=Key_apostrophe</Set></Column>
-        <Column><Set>Label.Text=&lt;; KeySpot.Name=Key_lessthan</Set></Column>
-        <Column><Set>Label.Text=>; KeySpot.Name=Key_greaterthan</Set></Column>
-        <Column><Set>Label.Text="?"; KeySpot.Name=Key_question</Set></Column>
-        <Column><Set>Label.Text="."; KeySpot.Name=Key_period</Set></Column>
-        <Column><Set>Label.Text="/"; KeySpot.Name=Key_slash</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=|; Button.HotSpot=Key_vbar</Set></Column>
+        <Column><Set>Label.Text="\\"; Button.HotSpot=Key_backslash</Set></Column>
+        <Column><Set>Label.Text=:; Button.HotSpot=Key_colon</Set></Column>
+        <Column><Set>Label.Text=";"; Button.HotSpot=Key_semi</Set></Column>
+        <Column><Set>Label.Text='; Button.HotSpot=Key_apostrophe</Set></Column>
+        <Column><Set>Label.Text=&lt;; Button.HotSpot=Key_lessthan</Set></Column>
+        <Column><Set>Label.Text=>; Button.HotSpot=Key_greaterthan</Set></Column>
+        <Column><Set>Label.Text="?"; Button.HotSpot=Key_question</Set></Column>
+        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
       </Row>
       <Row>
         <Column>
@@ -1360,15 +1359,15 @@
             Label.FontWeight = Bold;
             Label.FontSize = 86;
             Label.Top = -18;
-            KeySpot.Name=Key_shift;
+            Button.HotSpot=Key_shiftLock;
           </Set>
           <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="abc"; Button.Width=BtnWidth * 3 / 2; KeySpot.Name=Key_symbols</Set></Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; KeySpot.Name=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; KeySpot.Name=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  KeySpot.Name=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; KeySpot.Name=Key_backspace</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text="abc"; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_normal</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
       </Row>
     </Grid>
   </Canvas>

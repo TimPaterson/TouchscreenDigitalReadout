@@ -13,14 +13,14 @@
 #include <FatFile/FatSys.h>
 
 
-void ToolLib::ToolAction(uint spot)
+void ToolLib::ToolAction(uint spot, int x, int y)
 {
 	double	val;
 	uint	tool;
 	uint	line;
 	ToolLibInfo	*pTool;
 
-	if (s_fConfirmDelete)
+	if (s_editMode == EDIT_ConfirmDelete)
 	{
 		// Lock out anything but Confirm or Cancel deletion of a tool.
 		// Confirm is ToolDone, Cancel is ToolImportExport.
@@ -30,7 +30,7 @@ void ToolLib::ToolAction(uint spot)
 		if (spot == ToolsDone)
 			DeleteTool();
 
-		s_fConfirmDelete = false;
+		s_editMode = EDIT_None;
 		ScreenMgr::SetPip1Modal(false);
 		SetToolButtonImage(TOOL_IMAGE_NotModified);
 		return;
@@ -58,12 +58,12 @@ void ToolLib::ToolAction(uint spot)
 					if (s_arSortList[s_curLineNum] != ToolBufIndex)
 						s_bufTool = *PtrFromLine(s_curLineNum);
 				}
-				else
+				else if (s_bufTool.number != 0)
 					s_bufTool.ClearData();
 
 				s_bufTool.number = tool;
 				SelectLine(NoCurrentLine);
-				goto InsertIfValid;
+				InsertIfValid();
 			}
 			else
 			{
@@ -80,7 +80,7 @@ void ToolLib::ToolAction(uint spot)
 
 	if (spot < ToolLastValue)
 	{
-		if (Actions::HasCalcValue())
+		if (Actions::HasCalcValue() || spot == ToolDesc)
 		{
 			val = Actions::GetCalcValue();
 
@@ -97,12 +97,14 @@ void ToolLib::ToolAction(uint spot)
 						s_arSortList[s_curLineNum] = ToolBufIndex;
 						SetToolButtonImage(TOOL_IMAGE_IsModified);
 					}
-					else
+					else if (spot != ToolDesc)
 					{
 						// If changing something, tool number no longer valid.
 						s_bufTool.number = 0;
 						SelectLine(NoCurrentLine);
 					}
+					else
+						return; // Description on main screen is read-only
 				}
 			}
 
@@ -125,8 +127,19 @@ void ToolLib::ToolAction(uint spot)
 				break;
 
 			case ToolDesc:
-				// UNDONE: enter description
-				break;
+				x -= ToolLibrary_Areas.ToolDesc.Xpos;	// relative edit box
+				if (s_editMode != EDIT_Description)
+				{
+					s_editMode = EDIT_Description;
+					s_editLine.StartEditPx(x);
+					KeyboardMgr::OpenKb(&KeyHit);
+				}
+				else
+				{
+					// Already editing description
+					s_editLine.SetPositionPx(x);
+				}
+				return;
 
 			case ToolChipLoad:
 				val = LimitVal(val, 0.9999);
@@ -141,16 +154,7 @@ void ToolLib::ToolAction(uint spot)
 
 			// See if setting tool info made it "valid"
 			if (s_curLineNum == NoCurrentLine)
-			{
-InsertIfValid:
-				if (s_bufTool.IsValid())
-				{
-					// Tool now valid, insert it
-					line = InsertTool(ToolBufIndex);
-					SelectLine(line);
-					s_scroll.InvalidateLines(line + 1, s_toolCount - 1);
-				}
-			}
+				InsertIfValid();
 			else
 				s_scroll.InvalidateLine(s_curLineNum);
 
@@ -194,9 +198,14 @@ InsertIfValid:
 	switch (spot)
 	{
 	case ToolsDone:
+		SaveTool();
+		if (s_editMode == EDIT_Description)
+		{
+			s_editMode = EDIT_None;
+			KeyboardMgr::CloseKb();
+		}
 		ScreenMgr::DisablePip1();
 		ScreenMgr::DisablePip2();
-		SaveTool();
 		return;
 
 	case ToolDelete:
@@ -213,9 +222,15 @@ InsertIfValid:
 			s_modToolIndex = ToolNotModified;
 			s_scroll.InvalidateLine(s_curLineNum);
 			SetToolButtonImage(TOOL_IMAGE_NotModified);
+			if (s_editMode == EDIT_Description)
+			{
+				s_editLine.EndEdit();
+				s_editMode = EDIT_None;
+				KeyboardMgr::CloseKb();
+			}
 			break;
 		}
-		s_fConfirmDelete = true;
+		s_editMode = EDIT_ConfirmDelete;
 		ScreenMgr::SetPip1Modal(true);
 		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
 		return;
@@ -284,8 +299,8 @@ void ToolLib::ShowToolInfo()
 	Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? val : 0);
 
 	color = Eeprom.Data.fHighlightOffset && pInfo->diameter != 0 ? ToolColor : AxisForeColor;
-	Xaxis.SetForeColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
-	Yaxis.SetForeColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+	Xaxis.SetTextColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
+	Yaxis.SetTextColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
 }
 
 

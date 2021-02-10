@@ -89,12 +89,12 @@ public:
 		return m_spaceWidth;
 	}
 
-	void SetForeColor(ulong color)
+	void SetTextColor(ulong color)
 	{
 		m_foreColor = color;
 	}
 
-	void SetBackColor(ulong color)
+	void SetTextBackcolor(ulong color)
 	{
 		m_backColor = color;
 	}
@@ -115,7 +115,7 @@ public:
 		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, Color8bpp);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
-		RA8876::SetForeColor(m_foreColor);
+		SetForeColor(m_foreColor);
 		if (m_fTransparent)
 		{
 			color = ~m_foreColor;	// make sure it's different
@@ -126,7 +126,7 @@ public:
 			color = m_backColor;
 			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMono;
 		}
-		RA8876::SetBackColor(color);
+		SetBackColor(color);
 		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) | ctrl);
 	}
 
@@ -227,7 +227,23 @@ public:
 
 	void ClearArea()
 	{
-		ScreenMgr::FillRect(m_pCanvas, m_pArea, m_backColor);
+		FillArea(m_backColor);
+	}
+
+	void ClearToEnd()
+	{
+		ClearToEnd(m_curPosX);
+	}
+
+	void ClearToEnd(uint posX)
+	{
+		ScreenMgr::SetBteDest(m_pCanvas);
+		SetForeColor(m_backColor);
+		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
+		WriteRegXY(DT_X0, posX, m_pArea->Ypos);
+		WriteRegXY(BTE_WTH0, m_pArea->Xpos + m_pArea->Width - posX, m_pArea->Height);
+		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+		WaitWhileBusy();
 	}
 
 	void FillArea(ulong color)

@@ -221,7 +221,7 @@ void NO_INLINE_ATTR DumpRam(const Area *pArea, int  cb)
 
 void NO_INLINE_ATTR EnableCursor()
 {
-	uint height = 112;
+	uint height = 100;
 	Lcd.WriteReg(CURHS, 1);
 	Lcd.WriteReg(CURVS, height / 4 - 1);
 	Lcd.WriteReg(BTCR, 35);
@@ -229,7 +229,12 @@ void NO_INLINE_ATTR EnableCursor()
 	Lcd.WriteReg(CCR1, CCR1_CharHeightX4);
 	Lcd.WriteReg(ICR, ICR_TextMode);
 	Lcd.WriteReg(GTCCR, GTCCR_TextCursorEnable | GTCCR_TextCursorBlink);
-	//Lcd.WriteRegXY(F_CURX0, Zaxis_X + 54 * 3, Zaxis_Y - (32 * 4 - height));
+	uint x = MainScreen_Areas.Xdisplay.Xpos + 54 * 3;
+	uint y = MainScreen_Areas.Xdisplay.Ypos;// - (32 * 4 - height);
+	y = 0;
+	Lcd.WriteRegXY(F_CURX0, x, y);
+	DEBUG_PRINT("Cursor at %u, %u\n", x, y);
+	//ScreenMgr::SetDrawCanvas(&MainScreen);
 }
 
 //*********************************************************************
@@ -295,6 +300,9 @@ int main(void)
 
 	Actions::Init();
 
+	//EnableCursor();
+	//RA8876::WriteData(RA8876::ReadReg(GTCCR) & ~GTCCR_TextCursorEnable);
+
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
 	UsbPort.Init();
@@ -314,6 +322,7 @@ int main(void)
 	Timer	tmrAxis;
 	int		i;
 	bool	fSdOut = true;
+	bool	fCursor = true;
 
 	tmrAxis.Start();
 
@@ -421,6 +430,19 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
+			case 'b':
+				if (fCursor)
+				{
+					RA8876::WriteData(RA8876::ReadReg(GTCCR) & ~GTCCR_TextCursorEnable);
+					fCursor  = false;
+				}
+				else
+				{
+					RA8876::WriteData(RA8876::ReadReg(GTCCR) | GTCCR_TextCursorEnable);
+					fCursor = true;
+				}
+				break;
+
 			case 'c':
 				DEBUG_PRINT("Calibrate touch screen...");
 				CalibrateTouch();

@@ -368,7 +368,7 @@ static constexpr int CONSOLE_BAUD_RATE = 500000;
 typedef DECLARE_USART(SERCOM0, 100, 100)	Console_t;
 
 #ifdef DEBUG
-#define DEBUG_PRINT	printf
+#define DEBUG_PRINT	::printf
 #else
 #define DEBUG_PRINT(...)
 #endif

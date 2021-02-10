@@ -265,6 +265,9 @@
     <Compile Include="AxisDisplay.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="EditLine.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="FileOperations.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -281,6 +284,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Images\TargetCursor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="KeyboardMgr.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ListScroll.h">
