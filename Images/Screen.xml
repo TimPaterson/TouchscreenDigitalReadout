@@ -40,6 +40,8 @@
   <Color Name="ToolLibBackground" Color="DarkBlue" ColorDepth="Color16bpp"/>
   <Color Name="ToolLibForeground" Color="LightGray" ColorDepth="Color16bpp"/>
   <Color Name="ToolLibSelected" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="TimeEntryForeground" Color="Black" ColorDepth="Color16bpp"/>
+  <Color Name="TimeEntryBackground" Color="White" ColorDepth="Color16bpp"/>
 
   <!-- Components -->
   <Component Name="Key">
@@ -319,6 +321,16 @@
         </Column>
       </Row>
     </Grid>
+  </Component>
+
+  <Component Name="Menu">
+    <Ref RefName="Key">
+      <Set>
+        Button.Fill = BtnBackground;
+      	Label.Foreground = ToggleOn;
+        Label.Text = "...";
+      </Set>
+    </Ref>
   </Component>
 
   <!-- Main Screen -->
@@ -632,14 +644,8 @@
     <Set>
       ToolSelectLeft = KeySpace * 2 + ToolDescLeft + DescCellWidth;
     </Set>
-    <Ref RefName="Key" Left="ToolSelectLeft" Top="ToolTop">
-      <Set>
-        Button.HotSpot = ToolMenu;
-      	Button.StrokeThickness = 0;
-        Button.Fill = BtnBackground;
-      	Label.Foreground = ToggleOn;
-        Label.Text = "...";
-      </Set>
+    <Ref RefName="Menu" Left="ToolSelectLeft" Top="ToolTop">
+      <Set>Button.HotSpot = ToolMenu</Set>
     </Ref>
     <!-- Tool diagram -->
     <Set>
@@ -743,7 +749,7 @@
     CancelIconAdj = 0;
   </Set>
 
-  <Component Name="ToolButtons">
+  <Component Name="DoneButton">
     <Ref RefName="ToolButton">
       <Set>
         Icon.Source = Ok128.png;
@@ -752,6 +758,26 @@
         Icon.Top = OkIconAdj / 2;
         Icon.Left = OkIconAdj / 2;
         Label.Text = Done;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="CancelButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Cancel128.png;
+        Icon.Height = ToolBtnHeight - CancelIconAdj;
+        Icon.Width = ToolBtnWidth - CancelIconAdj;
+        Icon.Top = CancelIconAdj / 2;
+        Icon.Left = CancelIconAdj / 2;
+        Label.Text = Cancel;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="ToolButtons">
+    <Ref RefName="DoneButton">
+      <Set>
         Button.Name = OkButton;
       </Set>
     </Ref>
@@ -854,26 +880,8 @@
       </Ref>
     </Item>
     <Item>
-      <Ref RefName="ToolButton">
-        <Set>
-          Icon.Source = Ok128.png;
-          Icon.Height = ToolBtnHeight - OkIconAdj;
-          Icon.Width = ToolBtnWidth - OkIconAdj;
-          Icon.Top = OkIconAdj / 2;
-          Icon.Left = OkIconAdj / 2;
-          Label.Text = Done;
-        </Set>
-      </Ref>
-      <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
-        <Set>
-          Icon.Source = Cancel128.png;
-          Icon.Height = ToolBtnHeight - CancelIconAdj;
-          Icon.Width = ToolBtnWidth - CancelIconAdj;
-          Icon.Top = CancelIconAdj / 2;
-          Icon.Left = CancelIconAdj / 2;
-          Label.Text = Cancel;
-        </Set>
-      </Ref>
+      <Ref RefName="DoneButton"/>
+      <Ref RefName="CancelButton" Left="ToolBtnWidth + KeySpace"/>
       <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
         <Set>
           Icon.Source = Folder128.png;
@@ -896,15 +904,15 @@
   <Color Name="CheckForeground" Color="SettingForeColor"/>
   <Color Name="CheckBackground" Color="SettingBackColor"/>
 
-  <Component Name="UncheckedBox">
-    <Rectangle Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+  <Component Name="CheckedBox">
+    <Rectangle Name="Check" Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+      <Line Name="Check" X1="0" Y1="0" X2="CheckboxSize" Y2="CheckboxSize" StrokeThickness="4" Stroke="CheckForeground"/>
+      <Line Name="Check" X1="0" Y1="CheckboxSize" X2="CheckboxSize" Y2="0" StrokeThickness="4" Stroke="CheckForeground"/>
     </Rectangle>
   </Component>
 
-  <Component Name="CheckedBox">
-    <Rectangle Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
-      <Line X1="0" Y1="0" X2="CheckboxSize" Y2="CheckboxSize" StrokeThickness="4" Stroke="CheckForeground"/>
-      <Line X1="0" Y1="CheckboxSize" X2="CheckboxSize" Y2="0" StrokeThickness="4" Stroke="CheckForeground"/>
+  <Component Name="UncheckedBox">
+    <Rectangle Name="Check" Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
     </Rectangle>
   </Component>
 
@@ -1065,15 +1073,23 @@
 
   <!-- Keyboard constants -->
   <Set>
-    KeyboardWidth = KeySpace + (BtnWidth + KeySpace) * 11 + BtnWidth / 2;
+    KeyboardWidth = KeySpace + (BtnWidth + KeySpace) * 12 + BtnWidth / 2;
     KeyboardHeight = KeySpace + (BtnHeight + KeySpace) * 5;
-    SpacebarWidth = KeyboardWidth - KeySpace * 7 - BtnWidth * 13 / 2;
+    SpacebarWidth = KeyboardWidth - KeySpace * 8 - BtnWidth * 7;
   </Set>
   <Set ShowValue="KeyboardTop">KeypadTop</Set>
-  <Set ShowValue="KeyboardLeft">KeypadRight - KeyboardWidth</Set>
+  <Set ShowValue="KeyboardLeft">0</Set>
 
-  <!-- Lower-case keyboard -->
-  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+  <!-- Base keyboard component -->
+  <Component Name="Keyboard">
+    <SetString>
+      ShiftSymbol = "⇧";
+      UnshiftSymbol = "⇩";
+      EnterSymbol = "⏎";
+    </SetString>
+    <Font Name="ShiftSymbolFont" FontFamily="Global Sans Serif" FontWeight="Bold" FontSize="92"/>
+    <Font Name="EnterSymbolFont" FontFamily="Global Sans Serif" FontWeight="Bold" FontSize="56"/>
+
     <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
       <Default>
         <Ref RefName="Key" />
@@ -1091,284 +1107,573 @@
         <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
         <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
         <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
       </Row>
       <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=q; Button.HotSpot=Key_q</Set></Column>
-        <Column><Set>Label.Text=w; Button.HotSpot=Key_w</Set></Column>
-        <Column><Set>Label.Text=e; Button.HotSpot=Key_e</Set></Column>
-        <Column><Set>Label.Text=r; Button.HotSpot=Key_r</Set></Column>
-        <Column><Set>Label.Text=t; Button.HotSpot=Key_t</Set></Column>
-        <Column><Set>Label.Text=y; Button.HotSpot=Key_y</Set></Column>
-        <Column><Set>Label.Text=u; Button.HotSpot=Key_u</Set></Column>
-        <Column><Set>Label.Text=i; Button.HotSpot=Key_i</Set></Column>
-        <Column><Set>Label.Text=o; Button.HotSpot=Key_o</Set></Column>
-        <Column><Set>Label.Text=p; Button.HotSpot=Key_p</Set></Column>
+        <Column><Set>Label.Name=Text_q; Button.Name=Key_q</Set></Column>
+        <Column><Set>Label.Name=Text_w; Button.Name=Key_w</Set></Column>
+        <Column><Set>Label.Name=Text_e; Button.Name=Key_e</Set></Column>
+        <Column><Set>Label.Name=Text_r; Button.Name=Key_r</Set></Column>
+        <Column><Set>Label.Name=Text_t; Button.Name=Key_t</Set></Column>
+        <Column><Set>Label.Name=Text_y; Button.Name=Key_y</Set></Column>
+        <Column><Set>Label.Name=Text_u; Button.Name=Key_u</Set></Column>
+        <Column><Set>Label.Name=Text_i; Button.Name=Key_i</Set></Column>
+        <Column><Set>Label.Name=Text_o; Button.Name=Key_o</Set></Column>
+        <Column><Set>Label.Name=Text_p; Button.Name=Key_p</Set></Column>
         <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
+        <Column><Set>Label.Text='; Button.HotSpot=Key_apostrophe</Set></Column>
       </Row>
       <Row Left="BtnWidth">
-        <Column><Set>Label.Text=a; Button.HotSpot=Key_a</Set></Column>
-        <Column><Set>Label.Text=s; Button.HotSpot=Key_s</Set></Column>
-        <Column><Set>Label.Text=d; Button.HotSpot=Key_d</Set></Column>
-        <Column><Set>Label.Text=f; Button.HotSpot=Key_f</Set></Column>
-        <Column><Set>Label.Text=g; Button.HotSpot=Key_g</Set></Column>
-        <Column><Set>Label.Text=h; Button.HotSpot=Key_h</Set></Column>
-        <Column><Set>Label.Text=j; Button.HotSpot=Key_j</Set></Column>
-        <Column><Set>Label.Text=k; Button.HotSpot=Key_k</Set></Column>
-        <Column><Set>Label.Text=l; Button.HotSpot=Key_l</Set></Column>
+        <Column><Set>Label.Name=Text_a; Button.Name=Key_a</Set></Column>
+        <Column><Set>Label.Name=Text_s; Button.Name=Key_s</Set></Column>
+        <Column><Set>Label.Name=Text_d; Button.Name=Key_d</Set></Column>
+        <Column><Set>Label.Name=Text_f; Button.Name=Key_f</Set></Column>
+        <Column><Set>Label.Name=Text_g; Button.Name=Key_g</Set></Column>
+        <Column><Set>Label.Name=Text_h; Button.Name=Key_h</Set></Column>
+        <Column><Set>Label.Name=Text_j; Button.Name=Key_j</Set></Column>
+        <Column><Set>Label.Name=Text_k; Button.Name=Key_k</Set></Column>
+        <Column><Set>Label.Name=Text_l; Button.Name=Key_l</Set></Column>
         <Column>
+          <SetString>Label.Text = "Enter"</SetString>
           <Set>
-            Label.Text=⏎;
-            Button.Width=BtnWidth * 3 / 2 + KeySpace;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight=Bold;
-            Label.FontSize = 56;
-            Label.Top = 0;
+            Label.Foreground = DarkGreen;
+            Label.FontSize = 48;
+            Label.FontWeight = Bold;
+            Button.Width = BtnWidth * 5 / 2 + KeySpace * 2;
             Button.HotSpot=Key_enter;
           </Set>
         </Column>
       </Row>
       <Row>
         <Column>
+          <SetString>Label.Text = ShiftSymbol</SetString>
           <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 92;
+            Label.Font = ShiftSymbolFont;
             Label.Top = -18;
+            Label.Name = ShiftText;
+            Button.Width=BtnWidth * 3 / 2;
             Button.HotSpot=Key_shift;
+            Button.Name=Key_shift;
           </Set>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=z; Button.HotSpot=Key_z</Set></Column>
-        <Column><Set>Label.Text=x; Button.HotSpot=Key_x</Set></Column>
-        <Column><Set>Label.Text=c; Button.HotSpot=Key_c</Set></Column>
-        <Column><Set>Label.Text=v; Button.HotSpot=Key_v</Set></Column>
-        <Column><Set>Label.Text=b; Button.HotSpot=Key_b</Set></Column>
-        <Column><Set>Label.Text=n; Button.HotSpot=Key_n</Set></Column>
-        <Column><Set>Label.Text=m; Button.HotSpot=Key_m</Set></Column>
-        <Column><Set>Label.Text=","; Button.HotSpot=Key_comma</Set></Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Name=Text_z; Button.Name=Key_z</Set></Column>
+        <Column><Set>Label.Name=Text_x; Button.Name=Key_x</Set></Column>
+        <Column><Set>Label.Name=Text_c; Button.Name=Key_c</Set></Column>
+        <Column><Set>Label.Name=Text_v; Button.Name=Key_v</Set></Column>
+        <Column><Set>Label.Name=Text_b; Button.Name=Key_b</Set></Column>
+        <Column><Set>Label.Name=Text_n; Button.Name=Key_n</Set></Column>
+        <Column><Set>Label.Name=Text_m; Button.Name=Key_m</Set></Column>
+        <Column>
+          <Set>
+            Label.Text=",";
+            Label.Name=Text_comma;
+            Button.HotSpot = Key_comma;
+            Button.Name=Key_comma
+          </Set>
+        </Column>
         <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
         <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
       </Row>
       <Row>
         <Column>
+          <SetString>Label.Text = ShiftSymbol</SetString>
           <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 86;
+            Label.Font = ShiftSymbolFont;
             Label.Top = -18;
+            Label.FontSize = 86;
+            Button.Width=BtnWidth * 3 / 2;
             Button.HotSpot=Key_shiftLock;
           </Set>
           <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
         </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_symbols</Set></Column>
+        <Column Left="BtnWidth / 2">
+          <Set>
+            Label.Text="#$(";
+            Label.Name=Text_symbols;
+            Button.Width=BtnWidth * 3 / 2;
+            Button.HotSpot=Key_symbols;
+            Button.Name=Key_symbols;
+            HomeBarTop = 14;
+            HomeBarBottom = 48;
+            HomeBarThickness = 3;
+            HomeBarPosition = 12;
+            EndBarPosition = 48;
+          </Set>
+        </Column>
         <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight">
+          <Set>
+            Label.Text=←;
+            Label.FontFamily=Calibri;
+            Button.HotSpot=Key_home;
+          </Set>
+          <Line Name="Test" X1="HomeBarPosition" Y1="HomeBarTop" X2="HomeBarPosition" Y2="HomeBarBottom" StrokeThickness="HomeBarThickness" Stroke="Black"/>
+        </Column>
+        <Column><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri; Button.HotSpot=Key_right</Set></Column>
+        <Column>
+          <Set>Label.Text=→; Label.FontFamily=Calibri; Button.HotSpot=Key_end</Set>
+          <Line Name="Test" X1="EndBarPosition" Y1="HomeBarTop" X2="EndBarPosition" Y2="HomeBarBottom" StrokeThickness="HomeBarThickness" Stroke="Black"/>
+        </Column>
       </Row>
     </Grid>
+  </Component>
+
+  <!-- Lower-case keyboard -->
+  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Ref RefName="Keyboard">
+      <Set>
+        Text_q.Text=q; Key_q.HotSpot = Key_q;
+        Text_w.Text=w; Key_w.HotSpot = Key_w;
+        Text_e.Text=e; Key_e.HotSpot = Key_e;
+        Text_r.Text=r; Key_r.HotSpot = Key_r;
+        Text_t.Text=t; Key_t.HotSpot = Key_t;
+        Text_y.Text=y; Key_y.HotSpot = Key_y;
+        Text_u.Text=u; Key_u.HotSpot = Key_u;
+        Text_i.Text=i; Key_i.HotSpot = Key_i;
+        Text_o.Text=o; Key_o.HotSpot = Key_o;
+        Text_p.Text=p; Key_p.HotSpot = Key_p;
+
+        Text_a.Text=a; Key_a.HotSpot = Key_a;
+        Text_s.Text=s; Key_s.HotSpot = Key_s;
+        Text_d.Text=d; Key_d.HotSpot = Key_d;
+        Text_f.Text=f; Key_f.HotSpot = Key_f;
+        Text_g.Text=g; Key_g.HotSpot = Key_g;
+        Text_h.Text=h; Key_h.HotSpot = Key_h;
+        Text_j.Text=j; Key_j.HotSpot = Key_j;
+        Text_k.Text=k; Key_k.HotSpot = Key_k;
+        Text_l.Text=l; Key_l.HotSpot = Key_l;
+
+        Text_z.Text=z; Key_z.HotSpot = Key_z;
+        Text_x.Text=x; Key_x.HotSpot = Key_x;
+        Text_c.Text=c; Key_c.HotSpot = Key_c;
+        Text_v.Text=v; Key_v.HotSpot = Key_v;
+        Text_b.Text=b; Key_b.HotSpot = Key_b;
+        Text_n.Text=n; Key_n.HotSpot = Key_n;
+        Text_m.Text=m; Key_m.HotSpot = Key_m;
+      </Set>
+    </Ref>
   </Canvas>
 
   <!-- Upper-case keyboard -->
   <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
-    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
-      <Default>
-        <Ref RefName="Key" />
-        <Set>Button.Group = Keyboard</Set>
-      </Default>
-      <Row>
-        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
-        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
-        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
-        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
-        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
-        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
-        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
-        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
-        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
-        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
-        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
-      </Row>
-      <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=Q; Button.HotSpot=Key_Q</Set></Column>
-        <Column><Set>Label.Text=W; Button.HotSpot=Key_W</Set></Column>
-        <Column><Set>Label.Text=E; Button.HotSpot=Key_E</Set></Column>
-        <Column><Set>Label.Text=R; Button.HotSpot=Key_R</Set></Column>
-        <Column><Set>Label.Text=T; Button.HotSpot=Key_T</Set></Column>
-        <Column><Set>Label.Text=Y; Button.HotSpot=Key_Y</Set></Column>
-        <Column><Set>Label.Text=U; Button.HotSpot=Key_U</Set></Column>
-        <Column><Set>Label.Text=I; Button.HotSpot=Key_I</Set></Column>
-        <Column><Set>Label.Text=O; Button.HotSpot=Key_O</Set></Column>
-        <Column><Set>Label.Text=P; Button.HotSpot=Key_P</Set></Column>
-        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
-      </Row>
-      <Row Left="BtnWidth">
-        <Column><Set>Label.Text=A; Button.HotSpot=Key_A</Set></Column>
-        <Column><Set>Label.Text=S; Button.HotSpot=Key_S</Set></Column>
-        <Column><Set>Label.Text=D; Button.HotSpot=Key_D</Set></Column>
-        <Column><Set>Label.Text=F; Button.HotSpot=Key_F</Set></Column>
-        <Column><Set>Label.Text=G; Button.HotSpot=Key_G</Set></Column>
-        <Column><Set>Label.Text=H; Button.HotSpot=Key_H</Set></Column>
-        <Column><Set>Label.Text=J; Button.HotSpot=Key_J</Set></Column>
-        <Column><Set>Label.Text=K; Button.HotSpot=Key_K</Set></Column>
-        <Column><Set>Label.Text=L; Button.HotSpot=Key_L</Set></Column>
-        <Column>
-          <Set>
-            Label.Text=⏎;
-            Button.Width=BtnWidth * 3 / 2 + KeySpace;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight=Bold;
-            Label.FontSize = 56;
-            Label.Top = 0;
-            Button.HotSpot=Key_enter;
-          </Set>
-        </Column>
-      </Row>
-      <Row>
-        <Column>
-          <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇩;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 92;
-            Label.Top = -18;
-            Button.HotSpot=Key_shift;
-          </Set>
-        </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=Z; Button.HotSpot=Key_Z</Set></Column>
-        <Column><Set>Label.Text=X; Button.HotSpot=Key_X</Set></Column>
-        <Column><Set>Label.Text=C; Button.HotSpot=Key_C</Set></Column>
-        <Column><Set>Label.Text=V; Button.HotSpot=Key_V</Set></Column>
-        <Column><Set>Label.Text=B; Button.HotSpot=Key_B</Set></Column>
-        <Column><Set>Label.Text=N; Button.HotSpot=Key_N</Set></Column>
-        <Column><Set>Label.Text=M; Button.HotSpot=Key_M</Set></Column>
-        <Column><Set>Label.Text=","; Button.HotSpot=Key_comma</Set></Column>
-        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
-        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
-      </Row>
-      <Row>
-        <Column>
-          <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 86;
-            Label.Top = -18;
-            Button.HotSpot=Key_shiftLock;
-          </Set>
-          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
-        </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="#$("; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_symbols</Set></Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
-      </Row>
-    </Grid>
+    <Ref RefName="Keyboard">
+      <SetString>ShiftText.Text = UnshiftSymbol</SetString>
+      <Set>
+        Text_q.Text=Q; Key_q.HotSpot = Key_Q;
+        Text_w.Text=W; Key_w.HotSpot = Key_W;
+        Text_e.Text=E; Key_e.HotSpot = Key_E;
+        Text_r.Text=R; Key_r.HotSpot = Key_R;
+        Text_t.Text=T; Key_t.HotSpot = Key_T;
+        Text_y.Text=Y; Key_y.HotSpot = Key_Y;
+        Text_u.Text=U; Key_u.HotSpot = Key_U;
+        Text_i.Text=I; Key_i.HotSpot = Key_I;
+        Text_o.Text=O; Key_o.HotSpot = Key_O;
+        Text_p.Text=P; Key_p.HotSpot = Key_P;
+
+        Text_a.Text=A; Key_a.HotSpot = Key_A;
+        Text_s.Text=S; Key_s.HotSpot = Key_S;
+        Text_d.Text=D; Key_d.HotSpot = Key_D;
+        Text_f.Text=F; Key_f.HotSpot = Key_F;
+        Text_g.Text=G; Key_g.HotSpot = Key_G;
+        Text_h.Text=H; Key_h.HotSpot = Key_H;
+        Text_j.Text=J; Key_j.HotSpot = Key_J;
+        Text_k.Text=K; Key_k.HotSpot = Key_K;
+        Text_l.Text=L; Key_l.HotSpot = Key_L;
+
+        Text_z.Text=Z; Key_z.HotSpot = Key_Z;
+        Text_x.Text=X; Key_x.HotSpot = Key_X;
+        Text_c.Text=C; Key_c.HotSpot = Key_C;
+        Text_v.Text=V; Key_v.HotSpot = Key_V;
+        Text_b.Text=B; Key_b.HotSpot = Key_B;
+        Text_n.Text=N; Key_n.HotSpot = Key_N;
+        Text_m.Text=M; Key_m.HotSpot = Key_M;
+      </Set>
+    </Ref>
   </Canvas>
 
   <!-- Symbol keyboard -->
   <Canvas Name="KeySymbol" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
-    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
-      <Default>
-        <Ref RefName="Key" />
-        <Set>Button.Group = Keyboard</Set>
-      </Default>
-      <Row>
-        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
-        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
-        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
-        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
-        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
-        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
-        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
-        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
-        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
-        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
-        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
-      </Row>
-      <Row Left="BtnWidth / 2">
-        <Column><Set>Label.Text=~; Button.HotSpot=Key_tilde</Set></Column>
-        <Column><Set>Label.Text=!; Button.HotSpot=Key_exclamation</Set></Column>
-        <Column><Set>Label.Text=@; Button.HotSpot=Key_at</Set></Column>
-        <Column><Set>Label.Text=#; Button.HotSpot=Key_hash</Set></Column>
-        <Column><Set>Label.Text=$; Button.HotSpot=Key_dollar</Set></Column>
-        <Column><Set>Label.Text=%; Button.HotSpot=Key_percent</Set></Column>
-        <Column><Set>Label.Text=^; Button.HotSpot=Key_hat</Set></Column>
-        <Column><Set>Label.Text=*; Button.HotSpot=Key_star</Set></Column>
-        <Column><Set>Label.Text=(; Button.HotSpot=Key_lparen</Set></Column>
-        <Column><Set>Label.Text=); Button.HotSpot=Key_rparen</Set></Column>
-        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
-      </Row>
-      <Row Left="BtnWidth">
-        <Column><Set>Label.Text=`; Button.HotSpot=Key_backApostrophe</Set></Column>
-        <Column><Set>Label.Text=&amp;; Button.HotSpot=Key_ampersand</Set></Column>
-        <Column><Set>Label.Text=_; Button.HotSpot=Key_underscore</Set></Column>
-        <Column><Set>Label.Text=+; Button.HotSpot=Key_plus</Set></Column>
-        <Column><Set>Label.Text="="; Button.HotSpot=Key_equal</Set></Column>
-        <Column><Set>Label.Text=[; Button.HotSpot=Key_lbracket</Set></Column>
-        <Column><Set>Label.Text=]; Button.HotSpot=Key_rbracket</Set></Column>
-        <Column><Set>Label.Text={; Button.HotSpot=Key_lbrace</Set></Column>
-        <Column><Set>Label.Text=}; Button.HotSpot=Key_rbrace</Set></Column>
-        <Column>
+    <Ref RefName="Keyboard">
+      <Set>
+        Text_q.Text=~; Key_q.HotSpot = Key_tilde;
+        Text_w.Text=!; Key_w.HotSpot = Key_exclamation;
+        Text_e.Text=@; Key_e.HotSpot = Key_at;
+        Text_r.Text=#; Key_r.HotSpot = Key_hash;
+        Text_t.Text=$; Key_t.HotSpot = Key_dollar;
+        Text_y.Text=%; Key_y.HotSpot = Key_percent;
+        Text_u.Text=^; Key_u.HotSpot = Key_hat;
+        Text_i.Text=*; Key_i.HotSpot = Key_star;
+        Text_o.Text=(; Key_o.HotSpot = Key_lparen;
+        Text_p.Text=); Key_p.HotSpot = Key_rparen;
+
+        Text_a.Text=`; Key_a.HotSpot = Key_backApostrophe;
+        Text_s.Text=&amp;; Key_s.HotSpot = Key_ampersand;
+        Text_d.Text=_; Key_d.HotSpot = Key_underscore;
+        Text_f.Text=+; Key_f.HotSpot = Key_plus;
+        Text_g.Text="="; Key_g.HotSpot = Key_equal;
+        Text_h.Text=[; Key_h.HotSpot = Key_lbracket;
+        Text_j.Text=]; Key_j.HotSpot = Key_rbracket;
+        Text_k.Text={; Key_k.HotSpot = Key_lbrace;
+        Text_l.Text=}; Key_l.HotSpot = Key_rbrace;
+
+        Text_symbols.Text="abc"; Key_symbols.HotSpot = Key_normal;
+        Text_z.Text=|;    Key_z.HotSpot = Key_vbar;
+        Text_x.Text="\\"; Key_x.HotSpot = Key_backslash;
+        Text_c.Text=:;    Key_c.HotSpot = Key_colon;
+        Text_v.Text=";";  Key_v.HotSpot = Key_semi;
+        Text_b.Text=';    Key_b.HotSpot = Key_apostrophe;
+        Text_b.Text=&lt;; Key_b.HotSpot = Key_lessthan;
+        Text_n.Text=>;    Key_n.HotSpot = Key_greaterthan;
+        Text_m.Text=?;    Key_m.HotSpot = Key_question;
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <!-- Tool library import/export -->
+  <Set>
+    <!-- Clock set dialog -->
+    DateEntryWidth = ToolListWidth;
+    EntryHeight = 60;
+    DateTimeTop = 11;
+    DateTextOffset = (EntryHeight - SettingsFont_Height) / 2;
+    AmPmWidth = 60;
+    SeparatorGap = 3;
+    SeparatorWidth = 16;  <!-- including gap-->
+    TimeGap = 20;
+    EntryWidth = (DateEntryWidth - SeparatorWidth * 4 - KeySpace * 3 - TimeGap * 2 - BtnWidth - AmPmWidth) / 6;
+    DateWidth = EntryWidth * 3 + SeparatorWidth * 2;
+    DateLeft = KeySpace;
+    TimeLeft = DateLeft + DateWidth + TimeGap;
+    AmPmLeft = TimeLeft + DateWidth + KeySpace;
+    DoneButtonLeft = AmPmLeft + AmPmWidth + TimeGap;
+
+    <!-- Import/Export dialog -->
+    FileEntryHeight = BtnHeight;
+    RadioButtonSize = 32;
+    RadioButtonStrokeThickness = 4;
+    RadioButtonDot = 16;
+    RadioDotOffset = (RadioButtonSize - RadioButtonDot) / 2;
+    RadioButtonWidth = 125; <!-- includes text -->
+    RadioButtonHeight = 50; <!-- vertical pitch-->
+    RadioButtonVoffset = (RadioButtonHeight - RadioButtonSize) / 2;
+    RadioButtonTop = (ToolLibHeight - 2 * RadioButtonHeight) / 2;
+    ImportCtrlsWidth = RadioButtonWidth + KeySpace * 2 + BtnWidth * 2;
+    ImportCtrlsLeft = ToolLibWidth - ImportCtrlsWidth - KeySpace;
+    FileWidth = ImportCtrlsLeft - KeySpace;
+    ImportWarningTop = 75;
+    TimestampTop = 80;
+    SetButtonHeight = 40;
+
+    <!-- File list box -->
+    FileListWidth = (KeypadRight + 3) and not 3; <!-- must be multiple of 4-->
+    FileRowWidth = FileListWidth - ScrollBarWidth;
+  </Set>
+
+  <Set ShowValue="FileListWidth">FileListWidth</Set>
+  <Set ShowValue="FileRowHeight">ToolRowHeight</Set>
+  <Set ShowValue="FileListHeight">ToolListHeight</Set>
+
+  <Component Name="Entry">
+    <Rectangle Name="EntryBox" Height="EntryHeight" Width="EntryWidth" RadiusX="8" RadiusY="8" Fill="TimeEntryBackground">
+      <TextBlock Name="EntryText" Font="SettingsFont" Text="00" Foreground="TimeEntryForeground"/>
+      <Set>EntryText.Foreground = TimeEntryBackground</Set> <!-- blank the text -->
+    </Rectangle>
+  </Component>
+
+  <Component Name="Date">
+    <Ref RefName="Entry">
+      <Set>
+        EntryBox.Name = Box1;
+        EntryText.Name = Text1;
+      </Set>
+    </Ref>
+    <TextBlock Name="Separator" Top="DateTextOffset" Left="EntryWidth + SeparatorGap" Font="SettingsFont" Foreground="ToolInfoForeground"/>
+    <Ref RefName="Entry" Left="EntryWidth + SeparatorWidth">
+      <Set>
+        EntryBox.Name = Box2;
+        EntryText.Name = Text2;
+      </Set>
+    </Ref>
+    <TextBlock Name="Separator" Top="DateTextOffset" Left="2 * EntryWidth + SeparatorWidth + SeparatorGap" Font="SettingsFont" Foreground="White"/>
+    <Ref RefName="Entry" Left="EntryWidth * 2 + SeparatorWidth * 2">
+      <Set>
+        EntryBox.Name = Box3;
+        EntryText.Name = Text3;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="DateTimeEntry">
+    <Ref RefName="Date" Left="DateLeft">
+      <Set>
+        Separator.Text = "/";
+        Box1.HotSpot = Month;
+        Box2.HotSpot = Day;
+        Box3.HotSpot = Year;
+        Text1.Area = Month;
+        Text2.Area = Day;
+        Text3.Area = Year;
+      </Set>
+    </Ref>
+    <Ref RefName="Date" Left="TimeLeft">
+      <Set>
+        Separator.Text = ":";
+        Box1.HotSpot = Hours;
+        Box2.HotSpot = Minutes;
+        Box3.HotSpot = Seconds;
+        Text1.Area = Hours;
+        Text2.Area = Minutes;
+        Text3.Area = Seconds;
+      </Set>
+    </Ref>
+    <Ref RefName="Entry" Left="AmPmLeft">
+      <Set>
+        EntryText.Text = "pm";
+        EntryText.Area = AmPm;
+        EntryBox.Width = AmPmWidth;
+        EntryBox.HotSpot = AmPm;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="RadioButtonOff">
+    <Ellipse Name="Circle" Height="RadioButtonSize" Width="RadioButtonSize" StrokeThickness="RadioButtonStrokeThickness" Stroke="ToolInfoForeground"/>
+  </Component>
+
+  <Component Name="RadioButtonOn">
+    <Ref RefName="RadioButtonOff"/>
+    <Ellipse Height="RadioButtonDot" Width="RadioButtonDot" Top="RadioDotOffset" Left="RadioDotOffset" Fill="ToolInfoForeground"/>
+  </Component>
+
+  <Set>
+    RadioButtonTextTop = RadioButtonVoffset + 2;
+    RadioButtonTextLeft = RadioButtonSize + KeySpace + 5;
+  </Set>
+
+  <Component Name="RadioButtonTextOff">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioButtonWidth">
+      <Ref RefName="RadioButtonOff" Top="RadioButtonVoffset" Left="KeySpace"/>
+      <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="RadioButtonTextOn">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioButtonWidth">
+      <Ref RefName="RadioButtonOn" Top="RadioButtonVoffset" Left="KeySpace"/>
+      <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ImportWarning">
+    <TextBlock Name="ImportWarning" Font="SettingsFont" FontSize="32" Foreground="ToolInfoForeground">Warning: All existing tools will be deleted first!</TextBlock>
+  </Component>
+
+  <Component Name="CurrentTime">
+    <TextBlock Name="TimestampLabel" Font="CalcSmall" Foreground="ToolInfoForeground">File timestamp:</TextBlock>
+  </Component>
+
+  <Component Name="SampleTime">
+    <TextBlock Name="SampleTime" Font="CalcSmall" Foreground="ToolInfoForeground">12/10/2020  12:55:16 pm</TextBlock>
+  </Component>
+
+  <Component Name="TimeSetButton">
+    <Ref RefName="Key">
+      <Set>
+        Button.Height = SetButtonHeight;
+        Button.Fill = Green;
+        Label.Foreground = White;
+        Label.Text = "Set";
+        Label.FontSize = 28;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="EnterDateTime" Height="BtnHeight + 2 * KeySpace" Width="DateEntryWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Ref RefName="DateTimeEntry" Top="DateTimeTop"/>
+    <Ref RefName="DoneButton" Top="KeySpace" Left="DoneButtonLeft">
+      <Set>
+        Button.HotSpot = Done;
+        Label.Text = "";
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <Set>
+    ImportIconAdj = 4;
+    ExportIconAdj = ImportIconAdj;
+    AddFolderAdj = 0;
+    ImpExpButtonLeft = RadioButtonWidth + KeySpace;
+    ImpExpCancelLeft = ImpExpButtonLeft + BtnWidth + KeySpace;
+  </Set>
+
+  <Component Name="ImportButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Import128.png;
+        Icon.Height = ToolBtnHeight - ImportIconAdj;
+        Icon.Width = ToolBtnWidth - ImportIconAdj;
+        Icon.Top = ImportIconAdj / 2;
+        Icon.Left = ImportIconAdj / 2;
+        Label.Text = Load;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="ExportButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Export128.png;
+        Icon.Height = ToolBtnHeight - ExportIconAdj;
+        Icon.Width = ToolBtnWidth - ExportIconAdj;
+        Icon.Top = ExportIconAdj / 2;
+        Icon.Left = ExportIconAdj / 2;
+        Label.Text = Save;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="LoadSave" Type="Overlay" Height="ToolCtrlHeight" ItemWidth="BtnWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Item>
+      <Ref RefName="ImportButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="ExportButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = AddFolder128.png;
+          Icon.Height = ToolBtnHeight - AddFolderAdj;
+          Icon.Width = ToolBtnWidth - AddFolderAdj;
+          Icon.Top = 4;
+          Icon.Left = 4;
+          Label.Text = "  Add&#xA;Folder";
+        </Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="RadioButtons" Type="Overlay" Height="RadioButtonSize" ItemWidth="RadioButtonSize" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Item>
+      <Ref RefName="RadioButtonOff"/>
+    </Item>
+    <Item>
+      <Ref RefName="RadioButtonOn"/>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="ImportWarning" Type="Overlay" Height="ImportWarning.Height" Width="ImportWarning.Width" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="ImportWarning"/>
+  </Canvas>
+
+  <Canvas Name="TimestampLabel" Type="Overlay" Height="TimestampLabel.Height" Width="TimestampLabel.Width" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="CurrentTime"/>
+  </Canvas>
+
+  <Canvas Name="TimeSetButton" Type="Overlay" Height="SetButtonHeight" Width="BtnWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="TimeSetButton"/>
+  </Canvas>
+
+  <Canvas Name="ToolImport" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="KeySpace" Height="SmallTextHeight" Width="FileWidth - 2 * KeySpace"/>
+    </Rectangle>
+    <Rectangle Left="ImportCtrlsLeft" Height="ToolLibHeight" Width="ToolLibWidth">
+      <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop">
+        <Set>
+          Text.Text = Import;
+          RadioBox.HotSpot = ImportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = ImportBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight">
+        <Set>
+          Text.Text = Export;
+          RadioBox.HotSpot = ExportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = ExportBox;
+        </Set>
+      </Ref>
+      <Rectangle Area="ImpExpButton" Left="ImpExpButtonLeft" Top="KeySpace" Width="BtnWidth" Height="ToolCtrlHeight">
+        <Ref RefName="ImportButton">
           <Set>
-            Label.Text=⏎;
-            Button.Width=BtnWidth * 3 / 2 + KeySpace;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight=Bold;
-            Label.FontSize = 56;
-            Label.Top = 0;
-            Button.HotSpot=Key_enter;
+            Button.Group = ToolLib;
+            Button.HotSpot = ImpExpExecute;
           </Set>
-        </Column>
-      </Row>
-      <Row>
-        <Column>
-          <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 92;
-            Label.Top = -18;
-            Button.HotSpot=Key_shift;
-          </Set>
-        </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=|; Button.HotSpot=Key_vbar</Set></Column>
-        <Column><Set>Label.Text="\\"; Button.HotSpot=Key_backslash</Set></Column>
-        <Column><Set>Label.Text=:; Button.HotSpot=Key_colon</Set></Column>
-        <Column><Set>Label.Text=";"; Button.HotSpot=Key_semi</Set></Column>
-        <Column><Set>Label.Text='; Button.HotSpot=Key_apostrophe</Set></Column>
-        <Column><Set>Label.Text=&lt;; Button.HotSpot=Key_lessthan</Set></Column>
-        <Column><Set>Label.Text=>; Button.HotSpot=Key_greaterthan</Set></Column>
-        <Column><Set>Label.Text="?"; Button.HotSpot=Key_question</Set></Column>
-        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
-        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
-      </Row>
-      <Row>
-        <Column>
-          <Set>
-            Button.Width=BtnWidth * 3 / 2;
-            Label.Text=⇧;
-            Label.FontFamily="Global Sans Serif";
-            Label.FontWeight = Bold;
-            Label.FontSize = 86;
-            Label.Top = -18;
-            Button.HotSpot=Key_shiftLock;
-          </Set>
-          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
-        </Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text="abc"; Button.Width=BtnWidth * 3 / 2; Button.HotSpot=Key_normal</Set></Column>
-        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
-        <Column Left="SpacebarWidth - BtnHeight"><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
-        <Column><Set>Label.Text=→; Label.FontFamily=Calibri;  Button.HotSpot=Key_right</Set></Column>
-        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
-      </Row>
-    </Grid>
+        </Ref>
+      </Rectangle>
+      <Ref RefName="CancelButton" Left="ImpExpCancelLeft" Top="KeySpace">
+        <Set>
+          Button.Group = ToolLib;
+          Button.HotSpot = ImpExpCancel;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Top="TimestampTop" Left="KeySpace" Height="TimestampLabel.Height" Width="500">
+      <Rectangle Area="TimeLabel" Height="TimestampLabel.Height" Width="TimestampLabel.Width">
+        <Ref RefName="CurrentTime">
+          <Set>TimestampLabel.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
+        </Ref>
+      </Rectangle>
+      <Rectangle Area="LiveTime" Left="TimestampLabel.Width + KeySpace" Height="SmallTextHeight" Width="SampleTime.Width">
+        <Ref RefName="SampleTime">
+          <Set>SampleTime.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
+        </Ref>
+      </Rectangle>
+      <Ref RefName="TimeSetButton" Top="-5" Left="TimestampLabel.Width + 3 * KeySpace + SampleTime.Width">
+        <Set>
+          Button.Area = TimeSetButton;
+          Button.HotSpot = TimeSet;
+          Button.Fill = ToolInfoBackground; <!-- blank the button -->
+          Label.Foreground = ToolInfoBackground;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Area="ImportWarning" Top="ImportWarningTop" Left="KeySpace" Width="ImportWarning.Width" Height="ImportWarning.Height">
+      <Ref RefName="ImportWarning">
+        <!-- <Set>ImportWarning.Foreground = ToolInfoBackground</Set> blank the text -->
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="FileRow" Height="ToolRowHeight + 1" Width="FileRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Set>
+      FileColumnGap = 2 * KeySpace;
+      IconSize = 32;
+      IconLeft = 5;
+      FileTextLeft = IconSize + IconLeft * 2;
+      FileTextWidth = FileRowWidth - FileTextLeft - KeySpace * 2;
+      FileSizeWidth = 90;
+      FileTimeWidth = 105;
+      FileDateWidth = 125;
+      FileSizeLeft = FileTextWidth - FileSizeWidth;
+      FileTimeLeft = FileSizeLeft - FileTimeWidth - FileColumnGap;
+      FileDateLeft = FileTimeLeft - FileDateWidth - FileColumnGap;
+      FileNameLeft = 0;
+      FileNameWidth = FileDateLeft - FileNameLeft - FileColumnGap;
+    </Set>
+    <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="FileRowWidth - KeySpace" Stroke="ToolInfoForeground" StrokeThickness="1">
+      <Rectangle Area="AllText" Top="12" Left="FileTextLeft" Height="SmallTextHeight" Width="FileTextWidth">
+        <Rectangle Area="FileSize" Left="FileSizeLeft" Width="FileSizeWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileTime" Left="FileTimeLeft" Width="FileTimeWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileDate" Left="FileDateLeft" Width="FileDateWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileName" Left="FileNameLeft" Width="FileNameWidth" Height="SmallTextHeight"/>
+      </Rectangle>
+      <Image Left="IconLeft" Top="10" Area="FileIcon" Height="IconSize" Width="IconSize" Source=""/>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="FileIcons" Type="Overlay" Height="IconSize" ItemWidth="IconSize" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="File128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Folder128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Back128.png"/>
+    </Item>
   </Canvas>
 </Project>

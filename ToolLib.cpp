@@ -10,7 +10,7 @@
 #include "Dro.h"
 #include "ToolLib.h"
 #include "Actions.h"
-#include <FatFile/FatSys.h>
+#include "FileOperations.h"
 
 
 void ToolLib::ToolAction(uint spot, int x, int y)
@@ -234,7 +234,36 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		ScreenMgr::SetPip1Modal(true);
 		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
 		return;
+
+	case ToolImportExport:
+		ShowImportExport();
+		break;
+
+	case ImpExpCancel:
+		ShowToolLib();
+		break;
+
+	case ImportRadio:
+		s_isExport = false;
+		goto SetImportExportImages;
+
+	case ExportRadio:
+		s_isExport = true;
+SetImportExportImages:
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !s_isExport);
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, s_isExport);
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, s_isExport);
+		if (s_isExport)
+		{
+			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
+			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeLabel, &TimestampLabel);
+			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeSetButton, &TimeSetButton);
+		}
+		else
+			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
+		break;
 	}
+
 	ShowToolInfo();
 }
 
@@ -363,15 +392,15 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 	if (pchBuf == NULL)
 	{
 		// special flag to indicate start of import
-		pch = (char *)memchr(s_arImportBuf, '\r', cb);
+		pch = (char *)memchr(g_FileBuf, '\r', cb);
 		if (pch == NULL)
 			return -1;	// UNDONE: error handling on tool import
 
-		cbLine = pch - (char *)s_arImportBuf;
+		cbLine = pch - (char *)g_FileBuf;
 		if (cbLine != sizeof s_archImportHead - 1)
 			return -1;	// UNDONE: error handling on tool import
 
-		if (memcmp(s_arImportBuf, s_archImportHead, cbLine) != 0)
+		if (memcmp(g_FileBuf, s_archImportHead, cbLine) != 0)
 			return -1;	// UNDONE: error handling on tool import
 
 		pchBuf = pch + 1;
@@ -383,23 +412,23 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 	{
 		// We reached the end of the last buffer before finding EOL.
 		// Wrap around to the first buffer and search from there.
-		pch = (char *)memchr(s_arImportBuf, '\r', cbWrap);
+		pch = (char *)memchr(g_FileBuf, '\r', cbWrap);
 		if (pch == NULL)
 			return -1;	// UNDONE: error handling on tool import
 
 		*pch = '\0';		// zero terminate
-		cbLine = pch - (char *)s_arImportBuf + 1;
+		cbLine = pch - (char *)g_FileBuf + 1;
 
 		// Build complete line
 		memmove(pchBuf - cbLine, pchBuf, cb);
 		pchBuf -= cbLine;
-		memcpy(pchBuf + cb, s_arImportBuf, cbLine);
+		memcpy(pchBuf + cb, g_FileBuf, cbLine);
 
 		err = ImportTool(pchBuf);
 		if (err < 0)
 			return err;
 
-		pchBuf = (char *)s_arImportBuf + cbLine;
+		pchBuf = (char *)g_FileBuf + cbLine;
 		cb = cbWrap - cbLine;
 	}
 

@@ -69,6 +69,7 @@ public:
 		ShowAbsInc();
 		ShowInchMetric();
 		ToolLib::Init();
+		Files.Init();
 	}
 
 	static void TakeAction(int x, int y, uint flags)
@@ -115,6 +116,10 @@ public:
 			{
 			case HOTSPOT_GROUP_ToolDisplay:
 				s_pCapture = ToolLib::ListCapture(x, y, (ScrollAreas)spot);
+				break;
+
+			case HOTSPOT_GROUP_FileDisplay:
+				s_pCapture = Files.ListCapture(x, y, (ScrollAreas)spot);
 				break;
 
 			default:

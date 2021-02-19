@@ -12,13 +12,14 @@
 #include "AxisDisplay.h"
 #include "EditLine.h"
 #include "KeyboardMgr.h"
+#include "FileBrowser.h"
 #include <FatFile/FatFileConst.h>
 
 
 class ToolLib
 {
 	static constexpr int ToolEntrySize = 64;
-	static constexpr int MaxToolCount = 100;
+	static constexpr int MaxToolCount = 70;
 	static constexpr ushort NoCurrentLine = 0xFFFF;		// occurs in s_curLineNum
 	static constexpr ushort ToolBufIndex = 0xFFFF;		// occurs in s_arSortList[]
 	static constexpr ushort ToolNotModified = 0xFFFF;	// occurs in s_modToolIndex
@@ -88,7 +89,8 @@ class ToolLib
 	class ToolScroll : public ListScroll
 	{
 	public:
-		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, Color16bpp) {}
+		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, 
+			Color16bpp, HOTSPOT_GROUP_ToolDisplay) {}
 
 	protected:
 		virtual void FillLine(int lineNum, Area *pArea)
@@ -181,12 +183,6 @@ public:
 		s_scroll.ScrollToLine(s_curLineNum);
 	}
 
-	static void ShowToolLib()
-	{
-		ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
-		ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
-	}
-
 	static ListScroll *ListCapture(int x, int y, ScrollAreas spot)
 	{
 		if (s_scroll.StartCapture(x, y - ToolListTop, spot))
@@ -223,6 +219,13 @@ public:
 			s_editMode = EDIT_None;
 			KeyboardMgr::CloseKb();
 		}
+	}
+
+public:
+	static void ShowToolLib()
+	{
+		ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
+		ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
 	}
 
 	//*********************************************************************
@@ -374,9 +377,14 @@ protected:
 		ShowToolInfo();
 	}
 
-	static void SetToolButtonImage(ToolButtonImages image)
+	//*********************************************************************
+	// Import/Export dialog
+
+protected:
+	static void ShowImportExport()
 	{
-		ScreenMgr::SelectImage(&ToolLibrary, &ToolLibrary_Areas.ToolButtons, &ToolButtons, image);
+		ScreenMgr::EnablePip1(&ToolImport, 0, 0);
+		Files.Open(&s_editFile);
 	}
 
 protected:
@@ -435,6 +443,11 @@ protected:
 		return val * factor;
 	}
 
+	static void SetToolButtonImage(ToolButtonImages image)
+	{
+		ScreenMgr::SelectImage(&ToolLibrary, &ToolLibrary_Areas.ToolButtons, &ToolButtons, image);
+	}
+
 	//*********************************************************************
 	// const (flash) data
 	//*********************************************************************
@@ -455,16 +468,17 @@ protected:
 	inline static EditLine		s_editLine {ToolLibrary, ToolLibrary_Areas.ToolDesc,
 		s_bufTool.arDesc, ToolDescSize, FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
-	inline static ToolScroll	s_scroll;
+	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(), 
+		FileBrowser::GetPathBufSize(), FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+
 	inline static ushort		s_toolCount;
 	inline static ushort		s_curLineNum {NoCurrentLine};
 	inline static ushort		s_modToolIndex {ToolNotModified};
 	inline static ushort		s_freeToolIndex;
 	inline static byte			s_toolSides;
 	inline static byte			s_editMode;
-	inline static FILE			s_fileImport;
+	inline static bool			s_isExport;
+	inline static ToolScroll	s_scroll;
 	inline static ushort		s_arSortList[MaxToolCount];
 	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];
-public:
-	inline static byte			s_arImportBuf[2][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 };

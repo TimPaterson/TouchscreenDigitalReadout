@@ -105,6 +105,10 @@ enum ToolAreas
 	ToolsDone = ToolLastValue,
 	ToolDelete,
 	ToolImportExport,
+	ImpExpExecute,
+	ImpExpCancel,
+	ImportRadio,
+	ExportRadio,
 };
 
 //*************************************************************************
@@ -122,6 +126,8 @@ enum KeyboardHotspots
 	Key_enter = CR,
 	Key_left = Lf,
 	Key_right = Rt,
+	Key_home = Home,
+	Key_end = End,
 	Key_backspace = BS,
 
 	Key_1 = '1',
@@ -234,6 +240,7 @@ enum HotspotGroups
 {
 	// First set of groups can capture the position
 	HOTSPOT_GROUP_ToolDisplay,
+	HOTSPOT_GROUP_FileDisplay,
 	HOTSPOT_GROUP_CaptureEnd,	// end of capture list
 
 	#include "Images/Screen.h"

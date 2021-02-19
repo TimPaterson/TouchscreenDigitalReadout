@@ -5,6 +5,7 @@
       "TypefaceName": "Regular",
       "CharSetName": "Digits",
       "Size": 96,
+      "Threshold": 65,
       "Name": "DigitDisplay"
     },
     {
@@ -12,6 +13,7 @@
       "TypefaceName": "Regular",
       "CharSetName": "Arithmetic",
       "Size": 48,
+      "Threshold": 60,
       "Name": "Calculator"
     },
     {
@@ -19,6 +21,7 @@
       "TypefaceName": "Regular",
       "CharSetName": "Arithmetic",
       "Size": 24,
+      "Threshold": 47,
       "Name": "CalcSmall"
     },
     {
@@ -26,13 +29,15 @@
       "TypefaceName": "Regular",
       "CharSetName": "Digits",
       "Size": 36,
+      "Threshold": 45,
       "Name": "SettingsFont"
     },
     {
-      "FontFamilyName": null,
-      "TypefaceName": null,
-      "CharSetName": null,
-      "Size": 0,
+      "FontFamilyName": "Arial",
+      "TypefaceName": "Regular",
+      "CharSetName": "Digits",
+      "Size": 36,
+      "Threshold": 65,
       "Name": "\u002B"
     }
   ],
@@ -73,5 +78,6 @@
       "Name": "\u002B"
     }
   ],
-  "GenerateXml": true
+  "GenerateXml": true,
+  "Stride16Bit": false
 }

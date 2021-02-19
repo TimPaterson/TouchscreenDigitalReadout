@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "SerialMem.h"
 #include "TouchCanvas.h"
 #include "TextField.h"
 
@@ -33,9 +32,16 @@ class ListScroll : public TouchCanvas, public RA8876
 public:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-	ListScroll(ushort width, ushort height, ushort lineHeight, ColorDepths depth) :
-		TouchCanvas(s_NextFreeRam, width, height, width, depth, (HotspotList *)&m_hotSpots),
-		m_lineHeight{lineHeight}
+#pragma GCC diagnostic ignored "-Wuninitialized"
+	ListScroll(ushort width, ushort height, ushort lineHeight, ColorDepths depth, byte HotspotGroup) :
+		TouchCanvas(ScreenMgr::AllocVideoRam(0), width, height, width, depth, (HotspotList *)&m_hotSpots),
+		m_lineHeight{lineHeight}, m_hotSpots{ 2, {
+			// Array of Hotspots: the display area, and the scroll thumb
+			{0, 0, (ushort)(m_viewWidth - ScrollBarWidth - 1), (ushort)(m_imageHeight - 1), 
+				{ScrollDisplay, HotspotGroup}},
+			{(ushort)(m_viewWidth - ScrollThumbWidth), 0, (ushort)(m_viewWidth - 1), (ushort)(m_imageHeight - 1), 
+				{ScrollThumb, HotspotGroup}}
+		}}
 	{
 		m_extraLineCnt = ExtraLines;
 		m_lineViewCnt = height / lineHeight;
@@ -43,7 +49,7 @@ public:
 		height = m_lineCnt * lineHeight;
 		m_imageHeight = height;
 		// Allocate image RAM
-		s_NextFreeRam += (int)width * height * PixelSizeFromDepth(depth);
+		ScreenMgr::AllocVideoRam((int)width * height * PixelSizeFromDepth(depth));
 		Invalidate();
 	}
 #pragma GCC diagnostic pop
@@ -67,8 +73,6 @@ public:
 		area.Width = ScrollThumbWidth;
 		area.Xpos = m_viewWidth - ScrollThumbWidth;
 		ScreenMgr::FillRect(this, &area, ScrollBarColor);
-
-		DEBUG_PRINT("Graphics memory allocated: %i bytes\n", s_NextFreeRam);
 	}
 
 	void SetTotalLines(int lines)	
@@ -323,18 +327,7 @@ protected:
 	short	m_thumbPos;
 	short	m_capturePos;
 	Area	m_lineArea{0, 0, (ushort)(m_viewWidth - ScrollBarWidth), (ushort)m_lineHeight}; // Area for a single line
-
-	ScrollHotspots	m_hotSpots{ 2, {
-		// Array of Hotspots: the display area, and the scroll thumb
-		{0, 0, (ushort)(m_viewWidth - ScrollBarWidth - 1), (ushort)(m_imageHeight - 1), 
-			{ScrollDisplay, HOTSPOT_GROUP_ToolDisplay}},
-		{(ushort)(m_viewWidth - ScrollThumbWidth), 0, (ushort)(m_viewWidth - 1), (ushort)(m_imageHeight - 1), 
-			{ScrollThumb, HOTSPOT_GROUP_ToolDisplay}}
-	}};
-
+	ScrollHotspots	m_hotSpots;
 	bool	m_fTrackThumb;
 	bool	m_fDidMove;
-
-protected:
-	inline static int s_NextFreeRam{RamFreeStart};
 };

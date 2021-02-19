@@ -28,7 +28,7 @@ public:
 		{
 		case Key_normal:
 			ShowKb(KeyLower);
-			return;
+			break;
 
 		case Key_shift:
 			if (m_kbState == Key_shift || m_kbState == Key_shiftLock)
@@ -55,7 +55,7 @@ public:
 			break;
 
 		default:
-			if (m_kbState == Key_shift)
+			if (key >= ' ' && key < 0x7F && m_kbState == Key_shift)
 			{
 				m_kbState = Key_normal;
 				ShowKb(KeyLower);

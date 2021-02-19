@@ -73,6 +73,7 @@ FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 Xtp2046		Touch;
 ScreenMgr	Lcd;
 UsbDro		UsbPort;
+FileBrowser	Files;
 
 FatSd				Sd;
 FatSysWait<wdt_reset> FileSys;
@@ -219,24 +220,6 @@ void NO_INLINE_ATTR DumpRam(const Area *pArea, int  cb)
 	HexDump(arbBuf, cb);
 }
 
-void NO_INLINE_ATTR EnableCursor()
-{
-	uint height = 100;
-	Lcd.WriteReg(CURHS, 1);
-	Lcd.WriteReg(CURVS, height / 4 - 1);
-	Lcd.WriteReg(BTCR, 35);
-	Lcd.WriteReg(CCR0, CCR0_CharHeight32);
-	Lcd.WriteReg(CCR1, CCR1_CharHeightX4);
-	Lcd.WriteReg(ICR, ICR_TextMode);
-	Lcd.WriteReg(GTCCR, GTCCR_TextCursorEnable | GTCCR_TextCursorBlink);
-	uint x = MainScreen_Areas.Xdisplay.Xpos + 54 * 3;
-	uint y = MainScreen_Areas.Xdisplay.Ypos;// - (32 * 4 - height);
-	y = 0;
-	Lcd.WriteRegXY(F_CURX0, x, y);
-	DEBUG_PRINT("Cursor at %u, %u\n", x, y);
-	//ScreenMgr::SetDrawCanvas(&MainScreen);
-}
-
 //*********************************************************************
 // Helpers
 //*********************************************************************
@@ -300,9 +283,6 @@ int main(void)
 
 	Actions::Init();
 
-	//EnableCursor();
-	//RA8876::WriteData(RA8876::ReadReg(GTCCR) & ~GTCCR_TextCursorEnable);
-
 	// Initialize USB
 	Mouse.Init(LcdWidthPx, LcdHeightPx);
 	UsbPort.Init();
@@ -313,6 +293,8 @@ int main(void)
 	Sd.Enable();
 	FileSys.Init();
 
+	DEBUG_PRINT("Graphics memory allocated: %lu bytes\n", ScreenMgr::AllocVideoRam(0));
+
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
@@ -322,7 +304,6 @@ int main(void)
 	Timer	tmrAxis;
 	int		i;
 	bool	fSdOut = true;
-	bool	fCursor = true;
 
 	tmrAxis.Start();
 
@@ -422,6 +403,7 @@ int main(void)
 		if (Console.IsByteReady())
 		{
 			byte	ch;
+			int		err;
 
 			ch = Console.ReadByte();
 			if (ch >= 'A' && ch <= 'Z')
@@ -430,39 +412,24 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
-			case 'b':
-				if (fCursor)
-				{
-					RA8876::WriteData(RA8876::ReadReg(GTCCR) & ~GTCCR_TextCursorEnable);
-					fCursor  = false;
-				}
-				else
-				{
-					RA8876::WriteData(RA8876::ReadReg(GTCCR) | GTCCR_TextCursorEnable);
-					fCursor = true;
-				}
-				break;
-
 			case 'c':
 				DEBUG_PRINT("Calibrate touch screen...");
 				CalibrateTouch();
 				DEBUG_PRINT("complete.\n");
 				break;
 
-			case 'd':
-				DEBUG_PRINT("File directory\n");
-				FileOp.FileDirectory((char *)arbBuf, sizeof arbBuf);
-				break;
-
 			case 'f':
 				DEBUG_PRINT("Loading font...");
-				FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
+				err = FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
+FileErrChk:
+				if (err < 0)
+					DEBUG_PRINT("file operation failed with code %i\n", err);
 				break;
 
 			case 'i':
 				DEBUG_PRINT("Loading image...");
-				FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
-				break;
+				err = FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
+				goto FileErrChk;
 
 			case 'r':
 				DumpRam(&MainScreen_Areas.Mem1, 16);
@@ -484,8 +451,8 @@ int main(void)
 
 			case 't':
 				DEBUG_PRINT("Importing tools...");
-				FileOp.ToolImport("DRO.csv");
-				break;
+				err = FileOp.ToolImport("DRO.csv");
+				goto FileErrChk;
 			}
 		}
     }

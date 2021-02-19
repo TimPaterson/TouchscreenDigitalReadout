@@ -27,6 +27,13 @@ class ScreenMgr : public RA8876
 	static const int BorderThickness = 4;
 
 public:
+	static ulong AllocVideoRam(int size)
+	{
+		ulong res = s_NextFreeRam;
+		s_NextFreeRam += size;
+		return res;
+	}
+
 	static PipInfo *GetPip1()	{ return &s_pip1; }
 	static PipInfo *GetPip2()	{ return &s_pip2; }
 
@@ -203,7 +210,7 @@ public:
 		CopyRect(pDst, pAreaDst, pSrc, pAreaDst->Width * index, 0);
 	}
 
-	static void CopyRect(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint srcX, uint srcY)
+	static void CopyRect(Canvas *pDst, const Area *pAreaDst, const ColorImage *pSrc, uint srcX = 0, uint srcY = 0)
 	{
 		SetBteSrc0(pSrc);
 		WriteRegXY(S0_X0, srcX, srcY);
@@ -286,6 +293,7 @@ protected:
 	// static (RAM) data
 	//*********************************************************************
 protected:
+	inline static ulong			s_NextFreeRam{RamFreeStart};
 	inline static TouchCanvas	*s_pMainImage;
 	inline static PipInfo		s_pip1;
 	inline static PipInfo		s_pip2;

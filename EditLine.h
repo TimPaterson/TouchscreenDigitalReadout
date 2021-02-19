@@ -10,9 +10,8 @@
 #include "TextField.h"
 
 
-class EditLine : TextField
+class EditLine : public TextField
 {
-	static constexpr int BlinkTime = 35;	// count of frames at frame rate
 	static constexpr ulong CursorColor = 0xFFFF00;
 
 public:
@@ -165,6 +164,14 @@ public:
 				chWidth = GetCharWidth(m_pBufText[m_chPosCur]);
 				MoveCursor(m_curPosX + chWidth);
 				m_chPosCur++;
+				break;
+
+			case Key_home:
+				SetPositionCh(0);
+				break;
+
+			case Key_end:
+				SetPositionCh(m_cntCh);
 				break;
 			}
 		}
