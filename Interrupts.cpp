@@ -78,3 +78,33 @@ void NAKED_ATTR WDT_Handler()
 }
 
 #endif
+
+//****************************************************************************
+// Hard Fault
+
+#ifdef DEBUG
+
+EXTERN_C void WaitLoop()
+{
+	while (1);
+}
+
+EXTERN_C void HardFaultHelper(void * *ppv)
+{
+	void	*pv;
+	
+	pv = *ppv;
+	*ppv = (void *)WaitLoop;
+	DEBUG_PRINT("\nHard Fault at %p\n", pv);
+}
+
+void NAKED_ATTR HardFault_Handler()
+{
+	asm volatile (
+		"mov	r0, sp \n\t"
+		"add	r0, #0x18 \n\t"
+		"b		HardFaultHelper \n\t"
+	);
+}
+
+#endif

@@ -220,6 +220,11 @@ void NO_INLINE_ATTR DumpRam(const Area *pArea, int  cb)
 	HexDump(arbBuf, cb);
 }
 
+void NO_INLINE_ATTR HardFault(int *p)
+{
+	*p = 0;
+}
+
 //*********************************************************************
 // Helpers
 //*********************************************************************
@@ -453,6 +458,10 @@ FileErrChk:
 				DEBUG_PRINT("Importing tools...");
 				err = FileOp.ToolImport("DRO.csv");
 				goto FileErrChk;
+
+			case 'x':
+				HardFault((int *)&g_FileBuf[0][1]);
+				break;
 			}
 		}
     }
