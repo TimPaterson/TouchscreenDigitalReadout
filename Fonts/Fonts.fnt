@@ -21,7 +21,7 @@
       "TypefaceName": "Regular",
       "CharSetName": "Arithmetic",
       "Size": 24,
-      "Threshold": 47,
+      "Threshold": 50,
       "Name": "CalcSmall"
     },
     {
@@ -79,5 +79,5 @@
     }
   ],
   "GenerateXml": true,
-  "Stride16Bit": false
+  "Stride16Bit": true
 }

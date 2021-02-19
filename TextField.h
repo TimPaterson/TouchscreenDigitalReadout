@@ -11,6 +11,17 @@
 #include "FontInfo.h"
 
 
+//#define FONT_BPP_8
+
+#ifdef FONT_BPP_8
+#define FONT_DEPTH		Color8bpp
+#define FONT_BIT_START	7
+#else
+#define FONT_DEPTH		Color16bpp
+#define FONT_BIT_START	15
+#endif
+
+
 EXTERN_C FontInfo *FontList[];
 
 //****************************************************************************
@@ -112,7 +123,7 @@ public:
 
 		ScreenMgr::SetBteDest(m_pCanvas);
 		WriteReg16(DT_Y0, m_curPosY);
-		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, Color8bpp);
+		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, FONT_DEPTH);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
 		SetForeColor(m_foreColor);
@@ -127,7 +138,7 @@ public:
 			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMono;
 		}
 		SetBackColor(color);
-		WriteReg(BTE_CTRL1, (7 << BTE_CTRL1_BitStartShift) | ctrl);
+		WriteReg(BTE_CTRL1, (FONT_BIT_START << BTE_CTRL1_BitStartShift) | ctrl);
 	}
 
 	void ResetPosition()
