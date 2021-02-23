@@ -36,14 +36,15 @@ public:
 	// Public interface
 	//*********************************************************************3
 public:
+	int CharCount()		{ return m_cntCh; }
+
+public:
 	void StartEditPx(int pxPosCur)
 	{
-		StartEditCh(CalcPosition(pxPosCur));
-	}
+		uint	chPosCur;
 
-	void StartEditCh(uint chPosCur)
-	{
 		m_cntCh = strlen(m_pBufText);
+		chPosCur = CalcPosition(pxPosCur);
 		m_scrollPos = 0;
 		m_cntPx = GetStringWidth(m_pBufText);
 		m_curPosX = m_pArea->Xpos;
@@ -58,6 +59,14 @@ public:
 	void SetPositionPx(uint pxPosCur)
 	{
 		SetPositionCh(CalcPosition(pxPosCur));
+	}
+
+	void UpdateBuffer()
+	{
+		m_cntCh = strlen(m_pBufText);
+		ResetPosition();
+		WriteString(m_pBufText);
+		ClearToEnd();
 	}
 
 	void SetPositionCh(uint chPosCur) NO_INLINE_ATTR
@@ -229,7 +238,7 @@ protected:
 	void RemoveCursor()
 	{
 		PrepareDrawCursor();
-		DrawCursor(false);
+		DrawCursor(true);
 	}
 
 	void MoveCursor(uint posNew) NO_INLINE_ATTR

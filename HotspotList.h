@@ -109,6 +109,7 @@ enum ToolAreas
 	ImpExpCancel,
 	ImportRadio,
 	ExportRadio,
+	FileName,
 };
 
 //*************************************************************************

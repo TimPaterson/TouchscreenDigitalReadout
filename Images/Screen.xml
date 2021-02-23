@@ -1576,7 +1576,7 @@
   </Canvas>
 
   <Canvas Name="ToolImport" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
-    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+    <Rectangle HotSpot="FileName" Group="ToolLib" Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
       <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="KeySpace" Height="SmallTextHeight" Width="FileWidth - 2 * KeySpace"/>
     </Rectangle>
     <Rectangle Left="ImportCtrlsLeft" Height="ToolLibHeight" Width="ToolLibWidth">

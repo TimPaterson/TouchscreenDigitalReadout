@@ -53,11 +53,24 @@ int FileOperations::ToolImport(const char *psz)
 	return FATERR_None;
 }
 
+int FileOperations::ToolExport(const char *psz)
+{
+	int		err;
+
+	err = StartOpen(psz, 0, OPENFLAG_CreateAlways | OPENFLAG_File);
+	if (IsError(err))
+		return err;
+	m_hFile = err;
+	TO_STATE(Export, open);
+	return FATERR_None;
+}
+
 int FileOperations::FolderEnum(const char *pFilename, int cchName)
 {
 	int		err;
 
-	err = StartOpen(pFilename, 0, OPENFLAG_OpenExisting | OPENFLAG_Folder, cchName);
+	// Create the folder if it doesn't exist
+	err = StartOpen(pFilename, 0, OPENFLAG_OpenAlways | OPENFLAG_Folder, cchName);
 	if (IsError(err))
 		return err;
 	m_hFile = err;
@@ -170,7 +183,6 @@ ImportNext:
 ImportClose:
 					Close(m_hFile);
 					ToolLib::ImportDone();
-					DEBUG_PRINT("complete\n");
 					OP_DONE;
 				}
 			END_STATE
@@ -193,17 +205,74 @@ ImportClose:
 			END_STATE
 
 			//*************************************************************
+			// ToolExport
+
+			OP_STATE(Export, open)
+				Export.pBuf = ToolLib::ExportStart();
+				Export.iTool = 0;
+				Export.iBuf = 0;
+				TO_STATE(Export, write);
+			END_STATE
+
+			OP_STATE(Export, write)
+				char	*pBuf, *pBufRes;
+				int		cb;
+
+				pBuf = Export.pBuf;
+				if (Export.iBuf == FileBufSectors - 1)
+				{
+					// Wrapped into last buffer, go back to start
+					cb = pBuf - (char *)g_FileBuf[Export.iBuf];
+					// Copy data from last buffer up to first
+					memcpy(g_FileBuf, pBuf, cb);
+					pBuf = (char *)g_FileBuf[0] + cb;
+					Export.iBuf = 0;
+				}
+				do 
+				{
+					pBufRes = ToolLib::ExportTool(pBuf, Export.iTool++);
+					if (pBufRes == NULL)
+					{
+						// Reached end, flush last buffer
+						cb = pBuf - (char *)g_FileBuf[Export.iBuf];
+						StartWrite(m_hFile, g_FileBuf[Export.iBuf], cb);
+						TO_STATE(Export, flush);
+						EXIT_STATE
+					}
+					pBuf = pBufRes;
+				} while (pBuf < (char *)g_FileBuf[Export.iBuf + 1]);
+
+				Export.pBuf = pBuf;
+				StartWrite(m_hFile, g_FileBuf[Export.iBuf], FAT_SECT_SIZE);
+				Export.iBuf++;
+			END_STATE
+
+			OP_STATE(Export, flush)
+				StartClose(m_hFile);
+				TO_STATE(Export, close);
+			END_STATE
+
+			OP_STATE(Export, close)
+				OP_DONE;
+			END_STATE
+
+			//*************************************************************
 			// Folder enumeration
 
 			OP_STATE(folder, open)
 				int		h;
 
 				h = EnumBegin(m_hFile);
-				Close(m_hFile);
+				// May have created new folder, so can't use Close()
+				StartClose(m_hFile);
 				m_hFile = h;
 				folder.cnt = 0;
 				folder.pInfo = (FileEnumInfo *)g_FileBuf;
-				m_drive = StartEnumNext(h, folder.pInfo->Name, MAX_PATH + 1);
+				TO_STATE(folder, close);
+			END_STATE
+
+			OP_STATE(folder, close)
+				m_drive = StartEnumNext(m_hFile, folder.pInfo->Name, MAX_PATH + 1);
 				TO_STATE(folder, name);
 			END_STATE
 

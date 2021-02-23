@@ -15,6 +15,9 @@
 #include "FileBrowser.h"
 #include <FatFile/FatFileConst.h>
 
+#define IMPORT_HEAD_TEXT "Tool,Diameter,Length,Flutes,Description"
+static constexpr int IMPORT_HEAD_TEXT_LENGTH = sizeof(IMPORT_HEAD_TEXT) - 1;
+
 
 class ToolLib
 {
@@ -35,11 +38,20 @@ class ToolLib
 		TOOL_IMAGE_IsModified,
 	};
 
+	enum ImportExportImages
+	{
+		// The first two are also referenced with the boolean s_isExport
+		FILE_IMAGE_Import,
+		FILE_IMAGE_Export,
+		FILE_IMAGE_Folder,
+	};
+
 	enum EditMode
 	{
 		EDIT_None,
 		EDIT_ConfirmDelete,
 		EDIT_Description,
+		EDIT_File,
 	};
 
 	struct ToolLibBase
@@ -89,7 +101,7 @@ class ToolLib
 	class ToolScroll : public ListScroll
 	{
 	public:
-		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight, 
+		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight,
 			Color16bpp, HOTSPOT_GROUP_ToolDisplay) {}
 
 	protected:
@@ -169,6 +181,9 @@ public:
 	static int ImportTools(char *pb, uint cb, uint cbWrap);
 	static int ImportTool(char *pchBuf);
 	static void ImportDone();
+	static char *ExportStart();
+	static char *ExportTool(char *pBuf, uint iTool);
+	static void ExportDone();
 
 public:
 	static void Init()
@@ -202,11 +217,11 @@ public:
 		ShowToolInfo();
 	}
 
-	static void KeyHit(void *pvUser, uint key)
+	static void ToolEntryKeyHit(void *pvUser, uint key)
 	{
 		EditLine::EditStatus	edit;
 
-		edit = s_editLine.ProcessKey(key);
+		edit = s_editDesc.ProcessKey(key);
 		if (edit == EditLine::EditDone)
 		{
 			// See if setting tool info made it "valid"
@@ -216,8 +231,21 @@ public:
 				s_scroll.InvalidateLine(s_curLineNum);
 
 			ShowToolInfo();
-			s_editMode = EDIT_None;
-			KeyboardMgr::CloseKb();
+			EndEdit(s_editDesc);
+		}
+	}
+
+	static void FileKeyHit(void *pvUser, uint key)
+	{
+		EditLine::EditStatus	edit;
+
+		edit = s_editFile.ProcessKey(key);
+		CheckIfFolder();
+		if (edit == EditLine::EditDone)
+		{
+			EndEdit(s_editDesc);
+			if (s_isFolder)
+				Files.Open(&s_editFile);
 		}
 	}
 
@@ -377,6 +405,13 @@ protected:
 		ShowToolInfo();
 	}
 
+	static void EndEdit(EditLine &edit)
+	{
+		edit.EndEdit();
+		s_editMode = EDIT_None;
+		KeyboardMgr::CloseKb();
+	}
+
 	//*********************************************************************
 	// Import/Export dialog
 
@@ -386,6 +421,24 @@ protected:
 		ScreenMgr::EnablePip1(&ToolImport, 0, 0);
 		Files.Open(&s_editFile);
 	}
+
+	static void CheckIfFolder()
+	{
+		char	chEnd;
+		bool	isFolder;
+
+		chEnd = Files.GetPathBuf()[s_editFile.CharCount() - 1];
+		isFolder = chEnd == '/' || chEnd == '\\';
+		if (isFolder != s_isFolder)
+		{
+			s_isFolder = isFolder;
+			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
+				&LoadSave, isFolder ? FILE_IMAGE_Folder : s_isExport);
+		}
+	}
+
+	//*********************************************************************
+	// Static helpers
 
 protected:
 	static bool IsMetric()
@@ -452,7 +505,7 @@ protected:
 	// const (flash) data
 	//*********************************************************************
 protected:
-	inline static const char s_archImportHead[] = "Tool,Diameter,Length,Flutes,Description";
+	inline static const char s_archImportHead[] = IMPORT_HEAD_TEXT "\r\n";
 
 	//*********************************************************************
 	// static (RAM) data
@@ -465,10 +518,10 @@ protected:
 		ToolInfoForeground, ToolInfoBackground};
 	inline static ToolDisplay	s_textList  {ToolRow, ToolRow_Areas.ToolNumber,
 		ToolLibForeground, ToolLibBackground};
-	inline static EditLine		s_editLine {ToolLibrary, ToolLibrary_Areas.ToolDesc,
+	inline static EditLine		s_editDesc {ToolLibrary, ToolLibrary_Areas.ToolDesc,
 		s_bufTool.arDesc, ToolDescSize, FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
-	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(), 
+	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(),
 		FileBrowser::GetPathBufSize(), FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
 	inline static ushort		s_toolCount;
@@ -478,6 +531,7 @@ protected:
 	inline static byte			s_toolSides;
 	inline static byte			s_editMode;
 	inline static bool			s_isExport;
+	inline static bool			s_isFolder;
 	inline static ToolScroll	s_scroll;
 	inline static ushort		s_arSortList[MaxToolCount];
 	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];

@@ -26,11 +26,10 @@ public:
 public:
 	void Open(EditLine *pEdit)
 	{
-		s_fileRow.SetBackgroundTransparent(true);
-
-		// UNDONE: parse s_bufPath to get initial folder
 		m_pEdit = pEdit;
-		FileOp.FolderEnum(s_bufPath);
+		FindLastFolder(strlen(s_bufPath));		// sets m_cchPath
+		m_pEdit->UpdateBuffer();
+		FileOp.FolderEnum(s_bufPath, m_cchPath);
 		ScreenMgr::EnablePip2(this, 0, ToolListTop);
 	}
 
@@ -85,6 +84,22 @@ public:
 	//*********************************************************************
 	// Helpers
 	//*********************************************************************
+protected:
+	void FindLastFolder(int pos)
+	{
+		char	ch;
+
+		while (pos > 0)
+		{
+			ch = s_bufPath[pos - 1];
+			if (ch == '/' || ch == '\\')
+				break;
+			pos--;
+		}
+		m_cchPath = pos;
+		s_bufPath[pos] = '\0';
+	}
+
 protected:
 	static FileEnumInfo *PtrInfoFromLine(int lineNum)
 	{
@@ -176,8 +191,6 @@ protected:
 	virtual void LineSelected(int lineNum)
 	{
 		uint	cch;
-		char	ch;
-		int		i;
 		FileEnumInfo	*pInfo;
 		
 		pInfo = PtrInfoFromLine(lineNum);
@@ -189,18 +202,8 @@ protected:
 		if (pInfo->Type == INFO_Parent)
 		{
 			// Peel back one level
-			i = m_cchPath - 1;
-			if (i >= 0)
-			{
-				while (i > 0)
-				{
-					ch = s_bufPath[i - 1];
-					if (ch == '/' || ch == '\\')
-						break;
-					i--;
-				}
-				m_cchPath = i;
-			}
+			if (m_cchPath != 0)
+				FindLastFolder(m_cchPath - 1);
 			goto EndFolder;
 		}
 		else
@@ -212,16 +215,12 @@ protected:
 			{
 				m_cchPath += cch;
 				s_bufPath[m_cchPath++] = '/';
-EndFolder:
 				s_bufPath[m_cchPath] = '\0';
+EndFolder:
 				FileOp.FolderEnum(s_bufPath, m_cchPath);
 			}
 		}
-
-		// Display in edit box
-		m_pEdit->ResetPosition();
-		m_pEdit->WriteString(s_bufPath);
-		m_pEdit->ClearToEnd();
+		m_pEdit->UpdateBuffer();
 	}
 
 	//*********************************************************************

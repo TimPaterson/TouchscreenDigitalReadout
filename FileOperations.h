@@ -19,7 +19,8 @@ extern byte g_FileBuf[FileBufSectors][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 #define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
 #define SINGLE_OP_STATES(op) OP_STATE(op, ready)
 #define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, read0) OP_STATE(op, read1)
-#define FOLDER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, name) OP_STATE(op, date)
+#define EXPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, write) OP_STATE(op, flush) OP_STATE(op, close)
+#define FOLDER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, close) OP_STATE(op, name) OP_STATE(op, date)
 
 #define OP_STATE(op, st)	ST_##op##_##st,
 
@@ -29,12 +30,14 @@ enum
 	FLASH_OP_STATES(flash)
 	SINGLE_OP_STATES(single)
 	IMPORT_OP_STATES(import)
+	EXPORT_OP_STATES(Export)
 	FOLDER_OP_STATES(folder)
 };
 
 #undef OP_STATE
 #define OP_STATE(op, st)	case ST_##op##_##st: {
 #define END_STATE			} return;
+#define EXIT_STATE			return;
 #define TO_STATE(op, st)	m_state = ST_##op##_##st
 #define OP_DONE				break
 
@@ -71,6 +74,7 @@ public:
 	int WriteFileToFlash(const char *psz, ulong addr);
 	int Mount(int drv);
 	int ToolImport(const char *psz);
+	int ToolExport(const char *psz);
 	int FolderEnum(const char *pFilename, int cchName = 0);
 
 public:
@@ -90,6 +94,14 @@ protected:
 		{
 			ushort	cbLeft;
 		} import;
+
+		// ToolExport
+		struct  
+		{
+			char	*pBuf;
+			ushort	iTool;
+			ushort	iBuf;
+		} Export;
 
 		// FolderEnum
 		struct  

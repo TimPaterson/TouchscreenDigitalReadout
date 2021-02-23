@@ -454,11 +454,6 @@ FileErrChk:
 					DEBUG_PRINT("...Not saved\n");
 				break;
 
-			case 't':
-				DEBUG_PRINT("Importing tools...");
-				err = FileOp.ToolImport("DRO.csv");
-				goto FileErrChk;
-
 			case 'x':
 				HardFault((int *)&g_FileBuf[0][1]);
 				break;

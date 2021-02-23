@@ -45,8 +45,8 @@ public:
 	{
 		m_extraLineCnt = ExtraLines;
 		m_lineViewCnt = height / lineHeight;
-		m_lineCnt = m_lineViewCnt + 2 * ExtraLines + 2;
-		height = m_lineCnt * lineHeight;
+		m_lineCntCanvas = m_lineViewCnt + 2 * ExtraLines + 2;
+		height = m_lineCntCanvas * lineHeight;
 		m_imageHeight = height;
 		// Allocate image RAM
 		ScreenMgr::AllocVideoRam((int)width * height * PixelSizeFromDepth(depth));
@@ -77,6 +77,7 @@ public:
 
 	void SetTotalLines(int lines)	
 	{
+		m_lineCnt = lines;
 		m_posMax = (lines - m_lineViewCnt + 1) * m_lineHeight;
 		if (m_posMax < 0)
 			m_posMax = 0;
@@ -113,11 +114,15 @@ public:
 
 	void EndCapture()
 	{
+		uint	line;
+
 		if (m_fDidMove)
 			return;
 
 		// No movement on last touch, select the line instead
-		LineSelected((m_posCur + m_capturePos) / m_lineHeight);
+		line = (m_posCur + m_capturePos) / m_lineHeight;
+		if (line < m_lineCnt)
+			LineSelected(line);
 	}
 
 	void ScrollToLine(int line)
@@ -127,7 +132,7 @@ public:
 		posLine = line * m_lineHeight;
 
 		// See if line is in buffer
-		if (line >= m_lineTop && line < m_lineTop + m_lineCnt)
+		if (line >= m_lineTop && line < m_lineTop + m_lineCntCanvas)
 		{
 			// In buffer, just make sure it's visible
 			if (posLine >= m_posCur)
@@ -149,7 +154,7 @@ public:
 	{
 		int		lineLast;
 
-		lineLast = m_lineTop + m_lineCnt - 1;
+		lineLast = m_lineTop + m_lineCntCanvas - 1;
 		if (lineStart > lineLast || lineEnd < m_lineTop)
 			return;
 
@@ -213,10 +218,10 @@ public:
 			if (lineTopNew < 0)
 				lineTopNew = 0;
 			lineDelta = m_lineTop - lineTopNew;
-			if (lineDelta < m_lineCnt)
+			if (lineDelta < m_lineCntCanvas)
 				MoveLinesDown(lineDelta);
 			else
-				lineDelta = m_lineCnt;
+				lineDelta = m_lineCntCanvas;
 
 			// Now fill in new lines
 			FillLines(lineTopNew, 0, lineDelta);
@@ -228,13 +233,13 @@ public:
 			// Move existing lines up to make room
 			lineTopNew -= m_extraLineCnt;	// add room at top
 			lineDelta = lineTopNew - m_lineTop;
-			if (lineDelta < m_lineCnt)
+			if (lineDelta < m_lineCntCanvas)
 				MoveLinesUp(lineDelta);
 			else
-				lineDelta = m_lineCnt;
+				lineDelta = m_lineCntCanvas;
 
 			// Now fill in new lines
-			FillLines(lineTopNew + m_lineCnt - lineDelta, m_lineCnt - lineDelta, lineDelta);
+			FillLines(lineTopNew + m_lineCntCanvas - lineDelta, m_lineCntCanvas - lineDelta, lineDelta);
 			m_lineTop = lineTopNew;
 		}
 
@@ -268,7 +273,7 @@ protected:
 	{
 		int		lineSrc, lineDst;
 
-		lineDst = m_lineCnt - 1;
+		lineDst = m_lineCntCanvas - 1;
 		lineSrc = lineDst - lineDelta;
 		for (; lineSrc >= 0; lineSrc--, lineDst--)
 			CopyLine(lineSrc, lineDst);
@@ -280,7 +285,7 @@ protected:
 
 		lineDst = 0;
 		lineSrc = lineDst + lineDelta;
-		for (; lineSrc < m_lineCnt; lineSrc++, lineDst++)
+		for (; lineSrc < m_lineCntCanvas; lineSrc++, lineDst++)
 			CopyLine(lineSrc, lineDst);
 	}
 
@@ -320,7 +325,8 @@ protected:
 	int		m_posMax;
 	int		m_lineTop;
 	ushort	m_lineHeight;
-	short	m_lineCnt;		// Total lines on canvas
+	ushort	m_lineCnt;
+	short	m_lineCntCanvas;	// Total lines on canvas
 	short	m_extraLineCnt;
 	short	m_imageHeight;
 	short	m_lineViewCnt;

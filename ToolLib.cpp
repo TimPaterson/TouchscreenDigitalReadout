@@ -131,13 +131,13 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 				if (s_editMode != EDIT_Description)
 				{
 					s_editMode = EDIT_Description;
-					s_editLine.StartEditPx(x);
-					KeyboardMgr::OpenKb(&KeyHit);
+					s_editDesc.StartEditPx(x);
+					KeyboardMgr::OpenKb(ToolEntryKeyHit);
 				}
 				else
 				{
 					// Already editing description
-					s_editLine.SetPositionPx(x);
+					s_editDesc.SetPositionPx(x);
 				}
 				return;
 
@@ -200,18 +200,17 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	case ToolsDone:
 		SaveTool();
 		if (s_editMode == EDIT_Description)
-		{
-			s_editMode = EDIT_None;
-			KeyboardMgr::CloseKb();
-		}
+			EndEdit(s_editDesc);
+
 		ScreenMgr::DisablePip1();
 		ScreenMgr::DisablePip2();
-		return;
+		break;
 
 	case ToolDelete:
 		if (s_curLineNum == NoCurrentLine)
 		{
 			s_bufTool.ClearData();
+			ShowToolInfo();
 			break;
 		}
 		else if (s_arSortList[s_curLineNum] == ToolBufIndex && s_modToolIndex != ToolNotModified)
@@ -223,23 +222,26 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			s_scroll.InvalidateLine(s_curLineNum);
 			SetToolButtonImage(TOOL_IMAGE_NotModified);
 			if (s_editMode == EDIT_Description)
-			{
-				s_editLine.EndEdit();
-				s_editMode = EDIT_None;
-				KeyboardMgr::CloseKb();
-			}
+				EndEdit(s_editDesc);
+			ShowToolInfo();
 			break;
 		}
 		s_editMode = EDIT_ConfirmDelete;
 		ScreenMgr::SetPip1Modal(true);
 		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
-		return;
+		break;
 
 	case ToolImportExport:
+		SaveTool();
+		if (s_editMode == EDIT_Description)
+			EndEdit(s_editDesc);
 		ShowImportExport();
 		break;
 
 	case ImpExpCancel:
+		if (s_editMode == EDIT_File)
+			EndEdit(s_editFile);
+
 		ShowToolLib();
 		break;
 
@@ -252,7 +254,8 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 SetImportExportImages:
 		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !s_isExport);
 		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, s_isExport);
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, s_isExport);
+		if (!s_isFolder)
+			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, s_isExport);
 		if (s_isExport)
 		{
 			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
@@ -262,11 +265,38 @@ SetImportExportImages:
 		else
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
 		break;
+
+	case ImpExpExecute:
+		if (s_editMode == EDIT_File)
+			EndEdit(s_editFile);
+
+		CheckIfFolder();
+		if (s_isFolder)
+			Files.Open(&s_editFile);
+		else
+		{
+			if (s_isExport)
+				FileOp.ToolExport(FileBrowser::GetPathBuf());
+			else
+				FileOp.ToolImport(FileBrowser::GetPathBuf());
+		}
+		break;
+
+	case FileName:
+		x -= ToolImport_Areas.FileName.Xpos;	// relative edit box
+		if (s_editMode != EDIT_File)
+		{
+			s_editMode = EDIT_File;
+			s_editFile.StartEditPx(x);
+			KeyboardMgr::OpenKb(FileKeyHit);
+		}
+		else
+		{
+			// Already editing description
+			s_editFile.SetPositionPx(x);
+		}
 	}
-
-	ShowToolInfo();
 }
-
 
 void ToolLib::ShowToolInfo()
 {
@@ -333,6 +363,10 @@ void ToolLib::ShowToolInfo()
 }
 
 
+//*********************************************************************
+// Tool Library Import
+//*********************************************************************
+
 int ToolLib::ImportTool(char *pchBuf)
 {
 	char	ch;
@@ -397,7 +431,7 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 			return -1;	// UNDONE: error handling on tool import
 
 		cbLine = pch - (char *)g_FileBuf;
-		if (cbLine != sizeof s_archImportHead - 1)
+		if (cbLine != IMPORT_HEAD_TEXT_LENGTH)
 			return -1;	// UNDONE: error handling on tool import
 
 		if (memcmp(g_FileBuf, s_archImportHead, cbLine) != 0)
@@ -406,6 +440,10 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 		pchBuf = pch + 1;
 		cb -= cbLine + 1;
 		Eeprom.Data.fToolLibMetric = Eeprom.Data.fIsMetric;
+		// UNDONE: delete existing library
+		s_freeToolIndex = 0;
+		s_toolCount = 0;
+
 	}
 
 	if (cbWrap != 0)
@@ -450,7 +488,54 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 
 void ToolLib::ImportDone()
 {
-	s_scroll.InvalidateLines(0, s_toolCount - 1);
+	s_scroll.Invalidate();
 	SelectLine(0);
 	ShowToolInfo();
+	ShowToolLib();
 }
+
+
+//*********************************************************************
+// Tool Library Export
+//*********************************************************************
+
+char *ToolLib::ExportStart()
+{
+	memcpy(g_FileBuf, s_archImportHead, sizeof s_archImportHead - 1);
+	return (char *)ADDOFFSET(g_FileBuf, sizeof s_archImportHead - 1);
+}
+
+char *ToolLib::ExportTool(char *pBuf, uint line)
+{
+	char	*pCur, *pQuote;
+	int		cb;
+	ToolLibInfo	*pInfo;
+
+	if (line >= s_toolCount)
+		return NULL;
+
+	pInfo = PtrFromLine(line);
+	pBuf += sprintf(pBuf, "%u,%g,%g,%u,\"", pInfo->number, pInfo->diameter, pInfo->length, pInfo->flutes);
+
+	// Check for " character in description so we can escape it
+	for (pCur = pInfo->arDesc; ;) 
+	{
+		pQuote = strchr(pCur, '"');
+		if (pQuote == NULL)
+		{
+			pBuf += sprintf(pBuf, "%s\"\r\n", pCur);
+			return pBuf;
+		}
+		cb = pQuote - pCur + 1;	// include "
+		do 
+		{
+			*pBuf++ = *pCur++;
+		} while (--cb != 0);
+		*pBuf++ = '"';	// escape with double "
+	}
+}
+void ToolLib::ExportDone()
+{
+	ShowToolLib();
+}
+
