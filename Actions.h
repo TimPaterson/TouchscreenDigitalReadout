@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "LcdDef.h"
 #include "ScreenMgr.h"
 #include "AxisDisplay.h"
 #include "ToolLib.h"

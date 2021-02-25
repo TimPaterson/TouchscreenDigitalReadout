@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "LcdDef.h"
 #include "ListScroll.h"
 #include "FileOperations.h"
 

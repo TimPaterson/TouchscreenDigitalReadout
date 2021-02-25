@@ -9,7 +9,7 @@
 
 #include <FatFile/FatSysWait.h>
 #include <FatFile/SdCard/SdCard.h>
-#include "Spi.h"
+#include <Com/Spi.h>
 
 
 //****************************************************************************

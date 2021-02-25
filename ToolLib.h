@@ -8,6 +8,7 @@
 #pragma once
 
 #include "HotspotList.h"
+#include "LcdDef.h"
 #include "ListScroll.h"
 #include "AxisDisplay.h"
 #include "EditLine.h"

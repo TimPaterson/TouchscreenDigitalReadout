@@ -7,9 +7,14 @@
 
 #pragma once
 
-#include "Hotspot.h"
 #include <Usb/Host/Drivers/KeyboardDef.h>
+#include "Hotspot.h"
+#include "FontInfo.h"
 
+
+//****************************************************************************
+// Fonts
+//****************************************************************************
 
 //*************************************************************************
 // Define the tacked-on characters in each CharSet
@@ -19,6 +24,27 @@
 #define END_CHARSET(name)			};
 
 #include "Fonts/Fonts.h"
+
+//*************************************************************************
+// Enumeration of font names in FontList
+
+#define START_FONT(name)	FID_##name,
+
+enum FontId
+{
+	#include "Fonts/Fonts.h"
+};
+
+//*************************************************************************
+// Direct access to font by name
+
+#define START_FONT(name)	EXTERN_C FontInfo FONT_##name;
+
+#include "Fonts/Fonts.h"
+
+//****************************************************************************
+// Hotspots & Areas
+//****************************************************************************
 
 //*************************************************************************
 // Define the hotspot values for action keys on main screen.

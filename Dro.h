@@ -7,10 +7,11 @@
 
 #pragma once
 
-#include <IoBuf/UsartBuf.h>
-#include <Util/TimerLib.h>
+#include <Com/UsartBuf.h>
+#include <Timer/TimerLib.h>
 #include <Nvm/EepromMgr.h>
-#include "Spi.h"
+#include <Com/Spi.h>
+#include <Timer/Rtc.h>
 #include "SerialMem.h"
 #include "FatFileDef.h"
 
@@ -396,99 +397,6 @@ static constexpr byte BOD_LEVEL_2p7_REVG = 39;
 
 //*********************************************************************
 // Real-time clock
-
-template<int gclk = 2, int baseYear = 2020>
-class RtcTimeBase
-{
-public:
-	static constexpr int BASE_YEAR = baseYear & ~3;	// must be leap year
-	static constexpr int MAX_YEAR = BASE_YEAR + 63;
-
-protected:
-	// This constant is applied after shifting the time right 1 bit
-	static constexpr int FatTimeConversion = (BASE_YEAR - 1980) << (RTC_MODE2_CLOCK_YEAR_Pos - 1);
-
-public:
-	RtcTimeBase() {}
-	RtcTimeBase(bool fInit)	{ rtcTime.reg = 0; }
-public:
-	bool operator == (RtcTimeBase op) { return rtcTime.reg == op.rtcTime.reg; }
-	bool operator != (RtcTimeBase op) { return !(rtcTime.reg == op.rtcTime.reg); }
-
-public:
-	RtcTimeBase ReadClock()	{ rtcTime.reg = RTC->MODE2.CLOCK.reg; return *this;}
-	bool IsSet()		{ return rtcTime.reg != 0; }
-	void SetClock()		{ RTC->MODE2.CLOCK.reg = rtcTime.reg; }
-	uint Second()		{ return rtcTime.bit.SECOND; }
-	uint Minute()		{ return rtcTime.bit.MINUTE; }
-	uint Hour()			{ return rtcTime.bit.HOUR; }
-	uint Day()			{ return rtcTime.bit.DAY; }
-	uint Month()		{ return rtcTime.bit.MONTH; }
-	uint Year()			{ return rtcTime.bit.YEAR + BASE_YEAR; }
-
-	void SetSecond(uint sec)	{ rtcTime.bit.SECOND = sec; }
-	void SetMinute(uint min)	{ rtcTime.bit.MINUTE = min; }
-	void SetHour(uint hour)		{ rtcTime.bit.HOUR = hour; }
-	void SetDay(uint day)		{ rtcTime.bit.DAY = day; }
-	void SetMonth(uint month)	{ rtcTime.bit.MONTH = month; }
-	void SetYear(uint year)		{ rtcTime.bit.YEAR = year - BASE_YEAR; }
-
-	// 12-hour clock
-	uint Hour12()
-	{
-		uint hour = rtcTime.bit.HOUR;
-		return hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-	}
-
-	bool AmPm()		{ return rtcTime.bit.HOUR >= 12; }
-
-	void SetHour(uint hour, bool pm)		
-	{
-		if (pm)
-			rtcTime.bit.HOUR = hour >= 12 ? hour : hour + 12;
-		else
-			rtcTime.bit.HOUR = hour == 12 ? 0 : hour;
-	}
-
-	// Conversion to FAT format
-	ulong GetFatTime()	
-	{
-		// Add 1 to day and month, and adjust year for different base
-		return (rtcTime.reg >> 1) + FatTimeConversion;
-	}
-
-public:
-	static void Init()
-	{
-		// Initialize clock generator to 1.024 kHz for RTC 
-		// Use binary divider of 32 on 32.768 kHz xtal
-		GCLK->GENDIV.reg = GCLK_GENDIV_ID(gclk) | GCLK_GENDIV_DIV(LOG2(32) - 1);
-		GCLK->GENCTRL.reg = GCLK_GENCTRL_SRC_XOSC32K | GCLK_GENCTRL_GENEN |
-			GCLK_GENCTRL_DIVSEL | GCLK_GENCTRL_ID(gclk);
-		GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN(gclk) | GCLK_CLKCTRL_ID_RTC;
-
-		RTC->MODE2.CTRL.reg = RTC_MODE2_CTRL_PRESCALER_DIV1024 | RTC_MODE2_CTRL_MODE_CLOCK | RTC_MODE2_CTRL_ENABLE;
-		RTC->MODE2.READREQ.reg = RTC_READREQ_RREQ | RTC_READREQ_RCONT | RTC_READREQ_ADDR(RTC_MODE2_CLOCK_OFFSET);
-		RTC->MODE2.DBGCTRL.reg = RTC_DBGCTRL_DBGRUN;
-	}
-
-	static void SetClock(uint month, uint day, uint year, uint hour, uint minute, uint second)
-	{
-		RTC_MODE2_CLOCK_Type	time;
-
-		time.bit.SECOND = second;
-		time.bit.MINUTE = minute;
-		time.bit.HOUR = hour;
-		time.bit.DAY = day;
-		time.bit.MONTH = month;
-		time.bit.YEAR = year - BASE_YEAR;
-
-		RTC->MODE2.CLOCK.reg = time.reg;
-	}
-
-protected:
-	RTC_MODE2_CLOCK_Type	rtcTime;
-};
 
 typedef RtcTimeBase<> RtcTime;
 

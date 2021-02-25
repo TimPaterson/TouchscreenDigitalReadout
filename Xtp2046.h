@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Spi.h"
+#include <Com/Spi.h>
 #include "ResTouch.h"
 
 

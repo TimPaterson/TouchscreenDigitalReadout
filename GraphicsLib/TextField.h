@@ -25,25 +25,6 @@
 EXTERN_C FontInfo *FontList[];
 
 //****************************************************************************
-// Enumeration of font names in FontList
-
-#define START_FONT(name)	FID_##name,
-
-enum FontId
-{
-	#include "Fonts/Fonts.h"
-};
-
-// Direct access to font by name
-
-#define START_FONT(name)	extern FontInfo FONT_##name;
-
-extern "C"
-{
-	#include "Fonts/Fonts.h"
-};
-
-//****************************************************************************
 
 class TextField : public RA8876
 {
@@ -53,7 +34,7 @@ public:
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
 		{}
 
-	TextField(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor):
+	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor):
 		TextField(canvas, area, id, foreColor, backColor,
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
 		{}
@@ -67,7 +48,7 @@ protected:
 		m_curPosY{area.Ypos}
 		{}
 
-	TextField(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
 		m_pCanvas{&canvas},
 		m_pFontInfo{FontList[id]},
 		m_pArea{&area},
@@ -79,7 +60,7 @@ protected:
 		{}
 
 public:
-	void SetFont(FontId id)
+	void SetFont(uint id)
 	{
 		m_pFontInfo = FontList[id];
 		SetSpaceWidth();
@@ -287,7 +268,7 @@ public:
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
 		{}
 
-	TextLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		TextLine(canvas, area, id, foreColor, backColor,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
 		{}
@@ -296,7 +277,7 @@ protected:
 	TextLine(Canvas &canvas, const Area &area, _fdev_put_t *put):
 		TextField(canvas, area, put) {}
 
-	TextLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
 		TextField(canvas, area, id, foreColor, backColor, put) {}
 
 public:
@@ -337,14 +318,14 @@ public:
 		SetSpaceWidth(GetCharWidth('0'));
 	}
 
-	NumberLine(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+	NumberLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		TextLine(canvas, area, id, foreColor, backColor)
 	{
 		SetSpaceWidth(GetCharWidth('0'));
 	}
 
 public:
-	void SetFont(FontId id)
+	void SetFont(uint id)
 	{
 		TextLine::SetFont(id);
 		SetSpaceWidth(GetCharWidth('0'));
@@ -369,7 +350,7 @@ public:
 		SetBackgroundTransparent(true);
 	}
 
-	NumberLineBlankZ(Canvas &canvas, const Area &area, FontId id, ulong foreColor, ulong backColor): 
+	NumberLineBlankZ(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		NumberLine(canvas, area, id, foreColor, backColor)
 	{
 		SetBackgroundTransparent(true);

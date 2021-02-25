@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "LcdDef.h"
 #include "RA8876.h"
 #include "TouchCanvas.h"
 
