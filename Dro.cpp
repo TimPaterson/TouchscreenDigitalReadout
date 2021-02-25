@@ -79,7 +79,6 @@ FatSd				Sd;
 FatSysWait<wdt_reset> FileSys;
 FileOperations		FileOp;
 FAT_DRIVES_LIST(&FlashDrive, &Sd);
-//FAT_DRIVES_LIST(&Sd, &FlashDrive);
 
 //********************************************************************
 // Define the four sensors
@@ -165,9 +164,10 @@ void NO_INLINE_ATTR CalibrateTouch()
 	static constexpr int MinY = 32;
 	static constexpr int MaxY = LcdHeightPx - 1 - 32;
 
-	Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
+	Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect2);
 	CalibratePos(MinX, MinY, MaxX, MaxY);
 	CalibratePos(MaxX, MaxY, MinX, MinY);
+	Lcd.DisableGraphicsCursor();				
 }
 
 class SetAndRestore
@@ -241,16 +241,45 @@ void ChangeScreenBrightness(int change)
 	TCC1->CC[1].reg = change;
 }
 
+FatDateTime GetFatTime()
+{
+	FatDateTime	dt;
+	RtcTime		time;
+
+	dt.ul = time.ReadClock().GetFatTime();
+	return dt;
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
 
 int main(void)
 {
+	RtcTime	timeCur;
+
 	StartClock();
 	Init();
 	Timer::Init();
 	Eeprom.Init();
+	RtcTime::Init();
+
+	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
+	Console.SetBaudRate(CONSOLE_BAUD_RATE);
+	Console.StreamInit(&Console_FILE);
+	Console.Enable();
+
+	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
+	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
+	{
+		DEBUG_PRINT("WDT Reset\n");
+	}
+	// UNDONE: set RTC from EEPROM
+	if (!timeCur.ReadClock().IsSet())
+	{
+		RtcTime::SetClock(2, 23, 2021, 3 + 12, 47, 0);
+		DEBUG_PRINT("Clock reset\n");
+	}
 
 	// Put EEPROM data into effect
 	TCC1->CC[1].reg = Eeprom.Data.Brightness;
@@ -259,19 +288,8 @@ int main(void)
 	Zaxis.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
-	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
-	Console.SetBaudRate(CONSOLE_BAUD_RATE);
-	Console.StreamInit(&Console_FILE);
-	Console.Enable();
-
 	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchScale);
 	Touch.Enable();
-
-	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
-	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
-	{
-		DEBUG_PRINT("WDT Reset\n");
-	}
 
 	Lcd.Init();
 
@@ -309,6 +327,7 @@ int main(void)
 	Timer	tmrAxis;
 	int		i;
 	bool	fSdOut = true;
+	RtcTime	timeLast{true};
 
 	tmrAxis.Start();
 
@@ -334,6 +353,12 @@ int main(void)
 
 		// Process EEPROM save if in progress
 		Eeprom.Process();
+
+		if (timeCur.ReadClock() != timeLast)
+		{
+			timeLast = timeCur;
+			ToolLib::ShowExportTime(timeCur);
+		}
 
 		// Update the axis position displays
 		if (tmrAxis.CheckInterval_rate(AxisUpdateRate))

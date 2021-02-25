@@ -253,6 +253,7 @@ ImportClose:
 			END_STATE
 
 			OP_STATE(Export, close)
+				ToolLib::ExportDone();
 				OP_DONE;
 			END_STATE
 

@@ -261,6 +261,8 @@ SetImportExportImages:
 			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeLabel, &TimestampLabel);
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeSetButton, &TimeSetButton);
+			RtcTime time;
+			ShowExportTime(time.ReadClock());
 		}
 		else
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
@@ -295,6 +297,21 @@ SetImportExportImages:
 			// Already editing description
 			s_editFile.SetPositionPx(x);
 		}
+		break;
+
+	case TimeSet:
+		if (!s_isExport)
+			return;		// button only displayed on Export
+
+		if (s_editMode == EDIT_Time)
+			EndTimeSet();
+		else
+			ShowTimeSet();
+		break;
+
+	case TimeEntryDone:
+		EndTimeSet();
+		break;
 	}
 }
 
@@ -362,6 +379,101 @@ void ToolLib::ShowToolInfo()
 	Yaxis.SetTextColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
 }
 
+
+//*********************************************************************
+// Clock Set (for tool library export timestamp)
+//*********************************************************************
+
+void ToolLib::SetTime(uint spot)
+{
+	RtcTime	time;
+	uint	val;
+
+	if (spot != AmPm)
+	{
+		val = (uint)Actions::GetCalcValue();
+		if (spot == Year)
+		{
+			// Accept 2- or 4-digit year
+			if (val < RtcTime::BASE_YEAR)
+				val += 2000;
+			if (val < RtcTime::BASE_YEAR || val > RtcTime::MAX_YEAR)
+				return;
+		}
+		else if (val >= 60)
+			return;
+	}
+		 
+	time.ReadClock();
+
+	switch (spot)
+	{
+	case Second:
+		time.SetSecond(val);
+		break;
+
+	case Minute:
+		time.SetMinute(val);
+		break;
+
+	case Hour:
+		time.SetHour(val, time.AmPm());
+		break;
+
+	case Day:
+		time.SetDay(val);
+		break;
+
+	case Month:
+		time.SetMonth(val);
+		break;
+
+	case Year:
+		time.SetYear(val);
+		break;
+
+	case AmPm:
+		time.SetHour(time.Hour12(), !time.AmPm());
+		break;
+	}
+
+	time.SetClock();
+}
+
+void ToolLib::ShowExportTime(RtcTime time)
+{
+	if (!s_isExport)
+		return;
+
+	s_LiveTime.ResetPosition();
+	s_LiveTime.printf("%u/%02u/%u  %2u:%02u:%02u ",
+		time.Month(), time.Day(), time.Year(), time.Hour12(), time.Minute(), time.Second());
+	s_LiveTime.WriteString(time.AmPm() ? "pm" : "am");
+
+	if (s_editMode == EDIT_Time)
+	{
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Month);
+		PrintTimeDigits(time.Month());
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Day);
+		PrintTimeDigits(time.Day());
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Year);
+		PrintTimeDigits(time.Year() - 2000);
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Hour);
+		PrintTimeDigits(time.Hour12());
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Minute);
+		PrintTimeDigits(time.Minute());
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.Second);
+		PrintTimeDigits(time.Second());
+
+		s_TimeEntry.SetArea(EnterDateTime_Areas.AmPm);
+		s_TimeEntry.WriteString(time.AmPm() ? "pm" : "am");
+	}
+}
 
 //*********************************************************************
 // Tool Library Import

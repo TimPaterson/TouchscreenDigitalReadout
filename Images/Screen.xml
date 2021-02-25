@@ -1374,29 +1374,29 @@
   <Set ShowValue="FileRowHeight">ToolRowHeight</Set>
   <Set ShowValue="FileListHeight">ToolListHeight</Set>
 
-  <Component Name="Entry">
-    <Rectangle Name="EntryBox" Height="EntryHeight" Width="EntryWidth" RadiusX="8" RadiusY="8" Fill="TimeEntryBackground">
-      <TextBlock Name="EntryText" Font="SettingsFont" Text="00" Foreground="TimeEntryForeground"/>
+  <Component Name="TimeEntry">
+    <Rectangle Name="EntryBox" Group="TimeSet" Height="EntryHeight" Width="EntryWidth" RadiusX="8" RadiusY="8" Fill="TimeEntryBackground">
+      <TextBlock Name="EntryText" Font="SettingsFont" Left="6" Top="DateTextOffset" Text="00" Foreground="TimeEntryForeground"/>
       <Set>EntryText.Foreground = TimeEntryBackground</Set> <!-- blank the text -->
     </Rectangle>
   </Component>
 
   <Component Name="Date">
-    <Ref RefName="Entry">
+    <Ref RefName="TimeEntry">
       <Set>
         EntryBox.Name = Box1;
         EntryText.Name = Text1;
       </Set>
     </Ref>
     <TextBlock Name="Separator" Top="DateTextOffset" Left="EntryWidth + SeparatorGap" Font="SettingsFont" Foreground="ToolInfoForeground"/>
-    <Ref RefName="Entry" Left="EntryWidth + SeparatorWidth">
+    <Ref RefName="TimeEntry" Left="EntryWidth + SeparatorWidth">
       <Set>
         EntryBox.Name = Box2;
         EntryText.Name = Text2;
       </Set>
     </Ref>
     <TextBlock Name="Separator" Top="DateTextOffset" Left="2 * EntryWidth + SeparatorWidth + SeparatorGap" Font="SettingsFont" Foreground="White"/>
-    <Ref RefName="Entry" Left="EntryWidth * 2 + SeparatorWidth * 2">
+    <Ref RefName="TimeEntry" Left="EntryWidth * 2 + SeparatorWidth * 2">
       <Set>
         EntryBox.Name = Box3;
         EntryText.Name = Text3;
@@ -1419,16 +1419,17 @@
     <Ref RefName="Date" Left="TimeLeft">
       <Set>
         Separator.Text = ":";
-        Box1.HotSpot = Hours;
-        Box2.HotSpot = Minutes;
-        Box3.HotSpot = Seconds;
-        Text1.Area = Hours;
-        Text2.Area = Minutes;
-        Text3.Area = Seconds;
+        Box1.HotSpot = Hour;
+        Box2.HotSpot = Minute;
+        Box3.HotSpot = Second;
+        Text1.Area = Hour;
+        Text2.Area = Minute;
+        Text3.Area = Second;
       </Set>
     </Ref>
-    <Ref RefName="Entry" Left="AmPmLeft">
+    <Ref RefName="TimeEntry" Left="AmPmLeft">
       <Set>
+        EntryText.Left = 4;
         EntryText.Text = "pm";
         EntryText.Area = AmPm;
         EntryBox.Width = AmPmWidth;
@@ -1493,7 +1494,8 @@
     <Ref RefName="DateTimeEntry" Top="DateTimeTop"/>
     <Ref RefName="DoneButton" Top="KeySpace" Left="DoneButtonLeft">
       <Set>
-        Button.HotSpot = Done;
+        Button.HotSpot = TimeEntryDone;
+        Button.Group = ToolLib;
         Label.Text = "";
       </Set>
     </Ref>
@@ -1622,18 +1624,19 @@
           <Set>SampleTime.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
         </Ref>
       </Rectangle>
-      <Ref RefName="TimeSetButton" Top="-5" Left="TimestampLabel.Width + 3 * KeySpace + SampleTime.Width">
+      <Ref RefName="TimeSetButton" Top="-6" Left="TimestampLabel.Width + 3 * KeySpace + SampleTime.Width">
         <Set>
           Button.Area = TimeSetButton;
           Button.HotSpot = TimeSet;
-          Button.Fill = ToolInfoBackground; <!-- blank the button -->
+          Button.Group = ToolLib;
+          Button.Fill = ToolInfoBackground;  <!-- blank the button -->
           Label.Foreground = ToolInfoBackground;
         </Set>
       </Ref>
     </Rectangle>
     <Rectangle Area="ImportWarning" Top="ImportWarningTop" Left="KeySpace" Width="ImportWarning.Width" Height="ImportWarning.Height">
       <Ref RefName="ImportWarning">
-        <!-- <Set>ImportWarning.Foreground = ToolInfoBackground</Set> blank the text -->
+        <Set>ImportWarning.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
       </Ref>
     </Rectangle>
   </Canvas>

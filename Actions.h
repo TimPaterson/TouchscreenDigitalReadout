@@ -139,6 +139,10 @@ public:
 			ToolLib::ToolAction(spot, x, y);
 			return;
 
+		case HOTSPOT_GROUP_TimeSet:
+			ToolLib::SetTime(spot);
+			return;
+
 		case HOTSPOT_GROUP_Keyboard:
 			KeyboardMgr::KeyHit(spot);
 			return;

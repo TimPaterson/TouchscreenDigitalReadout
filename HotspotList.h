@@ -110,6 +110,19 @@ enum ToolAreas
 	ImportRadio,
 	ExportRadio,
 	FileName,
+	TimeSet,
+	TimeEntryDone,
+};
+
+enum TimeSetSpots
+{
+	Second,
+	Minute,
+	Hour,
+	Day,
+	Month,
+	Year,
+	AmPm,
 };
 
 //*************************************************************************

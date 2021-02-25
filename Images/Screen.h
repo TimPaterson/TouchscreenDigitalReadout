@@ -566,26 +566,26 @@ START_SCREEN(EnterDateTime)
 END_SCREEN(EnterDateTime)
 
 START_HOTSPOTS(EnterDateTime)
-	DEFINE_HOTSPOT(Month, , 10, 11, 62, 70)
-	DEFINE_HOTSPOT(Day, , 79, 11, 131, 70)
-	DEFINE_HOTSPOT(Year, , 148, 11, 200, 70)
-	DEFINE_HOTSPOT(Hours, , 221, 11, 273, 70)
-	DEFINE_HOTSPOT(Minutes, , 290, 11, 342, 70)
-	DEFINE_HOTSPOT(Seconds, , 359, 11, 411, 70)
-	DEFINE_HOTSPOT(AmPm, , 422, 11, 481, 70)
-	DEFINE_HOTSPOT(Done, , 502, 10, 561, 69)
+	DEFINE_HOTSPOT(Month, TimeSet, 10, 11, 62, 70)
+	DEFINE_HOTSPOT(Day, TimeSet, 79, 11, 131, 70)
+	DEFINE_HOTSPOT(Year, TimeSet, 148, 11, 200, 70)
+	DEFINE_HOTSPOT(Hour, TimeSet, 221, 11, 273, 70)
+	DEFINE_HOTSPOT(Minute, TimeSet, 290, 11, 342, 70)
+	DEFINE_HOTSPOT(Second, TimeSet, 359, 11, 411, 70)
+	DEFINE_HOTSPOT(AmPm, TimeSet, 422, 11, 481, 70)
+	DEFINE_HOTSPOT(TimeEntryDone, ToolLib, 502, 10, 561, 69)
 END_HOTSPOTS(EnterDateTime)
 
 HOTSPOT_COUNT(EnterDateTime, 8)
 
 START_AREAS(EnterDateTime)
-	DEFINE_AREA(Month, 10, 11, 53, 60)
-	DEFINE_AREA(Day, 79, 11, 53, 60)
-	DEFINE_AREA(Year, 148, 11, 53, 60)
-	DEFINE_AREA(Hours, 221, 11, 53, 60)
-	DEFINE_AREA(Minutes, 290, 11, 53, 60)
-	DEFINE_AREA(Seconds, 359, 11, 53, 60)
-	DEFINE_AREA(AmPm, 422, 11, 60, 60)
+	DEFINE_AREA(Month, 16, 20, 41, 42)
+	DEFINE_AREA(Day, 85, 20, 41, 42)
+	DEFINE_AREA(Year, 154, 20, 41, 42)
+	DEFINE_AREA(Hour, 227, 20, 41, 42)
+	DEFINE_AREA(Minute, 296, 20, 41, 42)
+	DEFINE_AREA(Second, 365, 20, 41, 42)
+	DEFINE_AREA(AmPm, 426, 20, 51, 42)
 END_AREAS(EnterDateTime)
 
 START_HOTSPOTS(LoadSave)
@@ -628,7 +628,7 @@ START_HOTSPOTS(ToolImport)
 	DEFINE_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
 	DEFINE_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
 	DEFINE_HOTSPOT(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
-	DEFINE_HOTSPOT(TimeSet, , 470, 75, 529, 114)
+	DEFINE_HOTSPOT(TimeSet, ToolLib, 470, 74, 529, 113)
 END_HOTSPOTS(ToolImport)
 
 HOTSPOT_COUNT(ToolImport, 6)
@@ -640,7 +640,7 @@ START_AREAS(ToolImport)
 	DEFINE_AREA(ImpExpButton, 884, 10, 60, 107)
 	DEFINE_AREA(TimeLabel, 10, 80, 163, 28)
 	DEFINE_AREA(LiveTime, 183, 80, 267, 28)
-	DEFINE_AREA(TimeSetButton, 470, 75, 60, 40)
+	DEFINE_AREA(TimeSetButton, 470, 74, 60, 40)
 	DEFINE_AREA(ImportWarning, 10, 75, 645, 37)
 END_AREAS(ToolImport)
 
@@ -694,15 +694,6 @@ START_GROUP()
 	GROUP_HOTSPOT(ToolMenu, , 514, 405, 573, 464)
 	GROUP_HOTSPOT(MaxRpm, , 10, 530, 354, 589)
 	GROUP_HOTSPOT(TouchCal, , 365, 320, 564, 379)
-	GROUP_HOTSPOT(Month, , 10, 11, 62, 70)
-	GROUP_HOTSPOT(Day, , 79, 11, 131, 70)
-	GROUP_HOTSPOT(Year, , 148, 11, 200, 70)
-	GROUP_HOTSPOT(Hours, , 221, 11, 273, 70)
-	GROUP_HOTSPOT(Minutes, , 290, 11, 342, 70)
-	GROUP_HOTSPOT(Seconds, , 359, 11, 411, 70)
-	GROUP_HOTSPOT(AmPm, , 422, 11, 481, 70)
-	GROUP_HOTSPOT(Done, , 502, 10, 561, 69)
-	GROUP_HOTSPOT(TimeSet, , 470, 75, 529, 114)
 END_GROUP()
 
 START_GROUP(Edit)
@@ -761,11 +752,13 @@ START_GROUP(ToolLib)
 	GROUP_HOTSPOT(ToolsDone, ToolLib, 814, 10, 873, 69)
 	GROUP_HOTSPOT(ToolDelete, ToolLib, 884, 10, 943, 69)
 	GROUP_HOTSPOT(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(TimeEntryDone, ToolLib, 502, 10, 561, 69)
 	GROUP_HOTSPOT(FileName, ToolLib, 10, 10, 748, 69)
 	GROUP_HOTSPOT(ImportRadio, ToolLib, 749, 8, 873, 57)
 	GROUP_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
 	GROUP_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
 	GROUP_HOTSPOT(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(TimeSet, ToolLib, 470, 74, 529, 113)
 END_GROUP(ToolLib)
 
 START_GROUP(ToolSide)
@@ -961,6 +954,16 @@ START_GROUP(Keyboard)
 	GROUP_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
 END_GROUP(Keyboard)
 
+START_GROUP(TimeSet)
+	GROUP_HOTSPOT(Month, TimeSet, 10, 11, 62, 70)
+	GROUP_HOTSPOT(Day, TimeSet, 79, 11, 131, 70)
+	GROUP_HOTSPOT(Year, TimeSet, 148, 11, 200, 70)
+	GROUP_HOTSPOT(Hour, TimeSet, 221, 11, 273, 70)
+	GROUP_HOTSPOT(Minute, TimeSet, 290, 11, 342, 70)
+	GROUP_HOTSPOT(Second, TimeSet, 359, 11, 411, 70)
+	GROUP_HOTSPOT(AmPm, TimeSet, 422, 11, 481, 70)
+END_GROUP(TimeSet)
+
 #ifndef START_GROUP_Axis
 #define START_GROUP_Axis(a)
 #endif
@@ -1021,15 +1024,6 @@ START_GROUP_()
 	GROUP_HOTSPOT_(ToolMenu, , 514, 405, 573, 464)
 	GROUP_HOTSPOT_(MaxRpm, , 10, 530, 354, 589)
 	GROUP_HOTSPOT_(TouchCal, , 365, 320, 564, 379)
-	GROUP_HOTSPOT_(Month, , 10, 11, 62, 70)
-	GROUP_HOTSPOT_(Day, , 79, 11, 131, 70)
-	GROUP_HOTSPOT_(Year, , 148, 11, 200, 70)
-	GROUP_HOTSPOT_(Hours, , 221, 11, 273, 70)
-	GROUP_HOTSPOT_(Minutes, , 290, 11, 342, 70)
-	GROUP_HOTSPOT_(Seconds, , 359, 11, 411, 70)
-	GROUP_HOTSPOT_(AmPm, , 422, 11, 481, 70)
-	GROUP_HOTSPOT_(Done, , 502, 10, 561, 69)
-	GROUP_HOTSPOT_(TimeSet, , 470, 75, 529, 114)
 END_GROUP_()
 
 #undef START_GROUP_
@@ -1158,11 +1152,13 @@ START_GROUP_ToolLib(ToolLib)
 	GROUP_HOTSPOT_ToolLib(ToolsDone, ToolLib, 814, 10, 873, 69)
 	GROUP_HOTSPOT_ToolLib(ToolDelete, ToolLib, 884, 10, 943, 69)
 	GROUP_HOTSPOT_ToolLib(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_ToolLib(TimeEntryDone, ToolLib, 502, 10, 561, 69)
 	GROUP_HOTSPOT_ToolLib(FileName, ToolLib, 10, 10, 748, 69)
 	GROUP_HOTSPOT_ToolLib(ImportRadio, ToolLib, 749, 8, 873, 57)
 	GROUP_HOTSPOT_ToolLib(ExportRadio, ToolLib, 749, 58, 873, 107)
 	GROUP_HOTSPOT_ToolLib(ImpExpExecute, ToolLib, 884, 10, 943, 69)
 	GROUP_HOTSPOT_ToolLib(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_ToolLib(TimeSet, ToolLib, 470, 74, 529, 113)
 END_GROUP_ToolLib(ToolLib)
 
 #undef START_GROUP_ToolLib
@@ -1445,6 +1441,30 @@ END_GROUP_Keyboard(Keyboard)
 #undef START_GROUP_Keyboard
 #undef GROUP_HOTSPOT_Keyboard
 #undef END_GROUP_Keyboard
+
+#ifndef START_GROUP_TimeSet
+#define START_GROUP_TimeSet(a)
+#endif
+#ifndef GROUP_HOTSPOT_TimeSet
+#define GROUP_HOTSPOT_TimeSet(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_TimeSet
+#define END_GROUP_TimeSet(a)
+#endif
+
+START_GROUP_TimeSet(TimeSet)
+	GROUP_HOTSPOT_TimeSet(Month, TimeSet, 10, 11, 62, 70)
+	GROUP_HOTSPOT_TimeSet(Day, TimeSet, 79, 11, 131, 70)
+	GROUP_HOTSPOT_TimeSet(Year, TimeSet, 148, 11, 200, 70)
+	GROUP_HOTSPOT_TimeSet(Hour, TimeSet, 221, 11, 273, 70)
+	GROUP_HOTSPOT_TimeSet(Minute, TimeSet, 290, 11, 342, 70)
+	GROUP_HOTSPOT_TimeSet(Second, TimeSet, 359, 11, 411, 70)
+	GROUP_HOTSPOT_TimeSet(AmPm, TimeSet, 422, 11, 481, 70)
+END_GROUP_TimeSet(TimeSet)
+
+#undef START_GROUP_TimeSet
+#undef GROUP_HOTSPOT_TimeSet
+#undef END_GROUP_TimeSet
 
 #ifndef START_SCREEN_Overlay
 #define START_SCREEN_Overlay(a)

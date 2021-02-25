@@ -27,7 +27,7 @@
     {
       "FontFamilyName": "Arial",
       "TypefaceName": "Regular",
-      "CharSetName": "Digits",
+      "CharSetName": "Full",
       "Size": 36,
       "Threshold": 45,
       "Name": "SettingsFont"
@@ -70,6 +70,12 @@
       "FirstChar": 32,
       "LastChar": 126,
       "Name": "Arithmetic"
+    },
+    {
+      "Glyphs": [],
+      "FirstChar": 32,
+      "LastChar": 126,
+      "Name": "Full"
     },
     {
       "Glyphs": [],

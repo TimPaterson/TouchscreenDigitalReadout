@@ -52,6 +52,7 @@ class ToolLib
 		EDIT_ConfirmDelete,
 		EDIT_Description,
 		EDIT_File,
+		EDIT_Time,
 	};
 
 	struct ToolLibBase
@@ -177,6 +178,8 @@ class ToolLib
 public:
 	// .cpp file
 	static void ToolAction(uint spot, int x, int y);
+	static void SetTime(uint spot);
+	static void ShowExportTime(RtcTime time);
 	static void ShowToolInfo();
 	static int ImportTools(char *pb, uint cb, uint cbWrap);
 	static int ImportTool(char *pchBuf);
@@ -243,7 +246,7 @@ public:
 		CheckIfFolder();
 		if (edit == EditLine::EditDone)
 		{
-			EndEdit(s_editDesc);
+			EndEdit(s_editFile);
 			if (s_isFolder)
 				Files.Open(&s_editFile);
 		}
@@ -412,6 +415,23 @@ protected:
 		KeyboardMgr::CloseKb();
 	}
 
+	static void ShowTimeSet()
+	{
+		RtcTime		time;
+
+		if (s_editMode == EDIT_File)
+			EndEdit(s_editFile);
+		ScreenMgr::EnablePip2(&EnterDateTime, 0, ToolListTop);
+		s_editMode = EDIT_Time;
+		ShowExportTime(time.ReadClock());
+	}
+
+	static void EndTimeSet()
+	{
+		ScreenMgr::EnablePip2(&Files, 0, ToolListTop);
+		s_editMode = EDIT_None;
+	}
+
 	//*********************************************************************
 	// Import/Export dialog
 
@@ -435,6 +455,11 @@ protected:
 			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
 				&LoadSave, isFolder ? FILE_IMAGE_Folder : s_isExport);
 		}
+	}
+
+	static void PrintTimeDigits(uint u)
+	{
+		s_TimeEntry.printf("%02u", u);
 	}
 
 	//*********************************************************************
@@ -523,6 +548,12 @@ protected:
 
 	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(),
 		FileBrowser::GetPathBufSize(), FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+
+	inline static TextField		s_LiveTime{ToolImport, ToolImport_Areas.LiveTime, 
+		FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+
+	inline static TextField		s_TimeEntry{EnterDateTime, EnterDateTime_Areas.Month, 
+		FID_SettingsFont, TimeEntryForeground, TimeEntryBackground};
 
 	inline static ushort		s_toolCount;
 	inline static ushort		s_curLineNum {NoCurrentLine};
