@@ -16,14 +16,16 @@
   	SettingsWidth = KeypadLeft - KeySpace;
 
     <!-- ListScroll parameters -->
-    ScrollGapLeft = 4;
-    ScrollGapRight = 0;
-    ScrollThumbWidth = 60;
+    ScrollGapLeft = 2;
+    ScrollGapRight = 2;
+    ScrollThumbWidth = 50;
+    ScrollThumbHeight = BtnHeight;
     ScrollBarWidth = ScrollGapLeft + ScrollThumbWidth + ScrollGapRight;
   </Set>
   <Set ShowValue="ScrollGapLeft">ScrollGapLeft</Set>
   <Set ShowValue="ScrollGapRight">ScrollGapRight</Set>
   <Set ShowValue="ScrollThumbWidth">ScrollThumbWidth</Set>
+  <Set ShowValue="ScrollThumbHeight">ScrollThumbHeight</Set>
   <Set ShowValue="ScrollBarWidth">ScrollBarWidth</Set>
   <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
   <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
@@ -42,6 +44,7 @@
   <Color Name="ToolLibSelected" Color="White" ColorDepth="Color16bpp"/>
   <Color Name="TimeEntryForeground" Color="Black" ColorDepth="Color16bpp"/>
   <Color Name="TimeEntryBackground" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ScrollBarColor" Color="0x303030" ColorDepth="Color16bpp"/>
 
   <!-- Components -->
   <Component Name="Key">
@@ -897,10 +900,22 @@
 
   <!-- Settings Screens (PIP) -->
 
+  <Set>
+    AxisLabelWidth = 54;
+    AxisSettingWidth = 120;
+    AxisSettingHeight = BtnHeight;
+    AxisSettingHeaderHeight = 72;
+    AxisLabelTop = 1;
+    ColAdjust = AxisLabelWidth - AxisSettingWidth;
+    SensorTextLeft = 50;
+    CorrectionTextLeft = 5;
+    CheckboxSize = 32;
+    AxisSettingsGridHeight = AxisSettingHeight * 4 + AxisSettingHeaderHeight;
+  </Set>
   <Color Name="SettingBackColor" Color="Black" ColorDepth="Color8bpp"/>
   <Color Name="SettingForeColor" Color="White" ColorDepth="Color8bpp"/>
   <Font Name="SettingsLabelFont" FontFamily="Arial" FontSize ="20"/>
-  <Set>CheckboxSize = 32;</Set>
+  <Font Name="UnitsFont" Font="SettingsLabelFont" FontSize="18"/>
   <Color Name="CheckForeground" Color="SettingForeColor"/>
   <Color Name="CheckBackground" Color="SettingBackColor"/>
 
@@ -916,37 +931,45 @@
     </Rectangle>
   </Component>
 
+  <Component Name="AxisSettingHeader">
+    <Rectangle Height="AxisSettingHeaderHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Name="AxisSettingLabel" Top="AxisLabelTop" Font="SettingsLabelFont" Text="  Sensor&#xA;Resolution" Foreground="SettingForeColor"/>
+      <TextBlock Name="UnitsLabel" Font="UnitsFont" Top="AxisSettingLabel.Height" Text="microns" Foreground="SettingForeColor"/>
+    </Rectangle>
+  </Component>
+
   <!-- Main Settings Screen (PIP) -->
   <Canvas Name="SettingsScreen" Width="SettingsWidth" Height="ScreenHeight" Fill="SettingBackColor" ColorDepth="Color8bpp" WidthMultiple="4">
     <Font Name="AxisLabelFont" FontFamily="Arial" FontSize="48"/>
-    <Set>
-      AxisLabelWidth = 54;
-      AxisSettingWidth = 120;
-      AxisSettingHeight = BtnHeight + 1;
-      ColAdjust = AxisLabelWidth - AxisSettingWidth;
-      SensorTextLeft = 50;
-      CorrectionTextLeft = 5;
-    </Set>
-    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight" ColumnWidth="AxisSettingWidth - 1">
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="AxisSettingHeight - 1" ColumnWidth="AxisSettingWidth - 1">
       <Row>
         <Column></Column>
         <Column Left="ColAdjust">
-          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
-            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Sensor&#xA;Resolution" Foreground="SettingForeColor"/>
-          </Rectangle>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "   Sensor&#xA;Resolution";
+              UnitsLabel.Text = "microns";
+            </Set>
+          </Ref>
         </Column>
         <Column>
-          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
-            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Invert&#xA;Direction" Foreground="SettingForeColor"/>
-          </Rectangle>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "  Invert&#xA;Direction";
+              UnitsLabel.Text = "";
+            </Set>
+          </Ref>
         </Column>
         <Column>
-          <Rectangle Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
-            <TextBlock Name="AxisLabel" Font="SettingsLabelFont" Text="Linear&#xA;Correction" Foreground="SettingForeColor"/>
-          </Rectangle>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "   Linear&#xA;Correction";
+              UnitsLabel.Text = "parts/million";
+            </Set>
+          </Ref>
         </Column>
       </Row>
-      <Row>
+      <Row Top="AxisSettingHeaderHeight - AxisSettingHeight">
         <Column>
           <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="X" Foreground="SettingForeColor"/>
@@ -1036,28 +1059,37 @@
       </Row>
     </Grid>
     <Set>
-      BelowGrid = BtnHeight * 5 + KeySpace * 2;
       OptionWidth = 345;
+      OptionHeight = BtnHeight;
       SetItemRight = OptionWidth - KeySpace;
+      Option1Top = AxisSettingsGridHeight + KeySpace * 2;
+      Option2Top = Option1Top + OptionHeight - 1;
+      Option3Top = Option2Top + OptionHeight - 1;
+      Option4Top = Option3Top + OptionHeight - 1;
+      OptionButtonLeft = OptionWidth + KeySpace * 2;
+      OptionButtonWidth = SettingsWidth - OptionWidth - KeySpace * 3;
     </Set>
-    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="BelowGrid" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="Option1Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
       <Rectangle Area="HighlightXY" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
     </Rectangle>
-    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="BelowGrid + BtnHeight + KeySpace" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="Option2Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Offset Z by tool length:</TextBlock>
       <Rectangle Area="OffsetZ" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
     </Rectangle>
-    <Rectangle HotSpot="CncCoordinates" Group="SettingToggle" Top="BelowGrid + (BtnHeight + KeySpace) * 2" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+    <Rectangle HotSpot="CncCoordinates" Group="SettingToggle" Top="Option3Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">CNC-style coordinates:</TextBlock>
       <Rectangle Area="CncCoordinates" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
     </Rectangle>
-    <Rectangle HotSpot="MaxRpm" Top="BelowGrid + (BtnHeight + KeySpace) * 3" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+    <Rectangle HotSpot="MaxRpm" Top="Option4Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Max machine RPM:</TextBlock>
       <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - 5 * 20" Height="SettingsFont_Height" Width="5 * 20"/>
     </Rectangle>
-    <Rectangle HotSpot="TouchCal" Top="BelowGrid" Left="OptionWidth + KeySpace * 2" Height="BtnHeight" Width="200" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+    <Rectangle HotSpot="TouchCal" Top="Option1Top" Left="OptionButtonLeft" Height="BtnHeight" Width="OptionButtonWidth" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
       <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Touch Calibration</TextBlock>
+    </Rectangle>
+    <Rectangle HotSpot="FirmwareUpdate" Top="Option4Top" Left="OptionButtonLeft" Height="BtnHeight" Width="OptionButtonWidth" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+      <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Firmware Update</TextBlock>
     </Rectangle>
   </Canvas>
 
@@ -1134,7 +1166,7 @@
         <Column><Set>Label.Name=Text_k; Button.Name=Key_k</Set></Column>
         <Column><Set>Label.Name=Text_l; Button.Name=Key_l</Set></Column>
         <Column>
-          <SetString>Label.Text = "Enter"</SetString>
+          <SetString>Label.Text = "Done"</SetString>
           <Set>
             Label.Foreground = DarkGreen;
             Label.FontSize = 48;
@@ -1354,16 +1386,17 @@
     RadioButtonStrokeThickness = 4;
     RadioButtonDot = 16;
     RadioDotOffset = (RadioButtonSize - RadioButtonDot) / 2;
-    RadioButtonWidth = 125; <!-- includes text -->
+    RadioImpExpWidth = 125; <!-- includes text -->
+    RadioDriveWidth = 94;
     RadioButtonHeight = 50; <!-- vertical pitch-->
     RadioButtonVoffset = (RadioButtonHeight - RadioButtonSize) / 2;
     RadioButtonTop = (ToolLibHeight - 2 * RadioButtonHeight) / 2;
-    ImportCtrlsWidth = RadioButtonWidth + KeySpace * 2 + BtnWidth * 2;
+    ImportCtrlsWidth = RadioImpExpWidth + RadioDriveWidth + KeySpace * 3 + BtnWidth * 2;
     ImportCtrlsLeft = ToolLibWidth - ImportCtrlsWidth - KeySpace;
     FileWidth = ImportCtrlsLeft - KeySpace;
     ImportWarningTop = 75;
     TimestampTop = 80;
-    SetButtonHeight = 40;
+    SetButtonHeight = 46;
 
     <!-- File list box -->
     FileListWidth = (KeypadRight + 3) and not 3; <!-- must be multiple of 4-->
@@ -1453,29 +1486,25 @@
   </Set>
 
   <Component Name="RadioButtonTextOff">
-    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioButtonWidth">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioImpExpWidth">
       <Ref RefName="RadioButtonOff" Top="RadioButtonVoffset" Left="KeySpace"/>
       <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
     </Rectangle>
   </Component>
 
   <Component Name="RadioButtonTextOn">
-    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioButtonWidth">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioImpExpWidth">
       <Ref RefName="RadioButtonOn" Top="RadioButtonVoffset" Left="KeySpace"/>
       <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
     </Rectangle>
   </Component>
 
   <Component Name="ImportWarning">
-    <TextBlock Name="ImportWarning" Font="SettingsFont" FontSize="32" Foreground="ToolInfoForeground">Warning: All existing tools will be deleted first!</TextBlock>
+    <TextBlock Name="ImportWarning" Font="SettingsFont" FontSize="30" Foreground="ToolInfoForeground">Warning: All existing tools will be deleted first!</TextBlock>
   </Component>
 
   <Component Name="CurrentTime">
     <TextBlock Name="TimestampLabel" Font="CalcSmall" Foreground="ToolInfoForeground">File timestamp:</TextBlock>
-  </Component>
-
-  <Component Name="SampleTime">
-    <TextBlock Name="SampleTime" Font="CalcSmall" Foreground="ToolInfoForeground">12/10/2020  12:55:16 pm</TextBlock>
   </Component>
 
   <Component Name="TimeSetButton">
@@ -1505,7 +1534,9 @@
     ImportIconAdj = 4;
     ExportIconAdj = ImportIconAdj;
     AddFolderAdj = 0;
-    ImpExpButtonLeft = RadioButtonWidth + KeySpace;
+    OpenFolderAdj = 3;
+    RadioImpExpLeft = RadioDriveWidth + KeySpace;
+    ImpExpButtonLeft = RadioImpExpLeft + RadioImpExpWidth + KeySpace;
     ImpExpCancelLeft = ImpExpButtonLeft + BtnWidth + KeySpace;
   </Set>
 
@@ -1535,6 +1566,32 @@
     </Ref>
   </Component>
 
+  <Component Name="AddFolderButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = AddFolder128.png;
+        Icon.Height = ToolBtnHeight - AddFolderAdj;
+        Icon.Width = ToolBtnWidth - AddFolderAdj;
+        Icon.Top = 4;
+        Icon.Left = 4;
+        Label.Text = "  Add&#xA;Folder";
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="OpenFolderButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = OpenFolder128.png;
+        Icon.Height = ToolBtnHeight - OpenFolderAdj;
+        Icon.Width = ToolBtnWidth - OpenFolderAdj;
+        Icon.Top = 2;
+        Icon.Left = 2;
+        Label.Text = "Open&#xA;Folder";
+      </Set>
+    </Ref>
+  </Component>
+
   <Canvas Name="LoadSave" Type="Overlay" Height="ToolCtrlHeight" ItemWidth="BtnWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
     <Item>
       <Ref RefName="ImportButton"/>
@@ -1543,16 +1600,10 @@
       <Ref RefName="ExportButton"/>
     </Item>
     <Item>
-      <Ref RefName="ToolButton">
-        <Set>
-          Icon.Source = AddFolder128.png;
-          Icon.Height = ToolBtnHeight - AddFolderAdj;
-          Icon.Width = ToolBtnWidth - AddFolderAdj;
-          Icon.Top = 4;
-          Icon.Left = 4;
-          Label.Text = "  Add&#xA;Folder";
-        </Set>
-      </Ref>
+      <Ref RefName="AddFolderButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="OpenFolderButton"/>
     </Item>
   </Canvas>
 
@@ -1562,6 +1613,11 @@
     </Item>
     <Item>
       <Ref RefName="RadioButtonOn"/>
+    </Item>
+    <Item>
+      <Rectangle Height="RadioButtonSize" Width="RadioButtonSize">
+        <Image Source="DoesNotExist128.png" Height="RadioButtonSize" Width="RadioButtonSize"/>
+      </Rectangle>
     </Item>
   </Canvas>
 
@@ -1577,6 +1633,38 @@
     <Ref RefName="TimeSetButton"/>
   </Canvas>
 
+  <!-- Scroll Thumb -->
+  <Canvas Name="ScrollThumb" Type="Overlay" Height="ScrollThumbHeight" Width="ScrollThumbWidth" ColorDepth="Color16bpp" Fill="ScrollBarColor">
+    <Set>
+      GripLeft = 8;
+      GripRight = ScrollThumbWidth - GripLeft - 1;
+      GripFirstTop = 10;
+      GripCount = 4;
+      GripPitch = (ScrollThumbHeight - 2 * GripFirstTop) / (GripCount - 1);
+      GripTop = GripPitch / 2;
+    </Set>
+    <Rectangle Height="ScrollThumbHeight" Width="ScrollThumbWidth" RadiusX="5" RadiusY="5" Fill="Gold">
+      <Grid ColumnWidth="0" RowHeight="GripPitch">
+        <Default>
+          <Line X1="GripLeft" Y1="GripTop" X2="GripRight" Y2="GripTop" StrokeThickness="1" Stroke="DarkSlateGray"/>
+        </Default>
+        <Row Top="GripFirstTop - GripTop">
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+      </Grid>
+    </Rectangle>
+  </Canvas>
+
+  <!-- Tool Import -->
   <Canvas Name="ToolImport" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
     <Rectangle HotSpot="FileName" Group="ToolLib" Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
       <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="KeySpace" Height="SmallTextHeight" Width="FileWidth - 2 * KeySpace"/>
@@ -1584,13 +1672,31 @@
     <Rectangle Left="ImportCtrlsLeft" Height="ToolLibHeight" Width="ToolLibWidth">
       <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop">
         <Set>
+          Text.Text = USB;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = ImportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = UsbDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight">
+        <Set>
+          Text.Text = SD;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = ExportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = SdDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop" Left="RadioImpExpLeft">
+        <Set>
           Text.Text = Import;
           RadioBox.HotSpot = ImportRadio;
           RadioBox.Group = ToolLib;
           Circle.Area = ImportBox;
         </Set>
       </Ref>
-      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight">
+      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight" Left="RadioImpExpLeft">
         <Set>
           Text.Text = Export;
           RadioBox.HotSpot = ExportRadio;
@@ -1619,12 +1725,14 @@
           <Set>TimestampLabel.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
         </Ref>
       </Rectangle>
-      <Rectangle Area="LiveTime" Left="TimestampLabel.Width + KeySpace" Height="SmallTextHeight" Width="SampleTime.Width">
-        <Ref RefName="SampleTime">
-          <Set>SampleTime.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
-        </Ref>
+      <Set>
+        SetButtonLeft = DoneButtonLeft - KeySpace; <!-- Line it up with time entry Done button -->
+        LiveTimeLeft = TimestampLabel.Width + KeySpace;
+        LiveTimeWidth = SetButtonLeft - LiveTimeLeft - 1;
+      </Set>
+      <Rectangle Area="LiveTime" Left="LiveTimeLeft" Height="SmallTextHeight" Width="LiveTimeWidth">
       </Rectangle>
-      <Ref RefName="TimeSetButton" Top="-6" Left="TimestampLabel.Width + 3 * KeySpace + SampleTime.Width">
+      <Ref RefName="TimeSetButton" Top="-9" Left="SetButtonLeft">
         <Set>
           Button.Area = TimeSetButton;
           Button.HotSpot = TimeSet;
@@ -1677,6 +1785,9 @@
     </Item>
     <Item>
       <Image Height="IconSize" Width="IconSize" Source="Back128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Error128.png"/>
     </Item>
   </Canvas>
 </Project>

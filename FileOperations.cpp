@@ -23,7 +23,7 @@ int FileOperations::WriteFileToFlash(const char *psz, ulong addr)
 	flash.addr = addr;
 	err = StartOpen(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
 	if (IsError(err))
-		return err;
+		return m_pfnError(err);
 	m_hFile = err;
 	TO_STATE(flash, open);
 	return FATERR_None;
@@ -35,7 +35,7 @@ int FileOperations::Mount(int drv)
 
 	err = StartMount(drv);
 	if (IsErrorNotBusy(err))
-		return err;
+		return m_pfnError(err);
 	m_drive = drv;
 	TO_STATE(single, ready);
 	return FATERR_None;
@@ -47,7 +47,7 @@ int FileOperations::ToolImport(const char *psz)
 
 	err = StartOpen(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
 	if (IsError(err))
-		return err;
+		return m_pfnError(err);
 	m_hFile = err;
 	TO_STATE(import, open);
 	return FATERR_None;
@@ -59,20 +59,22 @@ int FileOperations::ToolExport(const char *psz)
 
 	err = StartOpen(psz, 0, OPENFLAG_CreateAlways | OPENFLAG_File);
 	if (IsError(err))
-		return err;
+		return m_pfnError(err);
 	m_hFile = err;
 	TO_STATE(Export, open);
 	return FATERR_None;
 }
 
-int FileOperations::FolderEnum(const char *pFilename, int cchName)
+int FileOperations::FolderEnum(const char *pFilename, int cchName, bool fCreate)
 {
 	int		err;
+	uint	flags;
 
-	// Create the folder if it doesn't exist
-	err = StartOpen(pFilename, 0, OPENFLAG_OpenAlways | OPENFLAG_Folder, cchName);
+	// See if we should create the folder if it doesn't exist
+	flags = fCreate ? OPENFLAG_OpenAlways | OPENFLAG_Folder : OPENFLAG_OpenExisting | OPENFLAG_Folder;
+	err = StartOpen(pFilename, 0, flags, cchName);
 	if (IsError(err))
-		return err;
+		return m_pfnError(err);
 	m_hFile = err;
 	TO_STATE(folder, open);
 	return FATERR_None;
@@ -95,7 +97,10 @@ void FileOperations::Process()
 		return;
 
 	if (IsError(status))
-		DEBUG_PRINT("File error %i\n", status);
+	{
+		OpDone();
+		m_pfnError(status);
+	}
 	else
 	{
 		switch (m_state)
@@ -253,8 +258,8 @@ ImportClose:
 			END_STATE
 
 			OP_STATE(Export, close)
-				ToolLib::ExportDone();
-				OP_DONE;
+				OpDone();
+				ToolLib::ExportDone();	// start folder enumeration
 			END_STATE
 
 			//*************************************************************
@@ -341,6 +346,5 @@ NextFolder:
 	}
 
 	// Executed only when operation completed
-	m_state = ST_Idle;
-	m_hFile = 0;
+	OpDone();
 }

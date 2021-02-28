@@ -18,6 +18,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	double	val;
 	uint	tool;
 	uint	line;
+	bool	isExport;
 	ToolLibInfo	*pTool;
 
 	if (s_editMode == EDIT_ConfirmDelete)
@@ -235,28 +236,29 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		SaveTool();
 		if (s_editMode == EDIT_Description)
 			EndEdit(s_editDesc);
-		ShowImportExport();
+		OpenImportExport();
 		break;
 
-	case ImpExpCancel:
-		if (s_editMode == EDIT_File)
-			EndEdit(s_editFile);
-
-		ShowToolLib();
-		break;
+	//*********************************************************************
+	// Import/Export dialog
 
 	case ImportRadio:
-		s_isExport = false;
+		isExport = false;
 		goto SetImportExportImages;
 
 	case ExportRadio:
-		s_isExport = true;
+		isExport = true;
 SetImportExportImages:
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !s_isExport);
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, s_isExport);
+		// Ignore radio buttons while prompting to create folder
+		if (s_editMode >= EDIT_StartErrors)
+			break;
+
+		s_isExport = isExport;
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !isExport);
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, isExport);
 		if (!s_isFolder)
-			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, s_isExport);
-		if (s_isExport)
+			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, isExport);
+		if (isExport)
 		{
 			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeLabel, &TimestampLabel);
@@ -265,16 +267,28 @@ SetImportExportImages:
 			ShowExportTime(time.ReadClock());
 		}
 		else
+		{
+			// Clear Set button first, as it's taller than ImportWarning
+			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.TimeSetButton, ToolInfoBackground);
 			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
+		}
 		break;
 
 	case ImpExpExecute:
 		if (s_editMode == EDIT_File)
 			EndEdit(s_editFile);
 
-		CheckIfFolder();
+		else if (s_editMode >= EDIT_StartErrors)
+		{
+			uint editMode = s_editMode;
+			ClearFileError();
+			if (editMode == EDIT_FolderCreatePrompt)
+				Files.Refresh(true);
+			break;
+		}
+
 		if (s_isFolder)
-			Files.Open(&s_editFile);
+			Files.Refresh();
 		else
 		{
 			if (s_isExport)
@@ -284,13 +298,23 @@ SetImportExportImages:
 		}
 		break;
 
+	case ImpExpCancel:
+		if (s_editMode >= EDIT_StartErrors)
+		{
+			ClearFileError();
+			StartEditFile(EditLine::EndLinePx);
+		}
+		else
+			CloseImportExport();
+		break;
+
 	case FileName:
 		x -= ToolImport_Areas.FileName.Xpos;	// relative edit box
 		if (s_editMode != EDIT_File)
 		{
-			s_editMode = EDIT_File;
-			s_editFile.StartEditPx(x);
-			KeyboardMgr::OpenKb(FileKeyHit);
+			if (s_editMode >= EDIT_StartErrors)
+				ClearFileError();
+			StartEditFile(x);
 		}
 		else
 		{
@@ -300,8 +324,10 @@ SetImportExportImages:
 		break;
 
 	case TimeSet:
+		if (s_editMode == EDIT_FolderCreatePrompt)
+			break;
 		if (!s_isExport)
-			return;		// button only displayed on Export
+			break;		// button only displayed on Export
 
 		if (s_editMode == EDIT_Time)
 			EndTimeSet();
@@ -446,9 +472,11 @@ void ToolLib::ShowExportTime(RtcTime time)
 		return;
 
 	s_LiveTime.ResetPosition();
-	s_LiveTime.printf("%u/%02u/%u  %2u:%02u:%02u ",
+	s_LiveTime.printf("%2u/%02u/%u  %2u:%02u:%02u",
 		time.Month(), time.Day(), time.Year(), time.Hour12(), time.Minute(), time.Second());
-	s_LiveTime.WriteString(time.AmPm() ? "pm" : "am");
+	s_LiveTime.SetSpaceWidth();
+	s_LiveTime.WriteString(time.AmPm() ? " pm" : " am");
+	s_LiveTime.SetSpaceWidth(s_LiveTime.GetCharWidth('0'));
 
 	if (s_editMode == EDIT_Time)
 	{
@@ -555,7 +583,6 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 		// UNDONE: delete existing library
 		s_freeToolIndex = 0;
 		s_toolCount = 0;
-
 	}
 
 	if (cbWrap != 0)
@@ -600,10 +627,10 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 
 void ToolLib::ImportDone()
 {
-	s_scroll.Invalidate();
-	SelectLine(0);
+	s_scroll.InvalidateAllLines();
+	s_curLineNum = 0;
 	ShowToolInfo();
-	ShowToolLib();
+	CloseImportExport();
 }
 
 
@@ -646,8 +673,9 @@ char *ToolLib::ExportTool(char *pBuf, uint line)
 		*pBuf++ = '"';	// escape with double "
 	}
 }
+
 void ToolLib::ExportDone()
 {
-	ShowToolLib();
+	Files.Refresh();
 }
 

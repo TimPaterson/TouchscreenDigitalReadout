@@ -12,6 +12,10 @@
 
 class EditLine : public TextField
 {
+public:
+	static constexpr int EndLinePx = 10000;
+
+protected:
 	static constexpr ulong CursorColor = 0xFFFF00;
 
 public:
@@ -39,7 +43,7 @@ public:
 	int CharCount()		{ return m_cntCh; }
 
 public:
-	void StartEditPx(int pxPosCur)
+	void StartEditPx(int pxPosCur = EndLinePx)
 	{
 		uint	chPosCur;
 

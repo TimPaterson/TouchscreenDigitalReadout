@@ -101,8 +101,8 @@ enum ToolSides
 
 enum ScrollAreas
 {
-	ScrollDisplay,
-	ScrollThumb
+	ScrollDisplayArea,
+	ScrollThumbArea
 };
 
 enum ToolAreas

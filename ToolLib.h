@@ -44,7 +44,8 @@ class ToolLib
 		// The first two are also referenced with the boolean s_isExport
 		FILE_IMAGE_Import,
 		FILE_IMAGE_Export,
-		FILE_IMAGE_Folder,
+		FILE_IMAGE_AddFolder,
+		FILE_IMAGE_OpenFolder,
 	};
 
 	enum EditMode
@@ -54,6 +55,10 @@ class ToolLib
 		EDIT_Description,
 		EDIT_File,
 		EDIT_Time,
+		// States after this indicate an error
+		EDIT_StartErrors,
+		EDIT_FolderCreatePrompt = EDIT_StartErrors,
+		EDIT_FileError,
 	};
 
 	struct ToolLibBase
@@ -109,6 +114,8 @@ class ToolLib
 	protected:
 		virtual void FillLine(int lineNum, Area *pArea)
 		{
+			Area	area;
+
 			if (lineNum < s_toolCount)
 			{
 				if (lineNum == s_curLineNum)
@@ -120,17 +127,12 @@ class ToolLib
 			else
 			{
 				ScreenMgr::FillRect(this, pArea, ToolLibBackground);
-				if (lineNum == s_toolCount)
+				if (lineNum == s_toolCount && s_toolCount != 0)
 				{
 					// Draw bottom line of last grid entry.
-					// Note that most destination graphics registers are already set up
-					WriteReg16(BTE_HIG0, 1);	// one pixel height
-					SetForeColor(ToolInfoForeground);
-					ScreenMgr::SetBteSrc0(&ToolRow);
-					WriteRegXY(S0_X0, 0, 0);
-					WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);
-					WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
-					WaitWhileBusy();
+					area = *pArea;
+					area.Height = 1;
+					ScreenMgr::CopyRect(this, &area, &ToolRow);
 				}
 			}
 		}
@@ -249,7 +251,7 @@ public:
 		{
 			EndEdit(s_editFile);
 			if (s_isFolder)
-				Files.Open(&s_editFile);
+				Files.Refresh();
 		}
 	}
 
@@ -437,25 +439,91 @@ protected:
 	// Import/Export dialog
 
 protected:
-	static void ShowImportExport()
+	static void OpenImportExport()
 	{
 		ScreenMgr::EnablePip1(&ToolImport, 0, 0);
-		Files.Open(&s_editFile);
+		FileOp.SetErrorHandler(FileError);
+		Files.Open(&s_editFile, ListUpdate);
 	}
 
-	static void CheckIfFolder()
+	static void CloseImportExport()
+	{
+		if (s_editMode == EDIT_File)
+			EndEdit(s_editFile);
+
+		FileOp.SetErrorHandler(NULL);
+		ShowToolLib();
+	}
+
+	static void CheckIfFolder(bool fAlwaysSetIcon = false)
 	{
 		char	chEnd;
 		bool	isFolder;
+		int		cch;
 
-		chEnd = Files.GetPathBuf()[s_editFile.CharCount() - 1];
-		isFolder = chEnd == '/' || chEnd == '\\';
-		if (isFolder != s_isFolder)
+		cch = s_editFile.CharCount();
+		if (cch == 0)
+			isFolder = true;
+		else
+		{
+			chEnd = Files.GetPathBuf()[cch - 1];
+			isFolder = chEnd == '/' || chEnd == '\\';
+		}
+		if (fAlwaysSetIcon || isFolder != s_isFolder)
 		{
 			s_isFolder = isFolder;
 			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
-				&LoadSave, isFolder ? FILE_IMAGE_Folder : s_isExport);
+				&LoadSave, isFolder ? FILE_IMAGE_OpenFolder : s_isExport);
 		}
+	}
+
+	static void StartEditFile(int pos)
+	{
+		s_editMode = EDIT_File;
+		s_editFile.StartEditPx(pos);
+		KeyboardMgr::OpenKb(FileKeyHit);
+	}
+
+	static void ListUpdate()
+	{
+		// Callback when file/folder selected from list
+		if (s_editMode < EDIT_StartErrors)
+			CheckIfFolder();
+		else
+		{
+			uint editMode = s_editMode;
+			ClearFileError();
+			if (editMode == EDIT_FolderCreatePrompt)
+				StartEditFile(EditLine::EndLinePx);
+		}
+	}
+
+	static int FileError(int err)
+	{
+		DEBUG_PRINT("File error %i\n", -err);
+
+		// Inform file browser
+		if (err == FATERR_FileNotFound && s_isFolder && s_isExport)
+		{
+			s_editMode = EDIT_FolderCreatePrompt;
+			Files.FileError(s_CreateFolderMsg);
+			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
+				&LoadSave, FILE_IMAGE_AddFolder);
+		}
+		else
+		{
+			s_editMode = EDIT_FileError;
+			Files.FileError(err);
+		}
+
+		return err;
+	}
+
+	static void ClearFileError()
+	{
+		s_editMode = EDIT_None;
+		Files.FileError();
+		CheckIfFolder(true);
 	}
 
 	static void PrintTimeDigits(uint u)
@@ -532,6 +600,7 @@ protected:
 	//*********************************************************************
 protected:
 	inline static const char s_archImportHead[] = IMPORT_HEAD_TEXT "\r\n";
+	inline static const char s_CreateFolderMsg[] = "Folder not found - use Add Folder to create";
 
 	//*********************************************************************
 	// static (RAM) data
@@ -550,7 +619,7 @@ protected:
 	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(),
 		FileBrowser::GetPathBufSize(), FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
-	inline static TextField		s_LiveTime{ToolImport, ToolImport_Areas.LiveTime, 
+	inline static NumberLine	s_LiveTime{ToolImport, ToolImport_Areas.LiveTime, 
 		FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
 	inline static TextField		s_TimeEntry{EnterDateTime, EnterDateTime_Areas.Month, 

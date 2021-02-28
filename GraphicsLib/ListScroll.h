@@ -15,11 +15,9 @@ class ListScroll : public TouchCanvas, public RA8876
 {
 	// Make these variables?
 	static constexpr ulong ThumbColor = 0xFFFFFF;
-	static constexpr ulong ScrollBarColor = 0x303030;
-	static constexpr ulong ThumbGapColor = 0x00FF00;
+	static constexpr ulong ThumbGapColor = 0x00C000;
 
 	static constexpr int JitterIgnore = 8;
-	static constexpr int ThumbHeight = 60;
 	static constexpr int ExtraLines = 2;	// at both top and bottom
 
 	// Imitate HotpostList
@@ -38,9 +36,9 @@ public:
 		m_lineHeight{lineHeight}, m_hotSpots{ 2, {
 			// Array of Hotspots: the display area, and the scroll thumb
 			{0, 0, (ushort)(m_viewWidth - ScrollBarWidth - 1), (ushort)(m_imageHeight - 1), 
-				{ScrollDisplay, HotspotGroup}},
+				{ScrollDisplayArea, HotspotGroup}},
 			{(ushort)(m_viewWidth - ScrollThumbWidth), 0, (ushort)(m_viewWidth - 1), (ushort)(m_imageHeight - 1), 
-				{ScrollThumb, HotspotGroup}}
+				{ScrollThumbArea, HotspotGroup}}
 		}}
 	{
 		m_extraLineCnt = ExtraLines;
@@ -54,9 +52,9 @@ public:
 	}
 #pragma GCC diagnostic pop
 
-public:
-	void Invalidate()	{ m_lineTop = m_posCur = 0x40000000; }
-
+	//*********************************************************************
+	// Public interface
+	//*********************************************************************3
 public:
 	void Init()
 	{
@@ -69,9 +67,16 @@ public:
 		area.Ypos = 0;
 		ScreenMgr::FillRect(this, &area, ThumbGapColor);
 
+		if (ScrollGapRight != 0)
+		{
+			area.Width = ScrollGapRight;
+			area.Xpos = m_viewWidth - ScrollGapRight;
+			ScreenMgr::FillRect(this, &area, ThumbGapColor);
+		}
+
 		// Initialize scroll bar
 		area.Width = ScrollThumbWidth;
-		area.Xpos = m_viewWidth - ScrollThumbWidth;
+		area.Xpos = m_viewWidth - ScrollThumbWidth - ScrollGapRight;
 		ScreenMgr::FillRect(this, &area, ScrollBarColor);
 	}
 
@@ -86,7 +91,7 @@ public:
 	bool StartCapture(int x, int y, ScrollAreas spot)
 	{
 		m_capturePos = y;
-		if (spot == ScrollThumb)
+		if (spot == ScrollThumbArea)
 		{
 			// Are we outside the scroll thumb?
 			y += m_viewPosY;
@@ -97,7 +102,7 @@ public:
 				return false;
 			}
 
-			if (y >= m_thumbPos + ThumbHeight)
+			if (y >= m_thumbPos + ScrollThumbHeight)
 			{
 				// Scroll down by a page
 				SetScrollPosition(m_posCur + (m_viewHeight - m_lineHeight));
@@ -166,6 +171,12 @@ public:
 		FillLines(lineStart, lineStart - m_lineTop, lineEnd - lineStart + 1);
 	}
 
+	void InvalidateAllLines()
+	{
+		Invalidate();
+		SetScrollPosition(0);
+	}
+
 	void NewPosition(int x, int y)
 	{
 		int		delta;
@@ -183,7 +194,7 @@ public:
 		if (m_fTrackThumb)
 		{
 			thumbPos = m_thumbPos - m_viewPosY + delta;
-			scrollHeight = m_viewHeight - ThumbHeight;
+			scrollHeight = m_viewHeight - ScrollThumbHeight;
 			if (thumbPos < 0)
 				thumbPos = 0;
 			else if (thumbPos > scrollHeight)
@@ -245,8 +256,8 @@ public:
 
 		// We have all the lines we need to display
 		// Erase thumb
-		WriteRegXY(DT_X0, m_viewWidth - ScrollThumbWidth, m_thumbPos);
-		WriteRegXY(BTE_WTH0, ScrollThumbWidth, ThumbHeight);
+		WriteRegXY(DT_X0, m_viewWidth - ScrollThumbWidth - ScrollGapRight, m_thumbPos);
+		WriteRegXY(BTE_WTH0, ScrollThumbWidth, ScrollThumbHeight);
 		SetForeColor(ScrollBarColor);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
 		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
@@ -258,7 +269,7 @@ public:
 
 		// Place thumb
 		WaitVsync();
-		m_thumbPos = DivUintRnd((m_viewHeight - ThumbHeight) * posNew, m_posMax) + m_viewPosY;
+		m_thumbPos = DivUintRnd((m_viewHeight - ScrollThumbHeight - ScrollGapRight) * posNew, m_posMax) + m_viewPosY;
 		WriteReg16(DT_Y0, m_thumbPos);
 		SetForeColor(ThumbColor);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
@@ -268,7 +279,12 @@ public:
 		return true;
 	}
 
+	//*********************************************************************
+	// Helpers
+	//*********************************************************************
 protected:
+	void Invalidate()	{ m_lineTop = m_posCur = 0x40000000; }
+
 	void MoveLinesDown(int lineDelta)
 	{
 		int		lineSrc, lineDst;
@@ -332,8 +348,8 @@ protected:
 	short	m_lineViewCnt;
 	short	m_thumbPos;
 	short	m_capturePos;
-	Area	m_lineArea{0, 0, (ushort)(m_viewWidth - ScrollBarWidth), (ushort)m_lineHeight}; // Area for a single line
-	ScrollHotspots	m_hotSpots;
 	bool	m_fTrackThumb;
 	bool	m_fDidMove;
+	Area	m_lineArea{0, 0, (ushort)(m_viewWidth - ScrollBarWidth), (ushort)m_lineHeight}; // Area for a single line
+	ScrollHotspots	m_hotSpots;
 };

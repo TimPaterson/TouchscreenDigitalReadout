@@ -46,7 +46,8 @@ enum FileInfoType
 {
 	INFO_File,
 	INFO_Folder,
-	INFO_Parent
+	INFO_Parent,
+	INFO_Error,
 };
 
 struct FileEnumInfo
@@ -70,17 +71,42 @@ struct FileEnumInfo
 class FileOperations : public FatSys
 {
 public:
+	typedef int ErrorHandler(int err);
+
+public:
 	void Process();
 	int WriteFileToFlash(const char *psz, ulong addr);
 	int Mount(int drv);
 	int ToolImport(const char *psz);
 	int ToolExport(const char *psz);
-	int FolderEnum(const char *pFilename, int cchName = 0);
+	int FolderEnum(const char *pFilename, int cchName = 0, bool fCreate = false);
 
 public:
-	bool IsBusy()	{ return m_state != ST_Idle; }
+	bool IsBusy()		{ return m_state != ST_Idle; }
+	void OpDone()
+	{
+		m_state = ST_Idle;
+		m_hFile = 0;
+	}
+
+	void SetErrorHandler(ErrorHandler *pfn = NULL)	
+	{ 
+		if (pfn != NULL)
+			m_pfnError = pfn;
+		else
+			m_pfnError = NoErrorHandler;
+	}
 
 protected:
+	static int NoErrorHandler(int err) 
+	{ 
+		DEBUG_PRINT("File error %i\n", err); 
+		return err;
+	}
+
+protected:
+	ErrorHandler	*m_pfnError;
+
 	union
 	{
 		// WriteFileToFlash
