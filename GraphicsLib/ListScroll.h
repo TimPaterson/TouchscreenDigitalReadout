@@ -212,6 +212,8 @@ public:
 	{
 		int		lineTopNew;
 		int		lineDelta;
+		int		thumbPos;
+		Area	thumbArea;
 
 		if (posNew < 0)
 			posNew = 0;
@@ -254,28 +256,37 @@ public:
 			m_lineTop = lineTopNew;
 		}
 
-		// We have all the lines we need to display
-		// Erase thumb
-		WriteRegXY(DT_X0, m_viewWidth - ScrollThumbWidth - ScrollGapRight, m_thumbPos);
-		WriteRegXY(BTE_WTH0, ScrollThumbWidth, ScrollThumbHeight);
-		SetForeColor(ScrollBarColor);
-		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
-		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
-		WaitWhileBusy();
-
 		// Set window start position
 		ScreenMgr::SetViewPos(this, 0, posNew - m_lineTop * m_lineHeight);
 		m_posCur = posNew;
 
 		// Place thumb
-		WaitVsync();
-		m_thumbPos = DivUintRnd((m_viewHeight - ScrollThumbHeight - ScrollGapRight) * posNew, m_posMax) + m_viewPosY;
-		WriteReg16(DT_Y0, m_thumbPos);
-		SetForeColor(ThumbColor);
-		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
-		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
-		WaitWhileBusy();
+		thumbPos = DivUintRnd((m_viewHeight - ScrollThumbHeight - ScrollGapRight) * posNew, m_posMax) + m_viewPosY;
+		thumbArea.Xpos = m_viewWidth - ScrollThumbWidth - ScrollGapRight;
+		thumbArea.Ypos = thumbPos;
+		thumbArea.Width = ScrollThumbWidth;
+		thumbArea.Height = ScrollThumbHeight;
+		WaitVsync();	// Wait for new view position to take effect
+		ScreenMgr::CopyRect(this, &thumbArea, &ScrollThumb);
 
+		if (thumbPos != m_thumbPos)
+		{
+			// Erase previous thumb if not covered
+			if (thumbPos > m_thumbPos)
+			{
+				// Moved thumb down, erase area above
+				thumbArea.Height = std::min(ScrollThumbHeight, thumbPos - m_thumbPos);
+				thumbArea.Ypos = m_thumbPos;
+			}
+			else
+			{
+				thumbArea.Height = std::min(ScrollThumbHeight, m_thumbPos - thumbPos);
+				thumbArea.Ypos = m_thumbPos + ScrollThumbHeight - thumbArea.Height;
+			}
+			ScreenMgr::FillRect(this, &thumbArea, ScrollBarColor);
+
+			m_thumbPos = thumbPos;
+		}
 		return true;
 	}
 
@@ -324,7 +335,7 @@ protected:
 
 	void MakeActive()
 	{
-		ScreenMgr::SetBteSrc0((const Image *)(TouchCanvas *)this, m_colorDepth);
+		ScreenMgr::SetBteSrc0(this);
 		WriteReg16(S0_X0, 0);
 		ScreenMgr::SetBteDest(this);
 		WriteReg16(DT_X0, 0);
