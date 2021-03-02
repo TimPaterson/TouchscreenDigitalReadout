@@ -31,12 +31,12 @@ class TextField : public RA8876
 public:
 	TextField(Canvas &canvas, const Area &area):
 		TextField(canvas, area, 
-		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
+		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteCharActive}; u.p;})) 
 		{}
 
 	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor):
 		TextField(canvas, area, id, foreColor, backColor,
-		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteChar}; u.p;})) 
+		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteCharActive}; u.p;})) 
 		{}
 
 protected:
@@ -59,6 +59,9 @@ protected:
 		m_curPosY{area.Ypos}
 		{}
 
+	//*********************************************************************
+	// Public interface
+	//*********************************************************************3
 public:
 	void SetFont(uint id)
 	{
@@ -97,31 +100,6 @@ public:
 		ResetPosition();
 	}
 
-	void MakeActive()
-	{
-		byte	ctrl;
-		ulong	color;
-
-		ScreenMgr::SetBteDest(m_pCanvas);
-		WriteReg16(DT_Y0, m_curPosY);
-		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, FONT_DEPTH);
-		WriteReg16(S0_Y0, 0);
-		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
-		SetForeColor(m_foreColor);
-		if (m_fTransparent)
-		{
-			color = ~m_foreColor;	// make sure it's different
-			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent;
-		}
-		else
-		{
-			color = m_backColor;
-			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMono;
-		}
-		SetBackColor(color);
-		WriteReg(BTE_CTRL1, (FONT_BIT_START << BTE_CTRL1_BitStartShift) | ctrl);
-	}
-
 	void ResetPosition()
 	{
 		m_curPosX = m_pArea->Xpos;
@@ -140,28 +118,8 @@ public:
 
 	void WriteChar(byte ch)
 	{
-		byte	width;
-		int		remain;
-
-		ch -= m_pFontInfo->FirstChar;
-		if (ch > m_pFontInfo->LastChar)
-			return;
-
-		WriteReg16(S0_X0, ch * m_pFontInfo->CharStride);
-		if (ch + m_pFontInfo->FirstChar == ' ' && m_spaceWidth != 0)
-			width = m_spaceWidth;
-		else
-			width = m_pFontInfo->arWidths[ch];
-		remain = m_pArea->Xpos + m_pArea->Width - m_curPosX;
-		if (remain <= 0)
-			return;
-		if (remain < width)
-			width = remain;
-		WriteReg16(BTE_WTH0, width);
-		WriteReg16(DT_X0, m_curPosX);
-		m_curPosX += width;
-		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
-		WaitWhileBusy();
+		MakeActive();
+		WriteCharActive(ch);
 	}
 
 	void WriteString(const char *psz)
@@ -174,7 +132,7 @@ public:
 			ch = *psz++;
 			if (ch == 0)
 				return;
-			WriteChar(ch);
+			WriteCharActive(ch);
 		}
 	}
 
@@ -244,6 +202,61 @@ public:
 	}
 
 	//*********************************************************************
+	// Helpers
+	//*********************************************************************
+protected:
+	void MakeActive()
+	{
+		byte	ctrl;
+		ulong	color;
+
+		ScreenMgr::SetBteDest(m_pCanvas);
+		WriteReg16(DT_Y0, m_curPosY);
+		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, FONT_DEPTH);
+		WriteReg16(S0_Y0, 0);
+		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
+		SetForeColor(m_foreColor);
+		if (m_fTransparent)
+		{
+			color = ~m_foreColor;	// make sure it's different
+			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMonoTransparent;
+		}
+		else
+		{
+			color = m_backColor;
+			ctrl = BTE_CTRL1_OpcodeMemoryCopyExpandMono;
+		}
+		SetBackColor(color);
+		WriteReg(BTE_CTRL1, (FONT_BIT_START << BTE_CTRL1_BitStartShift) | ctrl);
+	}
+
+	void WriteCharActive(byte ch)
+	{
+		byte	width;
+		int		remain;
+
+		ch -= m_pFontInfo->FirstChar;
+		if (ch > m_pFontInfo->LastChar)
+			return;
+
+		WriteReg16(S0_X0, ch * m_pFontInfo->CharStride);
+		if (ch + m_pFontInfo->FirstChar == ' ' && m_spaceWidth != 0)
+			width = m_spaceWidth;
+		else
+			width = m_pFontInfo->arWidths[ch];
+		remain = m_pArea->Xpos + m_pArea->Width - m_curPosX;
+		if (remain <= 0)
+			return;
+		if (remain < width)
+			width = remain;
+		WriteReg16(BTE_WTH0, width);
+		WriteReg16(DT_X0, m_curPosX);
+		m_curPosX += width;
+		WriteReg(BTE_CTRL0, BTE_CTRL0_Enable);
+		WaitWhileBusy();
+	}
+
+	//*********************************************************************
 	// instance data
 	//*********************************************************************
 protected:
@@ -265,12 +278,12 @@ class TextLine : public TextField
 public:
 	TextLine(Canvas &canvas, const Area &area): 
 		TextLine(canvas, area,
-		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
+		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteCharActive}; u.p;}))
 		{}
 
 	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		TextLine(canvas, area, id, foreColor, backColor,
-		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteChar}; u.p;}))
+		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteCharActive}; u.p;}))
 		{}
 
 protected:
@@ -281,7 +294,7 @@ protected:
 		TextField(canvas, area, id, foreColor, backColor, put) {}
 
 public:
-	void WriteChar(byte ch)
+	void WriteCharActive(byte ch)
 	{
 		if (ch == '\n')
 		{
@@ -289,10 +302,10 @@ public:
 			return;
 		}
 
-		TextField::WriteChar(ch);
+		TextField::WriteCharActive(ch);
 	}
 
-	// Local version to use our WriteChar()
+	// Local version to use our WriteCharActive()
 	void WriteString(const char *psz)
 	{
 		byte	ch;
@@ -303,7 +316,7 @@ public:
 			ch = *psz++;
 			if (ch == 0)
 				return;
-			WriteChar(ch);
+			WriteCharActive(ch);
 		}
 	}
 };

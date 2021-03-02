@@ -29,11 +29,15 @@ public:
 
 public:
 	EditLine(Canvas &canvas, const Area &area, char *pBuf, ushort chMax):
-		TextField(canvas, area), m_pBufText{pBuf}, m_maxCh{(ushort)(chMax - 1)}
+		TextField(canvas, area), m_pBufText{pBuf}, 
+		m_maxCh{(ushort)(chMax - 1)},		
+		m_cursorArea{0, area.Ypos, 1, area.Height}
 		{}
 
 	EditLine(Canvas &canvas, const Area &area, char *pBuf, ushort chMax, FontId id, ulong foreColor, ulong backColor):
-		TextField(canvas, area, id, foreColor, backColor), m_pBufText{pBuf}, m_maxCh{(ushort)(chMax - 1)}
+		TextField(canvas, area, id, foreColor, backColor), m_pBufText{pBuf}, 
+		m_maxCh{(ushort)(chMax - 1)},		
+		m_cursorArea{0, area.Ypos, 1, area.Height}
 		{}
 
 	//*********************************************************************
@@ -47,9 +51,10 @@ public:
 	{
 		uint	chPosCur;
 
+		m_scrollPosPx = 0;
+		m_scrollPosCh = 0;
 		m_cntCh = strlen(m_pBufText);
 		chPosCur = CalcPosition(pxPosCur);
-		m_scrollPos = 0;
 		m_cntPx = GetStringWidth(m_pBufText);
 		m_curPosX = m_pArea->Xpos;
 		SetPositionCh(chPosCur);
@@ -57,6 +62,7 @@ public:
 
 	void EndEdit()
 	{
+		SetPositionCh(0);
 		RemoveCursor();
 	}
 
@@ -73,7 +79,7 @@ public:
 		ClearToEnd();
 	}
 
-	void SetPositionCh(uint chPosCur) NO_INLINE_ATTR
+	void SetPositionCh(uint chPosCur)
 	{
 		uint	pxPos;
 		uint	chPos;
@@ -94,8 +100,6 @@ public:
 		uint	chWidth;
 		uint	pos;
 
-		MakeActive();
-
 		if (key >= 0x20 && key <= 0x7E)
 		{
 			// handle printable character
@@ -103,19 +107,14 @@ public:
 				return EditBufFull;
 
 			chWidth = GetCharWidth(key);
-			if (chWidth + m_cntPx - m_scrollPos >= m_pArea->Width)
-			{
-				// UNDONE: need to scroll the text
-			}
 			m_cntPx += chWidth;
+			pos = m_curPosX + chWidth;
 			if (m_chPosCur < m_cntCh)
 			{
 				// Inserting, move existing characters and null terminator
 				memmove(&m_pBufText[m_chPosCur + 1], &m_pBufText[m_chPosCur], m_cntCh - m_chPosCur + 1);
 				m_pBufText[m_chPosCur] = key;
-				pos = m_curPosX + chWidth;
 				WriteString(&m_pBufText[m_chPosCur]);
-				m_curPosX = pos;
 			}
 			else
 			{
@@ -125,7 +124,7 @@ public:
 			}
 			m_chPosCur++;
 			m_cntCh++;
-			SetCursor();
+			SetCursorRelative(pos);
 			return EditInProgress;
 		}
 		else
@@ -143,40 +142,40 @@ public:
 
 				chWidth = GetCharWidth(m_pBufText[m_chPosCur - 1]);
 				pos = m_curPosX - chWidth;
-				m_curPosX = pos;
 
 				if (m_chPosCur < m_cntCh)
 				{
 					// Not at end, move characters up
 					memmove(&m_pBufText[m_chPosCur - 1], &m_pBufText[m_chPosCur], m_cntCh - m_chPosCur + 1);
+					m_curPosX = pos;
 					WriteString(&m_pBufText[m_chPosCur - 1]);
 				}
 				else
+				{
+					m_curPosX = pos;
 					m_pBufText[m_chPosCur - 1] = '\0';
+				}
 
 				ClearToEnd();
-				m_curPosX = pos;
-				SetCursor();
 				m_cntCh--;
 				m_chPosCur--;
+				SetCursorRelative(pos);
 				break;
 
 			case Key_left:
 				if (m_chPosCur == 0)
 					break;
 
-				chWidth = GetCharWidth(m_pBufText[m_chPosCur - 1]);
-				MoveCursor(m_curPosX - chWidth);
-				m_chPosCur--;
+				chWidth = GetCharWidth(m_pBufText[--m_chPosCur]);
+				MoveCursorBy(-chWidth);
 				break;
 
 			case Key_right:
-				if (m_chPosCur > m_cntCh)
+				if (m_chPosCur >= m_cntCh)
 					break;
 
-				chWidth = GetCharWidth(m_pBufText[m_chPosCur]);
-				MoveCursor(m_curPosX + chWidth);
-				m_chPosCur++;
+				chWidth = GetCharWidth(m_pBufText[m_chPosCur++]);
+				MoveCursorBy(chWidth);
 				break;
 
 			case Key_home:
@@ -197,16 +196,14 @@ protected:
 	// Helpers
 	//*********************************************************************
 
-	//*********************************************************************
-	// Compute character position from pixel position
-	//
+	// Compute character position from relative pixel position
 	uint CalcPosition(int pxPos)
 	{
 		int		pxPosCur;
 		uint	chWidth;
 		uint	chPos;
 
-		for (pxPosCur = 0, chPos = 0; chPos < m_cntCh; chPos++)
+		for (pxPosCur = 0, chPos = m_scrollPosCh; chPos < m_cntCh; chPos++)
 		{
 			chWidth = GetCharWidth(m_pBufText[chPos]);
 			if (pxPos < (int)(pxPosCur + chWidth / 2))
@@ -216,41 +213,61 @@ protected:
 		return chPos;
 	}
 
-	void PrepareDrawCursor()
-	{
-		ScreenMgr::SetDrawCanvas(m_pCanvas);
-		WriteReg16(DLVSR0, m_curPosY);
-		WriteReg16(DLVER0, m_curPosY + m_pArea->Height - 1);
-	}
-
 	void DrawCursor(bool fRemove = false)
 	{
-		SetForeColor(fRemove ? m_backColor : CursorColor);
-		WriteReg16(DLHSR0, m_curPosX);
-		WriteReg16(DLHER0, m_curPosX);
-		WriteReg(DCR0, DCR0_DrawLine | DCR0_DrawActive);
-		WaitWhileBusy();
-		SetForeColor(m_foreColor);
+		m_cursorArea.Xpos = m_curPosX;
+		ScreenMgr::FillRect(m_pCanvas, &m_cursorArea, fRemove ? m_backColor : CursorColor);
 	}
 
-	void SetCursor()
+	void SetCursorRelative(uint posPx)
 	{
-		PrepareDrawCursor();
+		SetCursor(posPx + m_scrollPosPx);
+	}
+
+	void SetCursor(uint posPx)
+	{
+		uint	scrollPosPx;
+
+		scrollPosPx = m_scrollPosPx;
+
+		while (posPx >= m_pArea->Width + scrollPosPx + m_pArea->Xpos)
+		{
+			// Exceeding right boundary
+			scrollPosPx += GetCharWidth(m_pBufText[m_scrollPosCh++]);
+		}
+
+		while (posPx <= scrollPosPx + m_pArea->Xpos && scrollPosPx != 0)
+		{
+			// Exceeding left boundary
+			scrollPosPx -= GetCharWidth(m_pBufText[--m_scrollPosCh]);
+		}
+
+		if (scrollPosPx != m_scrollPosPx)
+		{
+			// Scrolling required
+			m_scrollPosPx = scrollPosPx;
+			m_curPosX = m_pArea->Xpos;
+			WriteString(&m_pBufText[m_scrollPosCh]);
+			ClearToEnd();
+		}
+		m_curPosX = posPx - m_scrollPosPx;
 		DrawCursor();
 	}
 
 	void RemoveCursor()
 	{
-		PrepareDrawCursor();
 		DrawCursor(true);
 	}
 
-	void MoveCursor(uint posNew) NO_INLINE_ATTR
+	void MoveCursorBy(int offset)
 	{
-		PrepareDrawCursor();
-		DrawCursor(true);
-		m_curPosX = posNew;
-		DrawCursor();
+		MoveCursor(m_curPosX + offset + m_scrollPosPx);
+	}
+
+	void MoveCursor(uint posNew)
+	{
+		RemoveCursor();
+		SetCursor(posNew);
 	}
 
 	//*********************************************************************
@@ -262,5 +279,7 @@ protected:
 	ushort	m_cntCh;
 	ushort	m_cntPx;
 	ushort	m_chPosCur;
-	ushort	m_scrollPos;
+	ushort	m_scrollPosPx;
+	ushort	m_scrollPosCh;
+	Area	m_cursorArea;
 };
