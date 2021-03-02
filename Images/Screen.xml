@@ -1674,7 +1674,7 @@
         <Set>
           Text.Text = USB;
           RadioBox.Width = RadioDriveWidth;
-          RadioBox.HotSpot = ImportRadio;
+          RadioBox.HotSpot = UsbDriveRadio;
           RadioBox.Group = ToolLib;
           Circle.Area = UsbDriveBox;
         </Set>
@@ -1683,7 +1683,7 @@
         <Set>
           Text.Text = SD;
           RadioBox.Width = RadioDriveWidth;
-          RadioBox.HotSpot = ExportRadio;
+          RadioBox.HotSpot = SdDriveRadio;
           RadioBox.Group = ToolLib;
           Circle.Area = SdDriveBox;
         </Set>

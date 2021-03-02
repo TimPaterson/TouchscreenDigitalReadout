@@ -77,9 +77,9 @@ public:
 	void Process();
 	int WriteFileToFlash(const char *psz, ulong addr);
 	int Mount(int drv);
-	int ToolImport(const char *psz);
-	int ToolExport(const char *psz);
-	int FolderEnum(const char *pFilename, int cchName = 0, bool fCreate = false);
+	int ToolImport(const char *psz, int drive = 0);
+	int ToolExport(const char *psz, int drive = 0);
+	int FolderEnum(const char *pFilename, int drive, int cchName = 0, bool fCreate = false);
 
 public:
 	bool IsBusy()		{ return m_state != ST_Idle; }

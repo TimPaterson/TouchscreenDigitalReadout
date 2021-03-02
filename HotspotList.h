@@ -138,6 +138,8 @@ enum ToolAreas
 	FileName,
 	TimeSet,
 	TimeEntryDone,
+	UsbDriveRadio,
+	SdDriveRadio,
 };
 
 enum TimeSetSpots

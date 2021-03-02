@@ -292,9 +292,9 @@ SetImportExportImages:
 		else
 		{
 			if (s_isExport)
-				FileOp.ToolExport(FileBrowser::GetPathBuf());
+				FileOp.ToolExport(FileBrowser::GetPathBuf(), Files.GetDrive());
 			else
-				FileOp.ToolImport(FileBrowser::GetPathBuf());
+				FileOp.ToolImport(FileBrowser::GetPathBuf(), Files.GetDrive());
 		}
 		break;
 
@@ -321,6 +321,18 @@ SetImportExportImages:
 			// Already editing description
 			s_editFile.SetPositionPx(x);
 		}
+		break;
+
+	case UsbDriveRadio:
+		if (!(Files.GetDriveMap() & UsbDriveMap))
+			break;
+		Files.SetDrive(UsbDrive);
+		break;
+
+	case SdDriveRadio:
+		if (!(Files.GetDriveMap() & SdDriveMap))
+			break;
+		Files.SetDrive(SdDrive);
 		break;
 
 	case TimeSet:

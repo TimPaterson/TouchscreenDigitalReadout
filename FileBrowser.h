@@ -11,6 +11,18 @@
 #include "ListScroll.h"
 #include "FileOperations.h"
 
+static void FatDriveStatusChange(int drive, int status);
+
+
+enum DriveList
+{
+	UsbDrive,
+	SdDrive,
+
+	UsbDriveMap = 1 << UsbDrive,
+	SdDriveMap = 1 << SdDrive,
+};
+
 
 class FileBrowser : public ListScroll
 {
@@ -21,18 +33,42 @@ public:
 	// Public interface
 	//*********************************************************************3
 public:
-	typedef void UpdateNotify();
+	enum NotifyReason
+	{
+		SelectionChanged,
+		DriveStatusChanged,
+		DriveChanged,
+	};
+
+	typedef void UpdateNotify(NotifyReason reason);
+
+public:
+	int GetDriveMap()	{ return m_driveMap; }
+	int GetDrive()		{ return m_curDrive; }
 
 public:
 	static char *GetPathBuf()		{ return s_bufPath; }
 	static ushort GetPathBufSize()	{ return sizeof s_bufPath; }
 
 public:
-	void Open(EditLine *pEdit, UpdateNotify *pfnNotify = NULL)
+	void Open(EditLine *pEdit, UpdateNotify *pfnNotify)
 	{
+		int		drive;
+		uint	map;
+
 		m_pEdit = pEdit;
 		m_pfnNotify = pfnNotify;
 		ScreenMgr::EnablePip2(this, 0, ToolListTop);
+		// See what drives are available
+		for (drive = 0, map = 0; drive < FAT_NUM_DRIVES; drive++)
+		{
+			if (FatSys::IsDriveMounted(drive))
+				map |= 1 << drive;
+		}
+		m_driveMap = map;
+		if (pfnNotify != NULL)
+			pfnNotify(DriveStatusChanged);
+		FatSys::SetStatusNotify(FatDriveStatusChange);
 		Refresh();
 	}
 
@@ -41,7 +77,8 @@ public:
 		// Should be called if edit box has new folder
 		FindLastFolder(strlen(s_bufPath));		// sets m_cchPath
 		m_pEdit->UpdateBuffer();
-		FileOp.FolderEnum(s_bufPath, m_cchPath, fCreate);
+		if (m_curDrive != -1)
+			FileOp.FolderEnum(s_bufPath, m_curDrive, m_cchPath, fCreate);
 	}
 
 	void Close()
@@ -49,13 +86,42 @@ public:
 		ScreenMgr::DisablePip2();
 	}
 
-	void FolderEnumDone(int cntFiles)
+	int SetDrive(int drive)
 	{
-		SetTotalLines(cntFiles);
-		qsort(((ushort *)FILE_BUF_END) - cntFiles, cntFiles, sizeof(ushort), (__compar_fn_t)CompareLinePtr);
-		InvalidateAllLines();
+		int		newDrive;
+
+		if (!((1 << drive) & m_driveMap))
+		{
+			// Drive isn't available
+			if (m_driveMap == 0)
+			{
+				FileError(s_noDrivesMsg);
+				newDrive = -1;
+			}
+			else
+			{
+				// Pick an available drive
+				for (newDrive = 0; newDrive < FAT_NUM_DRIVES && ((1 << newDrive) & m_driveMap) == 0; newDrive++);
+			}
+		}
+		else
+			newDrive = drive;
+
+		if (newDrive != m_curDrive)
+		{
+			// Changing drives, clean the slate
+			m_curDrive = newDrive;
+			s_bufPath[0] = '\0';
+			Refresh();
+			m_pfnNotify(DriveChanged);
+		}
+		return newDrive;
 	}
 
+	//*********************************************************************
+	// Notifications
+
+	// Notification from Actions class
 	ListScroll *ListCapture(int x, int y, ScrollAreas spot)
 	{
 		if (StartCapture(x, y - ToolListTop, spot))
@@ -63,6 +129,26 @@ public:
 		return NULL;
 	}
 
+	// Notification from FileOperations class
+	void FolderEnumDone(int cntFiles)
+	{
+		SetTotalLines(cntFiles);
+		qsort(((ushort *)FILE_BUF_END) - cntFiles, cntFiles, sizeof(ushort), (__compar_fn_t)CompareLinePtr);
+		InvalidateAllLines();
+	}
+
+	// Notification from FileOperations class
+	void DriveMountComplete(int drive)
+	{
+		m_driveMap |= 1 << drive;
+		if (m_curDrive == -1)
+			SetDrive(drive);
+
+		if (m_pfnNotify != NULL)
+			m_pfnNotify(DriveStatusChanged);
+	}
+
+	// Notification from ToolLib class, from FileOperations class
 	void FileError(int err)
 	{
 		FileError(s_arErrMsg[-(err + 1)]);
@@ -73,6 +159,21 @@ public:
 		m_pErrMsg = psz;
 		SetTotalLines(psz == NULL ? 0 : 1);
 		InvalidateAllLines();
+	}
+
+	// Notification from FatSys class
+	void DriveStatusChange(int drive, int status)
+	{
+		// Ignore Mount notification because the driver in 
+		// FileOperations hasn't finished yet.
+		if (status == FatDrive::FDS_Dismounted)
+		{
+			m_driveMap &= ~(1 << drive);
+			SetDrive(m_curDrive);	// See if still valid
+		}
+
+		if (m_pfnNotify != NULL)
+			m_pfnNotify(DriveStatusChanged);
 	}
 
 	//*********************************************************************
@@ -229,7 +330,7 @@ protected:
 					s_bufPath[m_cchPath++] = '/';
 EndFolder:
 					s_bufPath[m_cchPath] = '\0';
-					FileOp.FolderEnum(s_bufPath, m_cchPath);
+					FileOp.FolderEnum(s_bufPath, m_curDrive, m_cchPath);
 				}
 			}
 
@@ -237,7 +338,7 @@ EndFolder:
 		}
 
 		if (m_pfnNotify != NULL)
-			m_pfnNotify();
+			m_pfnNotify(SelectionChanged);
 	}
 
 	static int CompareLinePtr(const ushort *pOff1, const ushort *pOff2)
@@ -275,6 +376,8 @@ protected:
 	const char		*m_pErrMsg;
 	UpdateNotify	*m_pfnNotify;
 	ushort			m_cchPath;
+	sbyte			m_curDrive;
+	byte			m_driveMap;
 
 	//*********************************************************************
 	// static (RAM) data
@@ -294,6 +397,8 @@ protected:
 
 	//*********************************************************************
 	// File error messages
+
+	inline static const char s_noDrivesMsg[] = "No drives available.";
 
 	inline static const char * const s_arErrMsg[] = {
 		// From Storage.h
@@ -326,3 +431,9 @@ protected:
 };
 
 extern FileBrowser Files;
+
+inline void FatDriveStatusChange(int drive, int status)
+{
+	Files.DriveStatusChange(drive, status);
+}
+

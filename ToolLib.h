@@ -39,6 +39,13 @@ class ToolLib
 		TOOL_IMAGE_IsModified,
 	};
 
+	enum RadioButtonImages
+	{
+		RADIO_False,
+		RADIO_True,
+		RADIO_NotAvailable,
+	};
+
 	enum ImportExportImages
 	{
 		// The first two are also referenced with the boolean s_isExport
@@ -484,18 +491,52 @@ protected:
 		KeyboardMgr::OpenKb(FileKeyHit);
 	}
 
-	static void ListUpdate()
+	static void ListUpdate(FileBrowser::NotifyReason reason)
 	{
-		// Callback when file/folder selected from list
-		if (s_editMode < EDIT_StartErrors)
-			CheckIfFolder();
-		else
+		switch (reason)
 		{
-			uint editMode = s_editMode;
-			ClearFileError();
-			if (editMode == EDIT_FolderCreatePrompt)
-				StartEditFile(EditLine::EndLinePx);
+		case FileBrowser::SelectionChanged:
+			// Callback when file/folder selected from list
+			if (s_editMode < EDIT_StartErrors)
+				CheckIfFolder();
+			else
+			{
+				uint editMode = s_editMode;
+				ClearFileError();
+				if (editMode == EDIT_FolderCreatePrompt)
+					StartEditFile(EditLine::EndLinePx);
+			}
+			break;
+
+		case FileBrowser::DriveChanged:
+			if (s_editMode == EDIT_File)
+				EndEdit(s_editFile);
+
+			if (Files.GetDrive() != -1)
+				ClearFileError();
+			//
+			// Fall into DriveStatusChanged
+			//
+		case FileBrowser::DriveStatusChanged:
+			ShowDriveChoice();
+			break;
 		}
+	}
+
+	static void ShowDriveChoice()
+	{
+		int		map;
+		int		drive;
+		int		index;
+
+		map = Files.GetDriveMap();
+		drive = Files.GetDrive();
+		// USB
+		index = map & UsbDriveMap ? (drive == UsbDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.UsbDriveBox, &RadioButtons, index);
+		// SD card
+		index = map & SdDriveMap ? (drive == SdDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
+		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.SdDriveBox, &RadioButtons, index);
 	}
 
 	static int FileError(int err)

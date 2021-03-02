@@ -41,11 +41,11 @@ int FileOperations::Mount(int drv)
 	return FATERR_None;
 }
 
-int FileOperations::ToolImport(const char *psz)
+int FileOperations::ToolImport(const char *psz, int drive)
 {
 	int		err;
 
-	err = StartOpen(psz, 0, OPENFLAG_OpenExisting | OPENFLAG_File);
+	err = StartOpen(psz, HandleOfDrive(drive), OPENFLAG_OpenExisting | OPENFLAG_File);
 	if (IsError(err))
 		return m_pfnError(err);
 	m_hFile = err;
@@ -53,11 +53,11 @@ int FileOperations::ToolImport(const char *psz)
 	return FATERR_None;
 }
 
-int FileOperations::ToolExport(const char *psz)
+int FileOperations::ToolExport(const char *psz, int drive)
 {
 	int		err;
 
-	err = StartOpen(psz, 0, OPENFLAG_CreateAlways | OPENFLAG_File);
+	err = StartOpen(psz, HandleOfDrive(drive), OPENFLAG_CreateAlways | OPENFLAG_File);
 	if (IsError(err))
 		return m_pfnError(err);
 	m_hFile = err;
@@ -65,14 +65,14 @@ int FileOperations::ToolExport(const char *psz)
 	return FATERR_None;
 }
 
-int FileOperations::FolderEnum(const char *pFilename, int cchName, bool fCreate)
+int FileOperations::FolderEnum(const char *pFilename, int drive, int cchName, bool fCreate)
 {
 	int		err;
 	uint	flags;
 
 	// See if we should create the folder if it doesn't exist
 	flags = fCreate ? OPENFLAG_OpenAlways | OPENFLAG_Folder : OPENFLAG_OpenExisting | OPENFLAG_Folder;
-	err = StartOpen(pFilename, 0, flags, cchName);
+	err = StartOpen(pFilename, HandleOfDrive(drive), flags, cchName);
 	if (IsError(err))
 		return m_pfnError(err);
 	m_hFile = err;
@@ -142,7 +142,8 @@ void FileOperations::Process()
 
 			OP_STATE(single, ready)
 				DEBUG_PRINT("Complete\n");
-				OP_DONE;
+				OpDone();
+				Files.DriveMountComplete(m_drive);
 			END_STATE
 
 			//*************************************************************
