@@ -388,6 +388,10 @@ int main(void)
 				DEBUG_PRINT("USB drive mounting...");
 				break;
 
+			case HOSTACT_KeyboardChange:
+				KeyboardMgr::UsbKeyHit(Keyboard.GetKeyByte());
+				break;
+
 			case HOSTACT_AddDevice:
 				if (Mouse.IsLoaded())
 				{

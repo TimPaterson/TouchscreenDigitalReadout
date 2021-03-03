@@ -82,6 +82,13 @@ public:
 			ScreenMgr::EnablePip2(m_oldPip.pImage, m_oldPip.x, m_oldPip.y);
 		else
 			ScreenMgr::DisablePip2();
+		m_pUser = NULL;
+	}
+
+	static void UsbKeyHit(uint key)
+	{
+		if (m_pUser != NULL)
+			m_pUser(m_pUserData, key);
 	}
 
 	//*********************************************************************
