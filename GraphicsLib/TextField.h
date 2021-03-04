@@ -351,6 +351,21 @@ public:
 		return printf(fmt, val);
 	}
 
+	void WriteString(const char *psz)
+	{
+		byte	ch;
+
+		MakeActive();
+		for (;;)
+		{
+			ch = *psz++;
+			if (ch == 0)
+				return;
+			if (ch == '-')
+				MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+			WriteCharActive(ch);
+		}
+	}
 };
 
 

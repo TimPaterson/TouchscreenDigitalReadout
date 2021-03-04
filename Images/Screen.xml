@@ -120,6 +120,7 @@
     <!-- Tool Library -->
     ToolLibHeight = CalcDispTop - 2;
     ToolLibWidth = ScreenWidth;
+    ToolLibLeft = KeySpace;
     ToolListHeight = ScreenHeight - ToolLibHeight;
     ToolListWidth = KeypadLeft - 8;
     ToolRowWidth = ToolListWidth - ScrollBarWidth;
@@ -127,16 +128,23 @@
     <!-- Controls -->
     ToolBtnHeight = BtnHeight;
     ToolBtnWidth = BtnWidth;
+    ClearBtnWidth = 50;
+    ClearBtnHeight = 50;
+    EditBoxMargin = 5;
     ToolCtrlHeight = ToolLibHeight - KeySpace;
     ToolButtonsWidth = ToolBtnWidth * 3 + KeySpace * 2;
     ToolButtonsLeft = ToolLibWidth - ToolButtonsWidth - KeySpace;
 
-    ToolInfoDescWidth = ToolButtonsLeft - KeySpace * 2 - ToolDescLeft;
-    ToolListDescWidth = ToolRowWidth - KeySpace - ToolDescLeft;
-    ToolDescTextLeft = 5;
+    <!-- ToolButtonsLeft & ToolInfoClearBtnLeft relative left edge, other relative ToolLibLeft -->
+    ToolInfoClearBtnLeft = ToolButtonsLeft - KeySpace - ClearBtnWidth - 1;
+    ToolInfoDescWidth = ToolButtonsLeft - ToolLibLeft - KeySpace - ToolDescLeft; <!-- the whole box -->
+    ToolInfoTextWidth = ToolInfoClearBtnLeft - ToolLibLeft - ToolDescLeft - 2 * EditBoxMargin; <!-- text editing area -->
+    ToolListDescWidth = ToolRowWidth - ToolLibLeft - ToolDescLeft;
+    ToolDescTextLeft = EditBoxMargin;
 
     ToolInfoHeight = 60;
     ToolLabelHeight = ToolLibHeight - ToolInfoHeight - KeySpace;
+    ToolInfoClearBtnTop = (ToolInfoHeight - ClearBtnHeight) / 2 + KeySpace;
     ToolRowHeight = 50;
   </Set>
 
@@ -183,7 +191,8 @@
 
   <!-- Tool info line -->
   <Component Name="ToolItem">
-    <Rectangle Name="Item" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+    <Rectangle Name="Item" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <Rectangle Name="Spot" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth"/>
       <Rectangle Name="TextAreaTop" Height="ToolTextHeight" Width="ToolNumWidth">
         <Rectangle Name="TextArea" Height="ToolTextHeight" Width="ToolNumWidth">
           <TextBlock Name="DummyText" Left="0" Top="0" Font="CalcSmall"/>
@@ -196,7 +205,8 @@
     <Ref RefName="ToolItem" Left="ToolNumLeft">
       <Set>
         Item.Width = ToolNumWidth + 1;
-        Item.HotSpot = ToolNumber;
+        Spot.Width = ToolNumWidth + 1;
+        Spot.HotSpot = ToolNumber;
         TextArea.Left = ToolTextNumLeft;
         TextArea.Width = ToolNumWidth - ToolTextNumLeft - 1;
         TextArea.Area = ToolNumber;
@@ -207,7 +217,8 @@
     <Ref RefName="ToolItem" Left="ToolDiamLeft">
       <Set>
         Item.Width = ToolDiamWidth + 1;
-        Item.HotSpot = ToolDiameter;
+        Spot.Width = ToolDiamWidth + 1;
+        Spot.HotSpot = ToolDiameter;
         TextArea.Left = 5;
         TextArea.Width = ToolDiamWidth - 6;
         TextArea.Area = ToolDiameter;
@@ -218,7 +229,8 @@
     <Ref RefName="ToolItem" Left="ToolFluteLeft">
       <Set>
         Item.Width = ToolFluteWidth + 1;
-        Item.HotSpot = ToolFlutes;
+        Spot.Width = ToolFluteWidth + 1;
+        Spot.HotSpot = ToolFlutes;
         TextArea.Left = 9;
         TextArea.Width = ToolFluteWidth - 10;
         TextArea.Area = ToolFlutes;
@@ -229,7 +241,8 @@
     <Ref RefName="ToolItem" Left="ToolLengthLeft">
       <Set>
         Item.Width = ToolLengthWidth + 1;
-        Item.HotSpot = ToolLength;
+        Spot.Width = ToolLengthWidth + 1;
+        Spot.HotSpot = ToolLength;
         TextArea.Left = 6;
         TextArea.Width = ToolLengthWidth - 7;
         TextArea.Area = ToolLength;
@@ -240,10 +253,12 @@
     <Ref RefName="ToolItem" Left="ToolDescLeft">
       <Set>
         Item.Width = ToolInfoDescWidth;
-        Item.HotSpot = ToolDesc;
         Item.Name = ToolItemDesc;
+        Spot.Width = ToolInfoTextWidth;
+        Spot.HotSpot = ToolDesc;
+        Spot.Name = SpotDesc;
         TextArea.Left = ToolDescTextLeft;
-        TextArea.Width = ToolInfoDescWidth - ToolDescTextLeft - 1;
+        TextArea.Width = ToolInfoTextWidth;
         TextArea.Area = ToolDesc;
         TextArea.Name = ToolDesc;
         DummyText.Text = 1/4\" carbide;
@@ -636,9 +651,12 @@
         ToolDesc.Width = DescCellWidth - ToolDescTextLeft - 1;
         Item.Height = ToolCellHeight * 2 + 1;
         ToolItemDesc.Height = ToolCellHeight * 2 + 1;
+        SpotDesc.Height = ToolCellHeight * 2 + 1;
         Item.Stroke = Black;
         ToolItemDesc.Stroke = Black;
         ToolItemDesc.Width = DescCellWidth;
+        SpotDesc.Width = DescCellWidth;
+        SpotDesc.HotSpot = "";
         <!-- Hide the dummy text -->
         DummyText.Foreground = ScreenBackColor;
       </Set>
@@ -809,14 +827,14 @@
   </Component>
 
   <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
-    <Ref RefName="ToolInfo" Left="KeySpace" Top="KeySpace">
+    <Ref RefName="ToolInfo" Left="ToolLibLeft" Top="KeySpace">
       <Set>
         TextAreaTop.Top = 18;
-        <!-- Hide the dummy text -->
-        DummyText.Foreground = ToolInfoBackground;
+        DummyText.Foreground = ToolInfoBackground; <!-- Hide the dummy text -->
       </Set>
     </Ref>
-    <Ref RefName="ToolLabels" Left="KeySpace" Top="KeySpace + ToolInfoHeight">
+    <Image HotSpot="ClearDesc" Group="ToolLib" Source="Delete128.png" Left="ToolInfoClearBtnLeft" Top="ToolInfoClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    <Ref RefName="ToolLabels" Left="ToolLibLeft" Top="KeySpace + ToolInfoHeight">
       <Set>
         Item.Height = ToolLabelHeight;
         ToolLabelDesc.Height = ToolLabelHeight;
@@ -839,18 +857,20 @@
   </Canvas>
 
   <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
-    <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="ToolRowWidth - KeySpace">
+    <Rectangle Left="ToolLibLeft" Height="ToolRowHeight + 1" Width="ToolRowWidth - ToolLibLeft">
       <Ref RefName="ToolInfo">
         <Set>
           Item.Height = ToolRowHeight + 1;
           ToolItemDesc.Height = ToolRowHeight + 1;
-          Item.HotSpot = "";
+          SpotDesc.Height = ToolRowHeight + 1;
+          Spot.HotSpot = "";
           ToolItemDesc.HotSpot = "";
+          SpotDesc.HotSpot = "";
           ToolItemDesc.Width = ToolListDescWidth;
+          SpotDesc.Width = ToolListDescWidth;
           TextAreaTop.Top = 12;
           ToolDesc.Width = ToolListDescWidth - ToolDescTextLeft - 1;
-          <!-- Hide the dummy text -->
-          DummyText.Foreground = ToolLibBackground;
+          DummyText.Foreground = ToolLibBackground; <!-- Hide the dummy text -->
         </Set>
       </Ref>
     </Rectangle>
@@ -947,6 +967,14 @@
         <Column Left="ColAdjust">
           <Ref RefName="AxisSettingHeader">
             <Set>
+              AxisSettingLabel.Text = "&#xA;Disable";
+              UnitsLabel.Text = "";
+            </Set>
+          </Ref>
+        </Column>
+        <Column>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
               AxisSettingLabel.Text = "   Sensor&#xA;Resolution";
               UnitsLabel.Text = "microns";
             </Set>
@@ -970,12 +998,18 @@
         </Column>
       </Row>
       <Row Top="AxisSettingHeaderHeight - AxisSettingHeight">
+        <!-- The order of the Areas is used in code for each axis -->
         <Column>
           <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="X" Foreground="SettingForeColor"/>
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
+          <Rectangle HotSpot="Xsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
           <Rectangle HotSpot="Xsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Xresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
@@ -998,6 +1032,11 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
+          <Rectangle HotSpot="Ysensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Ydisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
           <Rectangle HotSpot="Ysensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Yresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
@@ -1020,6 +1059,11 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
+          <Rectangle HotSpot="Zsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
           <Rectangle HotSpot="Zsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Zresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
@@ -1042,6 +1086,11 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
+          <Rectangle HotSpot="Qsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
           <Rectangle HotSpot="Qsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Qresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
@@ -1393,7 +1442,11 @@
     RadioButtonTop = (ToolLibHeight - 2 * RadioButtonHeight) / 2;
     ImportCtrlsWidth = RadioImpExpWidth + RadioDriveWidth + KeySpace * 3 + BtnWidth * 2;
     ImportCtrlsLeft = ToolLibWidth - ImportCtrlsWidth - KeySpace;
-    FileWidth = ImportCtrlsLeft - KeySpace;
+    FileClearBtnLeft = ImportCtrlsLeft - KeySpace - ClearBtnWidth - 1;
+    FileClearBtnTop = (FileEntryHeight - ClearBtnHeight) / 2;
+    FileBoxWidth = ImportCtrlsLeft - KeySpace;
+    FileTextLeft = EditBoxMargin;
+    FileTextWidth= FileClearBtnLeft - 2 * EditBoxMargin;
     ImportWarningTop = 75;
     TimestampTop = 80;
     SetButtonHeight = 46;
@@ -1666,8 +1719,11 @@
 
   <!-- Tool Import -->
   <Canvas Name="ToolImport" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
-    <Rectangle HotSpot="FileName" Group="ToolLib" Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
-      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="KeySpace" Height="SmallTextHeight" Width="FileWidth - 2 * KeySpace"/>
+    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileBoxWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <Rectangle HotSpot="FileName" Group="ToolLib" Height="FileEntryHeight" Width="FileTextWidth"/>
+      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="FileTextLeft"
+        Height="SmallTextHeight" Width="FileTextWidth"/>
+      <Image HotSpot="ClearFile" Group="ToolLib" Source="Delete128.png" Left="FileClearBtnLeft" Top="FileClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
     </Rectangle>
     <Rectangle Left="ImportCtrlsLeft" Height="ToolLibHeight" Width="ToolLibWidth">
       <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop">
@@ -1744,7 +1800,7 @@
     </Rectangle>
     <Rectangle Area="ImportWarning" Top="ImportWarningTop" Left="KeySpace" Width="ImportWarning.Width" Height="ImportWarning.Height">
       <Ref RefName="ImportWarning">
-        <Set>ImportWarning.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
+        <!-- <Set>ImportWarning.Foreground = ToolInfoBackground</Set> blank the text -->
       </Ref>
     </Rectangle>
   </Canvas>

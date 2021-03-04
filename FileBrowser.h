@@ -66,10 +66,14 @@ public:
 				map |= 1 << drive;
 		}
 		m_driveMap = map;
-		if (pfnNotify != NULL)
-			pfnNotify(DriveStatusChanged);
 		FatSys::SetStatusNotify(FatDriveStatusChange);
-		Refresh();
+		// If drive is valid, notify that drive map was updated
+		drive = m_curDrive;
+		if (SetDrive(drive) == drive && pfnNotify != NULL)
+		{
+			pfnNotify(DriveStatusChanged);
+			Refresh();
+		}
 	}
 
 	void Refresh(bool fCreate = false)
@@ -112,8 +116,9 @@ public:
 			// Changing drives, clean the slate
 			m_curDrive = newDrive;
 			s_bufPath[0] = '\0';
+			if (m_pfnNotify != NULL)
+				m_pfnNotify(DriveChanged);
 			Refresh();
-			m_pfnNotify(DriveChanged);
 		}
 		return newDrive;
 	}

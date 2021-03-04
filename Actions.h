@@ -34,6 +34,15 @@ class Actions
 		OP_divide = Key_divide,
 	};
 
+	// Each axis has an array of settings. This indexes into the array.
+	enum SettingsAreas
+	{
+		AREA_Disable,
+		AREA_Resolution,
+		AREA_Invert,
+		AREA_Correction,
+	};
+
 	//*********************************************************************
 	// Local types
 	//*********************************************************************
@@ -348,6 +357,12 @@ public:
 		// Settings screen
 		//
 
+		case HOTSPOT_GROUP_Disable:
+			pSensor = s_arSensor[spot];
+			pSensor->SetDisable(pSensor->GetDisable() ^ true);
+			ShowSettingsInfo();
+			return;
+
 		case HOTSPOT_GROUP_Resolution:
 			pSensor = s_arSensor[spot];
 			if (s_state == AS_Empty)
@@ -584,31 +599,25 @@ protected:
 		ScreenMgr::SelectImage(&SettingsScreen, &pAreaDst, &CheckBox, f);
 	}
 
-	static void ShowAxisInfo(AxisInfo axis, const Area &pRes, const Area &pCorrect, const Area &pInvert)
+	static void ShowAxisInfo(AxisInfo axis, const Area arArea[])
 	{
 		double	val;
 
-		SettingsCheckBox(pInvert, axis.Direction);
+		SettingsCheckBox(arArea[AREA_Disable], axis.Disable);
+		SettingsCheckBox(arArea[AREA_Invert], axis.Direction);
 
-		s_SettingDisplay.PrintUint("%i", (uint)axis.Resolution, pRes);
+		s_SettingDisplay.PrintUint("%i", (uint)axis.Resolution, arArea[AREA_Resolution]);
 
 		val = (axis.Correction - 1.0) * 1E6;
-		s_SettingDisplay.PrintDbl("%+6.1f", val, pCorrect);
+		s_SettingDisplay.PrintDbl("%+6.1f", val, arArea[AREA_Correction]);
 	}
 
 	static void ShowSettingsInfo()
 	{
-		ShowAxisInfo(Eeprom.Data.XaxisInfo, SettingsScreen_Areas.Xresolution,
-			SettingsScreen_Areas.Xcorrection, SettingsScreen_Areas.Xinvert);
-
-		ShowAxisInfo(Eeprom.Data.YaxisInfo, SettingsScreen_Areas.Yresolution,
-			SettingsScreen_Areas.Ycorrection, SettingsScreen_Areas.Yinvert);
-
-		ShowAxisInfo(Eeprom.Data.ZaxisInfo, SettingsScreen_Areas.Zresolution,
-			SettingsScreen_Areas.Zcorrection, SettingsScreen_Areas.Zinvert);
-
-		ShowAxisInfo(Eeprom.Data.QaxisInfo, SettingsScreen_Areas.Qresolution,
-			SettingsScreen_Areas.Qcorrection, SettingsScreen_Areas.Qinvert);
+		ShowAxisInfo(Eeprom.Data.XaxisInfo, &SettingsScreen_Areas.Xdisable);
+		ShowAxisInfo(Eeprom.Data.YaxisInfo, &SettingsScreen_Areas.Ydisable);
+		ShowAxisInfo(Eeprom.Data.ZaxisInfo, &SettingsScreen_Areas.Zdisable);
+		ShowAxisInfo(Eeprom.Data.QaxisInfo, &SettingsScreen_Areas.Qdisable);
 
 		SettingsCheckBox(SettingsScreen_Areas.HighlightXY, Eeprom.Data.fHighlightOffset);
 		SettingsCheckBox(SettingsScreen_Areas.OffsetZ, Eeprom.Data.fToolLenAffectsZ);

@@ -31,6 +31,8 @@ public:
 public:
 	uint GetResolution()		{ return m_pInfo->Resolution; }
 	bool GetDirection()			{ return m_pInfo->Direction; }
+	bool GetDisable()			{ return m_pInfo->Disable; }
+	void SetDisable(bool fDis)	{ m_pInfo->Disable = fDis; }
 	double GetCorrectionPpm()	{ return (m_pInfo->Correction - 1.0) * 1E6; }
 
 public:

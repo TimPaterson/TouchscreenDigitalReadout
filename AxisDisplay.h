@@ -32,6 +32,12 @@ public:
 	{
 		double	pos;
 
+		if (m_pInfo->Disable)
+		{
+			ClearArea();
+			return;
+		}
+
 		pos = GetPosition();
 
 		if (IsMetric())

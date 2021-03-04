@@ -146,6 +146,7 @@ class ToolLib
 
 		virtual void LineSelected(int lineNum)
 		{
+			SaveTool();
 			SelectLine(lineNum);
 			ShowToolInfo();
 		}
@@ -174,7 +175,7 @@ class ToolLib
 			ClearArea();
 			widthSpace = GetSpaceWidth();
 			SetSpaceWidth();
-			WriteString(pTool->arDesc);
+			TextField::WriteString(pTool->arDesc);
 			SetSpaceWidth(widthSpace);
 		}
 
@@ -298,7 +299,7 @@ protected:
 		return s_curLineNum == NoCurrentLine || s_arSortList[s_curLineNum] == ToolBufIndex;
 	}
 
-	static void SelectLine(uint line)
+	static void SelectLine(uint line) NO_INLINE_ATTR
 	{
 		uint	oldLine;
 
@@ -425,21 +426,18 @@ protected:
 		KeyboardMgr::CloseKb();
 	}
 
-	static void ShowTimeSet()
+	static void StartEditTool()
 	{
-		RtcTime		time;
-
-		if (s_editMode == EDIT_File)
-			EndEdit(s_editFile);
-		ScreenMgr::EnablePip2(&EnterDateTime, 0, ToolListTop);
-		s_editMode = EDIT_Time;
-		ShowExportTime(time.ReadClock());
+		s_modToolIndex = s_arSortList[s_curLineNum];
+		s_arSortList[s_curLineNum] = ToolBufIndex;
+		SetToolButtonImage(TOOL_IMAGE_IsModified);
 	}
 
-	static void EndTimeSet()
+	static void StartEditToolDesc(int pos)
 	{
-		ScreenMgr::EnablePip2(&Files, 0, ToolListTop);
-		s_editMode = EDIT_None;
+		s_editMode = EDIT_Description;
+		s_editDesc.StartEditPx(pos);
+		KeyboardMgr::OpenKb(ToolEntryKeyHit);
 	}
 
 	//*********************************************************************
@@ -486,6 +484,8 @@ protected:
 
 	static void StartEditFile(int pos)
 	{
+		if (s_editMode >= EDIT_StartErrors)
+			ClearFileError();
 		s_editMode = EDIT_File;
 		s_editFile.StartEditPx(pos);
 		KeyboardMgr::OpenKb(FileKeyHit);
@@ -565,6 +565,23 @@ protected:
 		s_editMode = EDIT_None;
 		Files.FileError();
 		CheckIfFolder(true);
+	}
+
+	static void ShowTimeSet()
+	{
+		RtcTime		time;
+
+		if (s_editMode == EDIT_File)
+			EndEdit(s_editFile);
+		ScreenMgr::EnablePip2(&EnterDateTime, 0, ToolListTop);
+		s_editMode = EDIT_Time;
+		ShowExportTime(time.ReadClock());
+	}
+
+	static void EndTimeSet()
+	{
+		ScreenMgr::EnablePip2(&Files, 0, ToolListTop);
+		s_editMode = EDIT_None;
 	}
 
 	static void PrintTimeDigits(uint u)

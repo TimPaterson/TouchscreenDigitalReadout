@@ -92,20 +92,13 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 				{
 					s_bufTool = *PtrFromLine(s_curLineNum);
 					if (IsLibShown())
-					{
-						// We're in the tool library
-						s_modToolIndex = s_arSortList[s_curLineNum];
-						s_arSortList[s_curLineNum] = ToolBufIndex;
-						SetToolButtonImage(TOOL_IMAGE_IsModified);
-					}
-					else if (spot != ToolDesc)
+						StartEditTool();	// We're in the tool library
+					else
 					{
 						// If changing something, tool number no longer valid.
 						s_bufTool.number = 0;
 						SelectLine(NoCurrentLine);
 					}
-					else
-						return; // Description on main screen is read-only
 				}
 			}
 
@@ -130,16 +123,9 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			case ToolDesc:
 				x -= ToolLibrary_Areas.ToolDesc.Xpos;	// relative edit box
 				if (s_editMode != EDIT_Description)
-				{
-					s_editMode = EDIT_Description;
-					s_editDesc.StartEditPx(x);
-					KeyboardMgr::OpenKb(ToolEntryKeyHit);
-				}
+					StartEditToolDesc(x);
 				else
-				{
-					// Already editing description
-					s_editDesc.SetPositionPx(x);
-				}
+					s_editDesc.SetPositionPx(x);	// Already editing description
 				return;
 
 			case ToolChipLoad:
@@ -239,6 +225,16 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		OpenImportExport();
 		break;
 
+	case ClearDesc:
+		if (!IsToolBuffered())
+		{
+			s_bufTool = *PtrFromLine(s_curLineNum);
+			StartEditTool();
+		}
+		s_editDesc.DeleteText();
+		StartEditToolDesc(0);
+		break;
+
 	//*********************************************************************
 	// Import/Export dialog
 
@@ -300,10 +296,7 @@ SetImportExportImages:
 
 	case ImpExpCancel:
 		if (s_editMode >= EDIT_StartErrors)
-		{
-			ClearFileError();
 			StartEditFile(EditLine::EndLinePx);
-		}
 		else
 			CloseImportExport();
 		break;
@@ -311,16 +304,14 @@ SetImportExportImages:
 	case FileName:
 		x -= ToolImport_Areas.FileName.Xpos;	// relative edit box
 		if (s_editMode != EDIT_File)
-		{
-			if (s_editMode >= EDIT_StartErrors)
-				ClearFileError();
 			StartEditFile(x);
-		}
 		else
-		{
-			// Already editing description
-			s_editFile.SetPositionPx(x);
-		}
+			s_editFile.SetPositionPx(x); // Already editing description
+		break;
+
+	case ClearFile:
+		s_editFile.DeleteText();
+		StartEditFile(0);
 		break;
 
 	case UsbDriveRadio:
@@ -640,7 +631,8 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 void ToolLib::ImportDone()
 {
 	s_scroll.InvalidateAllLines();
-	s_curLineNum = 0;
+	s_bufTool.ClearData();
+	s_curLineNum = s_toolCount == 0 ? NoCurrentLine : 0;
 	ShowToolInfo();
 	CloseImportExport();
 }

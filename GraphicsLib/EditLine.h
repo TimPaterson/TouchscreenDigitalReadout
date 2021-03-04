@@ -95,6 +95,12 @@ public:
 		MoveCursor(m_pArea->Xpos + pxPos);
 	}
 
+	void DeleteText()
+	{
+		m_pBufText[0] = '\0';
+		ClearArea();
+	}
+
 	EditStatus ProcessKey(uint key)
 	{
 		uint	chWidth;

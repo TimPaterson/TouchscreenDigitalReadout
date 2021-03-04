@@ -409,6 +409,7 @@ struct AxisInfo
 	double	Correction;
 	byte	Resolution;		// microns (typically 5)
 	bool	Direction;
+	bool	Disable;
 };
 
 #include "Xtp2046.h"

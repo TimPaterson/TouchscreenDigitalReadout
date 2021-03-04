@@ -68,9 +68,16 @@ public:
 
 	static void OpenKb(KbUser *pUser, void *pv = NULL)
 	{
+		PipInfo	*pOldPip;
+
+		// Ignore if already open
+		pOldPip = ScreenMgr::GetPip2();
+		if (pOldPip->pImage == &KeyUpper || pOldPip->pImage == &KeyLower || pOldPip->pImage == &KeySymbol)
+			return;
+
+		m_oldPip = *pOldPip;
 		m_pUser = pUser;
 		m_pUserData = pv;
-		m_oldPip = *ScreenMgr::GetPip2();
 		// Start with upper case for easy capitalization
 		m_kbState = Key_shift;
 		ShowKb(KeyUpper);
