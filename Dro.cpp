@@ -108,118 +108,6 @@ EepromMgr_t Eeprom;
 // Tests
 //*********************************************************************
 
-byte arbBuf[256];
-
-void HexDump(const byte *pb, int cb)
-{
-	int		col;
-
-	// Dump on console in hex
-	col = 16;
-
-	for (; cb > 0; cb--, col--, pb++)
-	{
-		if (col == 0)
-		{
-			DEBUG_PRINT("\n");
-			col = 16;
-		}
-		DEBUG_PRINT("%02X ", *pb);
-		wdt_reset();
-	}
-	DEBUG_PRINT("\n");
-}
-
-void DumpCanvas(uint addr)
-{
-	DEBUG_PRINT("Image addr: %lu, width: %u\n",  Lcd.ReadReg32(addr), Lcd.ReadReg16(addr + 4));
-	DEBUG_PRINT("Window: (%u, %u) width: %u, height: %u\n",
-		Lcd.ReadReg16(addr + 6), Lcd.ReadReg16(addr + 8),
-		Lcd.ReadReg16(addr + 10), Lcd.ReadReg16(addr + 12));
-}
-
-void NO_INLINE_ATTR CalibratePos(int X, int Y, int anchorX, int anchorY)
-{
-	int		readX, readY;
-
-	Lcd.SetGraphicsCursorPosition(X - 16, Y - 16);
-
-	while (!(Touch.Process() && Touch.GetTouch() & TOUCH_Start))
-	{
-		wdt_reset();
-		if (Console.IsByteReady())
-			return;
-	}
-
-	readX = Touch.GetX();
-	readY = Touch.GetY();
-	Touch.CalibrateX(readX, X, anchorX);
-	Touch.CalibrateY(readY, Y, anchorY);
-}
-
-void NO_INLINE_ATTR CalibrateTouch()
-{
-	static constexpr int MinX = 32;
-	static constexpr int MaxX = LcdWidthPx - 1 - 32;
-	static constexpr int MinY = 32;
-	static constexpr int MaxY = LcdHeightPx - 1 - 32;
-
-	Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect2);
-	CalibratePos(MinX, MinY, MaxX, MaxY);
-	CalibratePos(MaxX, MaxY, MinX, MinY);
-	Lcd.DisableGraphicsCursor();				
-}
-
-class SetAndRestore
-{
-public:
-	SetAndRestore(uint addr, uint value)
-	{
-		Addr = addr;
-		Value = RA8876::ReadReg(addr);
-		RA8876::WriteData(value);
-	}
-	~SetAndRestore()
-	{
-		RA8876::WriteReg(Addr, Value);
-	}
-	uint	Value;
-	uint	Addr;
-};
-
-void NO_INLINE_ATTR DumpRam(ulong addr, int  cb)
-{
-	ushort	*pus;
-
-	if (cb > (int)sizeof arbBuf)
-		cb = sizeof arbBuf;
-
-	SetAndRestore x(AW_COLOR, AW_COLOR_DataWidth16 | AW_COLOR_AddrModeLinear);
-	Lcd.WriteReg32(CURH0, addr);
-	Lcd.ReadReg(MRWDP);	// dummy read
-	pus = (ushort *)&arbBuf[0];
-	for (int i = 0; i < cb / 2; i++)
-		*pus++ = Lcd.FastFifoRead16();
-	HexDump(arbBuf, cb);
-}
-
-void NO_INLINE_ATTR DumpRam(const Area *pArea, int  cb)
-{
-	ushort	*pus;
-
-	if (cb > (int)sizeof arbBuf)
-		cb = sizeof arbBuf;
-
-	Lcd.WriteSequentialRegisters(&MainScreen, CVSSA0, ImageRegCount);
-	Lcd.WriteSequentialRegisters(pArea, AWUL_X0, sizeof(Area));
-	Lcd.WriteReg32(CURH0, 0);
-	Lcd.ReadReg(MRWDP);	// dummy read
-	pus = (ushort *)&arbBuf[0];
-	for (int i = 0; i < cb / 2; i++)
-		*pus++ = Lcd.FastFifoRead16();
-	HexDump(arbBuf, cb);
-}
-
 void NO_INLINE_ATTR HardFault(int *p)
 {
 	*p = 0;
@@ -288,7 +176,7 @@ int main(void)
 	Zaxis.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
-	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchScale);
+	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, LcdWidthPx, LcdHeightPx);
 	Touch.Enable();
 
 	Lcd.Init();
@@ -316,7 +204,7 @@ int main(void)
 	Sd.Enable();
 	FileSys.Init();
 
-	DEBUG_PRINT("Graphics memory allocated: %lu bytes\n", ScreenMgr::AllocVideoRam(0));
+	DEBUG_PRINT("Graphics memory allocated: %lu bytes\n", Canvas::AllocVideoRam(0));
 
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
@@ -430,6 +318,7 @@ int main(void)
 
 				x = Touch.GetX();
 				y = Touch.GetY();
+
 				Actions::TakeAction(x, y, flags);
 			}
 		}
@@ -446,12 +335,6 @@ int main(void)
 			switch (ch)
 			{
 				// Use lower-case alphabetical order to find the right letter
-			case 'c':
-				DEBUG_PRINT("Calibrate touch screen...");
-				CalibrateTouch();
-				DEBUG_PRINT("complete.\n");
-				break;
-
 			case 'f':
 				DEBUG_PRINT("Loading font...");
 				err = FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
@@ -465,10 +348,6 @@ FileErrChk:
 				err = FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
 				goto FileErrChk;
 
-			case 'r':
-				DumpRam(&MainScreen_Areas.Mem1, 16);
-				break;
-
 			case 's':
 				DEBUG_PRINT("Save EEPROM (y/n)?");
 				while(!Console.IsByteReady())
@@ -481,6 +360,10 @@ FileErrChk:
 				}
 				else
 					DEBUG_PRINT("...Not saved\n");
+				break;
+
+			case 't':
+				TouchCalibrate::Open();
 				break;
 
 			case 'x':

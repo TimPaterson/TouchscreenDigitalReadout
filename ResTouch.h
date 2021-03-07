@@ -8,12 +8,16 @@
 #pragma once
 
 
-struct TouchScaleAxis
+struct TouchPoint
 {
-	ushort	uBase;
-	ushort	uScale;
-	ushort	uMax;
-	bool	fReverse;
+	ushort	x;
+	ushort	y;
+};
+
+struct TouchCalPoints
+{
+	TouchPoint	topLeft;
+	TouchPoint	bottomRight;
 };
 
 enum TouchFlags
@@ -24,84 +28,44 @@ enum TouchFlags
 	TOUCH_Touched = 4,
 };
 
+static constexpr int TouchEdgeOffset = 32;
+static constexpr ushort TouchPointInvalid = 0xFFFF;
+
+
 class ResTouch
 {
-	static constexpr int ScaleShift = 16;
+	static constexpr int TouchShift = 18;
 
 	// Types
 protected:
 	class Position
 	{
 	public:
-		void Init(TouchScaleAxis *pScale)
-		{
-			m_pScale = pScale;
-		}
-
-		void Calibrate(int posRead, int posTarget, int posAnchor) NO_INLINE_ATTR
-		{
-			int	rawRead, rawAnchor;
-			int	base, scale;
-
-			// Adjust scale and base to move posRead to posTarget
-			// without changing posAnchor
-
-			// First calculate the raw touch values before scaling
-			if (m_pScale->fReverse)
-			{
-				posRead = m_pScale->uMax - posRead;
-				posAnchor = m_pScale->uMax - posAnchor;
-				posTarget = m_pScale->uMax - posTarget;
-			}
-			rawRead = DivUintRnd(posRead << ScaleShift, m_pScale->uScale) + m_pScale->uBase;
-			rawAnchor = DivUintRnd(posAnchor << ScaleShift, m_pScale->uScale) + m_pScale->uBase;
-
-			/*
-			Now we have two equations in two unknowns, base and scale:
-
-			(1) posTarget = (rawRead - base) * scale
-			(2) posAnchor = (rawAnchor - base) * scale
-
-			Get base in terms of scale:
-
-			(3) posTarget / scale = rawRead - base
-			(4) base = rawRead - posTarget / scale
-
-			Substitute this for base in (2):
-
-			(5) posAnchor = (rawAnchor - rawRead + posTarget / scale) * scale
-			(6) posAnchor = (rawAnchor - rawRead) * scale + posTarget
-			(7) (rawAnchor - rawRead) * scale = posAnchor - posTarget
-			(8) scale = (posAnchor - posTarget) / (rawAnchor - rawRead)
-
-			*/
-
-			scale = DivIntRnd((posAnchor - posTarget) << ScaleShift, rawAnchor - rawRead);
-			base = rawRead - DivUintRnd(posTarget << ScaleShift, scale);
-			DEBUG_PRINT("\nScale: %i to %i, Base: %i to %i\n", m_pScale->uScale, scale, m_pScale->uBase, base);
-			m_pScale->uScale = scale;
-			m_pScale->uBase = base;		
-		}
-
 		void Set(int pos)
 		{
-			pos -= m_pScale->uBase;
+			pos -= m_base;
+			pos = ShiftIntRnd(pos * m_scale, TouchShift);
 			if (pos < 0)
 				pos = 0;
-			pos *= m_pScale->uScale;
-			pos = ShiftUintRnd(pos, ScaleShift);
-			if (pos > m_pScale->uMax)
-				pos = m_pScale->uMax;
-			if (m_pScale->fReverse)
-				pos = m_pScale->uMax - pos;
+			else if (pos > m_max)
+				pos = m_max;
 			m_uCur = pos;
+		}
+
+		void CalcScale(int rawA, int rawB, uint size)
+		{
+			m_max = size - 1;
+			m_scale = DivIntRnd((size - 2 * TouchEdgeOffset) << TouchShift, rawB - rawA);
+			m_base = rawA - DivIntRnd(TouchEdgeOffset << TouchShift, m_scale);
 		}
 
 		uint Get()	{ return m_uCur; }
 
 	protected:
+		int		m_scale;
+		short	m_base;
+		ushort	m_max;
 		ushort	m_uCur;
-		TouchScaleAxis	*m_pScale;
 	};
 
 public:
@@ -114,17 +78,24 @@ public:
 		return flags;
 	}
 
-	void CalibrateX(int posRead, int posTarget, int posAnchor)
-		{ m_posX.Calibrate(posRead, posTarget, posAnchor); }
-
-	void CalibrateY(int posRead, int posTarget, int posAnchor)
-		{ m_posY.Calibrate(posRead, posTarget, posAnchor); }
-
-public:
-	void InitScale(TouchScaleAxis *pScaleX, TouchScaleAxis *pScaleY)
+	void SetCalPoint(TouchPoint *pPoint, uint x, uint y)
 	{
-		m_posX.Init(pScaleX);
-		m_posY.Init(pScaleY);
+		pPoint->x = x;
+		pPoint->y  = y;
+	}
+
+	void CalcScales(TouchCalPoints *pPoints, uint width, uint height)
+	{
+		m_posX.CalcScale(pPoints->topLeft.x, pPoints->bottomRight.x, width);
+		m_posY.CalcScale(pPoints->topLeft.y, pPoints->bottomRight.y, height);
+	}
+
+	bool IsTouchDataValid(TouchCalPoints *pPoints)
+	{
+		return pPoints->topLeft.x != TouchPointInvalid && 
+			pPoints->topLeft.y != TouchPointInvalid &&
+			pPoints->bottomRight.x != TouchPointInvalid &&
+			pPoints->bottomRight.y != TouchPointInvalid;
 	}
 
 protected:

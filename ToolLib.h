@@ -17,7 +17,7 @@
 #include <FatFile/FatFileConst.h>
 
 #define IMPORT_HEAD_TEXT "Tool,Diameter,Length,Flutes,Description"
-static constexpr int IMPORT_HEAD_TEXT_LENGTH = sizeof(IMPORT_HEAD_TEXT) - 1;
+static constexpr int IMPORT_HEAD_TEXT_LENGTH = STRLEN(IMPORT_HEAD_TEXT);
 
 
 class ToolLib

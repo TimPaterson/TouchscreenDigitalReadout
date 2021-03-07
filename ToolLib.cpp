@@ -644,8 +644,8 @@ void ToolLib::ImportDone()
 
 char *ToolLib::ExportStart()
 {
-	memcpy(g_FileBuf, s_archImportHead, sizeof s_archImportHead - 1);
-	return (char *)ADDOFFSET(g_FileBuf, sizeof s_archImportHead - 1);
+	memcpy(g_FileBuf, s_archImportHead, STRLEN(s_archImportHead));
+	return (char *)ADDOFFSET(g_FileBuf, STRLEN(s_archImportHead));
 }
 
 char *ToolLib::ExportTool(char *pBuf, uint line)
@@ -658,7 +658,8 @@ char *ToolLib::ExportTool(char *pBuf, uint line)
 		return NULL;
 
 	pInfo = PtrFromLine(line);
-	pBuf += sprintf(pBuf, "%u,%g,%g,%u,\"", pInfo->number, pInfo->diameter, pInfo->length, pInfo->flutes);
+	pBuf += sprintf(pBuf, "%u,%.9g,%.9g,%u,\"", pInfo->number, CheckMetric(pInfo->diameter), 
+		CheckMetric(pInfo->length), pInfo->flutes);
 
 	// Check for " character in description so we can escape it
 	for (pCur = pInfo->arDesc; ;) 

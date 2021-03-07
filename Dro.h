@@ -261,7 +261,8 @@ enum  PortBregMap
 
 #define PORTB	((volatile PortIoB *)&PORT_IOBUS->Group[1])
 
-inline int GetSdCd() { return PORTB->IN.Ctrl & MicroSdCd; }
+inline int GetSdCd()		{ return PORTB->IN.Ctrl & MicroSdCd; }
+inline int GetRtpPenIrq()	{ return PORTB->IN.Ctrl & RtpIrq; }
 
 inline void SetLcdPin(ushort pins)
 {

@@ -32,7 +32,7 @@ public:
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 	ListScroll(ushort width, ushort height, ushort lineHeight, ColorDepths depth, byte HotspotGroup) :
-		TouchCanvas(ScreenMgr::AllocVideoRam(0), width, height, width, depth, (HotspotList *)&m_hotSpots),
+		TouchCanvas(0, width, height, width, depth, (HotspotList *)&m_hotSpots),
 		m_lineHeight{lineHeight}, m_hotSpots{ 2, {
 			// Array of Hotspots: the display area, and the scroll thumb
 			{0, 0, (ushort)(m_viewWidth - ScrollBarWidth - 1), (ushort)(m_imageHeight - 1), 
@@ -46,9 +46,6 @@ public:
 		m_lineCntCanvas = m_lineViewCnt + 2 * ExtraLines + 2;
 		height = m_lineCntCanvas * lineHeight;
 		m_imageHeight = height;
-		// Allocate image RAM
-		ScreenMgr::AllocVideoRam((int)width * height * PixelSizeFromDepth(depth));
-		Invalidate();
 	}
 #pragma GCC diagnostic pop
 
@@ -59,6 +56,9 @@ public:
 	void Init()
 	{
 		Area	area;
+
+		AllocIfNeeded(m_imageHeight);
+		Invalidate();
 
 		// Initialize gap
 		area.Height = m_imageHeight;

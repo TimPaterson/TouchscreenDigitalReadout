@@ -60,11 +60,30 @@ public:
 
 public:
 	byte GetColorDepth() const	{ return m_colorDepth; }
-
+	Area *GetViewArea()			{ return (Area *)&m_viewPosX; }
+	
 	void SetViewPos(uint x, uint y)
 	{
 		m_viewPosX = x;
 		m_viewPosY = y;
+	}
+
+	bool AllocIfNeeded(int height)
+	{
+		if (m_imageAddress == 0)
+		{
+			// Allocate video RAM
+			m_imageAddress = AllocVideoRam(m_imageWidth * height * PixelSizeFromDepth(m_colorDepth));
+			return true;
+		}
+		return false;
+	}
+
+	static ulong AllocVideoRam(int size)
+	{
+		ulong res = s_NextFreeRam;
+		s_NextFreeRam += size;
+		return res;
 	}
 
 	//*********************************************************************
@@ -77,7 +96,13 @@ protected:
 	ushort		m_viewPosY;
 	ushort		m_viewWidth;
 	ushort		m_viewHeight;
-	byte		m_colorDepth;
+	ColorDepths	m_colorDepth;
+
+	//*********************************************************************
+	// static (RAM) data
+	//*********************************************************************
+protected:
+	inline static ulong			s_NextFreeRam{RamFreeStart};
 };
 
 // Canvas registers all fall into the same sequence:
@@ -120,6 +145,8 @@ public:
 		Canvas(addr, width, height, stride, depth),  m_pSpots{list} {}
 
 public:
+	void SetHitList(HotspotList *list) { m_pSpots = list; }
+
 	HotspotData *TestHit(int x, int y) NO_INLINE_ATTR
 	{
 		int		i;

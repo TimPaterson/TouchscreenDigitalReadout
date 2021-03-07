@@ -307,14 +307,9 @@ public:
 	//*********************************************************************
 	// Text Engine
 
-	static void TextMode()
+	static void SetTextPosition(uint x, uint y)
 	{
-		WriteData(ReadReg(ICR) | ICR_TextMode);
-	}
-
-	static void GraphicsMode()
-	{
-		WriteData(ReadReg(ICR) & ~ICR_TextGraphicsMode_Mask);
+		WriteRegXY(F_CURX0, x, y);
 	}
 
 	// This used by printf

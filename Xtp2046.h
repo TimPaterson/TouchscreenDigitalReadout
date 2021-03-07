@@ -12,29 +12,28 @@
 #include "ResTouch.h"
 
 
-struct TouchScaleZ 
+struct TouchInfo : public TouchCalPoints
 {
 	ushort	minZtouch;
-	ushort	reserved;
+	byte	updateRate;
+	byte	sampleDiscard;
+	byte	averageShift;
+	byte	reserved[3];	// round up to multiple of 32 bits
 };
 
-struct TouchScale_t
-{
-	TouchScaleAxis	X;
-	TouchScaleAxis	Y;
-	TouchScaleZ		Z;
-};
+//****************************************************************************
+// Default EEPROM values
+
+static constexpr ushort TouchDefaultMinZ = 200;
+static constexpr int TouchUpdateRate = 30;	// full touch scans per second
+static constexpr int TouchInitialDiscard = 4;
+static constexpr int TouchAverageShift = 3;
 
 
 class Xtp2046 : public ResTouch, public DECLARE_SPI(SERCOM1, RtpCs_PIN)
 {
 public:
-	static constexpr int UpdateRate = 30;	// full touch scans per second
-
 	static constexpr int BaudRate = 1000000;
-	static constexpr int AverageShift = 4;
-	static constexpr int AverageCount = 1 << AverageShift;
-	static constexpr int ScanRate = UpdateRate * AverageCount;
 
 public:
 	// Types
@@ -89,37 +88,47 @@ public:
 		RTP_Start = 0x80,
 
 		// Combined values
-		RTP_ReadX = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_X,
-		RTP_ReadY = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Y,
-		RTP_ReadZ1 = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Z1,
-		RTP_ReadZ2 = RTP_Start | MODE_12Bit | REF_Dif | PWR_On | ADDR_Z2,
+		RTP_ReadX = RTP_Start | MODE_12Bit | REF_Dif | PWR_Save | ADDR_X,
+		RTP_ReadY = RTP_Start | MODE_12Bit | REF_Dif | PWR_Save | ADDR_Y,
+		RTP_ReadZ1 = RTP_Start | MODE_12Bit | REF_Dif | PWR_Save | ADDR_Z1,
+		RTP_ReadZ2 = RTP_Start | MODE_12Bit | REF_Dif | PWR_Save | ADDR_Z2,
 	};
 
 
 public:
-	void Init(SpiInPad padMiso, SpiOutPad padMosi, TouchScale_t *pScale)
+	void Init(SpiInPad padMiso, SpiOutPad padMosi, TouchInfo *pInfo, uint width, uint height)
 	{
 		SpiInit(padMiso, padMosi, SPIMODE_0);
 		SetBaudRateConst(BaudRate);
 
 		// Set scaling values
-		SetScale(pScale);
+		SetScale(pInfo, width, height);
 
 		m_tmr.Start();
 	}
 
-	void SetScale(TouchScale_t *pScale)
+	void SetScale(TouchInfo *pInfo, uint width, uint height)
 	{
-		m_minZtouch = pScale->Z.minZtouch;
-		InitScale(&pScale->X, &pScale->Y);
+		CalcScales(pInfo, width, height);
+		m_minZtouch = pInfo->minZtouch;
+		m_avgShift = pInfo->averageShift;
+		m_discardCnt = pInfo->sampleDiscard;
+		m_sampleCnt = (1 << m_avgShift) + m_discardCnt;
+		m_scanTicks = Timer::TicksFromFreq(pInfo->updateRate * m_sampleCnt);
 	}
+
+	ushort GetRawX()	{ return m_rawX; }
+	ushort GetRawY()	{ return m_rawY; }
+	ushort GetRawZ()	{ return m_rawZ; }
 
 	bool Process() NO_INLINE_ATTR
 	{
-		if (!m_tmr.CheckInterval_rate(ScanRate))
+		if (!m_tmr.CheckInterval_ticks(m_scanTicks))
 			return false;
 
-		if (ReadValue(RTP_ReadZ1) >= m_minZtouch)
+		//if (GetRtpPenIrq() == 0)
+		m_rawZ = ReadValue(RTP_ReadZ1);
+		if (m_rawZ >= m_minZtouch)
 		{
 			// Touching
 			if (!m_fPrevTouch)
@@ -130,12 +139,19 @@ public:
 				m_cAvg = 0;
 			}
 			m_fPrevTouch = true;
-			m_sumX += ReadValue(RTP_ReadX);
-			m_sumY += ReadValue(RTP_ReadY);
-			if (++m_cAvg < AverageCount)
+			if (++m_cAvg <= m_discardCnt)
 				return false;
 
-			ProcessRaw(m_sumX >> AverageShift, m_sumY >> AverageShift);
+			m_sumX += ReadValue(RTP_ReadX);
+			m_sumY += ReadValue(RTP_ReadY);
+
+			if (m_cAvg < m_sampleCnt)
+				return false;
+
+			m_rawX = m_sumX >> m_avgShift;
+			m_rawY = m_sumY >> m_avgShift;
+
+			ProcessRaw(m_rawX, m_rawY);
 			IsTouched(true);
 			m_sumX = 0;
 			m_sumY = 0;
@@ -148,10 +164,11 @@ public:
 				m_cAvg = 0;	// Just ending contact
 
 			m_fPrevTouch = false;
-			if (++m_cAvg < AverageCount)
+			if (++m_cAvg < m_sampleCnt)
 				return false;
 
 			IsTouched(false);
+			m_cAvg = 0;
 		}
 
 		return true;
@@ -178,7 +195,15 @@ protected:
 	Timer	m_tmr;
 	ushort	m_sumX;
 	ushort	m_sumY;
+	ushort	m_rawX;
+	ushort	m_rawY;
+	ushort	m_rawZ;
+
 	ushort	m_minZtouch;
+	ushort	m_scanTicks;
+	byte	m_avgShift;
+	byte	m_sampleCnt;
+	byte	m_discardCnt;
 	byte	m_cAvg;
 	bool	m_fPrevTouch;
 };

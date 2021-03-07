@@ -11,6 +11,7 @@
 #include "ScreenMgr.h"
 #include "AxisDisplay.h"
 #include "ToolLib.h"
+#include "TouchCalibrate.h"
 
 
 class Actions
@@ -113,7 +114,7 @@ public:
 		char		*pStr;
 		bool		*pToggle;
 
-		pSpot = ScreenMgr::TestHit(x, y);
+		pSpot = ScreenMgr::ScreenTestHit(x, y);
 		if (pSpot == NULL)
 			return;
 
@@ -494,6 +495,10 @@ public:
 						ShowSettingsInfo();
 					}
 				}
+				break;
+
+			case TouchCal:
+				TouchCalibrate::Open();
 				break;
 			}
 			return;

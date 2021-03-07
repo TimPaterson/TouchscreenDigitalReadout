@@ -26,15 +26,9 @@ class ScreenMgr : public RA8876
 	static const int BorderThickness = 4;
 
 public:
-	static ulong AllocVideoRam(int size)
-	{
-		ulong res = s_NextFreeRam;
-		s_NextFreeRam += size;
-		return res;
-	}
-
-	static PipInfo *GetPip1()	{ return &s_pip1; }
-	static PipInfo *GetPip2()	{ return &s_pip2; }
+	static TouchCanvas *GetMainImage()	{ return s_pMainImage; }
+	static PipInfo *GetPip1()			{ return &s_pip1; }
+	static PipInfo *GetPip2()			{ return &s_pip2; }
 
 	static void SetMainImage(TouchCanvas *pCanvas)
 	{
@@ -171,7 +165,7 @@ public:
 		WriteData(val | (bpp << BTE_COLR_Src1Color_Shft));
 	}
 
-	static HotspotData *TestHit(int x, int y)
+	static HotspotData *ScreenTestHit(int x, int y)
 	{
 		HotspotData	*pSpot;
 
@@ -292,7 +286,6 @@ protected:
 	// static (RAM) data
 	//*********************************************************************
 protected:
-	inline static ulong			s_NextFreeRam{RamFreeStart};
 	inline static TouchCanvas	*s_pMainImage;
 	inline static PipInfo		s_pip1;
 	inline static PipInfo		s_pip2;
