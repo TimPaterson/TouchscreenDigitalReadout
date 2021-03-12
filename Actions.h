@@ -12,6 +12,7 @@
 #include "AxisDisplay.h"
 #include "ToolLib.h"
 #include "TouchCalibrate.h"
+#include "UpdateMgr.h"
 
 
 class Actions
@@ -121,24 +122,6 @@ public:
 		group = pSpot->group;
 		spot = pSpot->id;
 
-		if (group < HOTSPOT_GROUP_CaptureEnd)
-		{
-			switch (group)
-			{
-			case HOTSPOT_GROUP_ToolDisplay:
-				s_pCapture = ToolLib::ListCapture(x, y, (ScrollAreas)spot);
-				break;
-
-			case HOTSPOT_GROUP_FileDisplay:
-				s_pCapture = Files.ListCapture(x, y, (ScrollAreas)spot);
-				break;
-
-			default:
-				return;
-			}
-			return;
-		}
-
 		switch (group)
 		{
 
@@ -146,8 +129,20 @@ public:
 		// Dispatch to other handlers
 		//
 
+		case HOTSPOT_GROUP_ToolDisplay:
+			s_pCapture = ToolLib::ListCapture(x, y, (ScrollAreas)spot);
+			return;
+
+		case HOTSPOT_GROUP_FileDisplay:
+			s_pCapture = Files.ListCapture(x, y, (ScrollAreas)spot);
+			return;
+
 		case HOTSPOT_GROUP_ToolLib:
 			ToolLib::ToolAction(spot, x, y);
+			return;
+
+		case HOTSPOT_GROUP_Update:
+			UpdateMgr::UpdateAction(spot, x, y);
 			return;
 
 		case HOTSPOT_GROUP_TimeSet:
@@ -499,6 +494,10 @@ public:
 
 			case TouchCal:
 				TouchCalibrate::Open();
+				break;
+
+			case FirmwareUpdate:
+				UpdateMgr::Open();
 				break;
 			}
 			return;

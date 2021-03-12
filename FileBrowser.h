@@ -23,6 +23,13 @@ enum DriveList
 	SdDriveMap = 1 << SdDrive,
 };
 
+enum RadioButtonImages
+{
+	RADIO_False,
+	RADIO_True,
+	RADIO_NotAvailable,
+};
+
 
 class FileBrowser : public ListScroll
 {
@@ -51,14 +58,15 @@ public:
 	static ushort GetPathBufSize()	{ return sizeof s_bufPath; }
 
 public:
-	void Open(EditLine *pEdit, UpdateNotify *pfnNotify)
+	void Open(EditLine *pEdit, UpdateNotify *pfnNotify, uint height = FileListHeight)
 	{
 		int		drive;
 		uint	map;
 
 		m_pEdit = pEdit;
 		m_pfnNotify = pfnNotify;
-		ScreenMgr::EnablePip2(this, 0, ToolListTop);
+		SetViewHeight(height);
+		ScreenMgr::EnablePip2(this, 0, LcdHeightPx - height);
 		// See what drives are available
 		for (drive = 0, map = 0; drive < FAT_NUM_DRIVES; drive++)
 		{
@@ -129,7 +137,7 @@ public:
 	// Notification from Actions class
 	ListScroll *ListCapture(int x, int y, ScrollAreas spot)
 	{
-		if (StartCapture(x, y - ToolListTop, spot))
+		if (StartCapture(x, y - ScreenMgr::GetPip2()->y, spot))
 			return this;
 		return NULL;
 	}
@@ -199,11 +207,8 @@ protected:
 		m_cchPath = pos;
 	}
 
-protected:
-	static FileEnumInfo *PtrInfoFromLine(int lineNum)
-	{
-		return (FileEnumInfo *)ADDOFFSET(g_FileBuf, *(((ushort *)FILE_BUF_END) - 1 - lineNum));
-	}
+	//*********************************************************************
+	// Implement functions in ListScroll
 
 protected:
 	virtual void FillLine(int lineNum, Area *pArea)
@@ -344,6 +349,15 @@ EndFolder:
 
 		if (m_pfnNotify != NULL)
 			m_pfnNotify(SelectionChanged);
+	}
+
+	//*********************************************************************
+	// static functions
+
+protected:
+	static FileEnumInfo *PtrInfoFromLine(int lineNum)
+	{
+		return (FileEnumInfo *)ADDOFFSET(g_FileBuf, *(((ushort *)FILE_BUF_END) - 1 - lineNum));
 	}
 
 	static int CompareLinePtr(const ushort *pOff1, const ushort *pOff2)

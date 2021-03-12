@@ -12,7 +12,7 @@
 
 
 //****************************************************************************
-// List of USB drivers
+// Instances of USB drivers
 
 EnumerationDriver	EnumDriver;
 KeyboardHost		Keyboard;

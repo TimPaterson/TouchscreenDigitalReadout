@@ -79,37 +79,47 @@
 #ifndef END_STR_VALUES
 #define END_STR_VALUES()
 #endif
+#ifndef START_COLORS
+#define START_COLORS()
+#endif
 #ifndef DEFINE_COLOR
 #define DEFINE_COLOR(a,b)
+#endif
+#ifndef END_COLORS
+#define END_COLORS()
 #endif
 #ifndef SCREEN_FILE_LENGTH
 #define SCREEN_FILE_LENGTH(a)
 #endif
 
-DEFINE_COLOR(ScreenForeColor, 0x000000)
-DEFINE_COLOR(ScreenBackColor, 0xADDBE7)
-DEFINE_COLOR(AxisForeColor, 0x000000)
-DEFINE_COLOR(AxisBackColor, 0xFFFF00)
-DEFINE_COLOR(CalcBackColor, 0xFFFFFF)
-DEFINE_COLOR(MemColorOdd, 0xD6C3D6)
-DEFINE_COLOR(MemColorEven, 0x9CFB9C)
-DEFINE_COLOR(BtnBackground, 0x606060)
-DEFINE_COLOR(ToolInfoBackground, 0x0000FF)
-DEFINE_COLOR(ToolInfoForeground, 0xFFFFFF)
-DEFINE_COLOR(ToolLibBackground, 0x00008C)
-DEFINE_COLOR(ToolLibForeground, 0xD6D3D6)
-DEFINE_COLOR(ToolLibSelected, 0xFFFFFF)
-DEFINE_COLOR(TimeEntryForeground, 0x000000)
-DEFINE_COLOR(TimeEntryBackground, 0xFFFFFF)
-DEFINE_COLOR(ScrollBarColor, 0x313031)
-DEFINE_COLOR(ToggleOn, 0xFFFF00)
-DEFINE_COLOR(SetBtnText, 0xFFFF00)
-DEFINE_COLOR(ToolColor, 0xC60000)
-DEFINE_COLOR(NoToolColor, 0x84CFFF)
-DEFINE_COLOR(SettingBackColor, 0x000000)
-DEFINE_COLOR(SettingForeColor, 0xFFFFFF)
-DEFINE_COLOR(CheckForeground, 0xFFFFFF)
-DEFINE_COLOR(CheckBackground, 0x000000)
+START_COLORS()
+	DEFINE_COLOR(ScreenForeColor, 0x000000)
+	DEFINE_COLOR(ScreenBackColor, 0xADDBE7)
+	DEFINE_COLOR(AxisForeColor, 0x000000)
+	DEFINE_COLOR(AxisBackColor, 0xFFFF00)
+	DEFINE_COLOR(CalcBackColor, 0xFFFFFF)
+	DEFINE_COLOR(MemColorOdd, 0xD6C3D6)
+	DEFINE_COLOR(MemColorEven, 0x9CFB9C)
+	DEFINE_COLOR(BtnBackground, 0x606060)
+	DEFINE_COLOR(ToolInfoBackground, 0x0000FF)
+	DEFINE_COLOR(ToolInfoForeground, 0xFFFFFF)
+	DEFINE_COLOR(ToolLibBackground, 0x00008C)
+	DEFINE_COLOR(ToolLibForeground, 0xD6D3D6)
+	DEFINE_COLOR(ToolLibSelected, 0xFFFFFF)
+	DEFINE_COLOR(TimeEntryForeground, 0x000000)
+	DEFINE_COLOR(TimeEntryBackground, 0xFFFFFF)
+	DEFINE_COLOR(ScrollBarColor, 0x313031)
+	DEFINE_COLOR(ToggleOn, 0xFFFF00)
+	DEFINE_COLOR(SetBtnText, 0xFFFF00)
+	DEFINE_COLOR(ToolColor, 0xC60000)
+	DEFINE_COLOR(NoToolColor, 0x84CFFF)
+	DEFINE_COLOR(SettingBackColor, 0x000000)
+	DEFINE_COLOR(SettingForeColor, 0xFFFFFF)
+	DEFINE_COLOR(CheckForeground, 0xFFFFFF)
+	DEFINE_COLOR(CheckBackground, 0x000000)
+	DEFINE_COLOR(UpdateBackground, 0x0000FF)
+	DEFINE_COLOR(UpdateForeground, 0xFFFFFF)
+END_COLORS()
 
 START_VALUES()
 	DEFINE_VALUE(ScrollGapLeft, 2)
@@ -127,6 +137,8 @@ START_VALUES()
 	DEFINE_VALUE(FileListWidth, 876)
 	DEFINE_VALUE(FileRowHeight, 50)
 	DEFINE_VALUE(FileListHeight, 483)
+	DEFINE_VALUE(UpdateFileListTop, 148)
+	DEFINE_VALUE(UpdateFileListHeight, 452)
 END_VALUES()
 
 START_STR_VALUES()
@@ -246,67 +258,8 @@ END_HOTSPOTS(SpeedDisplay)
 
 HOTSPOT_COUNT(SpeedDisplay, 4)
 
-START_SCREEN(ToolLibrary)
-	IMAGE_ADDRESS(1401936)
-	IMAGE_SIZE(239616)
-	IMAGE_WIDTH(1024)
-	IMAGE_HEIGHT(117)
-	IMAGE_STRIDE(1024)
-	IMAGE_DEPTH(Color16bpp)
-END_SCREEN(ToolLibrary)
-
-START_HOTSPOTS(ToolLibrary)
-	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 10, 64, 70)
-	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 64, 10, 134, 70)
-	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 134, 10, 189, 70)
-	DEFINE_HOTSPOT(ToolLength, ToolLib, 189, 10, 274, 70)
-	DEFINE_HOTSPOT(ToolDesc, ToolLib, 274, 10, 742, 70)
-	DEFINE_HOTSPOT(ClearDesc, ToolLib, 753, 15, 802, 64)
-	DEFINE_HOTSPOT(ToolsDone, ToolLib, 814, 10, 873, 69)
-	DEFINE_HOTSPOT(ToolDelete, ToolLib, 884, 10, 943, 69)
-	DEFINE_HOTSPOT(ToolImportExport, ToolLib, 954, 10, 1013, 69)
-END_HOTSPOTS(ToolLibrary)
-
-HOTSPOT_COUNT(ToolLibrary, 9)
-
-START_AREAS(ToolLibrary)
-	DEFINE_AREA(ToolNumber, 18, 28, 45, 28)
-	DEFINE_AREA(ToolDiameter, 69, 28, 64, 28)
-	DEFINE_AREA(ToolFlutes, 143, 28, 45, 28)
-	DEFINE_AREA(ToolLength, 195, 28, 78, 28)
-	DEFINE_AREA(ToolDesc, 279, 28, 469, 28)
-	DEFINE_AREA(ToolButtons, 814, 10, 200, 107)
-END_AREAS(ToolLibrary)
-
-START_SCREEN(ToolRow)
-	IMAGE_ADDRESS(1641552)
-	IMAGE_SIZE(53448)
-	IMAGE_WIDTH(522)
-	IMAGE_HEIGHT(51)
-	IMAGE_STRIDE(524)
-	IMAGE_DEPTH(Color16bpp)
-END_SCREEN(ToolRow)
-
-START_HOTSPOTS(ToolRow)
-END_HOTSPOTS(ToolRow)
-
-HOTSPOT_COUNT(ToolRow, 0)
-
-START_AREAS(ToolRow)
-	DEFINE_AREA(ToolNumber, 18, 12, 45, 28)
-	DEFINE_AREA(ToolDiameter, 69, 12, 64, 28)
-	DEFINE_AREA(ToolFlutes, 143, 12, 45, 28)
-	DEFINE_AREA(ToolLength, 195, 12, 78, 28)
-	DEFINE_AREA(ToolDesc, 279, 12, 242, 28)
-END_AREAS(ToolRow)
-
-START_HOTSPOTS(ToolButtons)
-END_HOTSPOTS(ToolButtons)
-
-HOTSPOT_COUNT(ToolButtons, 0)
-
 START_SCREEN(SettingsScreen)
-	IMAGE_ADDRESS(1823400)
+	IMAGE_ADDRESS(1401936)
 	IMAGE_SIZE(345600)
 	IMAGE_WIDTH(576)
 	IMAGE_HEIGHT(600)
@@ -368,6 +321,65 @@ START_HOTSPOTS(CheckBox)
 END_HOTSPOTS(CheckBox)
 
 HOTSPOT_COUNT(CheckBox, 0)
+
+START_SCREEN(ToolLibrary)
+	IMAGE_ADDRESS(1749584)
+	IMAGE_SIZE(239616)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(117)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolLibrary)
+
+START_HOTSPOTS(ToolLibrary)
+	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 10, 64, 70)
+	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 64, 10, 134, 70)
+	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 134, 10, 189, 70)
+	DEFINE_HOTSPOT(ToolLength, ToolLib, 189, 10, 274, 70)
+	DEFINE_HOTSPOT(ToolDesc, ToolLib, 274, 10, 742, 70)
+	DEFINE_HOTSPOT(ClearDesc, ToolLib, 753, 15, 802, 64)
+	DEFINE_HOTSPOT(ToolsDone, ToolLib, 814, 10, 873, 69)
+	DEFINE_HOTSPOT(ToolDelete, ToolLib, 884, 10, 943, 69)
+	DEFINE_HOTSPOT(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+END_HOTSPOTS(ToolLibrary)
+
+HOTSPOT_COUNT(ToolLibrary, 9)
+
+START_AREAS(ToolLibrary)
+	DEFINE_AREA(ToolNumber, 18, 28, 45, 28)
+	DEFINE_AREA(ToolDiameter, 69, 28, 64, 28)
+	DEFINE_AREA(ToolFlutes, 143, 28, 45, 28)
+	DEFINE_AREA(ToolLength, 195, 28, 78, 28)
+	DEFINE_AREA(ToolDesc, 279, 28, 469, 28)
+	DEFINE_AREA(ToolButtons, 814, 10, 200, 107)
+END_AREAS(ToolLibrary)
+
+START_SCREEN(ToolRow)
+	IMAGE_ADDRESS(1989200)
+	IMAGE_SIZE(53448)
+	IMAGE_WIDTH(522)
+	IMAGE_HEIGHT(51)
+	IMAGE_STRIDE(524)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolRow)
+
+START_HOTSPOTS(ToolRow)
+END_HOTSPOTS(ToolRow)
+
+HOTSPOT_COUNT(ToolRow, 0)
+
+START_AREAS(ToolRow)
+	DEFINE_AREA(ToolNumber, 18, 12, 45, 28)
+	DEFINE_AREA(ToolDiameter, 69, 12, 64, 28)
+	DEFINE_AREA(ToolFlutes, 143, 12, 45, 28)
+	DEFINE_AREA(ToolLength, 195, 12, 78, 28)
+	DEFINE_AREA(ToolDesc, 279, 12, 242, 28)
+END_AREAS(ToolRow)
+
+START_HOTSPOTS(ToolButtons)
+END_HOTSPOTS(ToolButtons)
+
+HOTSPOT_COUNT(ToolButtons, 0)
 
 START_SCREEN(KeyLower)
 	IMAGE_ADDRESS(2171048)
@@ -641,8 +653,8 @@ END_SCREEN(ToolImport)
 START_HOTSPOTS(ToolImport)
 	DEFINE_HOTSPOT(FileName, ToolLib, 10, 10, 583, 69)
 	DEFINE_HOTSPOT(ClearFile, ToolLib, 594, 15, 643, 64)
-	DEFINE_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 738, 57)
-	DEFINE_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 738, 107)
+	DEFINE_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	DEFINE_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 748, 107)
 	DEFINE_HOTSPOT(ImportRadio, ToolLib, 749, 8, 873, 57)
 	DEFINE_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
 	DEFINE_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
@@ -692,6 +704,58 @@ START_HOTSPOTS(FileIcons)
 END_HOTSPOTS(FileIcons)
 
 HOTSPOT_COUNT(FileIcons, 0)
+
+START_HOTSPOTS(UpdateCheck)
+END_HOTSPOTS(UpdateCheck)
+
+HOTSPOT_COUNT(UpdateCheck, 0)
+
+START_HOTSPOTS(InspectUpdate)
+END_HOTSPOTS(InspectUpdate)
+
+HOTSPOT_COUNT(InspectUpdate, 0)
+
+START_HOTSPOTS(UpdateLabel)
+END_HOTSPOTS(UpdateLabel)
+
+HOTSPOT_COUNT(UpdateLabel, 0)
+
+START_SCREEN(UpdateDialog)
+	IMAGE_ADDRESS(3695672)
+	IMAGE_SIZE(303104)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(148)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(UpdateDialog)
+
+START_HOTSPOTS(UpdateDialog)
+	DEFINE_HOTSPOT(FileName, Update, 10, 10, 708, 69)
+	DEFINE_HOTSPOT(ClearFile, Update, 719, 15, 768, 64)
+	DEFINE_HOTSPOT(UsbDriveRadio, Update, 770, 0, 873, 49)
+	DEFINE_HOTSPOT(SdDriveRadio, Update, 770, 50, 873, 99)
+	DEFINE_HOTSPOT(UpdateExecute, Update, 884, 10, 943, 69)
+	DEFINE_HOTSPOT(UpdateCancel, Update, 954, 10, 1013, 69)
+	DEFINE_HOTSPOT(VersionMatch, Update, 637, 94, 692, 149)
+END_HOTSPOTS(UpdateDialog)
+
+HOTSPOT_COUNT(UpdateDialog, 7)
+
+START_AREAS(UpdateDialog)
+	DEFINE_AREA(FileName, 15, 26, 699, 28)
+	DEFINE_AREA(UsbDriveBox, 780, 9, 32, 32)
+	DEFINE_AREA(SdDriveBox, 780, 59, 32, 32)
+	DEFINE_AREA(UpdateButton, 884, 10, 60, 85)
+	DEFINE_AREA(CurrrentFirmware, 210, 75, 56, 28)
+	DEFINE_AREA(CurrrentGraphics, 403, 75, 56, 28)
+	DEFINE_AREA(CurrrentFonts, 560, 75, 56, 28)
+	DEFINE_AREA(ProgressBar, 10, 108, 616, 28)
+	DEFINE_AREA(UpdateLabel, 10, 108, 85, 28)
+	DEFINE_AREA(UpdateFirmware, 210, 108, 56, 28)
+	DEFINE_AREA(UpdateGraphics, 403, 108, 56, 28)
+	DEFINE_AREA(UpdateFonts, 560, 108, 56, 28)
+	DEFINE_AREA(VersionMatch, 649, 106, 32, 32)
+END_AREAS(UpdateDialog)
 
 START_GROUP(Axis)
 	GROUP_HOTSPOT(Xsensor, Axis, 0, 12, 409, 122)
@@ -777,8 +841,8 @@ START_GROUP(ToolLib)
 	GROUP_HOTSPOT(TimeEntryDone, ToolLib, 502, 10, 561, 69)
 	GROUP_HOTSPOT(FileName, ToolLib, 10, 10, 583, 69)
 	GROUP_HOTSPOT(ClearFile, ToolLib, 594, 15, 643, 64)
-	GROUP_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 738, 57)
-	GROUP_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 738, 107)
+	GROUP_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	GROUP_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 748, 107)
 	GROUP_HOTSPOT(ImportRadio, ToolLib, 749, 8, 873, 57)
 	GROUP_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
 	GROUP_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
@@ -996,6 +1060,16 @@ START_GROUP(TimeSet)
 	GROUP_HOTSPOT(AmPm, TimeSet, 422, 11, 481, 70)
 END_GROUP(TimeSet)
 
+START_GROUP(Update)
+	GROUP_HOTSPOT(FileName, Update, 10, 10, 708, 69)
+	GROUP_HOTSPOT(ClearFile, Update, 719, 15, 768, 64)
+	GROUP_HOTSPOT(UsbDriveRadio, Update, 770, 0, 873, 49)
+	GROUP_HOTSPOT(SdDriveRadio, Update, 770, 50, 873, 99)
+	GROUP_HOTSPOT(UpdateExecute, Update, 884, 10, 943, 69)
+	GROUP_HOTSPOT(UpdateCancel, Update, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(VersionMatch, Update, 637, 94, 692, 149)
+END_GROUP(Update)
+
 #ifndef START_GROUP_Axis
 #define START_GROUP_Axis(a)
 #endif
@@ -1188,8 +1262,8 @@ START_GROUP_ToolLib(ToolLib)
 	GROUP_HOTSPOT_ToolLib(TimeEntryDone, ToolLib, 502, 10, 561, 69)
 	GROUP_HOTSPOT_ToolLib(FileName, ToolLib, 10, 10, 583, 69)
 	GROUP_HOTSPOT_ToolLib(ClearFile, ToolLib, 594, 15, 643, 64)
-	GROUP_HOTSPOT_ToolLib(UsbDriveRadio, ToolLib, 645, 8, 738, 57)
-	GROUP_HOTSPOT_ToolLib(SdDriveRadio, ToolLib, 645, 58, 738, 107)
+	GROUP_HOTSPOT_ToolLib(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	GROUP_HOTSPOT_ToolLib(SdDriveRadio, ToolLib, 645, 58, 748, 107)
 	GROUP_HOTSPOT_ToolLib(ImportRadio, ToolLib, 749, 8, 873, 57)
 	GROUP_HOTSPOT_ToolLib(ExportRadio, ToolLib, 749, 58, 873, 107)
 	GROUP_HOTSPOT_ToolLib(ImpExpExecute, ToolLib, 884, 10, 943, 69)
@@ -1523,6 +1597,30 @@ END_GROUP_TimeSet(TimeSet)
 #undef GROUP_HOTSPOT_TimeSet
 #undef END_GROUP_TimeSet
 
+#ifndef START_GROUP_Update
+#define START_GROUP_Update(a)
+#endif
+#ifndef GROUP_HOTSPOT_Update
+#define GROUP_HOTSPOT_Update(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Update
+#define END_GROUP_Update(a)
+#endif
+
+START_GROUP_Update(Update)
+	GROUP_HOTSPOT_Update(FileName, Update, 10, 10, 708, 69)
+	GROUP_HOTSPOT_Update(ClearFile, Update, 719, 15, 768, 64)
+	GROUP_HOTSPOT_Update(UsbDriveRadio, Update, 770, 0, 873, 49)
+	GROUP_HOTSPOT_Update(SdDriveRadio, Update, 770, 50, 873, 99)
+	GROUP_HOTSPOT_Update(UpdateExecute, Update, 884, 10, 943, 69)
+	GROUP_HOTSPOT_Update(UpdateCancel, Update, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_Update(VersionMatch, Update, 637, 94, 692, 149)
+END_GROUP_Update(Update)
+
+#undef START_GROUP_Update
+#undef GROUP_HOTSPOT_Update
+#undef END_GROUP_Update
+
 #ifndef START_SCREEN_Overlay
 #define START_SCREEN_Overlay(a)
 #endif
@@ -1575,23 +1673,23 @@ START_SCREEN_Overlay(SpeedDisplay)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(SpeedDisplay)
 
-START_SCREEN_Overlay(ToolButtons)
-	IMAGE_ADDRESS_Overlay(1695000)
-	IMAGE_SIZE_Overlay(128400)
-	IMAGE_WIDTH_Overlay(600)
-	IMAGE_HEIGHT_Overlay(107)
-	IMAGE_STRIDE_Overlay(600)
-	IMAGE_DEPTH_Overlay(Color16bpp)
-END_SCREEN_Overlay(ToolButtons)
-
 START_SCREEN_Overlay(CheckBox)
-	IMAGE_ADDRESS_Overlay(2169000)
+	IMAGE_ADDRESS_Overlay(1747536)
 	IMAGE_SIZE_Overlay(2048)
 	IMAGE_WIDTH_Overlay(64)
 	IMAGE_HEIGHT_Overlay(32)
 	IMAGE_STRIDE_Overlay(64)
 	IMAGE_DEPTH_Overlay(Color8bpp)
 END_SCREEN_Overlay(CheckBox)
+
+START_SCREEN_Overlay(ToolButtons)
+	IMAGE_ADDRESS_Overlay(2042648)
+	IMAGE_SIZE_Overlay(128400)
+	IMAGE_WIDTH_Overlay(600)
+	IMAGE_HEIGHT_Overlay(107)
+	IMAGE_STRIDE_Overlay(600)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ToolButtons)
 
 START_SCREEN_Overlay(LoadSave)
 	IMAGE_ADDRESS_Overlay(3213608)
@@ -1656,6 +1754,33 @@ START_SCREEN_Overlay(FileIcons)
 	IMAGE_DEPTH_Overlay(Color16bpp)
 END_SCREEN_Overlay(FileIcons)
 
+START_SCREEN_Overlay(UpdateCheck)
+	IMAGE_ADDRESS_Overlay(3666472)
+	IMAGE_SIZE_Overlay(4096)
+	IMAGE_WIDTH_Overlay(64)
+	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(64)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(UpdateCheck)
+
+START_SCREEN_Overlay(InspectUpdate)
+	IMAGE_ADDRESS_Overlay(3670568)
+	IMAGE_SIZE_Overlay(20400)
+	IMAGE_WIDTH_Overlay(120)
+	IMAGE_HEIGHT_Overlay(85)
+	IMAGE_STRIDE_Overlay(120)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(InspectUpdate)
+
+START_SCREEN_Overlay(UpdateLabel)
+	IMAGE_ADDRESS_Overlay(3690968)
+	IMAGE_SIZE_Overlay(4704)
+	IMAGE_WIDTH_Overlay(84)
+	IMAGE_HEIGHT_Overlay(28)
+	IMAGE_STRIDE_Overlay(84)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(UpdateLabel)
+
 #undef START_SCREEN_Overlay
 #undef IMAGE_ADDRESS_Overlay
 #undef IMAGE_SIZE_Overlay
@@ -1665,7 +1790,7 @@ END_SCREEN_Overlay(FileIcons)
 #undef IMAGE_DEPTH_Overlay
 #undef END_SCREEN_Overlay
 
-SCREEN_FILE_LENGTH(3666472)
+SCREEN_FILE_LENGTH(3998776)
 
 #undef START_SCREEN
 #undef IMAGE_ADDRESS
@@ -1694,5 +1819,7 @@ SCREEN_FILE_LENGTH(3666472)
 #undef START_STR_VALUES
 #undef DEFINE_STR_VALUE
 #undef END_STR_VALUES
+#undef START_COLORS
 #undef DEFINE_COLOR
+#undef END_COLORS
 #undef SCREEN_FILE_LENGTH

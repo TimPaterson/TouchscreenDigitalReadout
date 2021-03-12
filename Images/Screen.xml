@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Project [<!ENTITY Fonts SYSTEM "../Fonts/Fonts.xml">]>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="C:\Users\Tim\OneDrive\Tim\Documents\Technical\Develop\TimTools\ScreenDesigner\ScreenDesigner.xsd"
+         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd"
          StrideMultiple="4">
   &Fonts;
   <Set>
@@ -747,178 +747,7 @@
     </Item>
   </Canvas>
 
-  <!-- Tool Library (PIP) -->
-
-  <Set ShowValue="ToolListHeight">ToolListHeight</Set>
-  <Set ShowValue="ToolListWidth">ToolListWidth</Set>
-  <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
-  <Set ShowValue="ToolListTop">ToolLibHeight</Set>
-
-  <Component Name="ToolButton">
-    <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
-      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolInfoForeground">
-      <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
-      <TextBlock Name="Label" Top="ToolBtnHeight + 3" Font="BtnFont" FontSize="17" Foreground="ToolInfoForeground"/>
-    </Rectangle>
-  </Component>
-
-  <Set>
-    <!-- Adjust size of icon, keeping it centered -->
-    OkIconAdj = 0;
-    TrashIconAdj = 10;
-    FolderIconAdj = 12;
-    CancelIconAdj = 0;
-  </Set>
-
-  <Component Name="DoneButton">
-    <Ref RefName="ToolButton">
-      <Set>
-        Icon.Source = Ok128.png;
-        Icon.Height = ToolBtnHeight - OkIconAdj;
-        Icon.Width = ToolBtnWidth - OkIconAdj;
-        Icon.Top = OkIconAdj / 2;
-        Icon.Left = OkIconAdj / 2;
-        Label.Text = Done;
-      </Set>
-    </Ref>
-  </Component>
-
-  <Component Name="CancelButton">
-    <Ref RefName="ToolButton">
-      <Set>
-        Icon.Source = Cancel128.png;
-        Icon.Height = ToolBtnHeight - CancelIconAdj;
-        Icon.Width = ToolBtnWidth - CancelIconAdj;
-        Icon.Top = CancelIconAdj / 2;
-        Icon.Left = CancelIconAdj / 2;
-        Label.Text = Cancel;
-      </Set>
-    </Ref>
-  </Component>
-
-  <Component Name="ToolButtons">
-    <Ref RefName="DoneButton">
-      <Set>
-        Button.Name = OkButton;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
-      <Set>
-        Icon.Source = Trash128.png;
-        Icon.Height = ToolBtnHeight - TrashIconAdj;
-        Icon.Width = ToolBtnWidth - TrashIconAdj;
-        Icon.Top = TrashIconAdj / 2;
-        Icon.Left = TrashIconAdj / 2;
-        Label.Text = Delete;
-        Button.Name = DeleteButton;
-      </Set>
-    </Ref>
-    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-      <Set>
-        Icon.Source = Folder128.png;
-        Icon.Height = ToolBtnHeight - FolderIconAdj;
-        Icon.Width = ToolBtnWidth - FolderIconAdj;
-        Icon.Top = FolderIconAdj / 2;
-        Icon.Left = FolderIconAdj / 2;
-        Label.Text = "Import/&#xA;Export";
-        Button.Name = FileButton;
-      </Set>
-    </Ref>
-  </Component>
-
-  <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
-    <Ref RefName="ToolInfo" Left="ToolLibLeft" Top="KeySpace">
-      <Set>
-        TextAreaTop.Top = 18;
-        DummyText.Foreground = ToolInfoBackground; <!-- Hide the dummy text -->
-      </Set>
-    </Ref>
-    <Image HotSpot="ClearDesc" Group="ToolLib" Source="Delete128.png" Left="ToolInfoClearBtnLeft" Top="ToolInfoClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
-    <Ref RefName="ToolLabels" Left="ToolLibLeft" Top="KeySpace + ToolInfoHeight">
-      <Set>
-        Item.Height = ToolLabelHeight;
-        ToolLabelDesc.Height = ToolLabelHeight;
-        ToolLabelDesc.Width = ToolInfoDescWidth;
-        ToolTextDesc.Left = 80;
-      </Set>
-    </Ref>
-    <Rectangle Area="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace" Width="ToolButtonsWidth" Height="ToolCtrlHeight">
-      <Ref RefName="ToolButtons">
-        <Set>
-          OkButton.Group = ToolLib;
-          OkButton.HotSpot = ToolsDone;
-          DeleteButton.HotSpot = ToolDelete;
-          DeleteButton.Group = ToolLib;
-          FileButton.HotSpot = ToolImportExport;
-          FileButton.Group = ToolLib;
-        </Set>
-      </Ref>
-    </Rectangle>
-  </Canvas>
-
-  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
-    <Rectangle Left="ToolLibLeft" Height="ToolRowHeight + 1" Width="ToolRowWidth - ToolLibLeft">
-      <Ref RefName="ToolInfo">
-        <Set>
-          Item.Height = ToolRowHeight + 1;
-          ToolItemDesc.Height = ToolRowHeight + 1;
-          SpotDesc.Height = ToolRowHeight + 1;
-          Spot.HotSpot = "";
-          ToolItemDesc.HotSpot = "";
-          SpotDesc.HotSpot = "";
-          ToolItemDesc.Width = ToolListDescWidth;
-          SpotDesc.Width = ToolListDescWidth;
-          TextAreaTop.Top = 12;
-          ToolDesc.Width = ToolListDescWidth - ToolDescTextLeft - 1;
-          DummyText.Foreground = ToolLibBackground; <!-- Hide the dummy text -->
-        </Set>
-      </Ref>
-    </Rectangle>
-  </Canvas>
-
-  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolInfoBackground" ColorDepth="Color16bpp">
-    <Item>
-      <Ref RefName="ToolButtons"/>
-    </Item>
-    <Item>
-      <Ref RefName="ToolButton">
-        <Set>
-          Icon.Source = Trash128.png;
-          Icon.Height = ToolBtnHeight - TrashIconAdj;
-          Icon.Width = ToolBtnWidth - TrashIconAdj;
-          Icon.Top = TrashIconAdj / 2;
-          Icon.Left = TrashIconAdj / 2;
-          Label.Text = Confirm&#xA; Delete
-        </Set>
-      </Ref>
-      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-        <Set>
-          Icon.Source = Cancel128.png;
-          Icon.Height = ToolBtnHeight - CancelIconAdj;
-          Icon.Width = ToolBtnWidth - CancelIconAdj;
-          Icon.Top = CancelIconAdj / 2;
-          Icon.Left = CancelIconAdj / 2;
-          Label.Text = Cancel&#xA;Delete
-        </Set>
-      </Ref>
-    </Item>
-    <Item>
-      <Ref RefName="DoneButton"/>
-      <Ref RefName="CancelButton" Left="ToolBtnWidth + KeySpace"/>
-      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
-        <Set>
-          Icon.Source = Folder128.png;
-          Icon.Height = ToolBtnHeight - FolderIconAdj;
-          Icon.Width = ToolBtnWidth - FolderIconAdj;
-          Icon.Top = FolderIconAdj / 2;
-          Icon.Left = FolderIconAdj / 2;
-          Label.Text = "Import/&#xA;Export";
-        </Set>
-      </Ref>
-    </Item>
-  </Canvas>
-
-  <!-- Settings Screens (PIP) -->
+  <!-- Settings Screen (PIP) -->
 
   <Set>
     AxisLabelWidth = 54;
@@ -1149,6 +978,177 @@
     </Item>
     <Item>
       <Ref RefName="CheckedBox"/>
+    </Item>
+  </Canvas>
+
+  <!-- Tool Library (PIP) -->
+
+  <Set ShowValue="ToolListHeight">ToolListHeight</Set>
+  <Set ShowValue="ToolListWidth">ToolListWidth</Set>
+  <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
+  <Set ShowValue="ToolListTop">ToolLibHeight</Set>
+
+  <Component Name="ToolButton">
+    <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolInfoForeground">
+      <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
+      <TextBlock Name="Label" Top="ToolBtnHeight + 3" Font="BtnFont" FontSize="17" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Set>
+    <!-- Adjust size of icon, keeping it centered -->
+    OkIconAdj = 0;
+    TrashIconAdj = 10;
+    FolderIconAdj = 12;
+    CancelIconAdj = 0;
+  </Set>
+
+  <Component Name="DoneButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Ok128.png;
+        Icon.Height = ToolBtnHeight - OkIconAdj;
+        Icon.Width = ToolBtnWidth - OkIconAdj;
+        Icon.Top = OkIconAdj / 2;
+        Icon.Left = OkIconAdj / 2;
+        Label.Text = Done;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="CancelButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Cancel128.png;
+        Icon.Height = ToolBtnHeight - CancelIconAdj;
+        Icon.Width = ToolBtnWidth - CancelIconAdj;
+        Icon.Top = CancelIconAdj / 2;
+        Icon.Left = CancelIconAdj / 2;
+        Label.Text = Cancel;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="ToolButtons">
+    <Ref RefName="DoneButton">
+      <Set>
+        Button.Name = OkButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
+      <Set>
+        Icon.Source = Trash128.png;
+        Icon.Height = ToolBtnHeight - TrashIconAdj;
+        Icon.Width = ToolBtnWidth - TrashIconAdj;
+        Icon.Top = TrashIconAdj / 2;
+        Icon.Left = TrashIconAdj / 2;
+        Label.Text = Delete;
+        Button.Name = DeleteButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+      <Set>
+        Icon.Source = Folder128.png;
+        Icon.Height = ToolBtnHeight - FolderIconAdj;
+        Icon.Width = ToolBtnWidth - FolderIconAdj;
+        Icon.Top = FolderIconAdj / 2;
+        Icon.Left = FolderIconAdj / 2;
+        Label.Text = "Import/&#xA;Export";
+        Button.Name = FileButton;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Ref RefName="ToolInfo" Left="ToolLibLeft" Top="KeySpace">
+      <Set>
+        TextAreaTop.Top = 18;
+        DummyText.Foreground = ToolInfoBackground; <!-- Hide the dummy text -->
+      </Set>
+    </Ref>
+    <Image HotSpot="ClearDesc" Group="ToolLib" Source="Delete128.png" Left="ToolInfoClearBtnLeft" Top="ToolInfoClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    <Ref RefName="ToolLabels" Left="ToolLibLeft" Top="KeySpace + ToolInfoHeight">
+      <Set>
+        Item.Height = ToolLabelHeight;
+        ToolLabelDesc.Height = ToolLabelHeight;
+        ToolLabelDesc.Width = ToolInfoDescWidth;
+        ToolTextDesc.Left = 80;
+      </Set>
+    </Ref>
+    <Rectangle Area="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace" Width="ToolButtonsWidth" Height="ToolCtrlHeight">
+      <Ref RefName="ToolButtons">
+        <Set>
+          OkButton.Group = ToolLib;
+          OkButton.HotSpot = ToolsDone;
+          DeleteButton.HotSpot = ToolDelete;
+          DeleteButton.Group = ToolLib;
+          FileButton.HotSpot = ToolImportExport;
+          FileButton.Group = ToolLib;
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Rectangle Left="ToolLibLeft" Height="ToolRowHeight + 1" Width="ToolRowWidth - ToolLibLeft">
+      <Ref RefName="ToolInfo">
+        <Set>
+          Item.Height = ToolRowHeight + 1;
+          ToolItemDesc.Height = ToolRowHeight + 1;
+          SpotDesc.Height = ToolRowHeight + 1;
+          Spot.HotSpot = "";
+          ToolItemDesc.HotSpot = "";
+          SpotDesc.HotSpot = "";
+          ToolItemDesc.Width = ToolListDescWidth;
+          SpotDesc.Width = ToolListDescWidth;
+          TextAreaTop.Top = 12;
+          ToolDesc.Width = ToolListDescWidth - ToolDescTextLeft - 1;
+          DummyText.Foreground = ToolLibBackground; <!-- Hide the dummy text -->
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolInfoBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="ToolButtons"/>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = Trash128.png;
+          Icon.Height = ToolBtnHeight - TrashIconAdj;
+          Icon.Width = ToolBtnWidth - TrashIconAdj;
+          Icon.Top = TrashIconAdj / 2;
+          Icon.Left = TrashIconAdj / 2;
+          Label.Text = Confirm&#xA; Delete
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Cancel128.png;
+          Icon.Height = ToolBtnHeight - CancelIconAdj;
+          Icon.Width = ToolBtnWidth - CancelIconAdj;
+          Icon.Top = CancelIconAdj / 2;
+          Icon.Left = CancelIconAdj / 2;
+          Label.Text = Cancel&#xA;Delete
+        </Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="DoneButton"/>
+      <Ref RefName="CancelButton" Left="ToolBtnWidth + KeySpace"/>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Folder128.png;
+          Icon.Height = ToolBtnHeight - FolderIconAdj;
+          Icon.Width = ToolBtnWidth - FolderIconAdj;
+          Icon.Top = FolderIconAdj / 2;
+          Icon.Left = FolderIconAdj / 2;
+          Label.Text = "Import/&#xA;Export";
+        </Set>
+      </Ref>
     </Item>
   </Canvas>
 
@@ -1436,17 +1436,17 @@
     RadioButtonDot = 16;
     RadioDotOffset = (RadioButtonSize - RadioButtonDot) / 2;
     RadioImpExpWidth = 125; <!-- includes text -->
-    RadioDriveWidth = 94;
+    RadioDriveWidth = 104;
     RadioButtonHeight = 50; <!-- vertical pitch-->
     RadioButtonVoffset = (RadioButtonHeight - RadioButtonSize) / 2;
     RadioButtonTop = (ToolLibHeight - 2 * RadioButtonHeight) / 2;
-    ImportCtrlsWidth = RadioImpExpWidth + RadioDriveWidth + KeySpace * 3 + BtnWidth * 2;
+    ImportCtrlsWidth = RadioImpExpWidth + RadioDriveWidth + KeySpace * 2 + BtnWidth * 2;
     ImportCtrlsLeft = ToolLibWidth - ImportCtrlsWidth - KeySpace;
     FileClearBtnLeft = ImportCtrlsLeft - KeySpace - ClearBtnWidth - 1;
     FileClearBtnTop = (FileEntryHeight - ClearBtnHeight) / 2;
     FileBoxWidth = ImportCtrlsLeft - KeySpace;
     FileTextLeft = EditBoxMargin;
-    FileTextWidth= FileClearBtnLeft - 2 * EditBoxMargin;
+    FileTextWidth = FileClearBtnLeft - 2 * EditBoxMargin;
     ImportWarningTop = 75;
     TimestampTop = 80;
     SetButtonHeight = 46;
@@ -1588,7 +1588,7 @@
     ExportIconAdj = ImportIconAdj;
     AddFolderAdj = 0;
     OpenFolderAdj = 3;
-    RadioImpExpLeft = RadioDriveWidth + KeySpace;
+    RadioImpExpLeft = RadioDriveWidth;
     ImpExpButtonLeft = RadioImpExpLeft + RadioImpExpWidth + KeySpace;
     ImpExpCancelLeft = ImpExpButtonLeft + BtnWidth + KeySpace;
   </Set>
@@ -1845,5 +1845,211 @@
     <Item>
       <Image Height="IconSize" Width="IconSize" Source="Error128.png"/>
     </Item>
+  </Canvas>
+
+  <!-- Firmware Update -->
+  <Set>
+    UpdateHeight = 148;
+    UpdateWidth = ScreenWidth;
+    UpdateCtrlsWidth = RadioDriveWidth + KeySpace * 3 + BtnWidth * 2;
+    UpdateCtrlsLeft = UpdateWidth - UpdateCtrlsWidth;
+    UpdateCtrlHeight = ToolBtnHeight + 25;  <!-- include room for label -->
+    UpdateLoadLeft = RadioDriveWidth + KeySpace;
+    UpdateCancelLeft = UpdateLoadLeft + BtnWidth + KeySpace;
+    UpdateFileBoxWidth = UpdateCtrlsLeft - KeySpace;
+    UpdateClearBtnLeft = UpdateCtrlsLeft - KeySpace - ClearBtnWidth - 1;
+    UpdateFileTextWidth = UpdateClearBtnLeft - 2 * EditBoxMargin;
+    CurrentVersionTop = 75;
+    VersionWidth = 4 * 14; <!-- four numbers -->
+    VersionLineSpace = SmallTextHeight + 5;
+    VersionSeparatorGap = 10;
+    UpdateRadioButtonTop = 0;
+    CheckboxSpotWidth = 56;
+    CheckboxSpotHeight = 56;
+  </Set>
+  <Set ShowValue="UpdateFileListTop">UpdateHeight</Set>
+  <Set ShowValue="UpdateFileListHeight">ScreenHeight - UpdateHeight</Set>
+
+  <Color Name="UpdateBackground" Color="ToolInfoBackground"/>
+  <Color Name="UpdateForeground" Color="ToolInfoForeground"/>
+
+  <Component Name="VersionNumber">
+    <TextBlock Name="VersionText" Width="VersionWidth" Font="CalcSmall" Text="0001" Foreground="UpdateForeground"/>
+    <Set>VersionText.Foreground = UpdateBackground</Set> <!-- Blank the text -->
+  </Component>
+
+  <Component Name="VersionSeparator">
+    <TextBlock Name="VersionSeparatorText" Font="CalcSmall" Text=" " Left="VersionSeparatorGap" Top="0" Foreground="Silver"/>
+  </Component>
+
+  <Set>
+    <!-- Adjust size of icon, keeping it centered -->
+    InspectIconAdj = 0;
+    UpdateIconAdj = 6;
+  </Set>
+
+  <Component Name="InspectButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Inspect128.png;
+        Icon.Height = ToolBtnHeight - InspectIconAdj;
+        Icon.Width = ToolBtnWidth - InspectIconAdj;
+        Icon.Top = InspectIconAdj / 2;
+        Icon.Left = InspectIconAdj / 2;
+        Label.Text = Inspect;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="UpdateButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Update.png;
+        Icon.Height = ToolBtnHeight - UpdateIconAdj;
+        Icon.Width = ToolBtnWidth - UpdateIconAdj;
+        Icon.Top = UpdateIconAdj / 2;
+        Icon.Left = UpdateIconAdj / 2;
+        Label.Text = Update;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="UpdateLabel">
+    <TextBlock Name="UpdateLabel" Font="CalcSmall" Foreground="UpdateForeground">Update:</TextBlock>
+  </Component>
+
+  <Canvas Name="UpdateCheck" Type="Overlay" Height="CheckboxSize" ItemWidth="CheckboxSize" Fill="UpdateBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="UncheckedBox"/>
+      <Set>Check.Fill = UpdateBackground</Set>
+    </Item>
+    <Item>
+      <Ref RefName="CheckedBox"/>
+      <Set>Check.Fill = UpdateBackground</Set>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="InspectUpdate" Type="Overlay" Height="UpdateCtrlHeight" ItemWidth="BtnWidth" ColorDepth="Color16bpp" Fill="UpdateBackground">
+    <Item>
+      <Ref RefName="InspectButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="UpdateButton"/>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="UpdateLabel" Type="Overlay" Height="UpdateLabel.Height" Width="UpdateLabel.Width" ColorDepth="Color16bpp" Fill="UpdateBackground">
+    <Ref RefName="UpdateLabel"/>
+  </Canvas>
+
+  <Canvas Name="UpdateDialog" Height="UpdateHeight" Width="UpdateWidth" ColorDepth="Color16bpp" Fill="UpdateBackground" WidthMultiple="4">
+    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="UpdateFileBoxWidth" StrokeThickness="1" Stroke="UpdateForeground">
+      <Rectangle HotSpot="FileName" Group="Update" Height="FileEntryHeight" Width="UpdateFileTextWidth"/>
+      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="EditBoxMargin"
+        Height="SmallTextHeight" Width="UpdateFileTextWidth"/>
+      <Image HotSpot="ClearFile" Group="Update" Source="Delete128.png" Left="UpdateClearBtnLeft" Top="FileClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    </Rectangle>
+    <Rectangle Left="UpdateCtrlsLeft" Height="UpdateHeight" Width="UpdateCtrlsWidth">
+      <Ref RefName="RadioButtonTextOn" Top="UpdateRadioButtonTop">
+        <Set>
+          Text.Text = USB;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = UsbDriveRadio;
+          RadioBox.Group = Update;
+          Circle.Area = UsbDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="UpdateRadioButtonTop + RadioButtonHeight">
+        <Set>
+          Text.Text = SD;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = SdDriveRadio;
+          RadioBox.Group = Update;
+          Circle.Area = SdDriveBox;
+        </Set>
+      </Ref>
+      <Rectangle Area="UpdateButton" Left="UpdateLoadLeft" Top="KeySpace" Width="BtnWidth" Height="UpdateCtrlHeight">
+        <Ref RefName="InspectButton">
+          <Set>
+            Button.Group = Update;
+            Button.HotSpot = UpdateExecute;
+          </Set>
+        </Ref>
+      </Rectangle>
+      <Ref RefName="CancelButton" Left="UpdateCancelLeft" Top="KeySpace">
+        <Set>
+          Button.Group = Update;
+          Button.HotSpot = UpdateCancel;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Top="CurrentVersionTop" Left="KeySpace" Width="UpdateWidth" Height="SmallTextHeight">
+      <TextBlock Name="CurrentVersionLabel" Left="0" Font="CalcSmall" Foreground="UpdateForeground">Current Firmware: </TextBlock>
+      <Set>
+        FirmwareVersionLeft = CurrentVersionLabel.Width;
+        VersionSeparatorWidth = VersionSeparatorText.Width;
+        FirmwareSeparatorLeft = FirmwareVersionLeft + VersionWidth;
+        GraphicsLabelLeft = FirmwareSeparatorLeft + VersionSeparatorWidth + 2 * VersionSeparatorGap;
+      </Set>
+      <Ref RefName="VersionNumber" Left="FirmwareVersionLeft">
+        <Set>VersionText.Area = CurrrentFirmware</Set>
+      </Ref>
+      <Ref RefName="VersionSeparator" Left="FirmwareSeparatorLeft"/>
+      <TextBlock Name="GraphicsLabel" Left="GraphicsLabelLeft" Font="CalcSmall" Foreground="UpdateForeground">Graphics: </TextBlock>
+      <Set>
+        GraphicsVersionLeft = GraphicsLabelLeft + GraphicsLabel.Width;
+        GraphicsSeparatorLeft = GraphicsVersionLeft + VersionWidth;
+        FontLabelLeft = GraphicsSeparatorLeft + VersionSeparatorWidth + 2 * VersionSeparatorGap;
+      </Set>
+      <!-- The order of the version number Areas is used in code -->
+      <Ref RefName="VersionNumber" Left="GraphicsVersionLeft">
+        <Set>VersionText.Area = CurrrentGraphics</Set>
+      </Ref>
+      <Ref RefName="VersionSeparator" Left="GraphicsSeparatorLeft"/>
+      <TextBlock Name="FontsLabel" Left="FontLabelLeft" Font="CalcSmall" Foreground="UpdateForeground">Fonts: </TextBlock>
+      <Set>
+        FontVersionLeft = FontLabelLeft + FontsLabel.Width;
+        FontVersionRight = FontVersionLeft + VersionWidth;
+      </Set>
+      <Ref RefName="VersionNumber" Left="FontVersionLeft">
+        <Set>VersionText.Area = CurrrentFonts</Set>
+      </Ref>
+      <Rectangle Area="ProgressBar" Top="VersionLineSpace" Width="FontVersionRight + KeySpace" Height="SmallTextHeight">
+        <Ref RefName="UpdateLabel">
+          <Set>
+            UpdateLabel.Area = UpdateLabel;
+            UpdateLabel.Foreground = UpdateBackground; <!-- Hide the text -->
+          </Set>
+        </Ref>
+        <!-- The order of the version number Areas is used in code -->
+        <Ref RefName="VersionNumber" Left="FirmwareVersionLeft">
+          <Set>VersionText.Area = UpdateFirmware</Set>
+        </Ref>
+        <Ref RefName="VersionSeparator" Left="FirmwareSeparatorLeft"/>
+        <Ref RefName="VersionNumber" Left="GraphicsVersionLeft">
+          <Set>VersionText.Area = UpdateGraphics</Set>
+        </Ref>
+        <Ref RefName="VersionSeparator" Left="GraphicsSeparatorLeft"/>
+        <Ref RefName="VersionNumber" Left="FontVersionLeft">
+          <Set>VersionText.Area = UpdateFonts</Set>
+        </Ref>
+        <TextBlock Name="VersionCheck" Font="CalcSmall" Foreground="UpdateForeground">Update even if versions match</TextBlock>
+        <Set>
+          VersionCheckLeft = UpdateWidth - KeySpace * 2 - VersionCheck.Width;
+          VersionCheck.Left = VersionCheckLeft;
+          CheckboxLeft = VersionCheckLeft - CheckboxSize - KeySpace;
+          CheckboxTop = (SmallTextHeight - CheckboxSize) / 2;
+        </Set>
+        <Rectangle HotSpot="VersionMatch" Group="Update" Height="CheckboxSpotHeight" Width="CheckboxSpotWidth"
+          Left="CheckboxLeft - (CheckboxSpotWidth - CheckboxSize) / 2" Top="CheckboxTop - (CheckboxSpotHeight - CheckboxSize) / 2">
+        </Rectangle>
+        <Ref RefName="UncheckedBox" Left="CheckboxLeft" Top="CheckboxTop">
+          <Set>
+            Check.Fill = UpdateBackground;
+            Check.Area = VersionMatch;
+          </Set>
+        </Ref>
+      </Rectangle>
+    </Rectangle>
   </Canvas>
 </Project>

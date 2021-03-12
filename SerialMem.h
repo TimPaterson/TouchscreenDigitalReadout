@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <sam.h>
+
 
 //****************************************************************************
 // Serial memory constants. Must be C-compatible.
@@ -21,9 +23,16 @@ static const int SerialFlashBlockSize = 0x8000;
 #define SCREEN_FILE_LENGTH(val)	static const int ScreenFileLength = val;
 #include "Images/Screen.h"
 
+// The first chunk of screen memory is reserved for the binary image
+// of the firmware during an update.
+static const int MaxProgramSize = FLASH_SIZE;
+
 static const int MegaByte = 0x100000;
+// The first block of serial flash is unused, available
+// for RA8876 startup code
 static const int FlashScreenStart = SerialFlashBlockSize;
 static const int FlashFontStart = 14 * MegaByte;
-static const int RamScreenStart = 0;
+
+static const int RamScreenStart = MaxProgramSize;
 static const int RamFontStart = RamScreenStart + ScreenFileLength;
 static const int RamFreeStart = RamFontStart + FontFileLength;

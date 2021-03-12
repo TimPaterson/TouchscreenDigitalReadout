@@ -16,7 +16,10 @@
 #include "FatFileDef.h"
 
 
-#define VERSION	0
+#define PROGRAM_VERSION		1
+#define GRAPHICS_VERSION	2
+#define FONT_VERSION		3
+
 
 static constexpr double MmPerInch = 25.4;
 

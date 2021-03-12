@@ -80,6 +80,12 @@ public:
 		ScreenMgr::FillRect(this, &area, ScrollBarColor);
 	}
 
+	void SetViewHeight(uint height)
+	{
+		m_viewHeight = height;
+		m_lineViewCnt = height / m_lineHeight;
+	}
+
 	void SetTotalLines(int lines)	
 	{
 		m_lineCnt = lines;

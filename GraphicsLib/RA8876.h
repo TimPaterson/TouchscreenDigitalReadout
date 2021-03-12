@@ -433,7 +433,7 @@ public:
 		WriteReg(SPIMCR, bCs);
 	}
 
-	static int SerialMemWriteStart(ulong addr, int cb, void *pv, uint port)
+	static int SerialMemWriteStart(ulong addr, int cb, void *pv, uint port) NO_INLINE_ATTR
 	{
 		byte	*pb = (byte *)pv;
 		int		cbPage;
@@ -486,34 +486,25 @@ public:
 		} while (cb > 0);
 	}
 
-	static void SerialMemErase(ulong addr, int cb, uint port) NO_INLINE_ATTR
+	static int SerialMemEraseStart(ulong addr, int cb, uint port) NO_INLINE_ATTR
 	{
-		int		cbBase;
-
-		while (cb > 0)
-		{
-			// Do a full 32K block if aligned and want that much
-			if (cb >= SerialFlashBlockSize && addr % SerialFlashBlockSize == 0)
-			{
-				SerialMemEraseCmd(addr, SFCMD_BlockErase, port);
-				cbBase = SerialFlashBlockSize;
-			}
-			else
-			{
-				// This could be unaligned, meaning we'll erase stuff
-				// preceding the address. Sorry about that.
-				SerialMemEraseCmd(addr, SFCMD_SectorErase, port);
-				// Count only the bytes we intended (subtract preceding bytes)
-				cbBase = SerialFlashSectorSize - addr % SerialFlashSectorSize;
-			}
-			cb -= cbBase;
-			addr += cbBase;
-		}
-	}
-
-	static void SerialMemEraseCmd(ulong addr, uint cmd, uint port) NO_INLINE_ATTR
-	{
+		uint	cmd;
 		byte	bCs;
+
+		// Do a full 32K block if aligned and want that much
+		if (cb >= SerialFlashBlockSize && addr % SerialFlashBlockSize == 0)
+		{
+			cmd = SFCMD_BlockErase;
+			cb = SerialFlashBlockSize;
+		}
+		else
+		{
+			// This could be unaligned, meaning we'll erase stuff
+			// preceding the address. Sorry about that.
+			cmd = SFCMD_SectorErase;
+			// Count only the bytes we intended (subtract preceding bytes)
+			cb = SerialFlashSectorSize - addr % SerialFlashSectorSize;
+		}
 
 		WriteReg(SPI_DIVSOR, port ? SpiDivisor1 : SpiDivisor0);
 		bCs = SPIMCR_SpiMode0 | (port ? SPIMCR_SlaveSelectCs1 : SPIMCR_SlaveSelectCs0);
@@ -537,9 +528,20 @@ public:
 		while (!(ReadReg(SPIMSR) & SPIMSR_Idle));
 		// Release CS, starting write operation
 		WriteReg(SPIMCR, bCs);
+		return cb;
+	}
 
-		// Poll for completion
-		while (SerialMemGetStatus() & SFSTAT_Busy);
+	static void SerialMemErase(ulong addr, int cb, uint port) NO_INLINE_ATTR
+	{
+		int		cbPage;
+
+		do 
+		{
+			cbPage = SerialMemEraseStart(addr, cb, port);
+			addr += cbPage;
+			cb -= cbPage;
+			while (IsSerialMemBusy());
+		} while (cb > 0);
 	}
 
 	void CopySerialMemToRam(ulong addrFlash, ulong addrRam, int cb, uint port) NO_INLINE_ATTR

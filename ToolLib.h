@@ -39,13 +39,6 @@ class ToolLib
 		TOOL_IMAGE_IsModified,
 	};
 
-	enum RadioButtonImages
-	{
-		RADIO_False,
-		RADIO_True,
-		RADIO_NotAvailable,
-	};
-
 	enum ImportExportImages
 	{
 		// The first two are also referenced with the boolean s_isExport
@@ -117,6 +110,9 @@ class ToolLib
 	public:
 		ToolScroll() : ListScroll(ToolListWidth, ToolListHeight, ToolRowHeight,
 			Color16bpp, HOTSPOT_GROUP_ToolDisplay) {}
+
+		//*****************************************************************
+		// Implement functions in ListScroll
 
 	protected:
 		virtual void FillLine(int lineNum, Area *pArea)

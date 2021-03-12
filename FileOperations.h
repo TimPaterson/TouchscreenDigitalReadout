@@ -16,7 +16,7 @@ extern byte g_FileBuf[FileBufSectors][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 #define FILE_BUF_END ((byte *)g_FileBuf[FileBufSectors])
 
 // Use macros for state definitions
-#define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
+#define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read) OP_STATE(op, wait)
 #define SINGLE_OP_STATES(op) OP_STATE(op, ready)
 #define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, read0) OP_STATE(op, read1)
 #define EXPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, write) OP_STATE(op, flush) OP_STATE(op, close)
@@ -77,9 +77,9 @@ public:
 	void Process();
 	int WriteFileToFlash(const char *psz, ulong addr);
 	int Mount(int drv);
-	int ToolImport(const char *psz, int drive = 0);
-	int ToolExport(const char *psz, int drive = 0);
-	int FolderEnum(const char *pFilename, int drive, int cchName = 0, bool fCreate = false);
+	int ToolImport(const char *psz, int drive);
+	int ToolExport(const char *psz, int drive);
+	int FolderEnum(const char *pFilename, int drive, int cchName = FAT_NO_NAME_LEN, bool fCreate = false);
 
 public:
 	bool IsBusy()		{ return m_state != ST_Idle; }
@@ -105,7 +105,7 @@ protected:
 	}
 
 protected:
-	ErrorHandler	*m_pfnError;
+	ErrorHandler	*m_pfnError = NoErrorHandler;
 
 	union
 	{
@@ -113,6 +113,10 @@ protected:
 		struct  
 		{
 			ulong	addr;
+			ushort	cb;
+			ushort	erased;
+			ushort	oBuf;
+			byte	iBuf;
 		} flash;
 
 		// ToolImport

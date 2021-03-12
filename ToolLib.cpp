@@ -306,7 +306,7 @@ SetImportExportImages:
 		if (s_editMode != EDIT_File)
 			StartEditFile(x);
 		else
-			s_editFile.SetPositionPx(x); // Already editing description
+			s_editFile.SetPositionPx(x); // Already editing file
 		break;
 
 	case ClearFile:

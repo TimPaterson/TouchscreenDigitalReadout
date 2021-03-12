@@ -137,12 +137,17 @@ enum ToolAreas
 	ImpExpCancel,
 	ImportRadio,
 	ExportRadio,
-	FileName,
-	ClearFile,
 	TimeSet,
 	TimeEntryDone,
+	// Common with import/export and update
+	FileName,
+	ClearFile,
 	UsbDriveRadio,
 	SdDriveRadio,
+	// Update
+	UpdateExecute,
+	UpdateCancel,
+	VersionMatch,
 };
 
 enum TimeSetSpots
@@ -286,7 +291,6 @@ enum HotspotGroups
 	// First set of groups can capture the position
 	HOTSPOT_GROUP_ToolDisplay,
 	HOTSPOT_GROUP_FileDisplay,
-	HOTSPOT_GROUP_CaptureEnd,	// end of capture list
 
 	#include "Images/Screen.h"
 };

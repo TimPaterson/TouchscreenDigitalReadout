@@ -109,31 +109,48 @@ void FileOperations::Process()
 			// WriteFileToFlash
 
 			OP_STATE(flash, open)
-				cb = GetSize(m_hFile);
-				// Round up to full block size for erasure
-				cb = (cb + SerialFlashBlockSize - 1) & ~(SerialFlashBlockSize - 1);
-				StartRead(m_hFile, NULL, FAT_SECT_SIZE);
+				StartRead(m_hFile, g_FileBuf[0], FAT_SECT_SIZE);
+				flash.iBuf = 0;
 				TO_STATE(flash, read);
-
-				WDT->CTRL.reg = 0;	// disable watchdog during long process
-				RA8876::SerialMemErase(flash.addr, cb, 1);
-				WDT->CTRL.reg = WDT_CTRL_ENABLE;
+				flash.erased = RA8876::SerialMemEraseStart(flash.addr, SerialFlashBlockSize, 1);
 			END_STATE
 
 			OP_STATE(flash, read)
 				// status is no. of bytes read
-				cb = status;
-				if (cb > 0)
-				{
-					RA8876::SerialMemWrite(flash.addr, cb, GetDataBuf(), 1);
-					flash.addr += cb;
-					StartRead(m_hFile, NULL, FAT_SECT_SIZE);
-				}
-				else
+				flash.cb = status;
+				flash.oBuf = 0;
+				TO_STATE(flash, wait);
+			END_STATE
+
+			OP_STATE(flash, wait)
+				if (RA8876::IsSerialMemBusy())
+					EXIT_STATE
+				if (flash.cb == 0)
 				{
 					Close(m_hFile);
 					DEBUG_PRINT("complete\n");
 					OP_DONE;
+				}
+				else
+				{
+					if (flash.erased == 0)
+					{
+						flash.erased = RA8876::SerialMemEraseStart(flash.addr, SerialFlashBlockSize, 1);
+						EXIT_STATE
+					}
+					// Write next page
+					cb = RA8876::SerialMemWriteStart(flash.addr, flash.cb, &g_FileBuf[flash.iBuf][flash.oBuf], 1);
+					flash.addr += cb;
+					flash.oBuf += cb;
+					flash.cb -= cb;
+					flash.erased -= cb;
+					if (flash.cb == 0)
+					{
+						// Read next buffer
+						flash.iBuf ^= 1;
+						StartRead(m_hFile, &g_FileBuf[flash.iBuf], FAT_SECT_SIZE);
+						TO_STATE(flash, read);
+					}
 				}
 			END_STATE
 

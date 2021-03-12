@@ -15,6 +15,7 @@
 #include "AxisDisplay.h"
 #include "Actions.h"
 #include "FileOperations.h"
+#include "VersionUpdate.h"
 
 
 //*********************************************************************
@@ -65,6 +66,8 @@ extern "C"
 
 //*********************************************************************
 // Component data
+
+VersionInfo_t VersionInfo VERSION_INFO = { DroFirmwareId, PROGRAM_VERSION, GRAPHICS_VERSION, FONT_VERSION };
 
 Console_t	Console;
 FILE		Console_FILE;
@@ -157,7 +160,7 @@ int main(void)
 	Console.StreamInit(&Console_FILE);
 	Console.Enable();
 
-	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(VERSION) "\n");
+	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(PROGRAM_VERSION) "\n");
 	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
 	{
 		DEBUG_PRINT("WDT Reset\n");
@@ -303,6 +306,7 @@ int main(void)
 		}
 
 		// Process file operations
+		FatSys::Process();
 		FileOp.Process();
 
 		// Process screen touch

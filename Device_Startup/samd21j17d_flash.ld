@@ -115,6 +115,12 @@ SECTIONS
         _erelocate = .;
     } > ram
 
+	.version_info : AT(_etext + (_erelocate - _srelocate))
+	{
+        . = ALIGN(4);
+		KEEP (*(.version_info))
+	} > rom
+
     /* .bss section which is used for uninitialized data */
     .bss (NOLOAD) :
     {
