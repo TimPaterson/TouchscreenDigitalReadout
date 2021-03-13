@@ -26,7 +26,7 @@ EXTERN_C FontInfo *FontList[];
 
 //****************************************************************************
 
-class TextField : public RA8876
+class TextField : public ScreenMgr
 {
 public:
 	TextField(Canvas &canvas, const Area &area):
@@ -187,7 +187,7 @@ public:
 
 	void ClearToEnd(uint posX)
 	{
-		ScreenMgr::SetBteDest(m_pCanvas);
+		SetBteDest(m_pCanvas);
 		SetForeColor(m_backColor);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeSolidFill);
 		WriteRegXY(DT_X0, posX, m_pArea->Ypos);
@@ -198,7 +198,7 @@ public:
 
 	void FillArea(ulong color)
 	{
-		ScreenMgr::FillRect(m_pCanvas, m_pArea, color);
+		FillRect(m_pCanvas, m_pArea, color);
 	}
 
 	//*********************************************************************
@@ -210,9 +210,9 @@ protected:
 		byte	ctrl;
 		ulong	color;
 
-		ScreenMgr::SetBteDest(m_pCanvas);
+		SetBteDest(m_pCanvas);
 		WriteReg16(DT_Y0, m_curPosY);
-		ScreenMgr::SetBteSrc0((Image *)m_pFontInfo, FONT_DEPTH);
+		SetBteSrc0((Image *)m_pFontInfo, FONT_DEPTH);
 		WriteReg16(S0_Y0, 0);
 		WriteReg16(BTE_HIG0, m_pFontInfo->Height);
 		SetForeColor(m_foreColor);

@@ -493,10 +493,12 @@ public:
 				break;
 
 			case TouchCal:
+				// touch calibrations save changes to EEPROM
 				TouchCalibrate::Open();
 				break;
 
 			case FirmwareUpdate:
+				Eeprom.StartSave();	// save all changes
 				UpdateMgr::Open();
 				break;
 			}

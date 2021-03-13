@@ -30,7 +30,8 @@ struct VersionInfo_t
 //****************************************************************************
 // These structures form the header of a firmware update file.
 
-#define SIGNATURE	'P','a','t','e','r','s','o','n'
+#define UPDATE_SIGNATURE	'P','a','t','e','r','s','o','n'
+static constexpr int UpdateSignatureLength = 8;
 
 static constexpr int UpdateSectionCount = 3;
 
@@ -46,7 +47,7 @@ struct UpdateHeader
 {
 	union
 	{
-		char		archSignature[8];
+		char		archSignature[UpdateSignatureLength];
 		uint64_t	signature;
 	};
 	uint32_t		sectionsStart;

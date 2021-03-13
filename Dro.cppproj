@@ -296,6 +296,9 @@ DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"
     <Compile Include="GraphicsLib\ListScroll.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="GraphicsLib\ProgressBar.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="GraphicsLib\RA8876.h">
       <SubType>compile</SubType>
     </Compile>

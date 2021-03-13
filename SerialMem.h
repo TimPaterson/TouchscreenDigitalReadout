@@ -33,6 +33,7 @@ static const int MegaByte = 0x100000;
 static const int FlashScreenStart = SerialFlashBlockSize;
 static const int FlashFontStart = 14 * MegaByte;
 
-static const int RamScreenStart = MaxProgramSize;
+static const int RamUpdateStart = 0;
+static const int RamScreenStart = RamUpdateStart + MaxProgramSize;
 static const int RamFontStart = RamScreenStart + ScreenFileLength;
 static const int RamFreeStart = RamFontStart + FontFileLength;

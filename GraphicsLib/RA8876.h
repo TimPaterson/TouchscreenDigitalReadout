@@ -163,7 +163,7 @@ public:
 	static void FastFifoWrite16(uint val)
 	{
 		// Assumes address register already set
-		WaitFifoWrite();
+		//WaitFifoWrite();
 		WriteData16(val);
 	}
 
@@ -193,7 +193,7 @@ public:
 	static ushort FastFifoRead16()
 	{
 		// Assumes address register already set
-		WaitFifoRead();
+		//WaitFifoRead();
 		return ReadData16();
 	}
 
@@ -211,6 +211,35 @@ public:
 	{
 		WriteReg(INTF, INTF_Vsync);
 		while ((ReadData() & INTF_Vsync) == 0);
+	}
+
+	static void WriteRam(ulong addr, int cb, const void *pv)
+	{
+		byte	aw_color;
+		ushort	*pData;
+
+		aw_color = ReadReg(AW_COLOR);
+		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | AW_COLOR_DataWidth16);
+		WriteReg32(CURH0, addr);
+		WriteAddr(MRWDP);
+		for (pData = (ushort *)pv; cb > 0; cb -= 2)
+			FastFifoWrite16(*pData++);
+		WaitWhileBusy();
+		WriteReg(AW_COLOR, aw_color);
+	}
+
+	static void ReadRam(ulong addr, int cb, const void *pv)
+	{
+		byte	aw_color;
+		ushort	*pData;
+
+		aw_color = ReadReg(AW_COLOR);
+		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | AW_COLOR_DataWidth16);
+		WriteReg32(CURH0, addr);
+		ReadReg(MRWDP);	// dummy read
+		for (pData = (ushort *)pv; cb > 0; cb -= 2)
+			*pData++ = FastFifoRead16();
+		WriteReg(AW_COLOR, aw_color);
 	}
 
 	//*********************************************************************

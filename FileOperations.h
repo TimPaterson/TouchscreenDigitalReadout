@@ -11,34 +11,39 @@
 #include <FatFile/FatSys.h>
 
 
-static constexpr int FileBufSectors = 8;
+static constexpr int FileBufSectors = 6;
 extern byte g_FileBuf[FileBufSectors][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 #define FILE_BUF_END ((byte *)g_FileBuf[FileBufSectors])
 
 // Use macros for state definitions
-#define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read) OP_STATE(op, wait)
-#define SINGLE_OP_STATES(op) OP_STATE(op, ready)
+#define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, seek) OP_STATE(op, read) OP_STATE(op, wait)
+#define MOUNT_OP_STATES(op) OP_STATE(op, ready)
 #define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, read0) OP_STATE(op, read1)
 #define EXPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, write) OP_STATE(op, flush) OP_STATE(op, close)
 #define FOLDER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, close) OP_STATE(op, name) OP_STATE(op, date)
+#define HEADER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
+#define UPDATE_OP_STATES(op) OP_STATE(op, seek) OP_STATE(op, read)
 
-#define OP_STATE(op, st)	ST_##op##_##st,
+#define STATE(op, st)		ST_##op##_##st
+#define OP_STATE(op, st)	STATE(op, st),
 
 enum
 {
 	ST_Idle,
 	FLASH_OP_STATES(flash)
-	SINGLE_OP_STATES(single)
+	MOUNT_OP_STATES(mount)
 	IMPORT_OP_STATES(import)
 	EXPORT_OP_STATES(Export)
 	FOLDER_OP_STATES(folder)
+	HEADER_OP_STATES(header)
+	UPDATE_OP_STATES(update)
 };
 
 #undef OP_STATE
-#define OP_STATE(op, st)	case ST_##op##_##st: {
+#define OP_STATE(op, st)	case STATE(op, st): {
 #define END_STATE			} return;
 #define EXIT_STATE			return;
-#define TO_STATE(op, st)	m_state = ST_##op##_##st
+#define TO_STATE(op, st)	m_state = STATE(op, st)
 #define OP_DONE				break
 
 
@@ -75,11 +80,69 @@ public:
 
 public:
 	void Process();
-	int WriteFileToFlash(const char *psz, ulong addr);
 	int Mount(int drv);
-	int ToolImport(const char *psz, int drive);
-	int ToolExport(const char *psz, int drive);
 	int FolderEnum(const char *pFilename, int drive, int cchName = FAT_NO_NAME_LEN, bool fCreate = false);
+
+public:
+	int WriteFileToFlash(const char *psz, ulong addr, int drive = 0)
+	{
+		flash.addr = addr;
+		return Open(psz, drive, OPENFLAG_OpenExisting | OPENFLAG_File, STATE(flash, open));
+	}
+
+	int WriteToFlash(ulong addr, ulong cb, ulong offset, uint hFile)
+	{
+		flash.addr = addr;
+		flash.cbTotal = cb;
+		return Seek(offset, hFile, STATE(flash, seek));
+	}
+
+	int ToolImport(const char *psz, int drive)
+	{
+		return Open(psz, drive, OPENFLAG_OpenExisting | OPENFLAG_File, STATE(import, open));
+	}
+
+	int ToolExport(const char *psz, int drive)
+	{
+		return Open(psz, drive, OPENFLAG_CreateAlways | OPENFLAG_File, STATE(Export, open));
+	}
+
+	int ReadUpdateHeader(const char *psz, int drive)
+	{
+		return Open(psz, drive, OPENFLAG_OpenExisting | OPENFLAG_File, STATE(header, open));
+	}
+
+	int ReadFirmware(ulong addr, uint cb, ulong offset, uint hFile)
+	{
+		update.addr = addr;
+		update.cb = cb;
+		return Seek(offset, hFile, STATE(update, seek));
+	}
+
+public:
+	int Open(const char *psz, int drive, uint flags, uint state)
+	{
+		int		err;
+
+		err = StartOpen(psz, HandleOfDrive(drive), flags);
+		if (IsError(err))
+			return m_pfnError(err);
+		m_state = state;
+		m_hFile = err;
+		return FATERR_None;
+	}
+
+	int Seek(ulong offset, uint hFile, uint state)
+	{
+		int		err;
+
+		m_hFile = hFile;
+		err = StartSeek(hFile, offset);
+		if (IsError(err))
+			return m_pfnError(err);
+		m_state = state;
+		return FATERR_None;
+	}
 
 public:
 	bool IsBusy()		{ return m_state != ST_Idle; }
@@ -113,6 +176,7 @@ protected:
 		struct  
 		{
 			ulong	addr;
+			long	cbTotal;
 			ushort	cb;
 			ushort	erased;
 			ushort	oBuf;
@@ -140,6 +204,13 @@ protected:
 			ushort	cbName;
 			ushort	cnt;
 		} folder;
+
+		// ReadFirmware
+		struct  
+		{
+			ulong	addr;
+			int		cb;
+		} update;
 	};
 	byte	m_state;
 	byte	m_hFile;

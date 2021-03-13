@@ -160,7 +160,7 @@ int main(void)
 	Console.StreamInit(&Console_FILE);
 	Console.Enable();
 
-	DEBUG_PRINT("\nTouchscreen starting up version " STRINGIFY(PROGRAM_VERSION) "\n");
+	printf("\nDRO version " STRINGIFY(PROGRAM_VERSION) "\n");
 	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
 	{
 		DEBUG_PRINT("WDT Reset\n");
@@ -340,30 +340,30 @@ int main(void)
 			{
 				// Use lower-case alphabetical order to find the right letter
 			case 'f':
-				DEBUG_PRINT("Loading font...");
+				printf("Loading font...");
 				err = FileOp.WriteFileToFlash("Fonts.bin", FlashFontStart);
 FileErrChk:
 				if (err < 0)
-					DEBUG_PRINT("file operation failed with code %i\n", err);
+					printf("file operation failed with code %i\n", err);
 				break;
 
 			case 'i':
-				DEBUG_PRINT("Loading image...");
+				printf("Loading image...");
 				err = FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
 				goto FileErrChk;
 
 			case 's':
-				DEBUG_PRINT("Save EEPROM (y/n)?");
+				printf("Save EEPROM (y/n)?");
 				while(!Console.IsByteReady())
 					wdt_reset();
 				ch = Console.ReadByte();
 				if (ch == 'y' || ch == 'Y')
 				{
 					Eeprom.StartSave();
-					DEBUG_PRINT("...Saved\n");
+					printf("...Saved\n");
 				}
 				else
-					DEBUG_PRINT("...Not saved\n");
+					printf("...Not saved\n");
 				break;
 
 			case 't':

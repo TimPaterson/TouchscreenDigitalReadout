@@ -2009,12 +2009,12 @@
       <TextBlock Name="FontsLabel" Left="FontLabelLeft" Font="CalcSmall" Foreground="UpdateForeground">Fonts: </TextBlock>
       <Set>
         FontVersionLeft = FontLabelLeft + FontsLabel.Width;
-        FontVersionRight = FontVersionLeft + VersionWidth;
+        ProgressBarWidth = FontVersionLeft + VersionWidth + KeySpace;
       </Set>
       <Ref RefName="VersionNumber" Left="FontVersionLeft">
         <Set>VersionText.Area = CurrrentFonts</Set>
       </Ref>
-      <Rectangle Area="ProgressBar" Top="VersionLineSpace" Width="FontVersionRight + KeySpace" Height="SmallTextHeight">
+      <Rectangle Area="ProgressBar" Top="VersionLineSpace" Width="ProgressBarWidth" Height="SmallTextHeight">
         <Ref RefName="UpdateLabel">
           <Set>
             UpdateLabel.Area = UpdateLabel;
