@@ -222,7 +222,7 @@ protected:
 	void DrawCursor(bool fRemove = false)
 	{
 		m_cursorArea.Xpos = m_curPosX;
-		ScreenMgr::FillRect(m_pCanvas, &m_cursorArea, fRemove ? m_backColor : CursorColor);
+		FillRect(m_pCanvas, &m_cursorArea, fRemove ? m_backColor : CursorColor);
 	}
 
 	void SetCursorRelative(uint posPx)

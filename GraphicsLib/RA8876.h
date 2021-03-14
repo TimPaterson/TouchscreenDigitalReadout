@@ -11,70 +11,106 @@
 #include "RA8876const.h"
 
 
-namespace RA8876const
+//*********************************************************************
+// Industry standard serial flash commands
+
+enum SerialFlashCommands
 {
-	//*********************************************************************
-	// Types
+	SFCMD_Read = 0x03,
+	SFCMD_FastRead = 0x0B,
+	SFCMD_WriteEnable = 0x06,
+	SFCMD_Program = 0x02,
+	SFCMD_SectorErase = 0x20,
+	SFCMD_BlockErase = 0x52,
+	SFCMD_ChipErase = 0x60,
+	SFCMD_ReadStatus = 0x05,
+	SFCMD_WriteStatus = 0x01,
+};
 
-	struct RegValue
-	{
-		byte	addr;
-		byte	val;
-	};
-
-	enum SerialFlashCommands
-	{
-		SFCMD_Read = 0x03,
-		SFCMD_FastRead = 0x0B,
-		SFCMD_WriteEnable = 0x06,
-		SFCMD_Program = 0x02,
-		SFCMD_SectorErase = 0x20,
-		SFCMD_BlockErase = 0x52,
-		SFCMD_ChipErase = 0x60,
-		SFCMD_ReadStatus = 0x05,
-		SFCMD_WriteStatus = 0x01,
-	};
-
-	enum SerialFlashStatus
-	{
-		SFSTAT_Busy = 0x01,
-		SFSTAT_WriteEnabled = 0x02,
-	};
+enum SerialFlashStatus
+{
+	SFSTAT_Busy = 0x01,
+	SFSTAT_WriteEnabled = 0x02,
 };
 
 //*********************************************************************
 
-using namespace RA8876const;
 
-class RA8876
+class RA8876 : public RA8876_Base
 {
-public:
-
+	//*********************************************************************
+	// The following hardware-specific functions must be defined in the
+	// base class:
+	//
+	//
+	// protected:
+	//	static void WriteAddrInline(uint addr) INLINE_ATTR
+	//	static void WriteDataInline(uint val) INLINE_ATTR
+	//	static uint ReadDataInline() INLINE_ATTR
+	//
+	//	static uint GetStatus()
+	//	static void WriteReg(uint addr, uint val)
+	//	static uint ReadReg(uint addr)
+	//
+	// If a 16-bit data bus to the MCU is used, these are also required:
+	//
+	//	#define RA8876_16BIT_BUS
+	//	static void WriteData16Inline(uint val) INLINE_ATTR
+	//	static uint ReadData16Inline() INLINE_ATTR
+	//
+	// The following integer constants are also required:
+	//
+	// public:
+	//	ScreenWidth
+	//	ScreenHeight
+	//
+	// protected:
+	//	CoreFreq
+	//	SpiClock0
+	//	SFL_CTRL_Init0
+	//	SpiClock1
+	//	SFL_CTRL_Init1
+	//
 	//*********************************************************************
 
+protected:
+	static constexpr int SpiDivisor0 = (CoreFreq / 2 + SpiClock0 - 1) / SpiClock0 - 1;
+	static constexpr int SpiDivisor1 = (CoreFreq / 2 + SpiClock1 - 1) / SpiClock1 - 1;
+
+	//*********************************************************************
+	// Optionally non-inline cover functions
+
 public:
-	static void Init();
-	static uint GetStatus();
-	static void WriteAddr(uint addr);
-	static void WriteData(uint val);
-	static uint ReadData();
-	static void WriteData16(uint val);
-	static uint ReadData16();
-	static void TestPattern();
-	static void DisplayOn();
-	static void DisplayOff();
-
-	static void WriteReg(uint addr, uint val)
+	static void WriteAddr(uint addr)
 	{
-		WriteAddr(addr);
-		WriteData(val);
+		WriteAddrInline(addr);
 	}
 
-	static uint ReadReg(uint addr)
+	static void WriteData(uint val)
 	{
-		WriteAddr(addr);
-		return ReadData();
+		WriteDataInline(val);
 	}
+
+	static uint ReadData()
+	{
+		return ReadDataInline();
+	}
+
+#ifdef RA8876_16BIT_BUS
+
+	static void WriteData16(uint val)
+	{
+		WriteData16Inline(val);
+	}
+
+	static uint ReadData16()
+	{
+		return ReadData16();
+	}
+
+#endif	// RA8876_16BIT_BUS
+
+public:
 
 	//*********************************************************************
 	// Generic register combination handlers
@@ -89,13 +125,10 @@ public:
 		while (IsBusy());
 	}
 
-	static void WriteRegList(const RegValue *pList, int iLen)
+	static void WaitVsync()
 	{
-		do 
-		{
-			WriteReg(pList->addr, pList->val);
-			pList++;
-		} while (--iLen > 0);
+		WriteReg(INTF, INTF_Vsync);
+		while ((ReadData() & INTF_Vsync) == 0);
 	}
 
 	static void WriteReg16(uint addr, uint val)
@@ -137,6 +170,20 @@ public:
 		WriteReg(addr + 2, val);		// blue
 	}
 
+	static void WriteSequentialRegisters(const void *pv, uint addr, int cnt)
+	{
+		byte *pb = (byte *)pv;
+
+		do
+		{
+			WriteAddrInline(addr++);
+			WriteDataInline(*pb++);
+		} while (--cnt > 0);
+	}
+
+	//*********************************************************************
+	// FIFO interface
+
 	static bool IsFifoWriteReady()
 	{
 		return !(GetStatus() & STATUS_WriteFifoFull);
@@ -151,20 +198,6 @@ public:
 	{
 		WaitFifoWrite();
 		WriteReg(MRWDP, val);
-	}
-
-	static void FifoWrite16(uint val)
-	{
-		WaitFifoWrite();
-		WriteAddr(MRWDP);
-		WriteData16(val);
-	}
-
-	static void FastFifoWrite16(uint val)
-	{
-		// Assumes address register already set
-		//WaitFifoWrite();
-		WriteData16(val);
 	}
 
 	static bool IsFifoReadReady()
@@ -183,11 +216,31 @@ public:
 		return ReadReg(MRWDP);
 	}
 
+#ifdef RA8876_16BIT_BUS
+
+#define	DATA_BUS_WIDTH	AW_COLOR_DataWidth16
+#define FIFO_READ_FCN	FastFifoRead16
+#define FIFO_WRITE_FCN	FastFifoWrite16
+
 	static ushort FifoRead16()
 	{
 		WaitFifoRead();
 		WriteAddr(MRWDP);
 		return ReadData16();
+	}
+
+	static void FifoWrite16(uint val)
+	{
+		WaitFifoWrite();
+		WriteAddr(MRWDP);
+		WriteData16(val);
+	}
+
+	static void FastFifoWrite16(uint val)
+	{
+		// Assumes address register already set
+		//WaitFifoWrite();
+		WriteData16(val);
 	}
 
 	static ushort FastFifoRead16()
@@ -197,21 +250,13 @@ public:
 		return ReadData16();
 	}
 
-	static void WriteSequentialRegisters(const void *pv, uint addr, int cnt)
-	{
-		byte *pb = (byte *)pv;
+#else
 
-		do 
-		{
-			WriteReg(addr++, *pb++);
-		} while (--cnt > 0);
-	}
+#define	DATA_BUS_WIDTH	AW_COLOR_DataWidth8
+#define FIFO_READ_FCN	FastFifoRead
+#define FIFO_WRITE_FCN	FastFifoWrite
 
-	static void WaitVsync()
-	{
-		WriteReg(INTF, INTF_Vsync);
-		while ((ReadData() & INTF_Vsync) == 0);
-	}
+#endif	// RA8876_16BIT_BUS
 
 	static void WriteRam(ulong addr, int cb, const void *pv)
 	{
@@ -219,11 +264,11 @@ public:
 		ushort	*pData;
 
 		aw_color = ReadReg(AW_COLOR);
-		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | AW_COLOR_DataWidth16);
+		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | DATA_BUS_WIDTH);
 		WriteReg32(CURH0, addr);
 		WriteAddr(MRWDP);
 		for (pData = (ushort *)pv; cb > 0; cb -= 2)
-			FastFifoWrite16(*pData++);
+			FIFO_WRITE_FCN(*pData++);
 		WaitWhileBusy();
 		WriteReg(AW_COLOR, aw_color);
 	}
@@ -234,11 +279,11 @@ public:
 		ushort	*pData;
 
 		aw_color = ReadReg(AW_COLOR);
-		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | AW_COLOR_DataWidth16);
+		WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | DATA_BUS_WIDTH);
 		WriteReg32(CURH0, addr);
 		ReadReg(MRWDP);	// dummy read
 		for (pData = (ushort *)pv; cb > 0; cb -= 2)
-			*pData++ = FastFifoRead16();
+			*pData++ = FIFO_READ_FCN();
 		WriteReg(AW_COLOR, aw_color);
 	}
 
@@ -505,7 +550,7 @@ public:
 		byte	*pb = (byte *)pv;
 		int		cbPage;
 
-		do 
+		do
 		{
 			cbPage = SerialMemWriteStart(addr, cb, pb, port);
 			addr += cbPage;
@@ -564,7 +609,7 @@ public:
 	{
 		int		cbPage;
 
-		do 
+		do
 		{
 			cbPage = SerialMemEraseStart(addr, cb, port);
 			addr += cbPage;

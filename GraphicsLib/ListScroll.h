@@ -11,7 +11,7 @@
 #include "TextField.h"
 
 
-class ListScroll : public TouchCanvas, public RA8876
+class ListScroll : public TouchCanvas, public ScreenMgr
 {
 	// Make these variables?
 	static constexpr ulong ThumbColor = 0xFFFFFF;
@@ -65,19 +65,19 @@ public:
 		area.Width = ScrollGapLeft;
 		area.Xpos = m_viewWidth - ScrollBarWidth;
 		area.Ypos = 0;
-		ScreenMgr::FillRect(this, &area, ThumbGapColor);
+		FillRect(this, &area, ThumbGapColor);
 
 		if (ScrollGapRight != 0)
 		{
 			area.Width = ScrollGapRight;
 			area.Xpos = m_viewWidth - ScrollGapRight;
-			ScreenMgr::FillRect(this, &area, ThumbGapColor);
+			FillRect(this, &area, ThumbGapColor);
 		}
 
 		// Initialize scroll bar
 		area.Width = ScrollThumbWidth;
 		area.Xpos = m_viewWidth - ScrollThumbWidth - ScrollGapRight;
-		ScreenMgr::FillRect(this, &area, ScrollBarColor);
+		FillRect(this, &area, ScrollBarColor);
 	}
 
 	void SetViewHeight(uint height)
@@ -263,7 +263,7 @@ public:
 		}
 
 		// Set window start position
-		ScreenMgr::SetViewPos(this, 0, posNew - m_lineTop * m_lineHeight);
+		SetCanvasViewPos(this, 0, posNew - m_lineTop * m_lineHeight);
 		m_posCur = posNew;
 
 		// Place thumb
@@ -273,7 +273,7 @@ public:
 		thumbArea.Width = ScrollThumbWidth;
 		thumbArea.Height = ScrollThumbHeight;
 		WaitVsync();	// Wait for new view position to take effect
-		ScreenMgr::CopyRect(this, &thumbArea, &ScrollThumb);
+		CopyRect(this, &thumbArea, &ScrollThumb);
 
 		if (thumbPos != m_thumbPos)
 		{
@@ -289,7 +289,7 @@ public:
 				thumbArea.Height = std::min(ScrollThumbHeight, m_thumbPos - thumbPos);
 				thumbArea.Ypos = m_thumbPos + ScrollThumbHeight - thumbArea.Height;
 			}
-			ScreenMgr::FillRect(this, &thumbArea, ScrollBarColor);
+			FillRect(this, &thumbArea, ScrollBarColor);
 
 			m_thumbPos = thumbPos;
 		}
@@ -341,9 +341,9 @@ protected:
 
 	void MakeActive()
 	{
-		ScreenMgr::SetBteSrc0(this);
+		SetBteSrc0(this);
 		WriteReg16(S0_X0, 0);
-		ScreenMgr::SetBteDest(this);
+		SetBteDest(this);
 		WriteReg16(DT_X0, 0);
 		WriteRegXY(BTE_WTH0, m_lineArea.Width, m_lineHeight);
 		WriteReg(BTE_CTRL1, BTE_CTRL1_OpcodeMemoryCopyWithRop | BTE_CTRL1_RopS0);

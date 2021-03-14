@@ -365,7 +365,7 @@ ReadMore:
 				// status is no. of bytes read
 				if (status != 0)
 				{
-					ScreenMgr::WriteRam(update.addr, status, g_FileBuf);
+					Lcd.WriteRam(update.addr, status, g_FileBuf);
 					update.cb -= status;
 					update.addr += status;
 					if (update.cb > 0)

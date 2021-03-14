@@ -13,8 +13,8 @@
 class TouchCalibrate_t : TouchCanvas, ScreenMgr
 {
 	// Calibration target position
-	static constexpr int BottomPosition = LcdHeightPx - TouchEdgeOffset - 1;
-	static constexpr int RightPosition = LcdWidthPx - TouchEdgeOffset - 1;
+	static constexpr int BottomPosition = ScreenHeight - TouchEdgeOffset - 1;
+	static constexpr int RightPosition = ScreenWidth - TouchEdgeOffset - 1;
 
 	// Calibration
 	static constexpr int AbortFlag = -1;
@@ -26,8 +26,8 @@ class TouchCalibrate_t : TouchCanvas, ScreenMgr
 	static constexpr ulong ButtonTextColor = 0xFFFFFF;
 
 	// Define the two big buttons to repeat or quite
-	static constexpr int ButtonHeight = LcdHeightPx / 5;
-	static constexpr int ButtonWidth = LcdWidthPx / 3;
+	static constexpr int ButtonHeight = ScreenHeight / 5;
+	static constexpr int ButtonWidth = ScreenWidth / 3;
 	static constexpr int ButtonLeft = ButtonWidth;
 	static constexpr int RepeatBtnTop = ButtonHeight;
 	static constexpr int DoneBtnTop = ButtonHeight * 3;
@@ -67,7 +67,7 @@ class TouchCalibrate_t : TouchCanvas, ScreenMgr
 	// Public interface
 	//*********************************************************************
 public:
-	TouchCalibrate_t() : TouchCanvas(0, LcdWidthPx, LcdHeightPx, LcdWidthPx, Color16bpp, NULL) {}
+	TouchCalibrate_t() : TouchCanvas(0, ScreenWidth, ScreenHeight, ScreenWidth, Color16bpp, NULL) {}
 
 public:
 	void Open()
@@ -75,7 +75,7 @@ public:
 		int		flags;
 		HotspotData	*pSpot;
 
-		if (AllocIfNeeded(LcdHeightPx))
+		if (AllocIfNeeded(ScreenHeight))
 		{
 			// New screen, build image
 			FillRect(this, GetViewArea(), ScreenBackColor);
@@ -185,7 +185,7 @@ Restart:
 		point.y = Touch.GetRawY();
 
 		if (Touch.IsTouchDataValid(&Eeprom.Data.TouchInit))
-			Touch.CalcScales(&Eeprom.Data.TouchInit, LcdWidthPx, LcdHeightPx);
+			Touch.CalcScales(&Eeprom.Data.TouchInit, ScreenWidth, ScreenHeight);
 
 		// Now erase the target
 		DrawTarget(target, true);
@@ -238,14 +238,14 @@ protected:
 
 	inline static const Target s_targetTopLeft =
 	{
-		{ 0, TouchEdgeOffset, LcdWidthPx, 1 },
-		{ TouchEdgeOffset, 0, 1, LcdHeightPx }
+		{ 0, TouchEdgeOffset, ScreenWidth, 1 },
+		{ TouchEdgeOffset, 0, 1, ScreenHeight }
 	};
 
 	inline static const Target s_targetBottomRight =
 	{
-		{ 0, BottomPosition, LcdWidthPx, 1 },
-		{ RightPosition, 0, 1, LcdHeightPx }
+		{ 0, BottomPosition, ScreenWidth, 1 },
+		{ RightPosition, 0, 1, ScreenHeight }
 	};
 
 	inline static const Area s_areaRepeat = { ButtonLeft, RepeatBtnTop, ButtonWidth, ButtonHeight };

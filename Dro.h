@@ -352,6 +352,14 @@ enum ExtIrq
 };
 
 //*********************************************************************
+// Give the LCD an easy name.
+//
+
+class ScreenMgr;	// Entirely static
+
+extern ScreenMgr Lcd;
+
+//*********************************************************************
 // Timer on TC3. 
 //
 // With prescale of 1024, resolution is 1 / (48MHz / 1024) = 21.3us, 

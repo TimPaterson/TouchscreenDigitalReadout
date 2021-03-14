@@ -94,7 +94,7 @@ public:
 		s_pip2.pImage = NULL;
 	}
 
-	static void SetViewPos(TouchCanvas *pCanvas, uint x, uint y)
+	static void SetCanvasViewPos(TouchCanvas *pCanvas, uint x, uint y)
 	{
 		byte	val;
 

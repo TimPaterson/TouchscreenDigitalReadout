@@ -49,7 +49,7 @@ class UpdateMgr
 public:
 	static void Open()
 	{
-		ScreenMgr::EnablePip1(&UpdateDialog, 0, 0);
+		Lcd.EnablePip1(&UpdateDialog, 0, 0);
 		DisplayVersions(&UpdateDialog_Areas.CurrrentFirmware, PROGRAM_VERSION, GRAPHICS_VERSION, FONT_VERSION);
 		FileOp.SetErrorHandler(FileError);
 		Files.Open(&s_editFile, ListUpdate, UpdateFileListHeight);
@@ -61,8 +61,8 @@ public:
 			EndEdit();
 
 		FileOp.SetErrorHandler(NULL);
-		ScreenMgr::DisablePip1();
-		ScreenMgr::DisablePip2();
+		Lcd.DisablePip1();
+		Lcd.DisablePip2();
 	}
 
 	static byte *GetUpdateBuffer()	{ return s_updateBuffer; }
@@ -232,7 +232,7 @@ public:
 					{
 						FatSys::Close(hFile);
 						SetEditMode(EDIT_Inspect);
-						ScreenMgr::CopyRect(&UpdateDialog, &UpdateDialog_Areas.UpdateLabel, &UpdateLabel);
+						Lcd.CopyRect(&UpdateDialog, &UpdateDialog_Areas.UpdateLabel, &UpdateLabel);
 						DisplayVersions(&UpdateDialog_Areas.UpdateFirmware, vFirmware, vGraphics, vFonts);
 					}
 					return;
@@ -375,7 +375,7 @@ protected:
 
 		s_editMode = mode;
 
-		ScreenMgr::SelectImage(&UpdateDialog, &UpdateDialog_Areas.UpdateButton, 
+		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.UpdateButton, 
 			&InspectUpdate, s_editMode == EDIT_Inspect);
 	}
 
@@ -399,15 +399,15 @@ protected:
 		drive = Files.GetDrive();
 		// USB
 		index = map & UsbDriveMap ? (drive == UsbDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
-		ScreenMgr::SelectImage(&UpdateDialog, &UpdateDialog_Areas.UsbDriveBox, &RadioButtons, index);
+		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.UsbDriveBox, &RadioButtons, index);
 		// SD card
 		index = map & SdDriveMap ? (drive == SdDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
-		ScreenMgr::SelectImage(&UpdateDialog, &UpdateDialog_Areas.SdDriveBox, &RadioButtons, index);
+		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.SdDriveBox, &RadioButtons, index);
 	}
 
 	static void ShowVersionMatch()
 	{
-		ScreenMgr::SelectImage(&UpdateDialog, &UpdateDialog_Areas.VersionMatch, &UpdateCheck, s_fVersionMatch);
+		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.VersionMatch, &UpdateCheck, s_fVersionMatch);
 	}
 
 	static void ClearFileError()

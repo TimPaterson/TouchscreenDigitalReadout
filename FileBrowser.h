@@ -66,7 +66,7 @@ public:
 		m_pEdit = pEdit;
 		m_pfnNotify = pfnNotify;
 		SetViewHeight(height);
-		ScreenMgr::EnablePip2(this, 0, LcdHeightPx - height);
+		Lcd.EnablePip2(this, 0, ScreenHeight - height);
 		// See what drives are available
 		for (drive = 0, map = 0; drive < FAT_NUM_DRIVES; drive++)
 		{
@@ -95,7 +95,7 @@ public:
 
 	void Close()
 	{
-		ScreenMgr::DisablePip2();
+		Lcd.DisablePip2();
 	}
 
 	int SetDrive(int drive)
@@ -137,7 +137,7 @@ public:
 	// Notification from Actions class
 	ListScroll *ListCapture(int x, int y, ScrollAreas spot)
 	{
-		if (StartCapture(x, y - ScreenMgr::GetPip2()->y, spot))
+		if (StartCapture(x, y - Lcd.GetPip2()->y, spot))
 			return this;
 		return NULL;
 	}
@@ -228,7 +228,7 @@ protected:
 
 			// Add file/folder icon
 			pInfo = PtrInfoFromLine(lineNum);
-			ScreenMgr::SelectImage(&FileRow, &FileRow_Areas.FileIcon, &FileIcons, m_pErrMsg ? INFO_Error : pInfo->Type);
+			Lcd.SelectImage(&FileRow, &FileRow_Areas.FileIcon, &FileIcons, m_pErrMsg ? INFO_Error : pInfo->Type);
 
 			if (m_pErrMsg)
 			{
@@ -294,17 +294,17 @@ protected:
 			}
 
 			// Copy into place
-			ScreenMgr::CopyRect(this, pArea, &FileRow);
+			Lcd.CopyRect(this, pArea, &FileRow);
 		}
 		else
 		{
-			ScreenMgr::FillRect(this, pArea, ToolLibBackground); 
+			Lcd.FillRect(this, pArea, ToolLibBackground); 
 			if (lineNum == m_lineCnt && m_lineCnt != 0)
 			{
 				// Draw bottom line of last grid entry.
 				area = *pArea;
 				area.Height = 1;
-				ScreenMgr::CopyRect(this, &area, &FileRow);
+				Lcd.CopyRect(this, &area, &FileRow);
 			}
 		}
 	}

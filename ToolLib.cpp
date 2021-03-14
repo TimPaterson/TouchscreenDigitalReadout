@@ -32,7 +32,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			DeleteTool();
 
 		s_editMode = EDIT_None;
-		ScreenMgr::SetPip1Modal(false);
+		Lcd.SetPip1Modal(false);
 		SetToolButtonImage(TOOL_IMAGE_NotModified);
 		return;
 	}
@@ -189,8 +189,8 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		if (s_editMode == EDIT_Description)
 			EndEdit(s_editDesc);
 
-		ScreenMgr::DisablePip1();
-		ScreenMgr::DisablePip2();
+		Lcd.DisablePip1();
+		Lcd.DisablePip2();
 		break;
 
 	case ToolDelete:
@@ -214,7 +214,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			break;
 		}
 		s_editMode = EDIT_ConfirmDelete;
-		ScreenMgr::SetPip1Modal(true);
+		Lcd.SetPip1Modal(true);
 		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
 		break;
 
@@ -250,23 +250,23 @@ SetImportExportImages:
 			break;
 
 		s_isExport = isExport;
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !isExport);
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, isExport);
+		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !isExport);
+		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, isExport);
 		if (!s_isFolder)
-			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, isExport);
+			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, isExport);
 		if (isExport)
 		{
-			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
-			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeLabel, &TimestampLabel);
-			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.TimeSetButton, &TimeSetButton);
+			Lcd.FillRect(&ToolImport, &ToolImport_Areas.ImportWarning, ToolInfoBackground);
+			Lcd.CopyRect(&ToolImport, &ToolImport_Areas.TimeLabel, &TimestampLabel);
+			Lcd.CopyRect(&ToolImport, &ToolImport_Areas.TimeSetButton, &TimeSetButton);
 			RtcTime time;
 			ShowExportTime(time.ReadClock());
 		}
 		else
 		{
 			// Clear Set button first, as it's taller than ImportWarning
-			ScreenMgr::FillRect(&ToolImport, &ToolImport_Areas.TimeSetButton, ToolInfoBackground);
-			ScreenMgr::CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
+			Lcd.FillRect(&ToolImport, &ToolImport_Areas.TimeSetButton, ToolInfoBackground);
+			Lcd.CopyRect(&ToolImport, &ToolImport_Areas.ImportWarning, &ImportWarning);
 		}
 		break;
 

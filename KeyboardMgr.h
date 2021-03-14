@@ -71,7 +71,7 @@ public:
 		PipInfo	*pOldPip;
 
 		// Ignore if already open
-		pOldPip = ScreenMgr::GetPip2();
+		pOldPip = Lcd.GetPip2();
 		if (pOldPip->pImage == &KeyUpper || pOldPip->pImage == &KeyLower || pOldPip->pImage == &KeySymbol)
 			return;
 
@@ -86,9 +86,9 @@ public:
 	static void CloseKb()
 	{
 		if (m_oldPip.IsEnabled())
-			ScreenMgr::EnablePip2(m_oldPip.pImage, m_oldPip.x, m_oldPip.y);
+			Lcd.EnablePip2(m_oldPip.pImage, m_oldPip.x, m_oldPip.y);
 		else
-			ScreenMgr::DisablePip2();
+			Lcd.DisablePip2();
 		m_pUser = NULL;
 	}
 
@@ -104,7 +104,7 @@ public:
 protected:
 	static void ShowKb(TouchCanvas &canvas)
 	{
-		ScreenMgr::EnablePip2(&canvas, KeyboardLeft, KeyboardTop);
+		Lcd.EnablePip2(&canvas, KeyboardLeft, KeyboardTop);
 	}
 
 	//*********************************************************************

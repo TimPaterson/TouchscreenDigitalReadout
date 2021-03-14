@@ -12,7 +12,7 @@
 
 class ProgressBar : ScreenMgr
 {
-	static constexpr int ProgressShift = __builtin_clz(LcdWidthPx - 1);
+	static constexpr int ProgressShift = __builtin_clz(ScreenWidth - 1);
 	static constexpr uint ProgressScale = 1 << ProgressShift;
 
 public:

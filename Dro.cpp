@@ -74,7 +74,6 @@ FILE		Console_FILE;
 FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 
 Xtp2046		Touch;
-ScreenMgr	Lcd;
 UsbDro		UsbPort;
 FileBrowser	Files;
 
@@ -179,7 +178,7 @@ int main(void)
 	Zaxis.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
-	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, LcdWidthPx, LcdHeightPx);
+	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, Lcd.ScreenWidth, Lcd.ScreenHeight);
 	Touch.Enable();
 
 	Lcd.Init();
@@ -198,7 +197,7 @@ int main(void)
 	Actions::Init();
 
 	// Initialize USB
-	Mouse.Init(LcdWidthPx, LcdHeightPx);
+	Mouse.Init(Lcd.ScreenWidth, Lcd.ScreenHeight);
 	UsbPort.Init();
 	UsbPort.Enable();
 
@@ -287,8 +286,8 @@ int main(void)
 				if (Mouse.IsLoaded())
 				{
 					Lcd.EnableGraphicsCursor(GTCCR_GraphicCursorSelect1);
-					Mouse.SetPos(LcdWidthPx / 2, LcdHeightPx / 2);
-					Lcd.SetGraphicsCursorPosition(LcdWidthPx / 2, LcdHeightPx / 2);
+					Mouse.SetPos(Lcd.ScreenWidth / 2, Lcd.ScreenHeight / 2);
+					Lcd.SetGraphicsCursorPosition(Lcd.ScreenWidth / 2, Lcd.ScreenHeight / 2);
 				}
 				break;
 

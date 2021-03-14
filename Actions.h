@@ -99,7 +99,7 @@ public:
 			}
 			else
 			{
-				pPipInfo = ScreenMgr::GetPip(s_pCapture);
+				pPipInfo = Lcd.GetPip(s_pCapture);
 				s_pCapture->NewPosition(x - pPipInfo->x, y - pPipInfo->y);
 			}
 		}
@@ -115,7 +115,7 @@ public:
 		char		*pStr;
 		bool		*pToggle;
 
-		pSpot = ScreenMgr::ScreenTestHit(x, y);
+		pSpot = Lcd.ScreenTestHit(x, y);
 		if (pSpot == NULL)
 			return;
 
@@ -452,14 +452,14 @@ public:
 				break;
 
 			case Settings:
-				if (!ScreenMgr::GetPip2()->IsEnabled())
+				if (!Lcd.GetPip2()->IsEnabled())
 				{
-					ScreenMgr::EnablePip2(&SettingsScreen, 0, 0);
+					Lcd.EnablePip2(&SettingsScreen, 0, 0);
 					ShowSettingsInfo();
 				}
 				else
 				{
-					ScreenMgr::DisablePip2();
+					Lcd.DisablePip2();
 					Eeprom.StartSave();	// save all changes
 				}
 				break;
@@ -543,7 +543,7 @@ public:
 protected:
 	static void SelectImage(const Area *pAreaDst, const ColorImage *pSrc, uint index)
 	{
-		ScreenMgr::SelectImage(&MainScreen, pAreaDst, pSrc, index);
+		Lcd.SelectImage(&MainScreen, pAreaDst, pSrc, index);
 	}
 
 	static void UpdateEeprom()
@@ -602,7 +602,7 @@ protected:
 protected:
 	static void SettingsCheckBox(const Area &pAreaDst, bool f)
 	{
-		ScreenMgr::SelectImage(&SettingsScreen, &pAreaDst, &CheckBox, f);
+		Lcd.SelectImage(&SettingsScreen, &pAreaDst, &CheckBox, f);
 	}
 
 	static void ShowAxisInfo(AxisInfo axis, const Area arArea[])

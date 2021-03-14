@@ -125,17 +125,17 @@ class ToolLib
 					s_textList.SetTextColor(ToolLibSelected);
 				s_textList.DisplayLine(PtrFromLine(lineNum));
 				s_textList.SetTextColor(ToolLibForeground);
-				ScreenMgr::CopyRect(this, pArea, &ToolRow);
+				Lcd.CopyRect(this, pArea, &ToolRow);
 			}
 			else
 			{
-				ScreenMgr::FillRect(this, pArea, ToolLibBackground);
+				Lcd.FillRect(this, pArea, ToolLibBackground);
 				if (lineNum == s_toolCount && s_toolCount != 0)
 				{
 					// Draw bottom line of last grid entry.
 					area = *pArea;
 					area.Height = 1;
-					ScreenMgr::CopyRect(this, &area, &ToolRow);
+					Lcd.CopyRect(this, &area, &ToolRow);
 				}
 			}
 		}
@@ -262,8 +262,8 @@ public:
 public:
 	static void ShowToolLib()
 	{
-		ScreenMgr::EnablePip1(&ToolLibrary, 0, 0);
-		ScreenMgr::EnablePip2(&s_scroll, 0, ToolListTop);
+		Lcd.EnablePip1(&ToolLibrary, 0, 0);
+		Lcd.EnablePip2(&s_scroll, 0, ToolListTop);
 	}
 
 	//*********************************************************************
@@ -442,7 +442,7 @@ protected:
 protected:
 	static void OpenImportExport()
 	{
-		ScreenMgr::EnablePip1(&ToolImport, 0, 0);
+		Lcd.EnablePip1(&ToolImport, 0, 0);
 		FileOp.SetErrorHandler(FileError);
 		Files.Open(&s_editFile, ListUpdate);
 	}
@@ -473,7 +473,7 @@ protected:
 		if (fAlwaysSetIcon || isFolder != s_isFolder)
 		{
 			s_isFolder = isFolder;
-			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
+			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
 				&LoadSave, isFolder ? FILE_IMAGE_OpenFolder : s_isExport);
 		}
 	}
@@ -529,10 +529,10 @@ protected:
 		drive = Files.GetDrive();
 		// USB
 		index = map & UsbDriveMap ? (drive == UsbDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.UsbDriveBox, &RadioButtons, index);
+		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.UsbDriveBox, &RadioButtons, index);
 		// SD card
 		index = map & SdDriveMap ? (drive == SdDrive ? RADIO_True : RADIO_False) : RADIO_NotAvailable;
-		ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.SdDriveBox, &RadioButtons, index);
+		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.SdDriveBox, &RadioButtons, index);
 	}
 
 	static int FileError(int err)
@@ -544,7 +544,7 @@ protected:
 		{
 			s_editMode = EDIT_FolderCreatePrompt;
 			Files.FileError(s_CreateFolderMsg);
-			ScreenMgr::SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
+			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
 				&LoadSave, FILE_IMAGE_AddFolder);
 		}
 		else
@@ -569,14 +569,14 @@ protected:
 
 		if (s_editMode == EDIT_File)
 			EndEdit(s_editFile);
-		ScreenMgr::EnablePip2(&EnterDateTime, 0, ToolListTop);
+		Lcd.EnablePip2(&EnterDateTime, 0, ToolListTop);
 		s_editMode = EDIT_Time;
 		ShowExportTime(time.ReadClock());
 	}
 
 	static void EndTimeSet()
 	{
-		ScreenMgr::EnablePip2(&Files, 0, ToolListTop);
+		Lcd.EnablePip2(&Files, 0, ToolListTop);
 		s_editMode = EDIT_None;
 	}
 
@@ -596,7 +596,7 @@ protected:
 
 	static bool IsLibShown()
 	{
-		return ScreenMgr::GetPip1()->pImage == &ToolLibrary;
+		return Lcd.GetPip1()->pImage == &ToolLibrary;
 	}
 
 	static double LimitVal(double val, double max)
@@ -608,16 +608,16 @@ protected:
 
 	static void PrepareDrawTool()
 	{
-		ScreenMgr::SetDrawCanvas(&MainScreen);
-		ScreenMgr::WriteRegXY(ELL_A0, ToolImageRadius, ToolImageRadius);
+		Lcd.SetDrawCanvas(&MainScreen);
+		Lcd.WriteRegXY(ELL_A0, ToolImageRadius, ToolImageRadius);
 	}
 
 	static void DrawTool(bool fEnable, uint x, uint y)
 	{
-		ScreenMgr::WriteRegXY(DEHR0, x, y);
-		ScreenMgr::SetForeColor(fEnable ? ToolColor : NoToolColor);
-		ScreenMgr::WriteReg(DCR1, DCR1_DrawEllipse | DCR1_FillOn | DCR1_DrawActive);
-		ScreenMgr::WaitWhileBusy();
+		Lcd.WriteRegXY(DEHR0, x, y);
+		Lcd.SetForeColor(fEnable ? ToolColor : NoToolColor);
+		Lcd.WriteReg(DCR1, DCR1_DrawEllipse | DCR1_FillOn | DCR1_DrawActive);
+		Lcd.WaitWhileBusy();
 	}
 
 	static double CheckMetric(double val, bool fToDisplay = true)
@@ -646,7 +646,7 @@ protected:
 
 	static void SetToolButtonImage(ToolButtonImages image)
 	{
-		ScreenMgr::SelectImage(&ToolLibrary, &ToolLibrary_Areas.ToolButtons, &ToolButtons, image);
+		Lcd.SelectImage(&ToolLibrary, &ToolLibrary_Areas.ToolButtons, &ToolButtons, image);
 	}
 
 	//*********************************************************************

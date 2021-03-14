@@ -28,7 +28,7 @@ extern FlashDriveHost	FlashDrive;
 class UsbDro : public USBhost
 {
 public:
-	int Process()
+	static int Process()
 	{
 		int		act;
 
