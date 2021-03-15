@@ -199,19 +199,22 @@ protected:
 		SetLcdPin(LcdCs);
 	}
 
+public:
+	// This must be able to fully inline so it can be in RAM for 
+	// programming flash
 	static uint ReadData16Inline() INLINE_ATTR
 	{
 		uint	val;
 
 		// Read data
 		PORTB->DIR.Lcd16 = 0;	// Switch to inputs
-		ClearLcdPin(LcdCs);
-		SetLcdPin(LcdCD | LcdRW);
-		SetLcdPin(LcdE);	// toggle E
+		ClearLcdPinInline(LcdCs);
+		SetLcdPinInline(LcdCD | LcdRW);
+		SetLcdPinInline(LcdE);	// toggle E
 		Timer::ShortDelay_clocks(2);
 		val = PORTB->IN.Lcd16;
-		ClearLcdPin(LcdE);
-		SetLcdPin(LcdCs);
+		ClearLcdPinInline(LcdE);
+		SetLcdPinInline(LcdCs);
 		PORTB->DIR.Lcd16 = LcdData16;	// Switch back to outputs
 		return val;
 	}

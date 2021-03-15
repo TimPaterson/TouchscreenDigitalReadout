@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Nvm/Nvm.h>
 #include "VersionUpdate.h"
 #include "ProgressBar.h"
 
@@ -16,6 +17,8 @@ class UpdateMgr
 	static constexpr ulong ProgressBarForecolor = 0x00FF00;
 	static constexpr ulong ProgressBarBackcolor = 0xFFFFFF;
 	static constexpr ulong ProgressInterval = 0x1000;	// chunk size before updating progress bar
+
+	static constexpr int FlashRowSize = FLASH_PAGE_SIZE * NVMCTRL_ROW_PAGES;
 
 	enum EditMode
 	{
@@ -274,11 +277,8 @@ InvalidHeader:
 			//
 		case UPDT_Fonts:
 			FatSys::Close(hFile);
-			DEBUG_PRINT("Perform firmware update\n");
-			// UNDONE: Copy program from video RAM into flash
-			// UpdateMgr::UpdateProgress(cb);
-			s_updateState = UPDT_None;
-			SetEditMode(EDIT_None);
+			PrepFirmwareUpdate(RamUpdateStart);
+			UpdateFirmware(s_pFirmwareSection->dataSize);
 			break;
 
 		default:
@@ -426,6 +426,75 @@ protected:
 
 		return err;
 	}
+
+	static void PrepFirmwareUpdate(ulong addr)
+	{
+		WDT->CTRL.reg = 0;	// turn off WDT
+
+		// Queue up RA8876 data port
+		Lcd.WriteReg(AW_COLOR, AW_COLOR_AddrModeLinear | DATA_BUS_WIDTH);
+		Lcd.WriteReg32(CURH0, addr);
+		Lcd.ReadReg(MRWDP);	// dummy read
+	}
+
+	//*********************************************************************
+	// Function in RAM used to program flash
+	//*********************************************************************
+protected:
+	RAMFUNC_ATTR NO_INLINE_ATTR static void UpdateFirmware(int cb)
+	{
+		ushort	*pFlash;
+
+		pFlash = NULL;	// start programming at address zero
+		__disable_irq();
+
+		while (cb > 0)
+		{
+			// if address is multiple of row size, we need to erase the row
+			if (((int)pFlash & (FlashRowSize - 1)) == 0)
+			{
+				Nvm::EraseRowReady(pFlash);
+				Nvm::WaitReadyInline();
+			}
+
+			// Copy the data 16 bits at a time
+			for (int i = FLASH_PAGE_SIZE; i > 0 && cb > 0; i -= 2, cb -= 2)
+				*pFlash++ = Lcd.ReadData16Inline();
+
+			// Write the page
+			Nvm::WritePageReady();
+			Nvm::WaitReadyInline();
+		}
+		NVIC_SystemReset();
+	}
+
+#ifdef DEBUG
+	RAMFUNC_ATTR NO_INLINE_ATTR static void WriteByte(byte ch)
+	{
+		while (!SERCOM0->USART.INTFLAG.bit.DRE);
+		SERCOM0->USART.DATA.reg = ch;
+	}
+
+	RAMFUNC_ATTR NO_INLINE_ATTR static void WriteDigit(byte digit)
+	{
+		digit = (digit & 0xF) + '0';
+		if (digit > '9')
+			digit += 'A' - '9' - 1;
+		WriteByte(digit);
+	}
+
+	RAMFUNC_ATTR NO_INLINE_ATTR static void Show(int block)
+	{
+		WriteDigit(block >> 12);
+		WriteDigit(block >> 8);
+		WriteDigit(block >> 4);
+		WriteDigit(block);
+		WriteByte('\r');
+		WriteByte('\n');
+	}
+#else
+inline void Show(int block) {}
+#endif
 
 	//*********************************************************************
 	// const (flash) data

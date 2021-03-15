@@ -143,7 +143,7 @@ public:
 		return (ReadReg(addr + 1) << 8) + val;
 	}
 
-	static void WriteReg32(uint addr, ulong val)
+	static void WriteReg32(uint addr, ulong val) NO_INLINE_ATTR
 	{
 		WriteReg16(addr, val);
 		WriteReg16(addr + 2, val >> 16);

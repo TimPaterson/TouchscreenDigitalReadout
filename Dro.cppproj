@@ -374,9 +374,6 @@ DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"
     <Compile Include="PosSensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="RA8876.cpp">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="ResTouch.h">
       <SubType>compile</SubType>
     </Compile>

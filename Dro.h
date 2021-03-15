@@ -267,7 +267,7 @@ enum  PortBregMap
 inline int GetSdCd()		{ return PORTB->IN.Ctrl & MicroSdCd; }
 inline int GetRtpPenIrq()	{ return PORTB->IN.Ctrl & RtpIrq; }
 
-inline void SetLcdPin(ushort pins)
+INLINE_ATTR inline void SetLcdPinInline(ushort pins)
 {
 	if ((pins > 0xFF) && (pins & 0xFF))
 	{
@@ -282,7 +282,12 @@ inline void SetLcdPin(ushort pins)
 		PORTB->OUTSET.CtrlHi = pins >> 8;
 }
 
-inline void ClearLcdPin(ushort pins)
+inline void SetLcdPin(ushort pins)
+{
+	SetLcdPinInline(pins);
+}
+
+INLINE_ATTR inline void ClearLcdPinInline(ushort pins)
 {
 	if ((pins > 0xFF) && (pins & 0xFF))
 	{
@@ -295,6 +300,11 @@ inline void ClearLcdPin(ushort pins)
 
 	if (pins > 0xFF)
 		PORTB->OUTCLR.CtrlHi = pins >> 8;
+}
+
+inline void ClearLcdPin(ushort pins)
+{
+	ClearLcdPinInline(pins);
 }
 
 //*********************************************************************
