@@ -86,6 +86,7 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 // Define the four sensors
 
 static const int AxisUpdateRate = 20;	// updates per second
+static const int FeedUpdateRate = 8;	// updates per second
 
 AxisDisplay Xaxis(&Eeprom.Data.XaxisInfo, MainScreen_Areas.Xdisplay);
 AxisDisplay Yaxis(&Eeprom.Data.YaxisInfo, MainScreen_Areas.Ydisplay);
@@ -215,11 +216,12 @@ int main(void)
 	// Main loop
 
 	Timer	tmrAxis;
+	Timer	tmrFeed;
 	int		i;
 	bool	fSdOut = true;
 	RtcTime	timeLast{true};
 
-	tmrAxis.Start();
+	tmrFeed.Start(tmrAxis.Start());
 
     while (1)
     {
@@ -253,6 +255,18 @@ int main(void)
 		// Update the axis position displays
 		if (tmrAxis.CheckInterval_rate(AxisUpdateRate))
 			AxisDisplay::UpdateAll();
+
+		// Update the current feed rate
+		if (tmrFeed.CheckInterval_rate(FeedUpdateRate))
+		{
+			double	deltaX, deltaY, delta;
+
+			deltaX = Xaxis.GetDistance();
+			deltaY = Yaxis.GetDistance();
+			delta = sqrt(deltaX * deltaX + deltaY * deltaY);
+			// convert to per minute
+			ToolLib::ShowFeedRate(delta * 60.0 * FeedUpdateRate);
+		}
 
 		// Process USB events
 		i = UsbPort.Process();
@@ -305,7 +319,6 @@ int main(void)
 		}
 
 		// Process file operations
-		FatSys::Process();
 		FileOp.Process();
 
 		// Process screen touch

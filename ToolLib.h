@@ -227,6 +227,11 @@ public:
 		ShowToolInfo();
 	}
 
+	static void ShowFeedRate(double rate)
+	{
+		s_feedRate.PrintDbl("\n%5.0f", rate);
+	}
+
 	static void ToolEntryKeyHit(void *pvUser, uint key)
 	{
 		EditLine::EditStatus	edit;
@@ -667,6 +672,7 @@ protected:
 		ToolInfoForeground, ToolInfoBackground};
 	inline static ToolDisplay	s_textList  {ToolRow, ToolRow_Areas.ToolNumber,
 		ToolLibForeground, ToolLibBackground};
+
 	inline static EditLine		s_editDesc {ToolLibrary, ToolLibrary_Areas.ToolDesc,
 		s_bufTool.arDesc, ToolDescSize, FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
@@ -678,6 +684,9 @@ protected:
 
 	inline static TextField		s_TimeEntry{EnterDateTime, EnterDateTime_Areas.Month, 
 		FID_SettingsFont, TimeEntryForeground, TimeEntryBackground};
+
+	inline static NumberLineBlankZ	s_feedRate {MainScreen, MainScreen_Areas.CurrentFeedRate,
+		FID_SettingsFont, FeedRateColor, ToolDiagramColor};
 
 	inline static ushort		s_toolCount;
 	inline static ushort		s_curLineNum {NoCurrentLine};

@@ -37,6 +37,8 @@
   <Color Name="MemColorOdd" Color="0xD0C0D0" ColorDepth="Color16bpp"/>
   <Color Name="MemColorEven" Color="PaleGreen" ColorDepth="Color16bpp"/>
   <Color Name="BtnBackground" Color="0x606060"/>
+  <Color Name="ToolDiagramColor" Color="DarkSlateGray" ColorDepth="Color16bpp"/>
+  <Color Name="FeedRateColor" Color="White" ColorDepth="Color16bpp"/>
   <Color Name="ToolInfoBackground" Color="Blue" ColorDepth="Color16bpp"/>
   <Color Name="ToolInfoForeground" Color="White" ColorDepth="Color16bpp"/>
   <Color Name="ToolLibBackground" Color="DarkBlue" ColorDepth="Color16bpp"/>
@@ -687,7 +689,18 @@
       <Ellipse Location="ToolRight" Top="(DiagramHeight - ToolDia) / 2" Left="BtnWidth * 5 / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
       <Ellipse Location="ToolBack" Top="0" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
       <Ellipse Location="ToolFront" Top="DiagramHeight * 3 / 4" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
-      <Rectangle Top="DiagramHeight / 4" Left="BtnWidth / 2" Width="BtnWidth * 2" Height="BtnHeight" Fill="DarkSlateGray"/>
+      <Rectangle Top="DiagramHeight / 4" Left="BtnWidth / 2" Width="BtnWidth * 2" Height="BtnHeight" Fill="ToolDiagramColor">
+        <Set>
+          FeedTextHeight = SettingsFont_Height;
+          FeedTextTop = (BtnHeight - FeedTextHeight) / 2;
+          FeedTextLeft = 0;
+          FeedTextWidth = BtnWidth * 2 - FeedTextLeft;
+        </Set>
+        <Rectangle Area="CurrentFeedRate" Top="FeedTextTop" Left="FeedTextLeft" Height="FeedTextHeight" Width="FeedTextWidth">
+          <TextBlock Name="FeedText" Left="0" Top="0" Font="SettingsFont" Foreground="White" Text="00000"/>
+          <Set>FeedText.Foreground = ToolDiagramColor</Set> <!-- hide the dummy text -->
+        </Rectangle>
+      </Rectangle>
     </Rectangle>
     <!-- Tool feeds & speeds -->
     <Rectangle Area="SpeedDisplay" Top="DiagramTop" Left="BtnWidth * 3 + KeySpace * 2" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth">

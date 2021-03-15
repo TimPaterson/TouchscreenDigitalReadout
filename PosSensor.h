@@ -38,13 +38,27 @@ public:
 public:
 	double GetPosition()
 	{
-		long		pos;
+		long	pos;
 
 		pos = m_arOrigins[Eeprom.Data.OriginNum] + m_posCur;
 		if (IsMetric())
 			return nearbyint(pos * m_scaleMm + m_offsetMm) / MmRounding;
 
-		return nearbyint(pos *  m_scaleInch + m_offsetInch) / InchRounding;
+		return nearbyint(pos * m_scaleInch + m_offsetInch) / InchRounding;
+	}
+
+	double GetDistance()
+	{
+		long	pos, delta;
+
+		pos = m_posCur;
+		delta = m_posLast - pos;
+		m_posLast = pos;
+
+		if (IsMetric())
+			return delta * m_scaleMm / MmRounding;
+
+		return delta * m_scaleInch / InchRounding;
 	}
 
 	void SetPosition(double pos)
@@ -150,6 +164,7 @@ protected:
 
 protected:
 	AxisInfo	*m_pInfo;
+	long		m_posLast;
 	double		m_scaleMm;
 	double		m_offsetMm;
 	double		m_scaleInch;
