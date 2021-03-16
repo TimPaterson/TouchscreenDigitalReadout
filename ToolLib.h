@@ -115,37 +115,8 @@ class ToolLib
 		// Implement functions in ListScroll
 
 	protected:
-		virtual void FillLine(int lineNum, Area *pArea)
-		{
-			Area	area;
-
-			if (lineNum < s_toolCount)
-			{
-				if (lineNum == s_curLineNum)
-					s_textList.SetTextColor(ToolLibSelected);
-				s_textList.DisplayLine(PtrFromLine(lineNum));
-				s_textList.SetTextColor(ToolLibForeground);
-				Lcd.CopyRect(this, pArea, &ToolRow);
-			}
-			else
-			{
-				Lcd.FillRect(this, pArea, ToolLibBackground);
-				if (lineNum == s_toolCount && s_toolCount != 0)
-				{
-					// Draw bottom line of last grid entry.
-					area = *pArea;
-					area.Height = 1;
-					Lcd.CopyRect(this, &area, &ToolRow);
-				}
-			}
-		}
-
-		virtual void LineSelected(int lineNum)
-		{
-			SaveTool();
-			SelectLine(lineNum);
-			ShowToolInfo();
-		}
+		virtual void FillLine(int lineNum, Area *pArea);
+		virtual void LineSelected(int lineNum);
 	};
 
 	class ToolDisplay : public NumberLineBlankZ
@@ -184,55 +155,62 @@ class ToolLib
 	//*********************************************************************3
 public:
 	// .cpp file
-	static void ToolAction(uint spot, int x, int y);
-	static void SetTime(uint spot);
-	static void ShowExportTime(RtcTime time);
-	static void ShowToolInfo();
-	static int ImportTools(char *pb, uint cb, uint cbWrap);
-	static int ImportTool(char *pchBuf);
-	static void ImportDone();
-	static char *ExportStart();
-	static char *ExportTool(char *pBuf, uint iTool);
-	static void ExportDone();
+	void ToolAction(uint spot, int x, int y);
+	void ShowExportTime(RtcTime time);
+	void ShowToolInfo();
+	int ImportTools(char *pb, uint cb, uint cbWrap);
+	int ImportTool(char *pchBuf);
+	void ImportDone();
+	char *ExportTool(char *pBuf, uint iTool);
 
 public:
-	static void Init()
+	static char *ExportStart();
+	static void SetTime(uint spot);
+	static void ExportDone();
+	static void ToolEntryKeyHitCallback(void *pvUser, uint key);
+	static void FileKeyHitCallback(void *pvUser, uint key);
+	static void ListUpdateCallback(FileBrowser::NotifyReason reason);
+	static int FileErrorCallback(int err);
+
+public:
+	void Init()
 	{
-		s_scroll.Init();
+		m_scroll.Init();
 
-		s_modToolIndex = ToolNotModified;
-		if (s_toolCount == 0)
-			s_curLineNum = NoCurrentLine;
+		m_modToolIndex = ToolNotModified;
+		if (m_toolCount == 0)
+			m_curLineNum = NoCurrentLine;
 
-		s_scroll.SetTotalLines(s_toolCount);
-		s_scroll.ScrollToLine(s_curLineNum);
+		m_scroll.SetTotalLines(m_toolCount);
+		m_scroll.ScrollToLine(m_curLineNum);
 	}
 
-	static ListScroll *ListCapture(int x, int y, ScrollAreas spot)
+	void ShowToolLib()
 	{
-		if (s_scroll.StartCapture(x, y - ToolListTop, spot))
-			return &s_scroll;
+		Lcd.EnablePip1(&ToolLibrary, 0, 0);
+		Lcd.EnablePip2(&m_scroll, 0, ToolListTop);
+	}
+
+	ListScroll *ListCapture(int x, int y, ScrollAreas spot)
+	{
+		if (m_scroll.StartCapture(x, y - ToolListTop, spot))
+			return &m_scroll;
 		return NULL;
 	}
 
-	static void SetToolSide(uint side)
+	void SetToolSide(uint side)
 	{
-		s_toolSides = (s_toolSides & ~(side >> ToolMaskShift)) ^ side;
+		m_toolSides = (m_toolSides & ~(side >> ToolMaskShift)) ^ side;
 		ShowToolInfo();
 	}
 
-	static void ChangeUnits()
+	void ChangeUnits()
 	{
-		s_scroll.InvalidateLines(0, s_toolCount - 1);
+		m_scroll.InvalidateLines(0, m_toolCount - 1);
 		ShowToolInfo();
 	}
 
-	static void ShowFeedRate(double rate)
-	{
-		s_feedRate.PrintDbl("\n%5.0f", rate);
-	}
-
-	static void ToolEntryKeyHit(void *pvUser, uint key)
+	void ToolEntryKeyHit(void *pvUser, uint key)
 	{
 		EditLine::EditStatus	edit;
 
@@ -240,17 +218,17 @@ public:
 		if (edit == EditLine::EditDone)
 		{
 			// See if setting tool info made it "valid"
-			if (s_curLineNum == NoCurrentLine)
+			if (m_curLineNum == NoCurrentLine)
 				InsertIfValid();
 			else
-				s_scroll.InvalidateLine(s_curLineNum);
+				m_scroll.InvalidateLine(m_curLineNum);
 
 			ShowToolInfo();
 			EndEdit(s_editDesc);
 		}
 	}
 
-	static void FileKeyHit(void *pvUser, uint key)
+	void FileKeyHit(void *pvUser, uint key)
 	{
 		EditLine::EditStatus	edit;
 
@@ -259,21 +237,174 @@ public:
 		if (edit == EditLine::EditDone)
 		{
 			EndEdit(s_editFile);
-			if (s_isFolder)
+			if (m_isFolder)
 				Files.Refresh();
 		}
 	}
 
 public:
-	static void ShowToolLib()
+	static void ShowFeedRate(double rate)
 	{
-		Lcd.EnablePip1(&ToolLibrary, 0, 0);
-		Lcd.EnablePip2(&s_scroll, 0, ToolListTop);
+		s_feedRate.PrintDbl("\n%5.0f", rate);
 	}
 
 	//*********************************************************************
 	// Helpers
 	//*********************************************************************
+protected:
+	ToolLibInfo *PtrCurrentTool()
+	{
+		if (m_curLineNum == NoCurrentLine)
+			return &s_bufTool;
+		return PtrFromLine(m_curLineNum);
+	}
+
+	bool IsToolBuffered()
+	{
+		return m_curLineNum == NoCurrentLine || s_arSortList[m_curLineNum] == ToolBufIndex;
+	}
+
+	void SelectLine(uint line) NO_INLINE_ATTR
+	{
+		uint	oldLine;
+
+		oldLine = m_curLineNum;
+		m_curLineNum = line;
+		if (oldLine != NoCurrentLine)
+			m_scroll.InvalidateLine(oldLine);
+		if (line != NoCurrentLine)
+		{
+			m_scroll.InvalidateLine(line);
+			m_scroll.ScrollToLine(line);
+		}
+	}
+
+	uint FindTool(uint num)
+	{
+		uint	line;
+
+		for (line = 0; line < m_toolCount; line++)
+		{
+			if (PtrFromLine(line)->number == num)
+			{
+				SelectLine(line);
+				if (m_modToolIndex != ToolNotModified)
+					DEBUG_PRINT("Find replacing modified tool\n");
+				m_modToolIndex = ToolNotModified;
+				return line;
+			}
+		}
+		return NoCurrentLine;
+	}
+
+	void SaveTool()
+	{
+		if (m_curLineNum == NoCurrentLine)
+			return;
+
+		if (m_modToolIndex != ToolNotModified)
+		{
+			// Update existing tool
+			s_arToolInfo[m_modToolIndex] = s_bufTool;
+			s_arSortList[m_curLineNum] = m_modToolIndex;
+			m_modToolIndex = ToolNotModified;
+			SetToolButtonImage(TOOL_IMAGE_NotModified);
+		}
+		else if (s_arSortList[m_curLineNum] == ToolBufIndex)
+		{
+			// New tool
+			if (m_freeToolIndex >= MaxToolCount)
+			{
+				// UNDONE: garbage collect tool list
+				return;
+			}
+
+			s_arSortList[m_curLineNum] = m_freeToolIndex;
+			s_arToolInfo[m_freeToolIndex++] = s_bufTool;
+		}
+	}
+
+	void InsertIfValid()
+	{
+		uint	line;
+
+		if (s_bufTool.IsValid())
+		{
+			// Tool now valid, insert it
+			line = InsertTool(ToolBufIndex);
+			SelectLine(line);
+			m_scroll.InvalidateLines(line + 1, m_toolCount);
+		}
+	}
+
+	uint InsertTool(uint bufIndex)
+	{
+		uint	line;
+		uint	num;
+
+		if (m_toolCount >= MaxToolCount)
+			return NoCurrentLine;
+
+		num = PtrFromIndex(bufIndex)->number;
+
+		for (line = 0; line < m_toolCount && PtrFromLine(line)->number < num; line++);
+
+		// We do not update the display in case this is a mass import
+		memmove(&s_arSortList[line + 1], &s_arSortList[line], (m_toolCount - line) * sizeof s_arSortList[0]);
+		s_arSortList[line] = bufIndex;
+		if (m_modToolIndex != ToolNotModified)
+			DEBUG_PRINT("Inserting  modified tool\n");
+		m_modToolIndex = ToolNotModified;
+		m_toolCount++;
+		m_scroll.SetTotalLines(m_toolCount);
+		return line;
+	}
+
+	void DeleteTool()
+	{
+		uint	line;
+
+		// We should only be here when displaying an unmodified tool
+		line = m_curLineNum;
+
+		// Overwrite tool data -- UNDONE: handle for flash
+		// Tool might be in buffer only, not yet saved
+		PtrFromLine(line)->ClearData();
+
+		// Remove from sort list
+		m_toolCount--;
+		memmove(&s_arSortList[line], &s_arSortList[line + 1], (m_toolCount - line) * sizeof s_arSortList[0]);
+		if (line >= m_toolCount)
+		{
+			line--;
+			SelectLine(line);
+		}
+		m_scroll.SetTotalLines(m_toolCount);
+		m_scroll.InvalidateLines(line, m_toolCount + 1);
+		ShowToolInfo();
+	}
+
+	void EndEdit(EditLine &edit)
+	{
+		edit.EndEdit();
+		m_editMode = EDIT_None;
+		KeyboardMgr::CloseKb();
+	}
+
+	void StartEditTool()
+	{
+		m_modToolIndex = s_arSortList[m_curLineNum];
+		s_arSortList[m_curLineNum] = ToolBufIndex;
+		SetToolButtonImage(TOOL_IMAGE_IsModified);
+	}
+
+	void StartEditToolDesc(int pos)
+	{
+		m_editMode = EDIT_Description;
+		s_editDesc.StartEditPx(pos);
+		KeyboardMgr::OpenKb(ToolEntryKeyHitCallback);
+	}
+
 protected:
 	static ToolLibInfo *PtrFromIndex(uint index)
 	{
@@ -288,180 +419,20 @@ protected:
 		return PtrFromIndex(s_arSortList[line]);
 	}
 
-	static ToolLibInfo *PtrCurrentTool()
-	{
-		if (s_curLineNum == NoCurrentLine)
-			return &s_bufTool;
-		return PtrFromLine(s_curLineNum);
-	}
-
-	static bool IsToolBuffered()
-	{
-		return s_curLineNum == NoCurrentLine || s_arSortList[s_curLineNum] == ToolBufIndex;
-	}
-
-	static void SelectLine(uint line) NO_INLINE_ATTR
-	{
-		uint	oldLine;
-
-		oldLine = s_curLineNum;
-		s_curLineNum = line;
-		if (oldLine != NoCurrentLine)
-			s_scroll.InvalidateLine(oldLine);
-		if (line != NoCurrentLine)
-		{
-			s_scroll.InvalidateLine(line);
-			s_scroll.ScrollToLine(line);
-		}
-	}
-
-	static uint FindTool(uint num)
-	{
-		uint	line;
-
-		for (line = 0; line < s_toolCount; line++)
-		{
-			if (PtrFromLine(line)->number == num)
-			{
-				SelectLine(line);
-				if (s_modToolIndex != ToolNotModified)
-					DEBUG_PRINT("Find replacing modified tool\n");
-				s_modToolIndex = ToolNotModified;
-				return line;
-			}
-		}
-		return NoCurrentLine;
-	}
-
-	static void SaveTool()
-	{
-		if (s_curLineNum == NoCurrentLine)
-			return;
-
-		if (s_modToolIndex != ToolNotModified)
-		{
-			// Update existing tool
-			s_arToolInfo[s_modToolIndex] = s_bufTool;
-			s_arSortList[s_curLineNum] = s_modToolIndex;
-			s_modToolIndex = ToolNotModified;
-			SetToolButtonImage(TOOL_IMAGE_NotModified);
-		}
-		else if (s_arSortList[s_curLineNum] == ToolBufIndex)
-		{
-			// New tool
-			if (s_freeToolIndex >= MaxToolCount)
-			{
-				// UNDONE: garbage collect tool list
-				return;
-			}
-
-			s_arSortList[s_curLineNum] = s_freeToolIndex;
-			s_arToolInfo[s_freeToolIndex++] = s_bufTool;
-		}
-	}
-
-	static void InsertIfValid()
-	{
-		uint	line;
-
-		if (s_bufTool.IsValid())
-		{
-			// Tool now valid, insert it
-			line = InsertTool(ToolBufIndex);
-			SelectLine(line);
-			s_scroll.InvalidateLines(line + 1, s_toolCount);
-		}
-	}
-
-	static uint InsertTool(uint bufIndex)
-	{
-		uint	line;
-		uint	num;
-
-		if (s_toolCount >= MaxToolCount)
-			return NoCurrentLine;
-
-		num = PtrFromIndex(bufIndex)->number;
-
-		for (line = 0; line < s_toolCount && PtrFromLine(line)->number < num; line++);
-
-		// We do not update the display in case this is a mass import
-		memmove(&s_arSortList[line + 1], &s_arSortList[line], (s_toolCount - line) * sizeof s_arSortList[0]);
-		s_arSortList[line] = bufIndex;
-		if (s_modToolIndex != ToolNotModified)
-			DEBUG_PRINT("Inserting  modified tool\n");
-		s_modToolIndex = ToolNotModified;
-		s_toolCount++;
-		s_scroll.SetTotalLines(s_toolCount);
-		return line;
-	}
-
-	static void DeleteTool()
-	{
-		uint	line;
-
-		// We should only be here when displaying an unmodified tool
-		line = s_curLineNum;
-
-		// Overwrite tool data -- UNDONE: handle for flash
-		// Tool might be in buffer only, not yet saved
-		PtrFromLine(line)->ClearData();
-
-		// Remove from sort list
-		s_toolCount--;
-		memmove(&s_arSortList[line], &s_arSortList[line + 1], (s_toolCount - line) * sizeof s_arSortList[0]);
-		if (line >= s_toolCount)
-		{
-			line--;
-			SelectLine(line);
-		}
-		s_scroll.SetTotalLines(s_toolCount);
-		s_scroll.InvalidateLines(line, s_toolCount + 1);
-		ShowToolInfo();
-	}
-
-	static void EndEdit(EditLine &edit)
-	{
-		edit.EndEdit();
-		s_editMode = EDIT_None;
-		KeyboardMgr::CloseKb();
-	}
-
-	static void StartEditTool()
-	{
-		s_modToolIndex = s_arSortList[s_curLineNum];
-		s_arSortList[s_curLineNum] = ToolBufIndex;
-		SetToolButtonImage(TOOL_IMAGE_IsModified);
-	}
-
-	static void StartEditToolDesc(int pos)
-	{
-		s_editMode = EDIT_Description;
-		s_editDesc.StartEditPx(pos);
-		KeyboardMgr::OpenKb(ToolEntryKeyHit);
-	}
-
 	//*********************************************************************
 	// Import/Export dialog
 
 protected:
-	static void OpenImportExport()
+	void CloseImportExport()
 	{
-		Lcd.EnablePip1(&ToolImport, 0, 0);
-		FileOp.SetErrorHandler(FileError);
-		Files.Open(&s_editFile, ListUpdate);
-	}
-
-	static void CloseImportExport()
-	{
-		if (s_editMode == EDIT_File)
+		if (m_editMode == EDIT_File)
 			EndEdit(s_editFile);
 
 		FileOp.SetErrorHandler(NULL);
 		ShowToolLib();
 	}
 
-	static void CheckIfFolder(bool fAlwaysSetIcon = false)
+	void CheckIfFolder(bool fAlwaysSetIcon = false)
 	{
 		char	chEnd;
 		bool	isFolder;
@@ -475,34 +446,34 @@ protected:
 			chEnd = Files.GetPathBuf()[cch - 1];
 			isFolder = chEnd == '/' || chEnd == '\\';
 		}
-		if (fAlwaysSetIcon || isFolder != s_isFolder)
+		if (fAlwaysSetIcon || isFolder != m_isFolder)
 		{
-			s_isFolder = isFolder;
+			m_isFolder = isFolder;
 			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
-				&LoadSave, isFolder ? FILE_IMAGE_OpenFolder : s_isExport);
+				&LoadSave, isFolder ? FILE_IMAGE_OpenFolder : m_isExport);
 		}
 	}
 
-	static void StartEditFile(int pos)
+	void StartEditFile(int pos)
 	{
-		if (s_editMode >= EDIT_StartErrors)
+		if (m_editMode >= EDIT_StartErrors)
 			ClearFileError();
-		s_editMode = EDIT_File;
+		m_editMode = EDIT_File;
 		s_editFile.StartEditPx(pos);
-		KeyboardMgr::OpenKb(FileKeyHit);
+		KeyboardMgr::OpenKb(FileKeyHitCallback);
 	}
 
-	static void ListUpdate(FileBrowser::NotifyReason reason)
+	void ListUpdate(FileBrowser::NotifyReason reason)
 	{
 		switch (reason)
 		{
 		case FileBrowser::SelectionChanged:
 			// Callback when file/folder selected from list
-			if (s_editMode < EDIT_StartErrors)
+			if (m_editMode < EDIT_StartErrors)
 				CheckIfFolder();
 			else
 			{
-				uint editMode = s_editMode;
+				uint editMode = m_editMode;
 				ClearFileError();
 				if (editMode == EDIT_FolderCreatePrompt)
 					StartEditFile(EditLine::EndLinePx);
@@ -510,7 +481,7 @@ protected:
 			break;
 
 		case FileBrowser::DriveChanged:
-			if (s_editMode == EDIT_File)
+			if (m_editMode == EDIT_File)
 				EndEdit(s_editFile);
 
 			if (Files.GetDrive() != -1)
@@ -522,6 +493,62 @@ protected:
 			ShowDriveChoice();
 			break;
 		}
+	}
+
+	int FileError(int err)
+	{
+		DEBUG_PRINT("File error %i\n", -err);
+
+		// Inform file browser
+		if (err == FATERR_FileNotFound && m_isFolder && m_isExport)
+		{
+			m_editMode = EDIT_FolderCreatePrompt;
+			Files.FileError(s_CreateFolderMsg);
+			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
+				&LoadSave, FILE_IMAGE_AddFolder);
+		}
+		else
+		{
+			m_editMode = EDIT_FileError;
+			Files.FileError(err);
+		}
+
+		return err;
+	}
+
+	void ClearFileError()
+	{
+		m_editMode = EDIT_None;
+		Files.FileError();
+		CheckIfFolder(true);
+	}
+
+	void ShowTimeSet()
+	{
+		RtcTime		time;
+
+		if (m_editMode == EDIT_File)
+			EndEdit(s_editFile);
+		Lcd.EnablePip2(&EnterDateTime, 0, ToolListTop);
+		m_editMode = EDIT_Time;
+		ShowExportTime(time.ReadClock());
+	}
+
+	void EndTimeSet()
+	{
+		Lcd.EnablePip2(&Files, 0, ToolListTop);
+		m_editMode = EDIT_None;
+	}
+
+	//*********************************************************************
+	// Static helpers
+
+protected:
+	static void OpenImportExport()
+	{
+		Lcd.EnablePip1(&ToolImport, 0, 0);
+		FileOp.SetErrorHandler(FileErrorCallback);
+		Files.Open(&s_editFile, ListUpdateCallback);
 	}
 
 	static void ShowDriveChoice()
@@ -540,60 +567,11 @@ protected:
 		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.SdDriveBox, &RadioButtons, index);
 	}
 
-	static int FileError(int err)
-	{
-		DEBUG_PRINT("File error %i\n", -err);
-
-		// Inform file browser
-		if (err == FATERR_FileNotFound && s_isFolder && s_isExport)
-		{
-			s_editMode = EDIT_FolderCreatePrompt;
-			Files.FileError(s_CreateFolderMsg);
-			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, 
-				&LoadSave, FILE_IMAGE_AddFolder);
-		}
-		else
-		{
-			s_editMode = EDIT_FileError;
-			Files.FileError(err);
-		}
-
-		return err;
-	}
-
-	static void ClearFileError()
-	{
-		s_editMode = EDIT_None;
-		Files.FileError();
-		CheckIfFolder(true);
-	}
-
-	static void ShowTimeSet()
-	{
-		RtcTime		time;
-
-		if (s_editMode == EDIT_File)
-			EndEdit(s_editFile);
-		Lcd.EnablePip2(&EnterDateTime, 0, ToolListTop);
-		s_editMode = EDIT_Time;
-		ShowExportTime(time.ReadClock());
-	}
-
-	static void EndTimeSet()
-	{
-		Lcd.EnablePip2(&Files, 0, ToolListTop);
-		s_editMode = EDIT_None;
-	}
-
 	static void PrintTimeDigits(uint u)
 	{
 		s_TimeEntry.printf("%02u", u);
 	}
 
-	//*********************************************************************
-	// Static helpers
-
-protected:
 	static bool IsMetric()
 	{
 		return Eeprom.Data.fIsMetric;
@@ -662,10 +640,25 @@ protected:
 	inline static const char s_CreateFolderMsg[] = "Folder not found - use Add Folder to create";
 
 	//*********************************************************************
+	// instance (RAM) data
+	//*********************************************************************
+protected:
+	ushort		m_toolCount;
+	ushort		m_curLineNum {NoCurrentLine};
+	ushort		m_modToolIndex {ToolNotModified};
+	ushort		m_freeToolIndex;
+	byte		m_toolSides;
+	byte		m_editMode;
+	bool		m_isExport;
+	bool		m_isFolder;
+	ToolScroll	m_scroll;
+
+	//*********************************************************************
 	// static (RAM) data
 	//*********************************************************************
 protected:
 	inline static ToolLibInfo	s_bufTool;
+
 	inline static ToolDisplay	s_textMain {MainScreen, MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};
 	inline static ToolDisplay	s_textInfo  {ToolLibrary, ToolLibrary_Areas.ToolNumber,
@@ -688,15 +681,8 @@ protected:
 	inline static NumberLineBlankZ	s_feedRate {MainScreen, MainScreen_Areas.CurrentFeedRate,
 		FID_SettingsFont, FeedRateColor, ToolDiagramColor};
 
-	inline static ushort		s_toolCount;
-	inline static ushort		s_curLineNum {NoCurrentLine};
-	inline static ushort		s_modToolIndex {ToolNotModified};
-	inline static ushort		s_freeToolIndex;
-	inline static byte			s_toolSides;
-	inline static byte			s_editMode;
-	inline static bool			s_isExport;
-	inline static bool			s_isFolder;
-	inline static ToolScroll	s_scroll;
 	inline static ushort		s_arSortList[MaxToolCount];
 	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];
 };
+
+extern ToolLib Tools;

@@ -21,7 +21,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	bool	isExport;
 	ToolLibInfo	*pTool;
 
-	if (s_editMode == EDIT_ConfirmDelete)
+	if (m_editMode == EDIT_ConfirmDelete)
 	{
 		// Lock out anything but Confirm or Cancel deletion of a tool.
 		// Confirm is ToolDone, Cancel is ToolImportExport.
@@ -31,7 +31,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		if (spot == ToolsDone)
 			DeleteTool();
 
-		s_editMode = EDIT_None;
+		m_editMode = EDIT_None;
 		Lcd.SetPip1Modal(false);
 		SetToolButtonImage(TOOL_IMAGE_NotModified);
 		return;
@@ -54,10 +54,10 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			{
 				// Start entering new tool. If we're just clearing
 				// the tool number, start with the last tool.
-				if (s_curLineNum != NoCurrentLine && tool == 0)
+				if (m_curLineNum != NoCurrentLine && tool == 0)
 				{
-					if (s_arSortList[s_curLineNum] != ToolBufIndex)
-						s_bufTool = *PtrFromLine(s_curLineNum);
+					if (s_arSortList[m_curLineNum] != ToolBufIndex)
+						s_bufTool = *PtrFromLine(m_curLineNum);
 				}
 				else if (s_bufTool.number != 0)
 					s_bufTool.ClearData();
@@ -90,7 +90,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 				// Copy the tool to the buffer if it's not already there.
 				if (!IsToolBuffered())
 				{
-					s_bufTool = *PtrFromLine(s_curLineNum);
+					s_bufTool = *PtrFromLine(m_curLineNum);
 					if (IsLibShown())
 						StartEditTool();	// We're in the tool library
 					else
@@ -122,7 +122,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 
 			case ToolDesc:
 				x -= ToolLibrary_Areas.ToolDesc.Xpos;	// relative edit box
-				if (s_editMode != EDIT_Description)
+				if (m_editMode != EDIT_Description)
 					StartEditToolDesc(x);
 				else
 					s_editDesc.SetPositionPx(x);	// Already editing description
@@ -140,10 +140,10 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			}
 
 			// See if setting tool info made it "valid"
-			if (s_curLineNum == NoCurrentLine)
+			if (m_curLineNum == NoCurrentLine)
 				InsertIfValid();
 			else
-				s_scroll.InvalidateLine(s_curLineNum);
+				m_scroll.InvalidateLine(m_curLineNum);
 
 			ShowToolInfo();
 		}
@@ -186,7 +186,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	{
 	case ToolsDone:
 		SaveTool();
-		if (s_editMode == EDIT_Description)
+		if (m_editMode == EDIT_Description)
 			EndEdit(s_editDesc);
 
 		Lcd.DisablePip1();
@@ -194,33 +194,33 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		break;
 
 	case ToolDelete:
-		if (s_curLineNum == NoCurrentLine)
+		if (m_curLineNum == NoCurrentLine)
 		{
 			s_bufTool.ClearData();
 			ShowToolInfo();
 			break;
 		}
-		else if (s_arSortList[s_curLineNum] == ToolBufIndex && s_modToolIndex != ToolNotModified)
+		else if (s_arSortList[m_curLineNum] == ToolBufIndex && m_modToolIndex != ToolNotModified)
 		{
 			// Tool is modified, treat as Cancel
 			s_bufTool.ClearData();
-			s_arSortList[s_curLineNum] = s_modToolIndex;
-			s_modToolIndex = ToolNotModified;
-			s_scroll.InvalidateLine(s_curLineNum);
+			s_arSortList[m_curLineNum] = m_modToolIndex;
+			m_modToolIndex = ToolNotModified;
+			m_scroll.InvalidateLine(m_curLineNum);
 			SetToolButtonImage(TOOL_IMAGE_NotModified);
-			if (s_editMode == EDIT_Description)
+			if (m_editMode == EDIT_Description)
 				EndEdit(s_editDesc);
 			ShowToolInfo();
 			break;
 		}
-		s_editMode = EDIT_ConfirmDelete;
+		m_editMode = EDIT_ConfirmDelete;
 		Lcd.SetPip1Modal(true);
 		SetToolButtonImage(TOOL_IMAGE_ConfirmDelete);
 		break;
 
 	case ToolImportExport:
 		SaveTool();
-		if (s_editMode == EDIT_Description)
+		if (m_editMode == EDIT_Description)
 			EndEdit(s_editDesc);
 		OpenImportExport();
 		break;
@@ -228,7 +228,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	case ClearDesc:
 		if (!IsToolBuffered())
 		{
-			s_bufTool = *PtrFromLine(s_curLineNum);
+			s_bufTool = *PtrFromLine(m_curLineNum);
 			StartEditTool();
 		}
 		s_editDesc.DeleteText();
@@ -246,13 +246,13 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 		isExport = true;
 SetImportExportImages:
 		// Ignore radio buttons while prompting to create folder
-		if (s_editMode >= EDIT_StartErrors)
+		if (m_editMode >= EDIT_StartErrors)
 			break;
 
-		s_isExport = isExport;
+		m_isExport = isExport;
 		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImportBox, &RadioButtons, !isExport);
 		Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ExportBox, &RadioButtons, isExport);
-		if (!s_isFolder)
+		if (!m_isFolder)
 			Lcd.SelectImage(&ToolImport, &ToolImport_Areas.ImpExpButton, &LoadSave, isExport);
 		if (isExport)
 		{
@@ -271,23 +271,23 @@ SetImportExportImages:
 		break;
 
 	case ImpExpExecute:
-		if (s_editMode == EDIT_File)
+		if (m_editMode == EDIT_File)
 			EndEdit(s_editFile);
 
-		else if (s_editMode >= EDIT_StartErrors)
+		else if (m_editMode >= EDIT_StartErrors)
 		{
-			uint editMode = s_editMode;
+			uint editMode = m_editMode;
 			ClearFileError();
 			if (editMode == EDIT_FolderCreatePrompt)
 				Files.Refresh(true);
 			break;
 		}
 
-		if (s_isFolder)
+		if (m_isFolder)
 			Files.Refresh();
 		else
 		{
-			if (s_isExport)
+			if (m_isExport)
 				FileOp.ToolExport(FileBrowser::GetPathBuf(), Files.GetDrive());
 			else
 				FileOp.ToolImport(FileBrowser::GetPathBuf(), Files.GetDrive());
@@ -295,7 +295,7 @@ SetImportExportImages:
 		break;
 
 	case ImpExpCancel:
-		if (s_editMode >= EDIT_StartErrors)
+		if (m_editMode >= EDIT_StartErrors)
 			StartEditFile(EditLine::EndLinePx);
 		else
 			CloseImportExport();
@@ -303,7 +303,7 @@ SetImportExportImages:
 
 	case FileName:
 		x -= ToolImport_Areas.FileName.Xpos;	// relative edit box
-		if (s_editMode != EDIT_File)
+		if (m_editMode != EDIT_File)
 			StartEditFile(x);
 		else
 			s_editFile.SetPositionPx(x); // Already editing file
@@ -327,12 +327,12 @@ SetImportExportImages:
 		break;
 
 	case TimeSet:
-		if (s_editMode == EDIT_FolderCreatePrompt)
+		if (m_editMode == EDIT_FolderCreatePrompt)
 			break;
-		if (!s_isExport)
+		if (!m_isExport)
 			break;		// button only displayed on Export
 
-		if (s_editMode == EDIT_Time)
+		if (m_editMode == EDIT_Time)
 			EndTimeSet();
 		else
 			ShowTimeSet();
@@ -387,7 +387,7 @@ void ToolLib::ShowToolInfo()
 
 	// Update cutter radius offset
 	PrepareDrawTool();
-	sides = s_toolSides;
+	sides = m_toolSides;
 	DrawTool(sides & ToolLeftBit,  ToolLeft_X,  ToolLeft_Y);
 	DrawTool(sides & ToolRightBit, ToolRight_X, ToolRight_Y);
 	DrawTool(sides & ToolBackBit,  ToolBack_X,  ToolBack_Y);
@@ -471,7 +471,7 @@ void ToolLib::SetTime(uint spot)
 
 void ToolLib::ShowExportTime(RtcTime time)
 {
-	if (!s_isExport)
+	if (!m_isExport)
 		return;
 
 	s_LiveTime.ResetPosition();
@@ -481,7 +481,7 @@ void ToolLib::ShowExportTime(RtcTime time)
 	s_LiveTime.WriteString(time.AmPm() ? " pm" : " am");
 	s_LiveTime.SetSpaceWidth(s_LiveTime.GetCharWidth('0'));
 
-	if (s_editMode == EDIT_Time)
+	if (m_editMode == EDIT_Time)
 	{
 		s_TimeEntry.SetArea(EnterDateTime_Areas.Month);
 		PrintTimeDigits(time.Month());
@@ -554,7 +554,7 @@ int ToolLib::ImportTool(char *pchBuf)
 		strncpy(s_bufTool.arDesc, pchBuf, ToolDescSize - 1);
 
 	s_bufTool.arDesc[ToolDescSize - 1] = '\0';	// ensure null terminated
-	s_curLineNum = InsertTool(ToolBufIndex);
+	m_curLineNum = InsertTool(ToolBufIndex);
 	SaveTool();
 
 	return 0;
@@ -584,8 +584,8 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 		cb -= cbLine + 1;
 		Eeprom.Data.fToolLibMetric = Eeprom.Data.fIsMetric;
 		// UNDONE: delete existing library
-		s_freeToolIndex = 0;
-		s_toolCount = 0;
+		m_freeToolIndex = 0;
+		m_toolCount = 0;
 	}
 
 	if (cbWrap != 0)
@@ -630,9 +630,9 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 
 void ToolLib::ImportDone()
 {
-	s_scroll.InvalidateAllLines();
+	m_scroll.InvalidateAllLines();
 	s_bufTool.ClearData();
-	s_curLineNum = s_toolCount == 0 ? NoCurrentLine : 0;
+	m_curLineNum = m_toolCount == 0 ? NoCurrentLine : 0;
 	ShowToolInfo();
 	CloseImportExport();
 }
@@ -654,7 +654,7 @@ char *ToolLib::ExportTool(char *pBuf, uint line)
 	int		cb;
 	ToolLibInfo	*pInfo;
 
-	if (line >= s_toolCount)
+	if (line >= m_toolCount)
 		return NULL;
 
 	pInfo = PtrFromLine(line);
@@ -684,3 +684,62 @@ void ToolLib::ExportDone()
 	Files.Refresh();
 }
 
+//*********************************************************************
+// Static callbacks
+//*********************************************************************
+
+void ToolLib::ToolEntryKeyHitCallback(void *pvUser, uint key)
+{
+	Tools.ToolEntryKeyHit(pvUser, key);
+}
+
+void ToolLib::FileKeyHitCallback(void *pvUser, uint key)
+{
+	Tools.FileKeyHit(pvUser, key);
+}
+
+void ToolLib::ListUpdateCallback(FileBrowser::NotifyReason reason)
+{
+	Tools.ListUpdate(reason);
+}
+
+int ToolLib::FileErrorCallback(int err)
+{
+	return Tools.FileError(err);
+}
+
+//*********************************************************************
+// Implement functions in ListScroll
+//*********************************************************************
+
+void ToolLib::ToolScroll::FillLine(int lineNum, Area *pArea)
+{
+	Area	area;
+
+	if (lineNum < Tools.m_toolCount)
+	{
+		if (lineNum == Tools.m_curLineNum)
+			s_textList.SetTextColor(ToolLibSelected);
+		s_textList.DisplayLine(PtrFromLine(lineNum));
+		s_textList.SetTextColor(ToolLibForeground);
+		Lcd.CopyRect(this, pArea, &ToolRow);
+	}
+	else
+	{
+		Lcd.FillRect(this, pArea, ToolLibBackground);
+		if (lineNum == Tools.m_toolCount && Tools.m_toolCount != 0)
+		{
+			// Draw bottom line of last grid entry.
+			area = *pArea;
+			area.Height = 1;
+			Lcd.CopyRect(this, &area, &ToolRow);
+		}
+	}
+}
+
+void ToolLib::ToolScroll::LineSelected(int lineNum)
+{
+	Tools.SaveTool();
+	Tools.SelectLine(lineNum);
+	Tools.ShowToolInfo();
+}

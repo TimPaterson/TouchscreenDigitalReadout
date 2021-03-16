@@ -80,7 +80,7 @@ public:
 	{
 		ShowAbsInc();
 		ShowInchMetric();
-		ToolLib::Init();
+		Tools.Init();
 		Files.Init();
 	}
 
@@ -130,7 +130,7 @@ public:
 		//
 
 		case HOTSPOT_GROUP_ToolDisplay:
-			s_pCapture = ToolLib::ListCapture(x, y, (ScrollAreas)spot);
+			s_pCapture = Tools.ListCapture(x, y, (ScrollAreas)spot);
 			return;
 
 		case HOTSPOT_GROUP_FileDisplay:
@@ -138,7 +138,7 @@ public:
 			return;
 
 		case HOTSPOT_GROUP_ToolLib:
-			ToolLib::ToolAction(spot, x, y);
+			Tools.ToolAction(spot, x, y);
 			return;
 
 		case HOTSPOT_GROUP_Update:
@@ -146,7 +146,7 @@ public:
 			return;
 
 		case HOTSPOT_GROUP_TimeSet:
-			ToolLib::SetTime(spot);
+			Tools.SetTime(spot);
 			return;
 
 		case HOTSPOT_GROUP_Keyboard:
@@ -346,7 +346,7 @@ public:
 		//
 
 		case HOTSPOT_GROUP_ToolSide:
-			ToolLib::SetToolSide(spot);
+			Tools.SetToolSide(spot);
 			return;
 
 		//*****************************************************************
@@ -424,7 +424,7 @@ public:
 			}
 			*pToggle ^= true;
 			ShowSettingsInfo();
-			ToolLib::ShowToolInfo();
+			Tools.ShowToolInfo();
 			return;
 
 		//*****************************************************************
@@ -435,13 +435,13 @@ public:
 			switch (spot)
 			{
 			case ToolMenu:
-				ToolLib::ShowToolLib();
+				Tools.ShowToolLib();
 				break;
 
 			case InchMetric:
 				Eeprom.Data.fIsMetric ^= true;
 				ShowInchMetric();
-				ToolLib::ChangeUnits();
+				Tools.ChangeUnits();
 				UpdateEeprom();
 				break;
 

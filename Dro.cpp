@@ -76,6 +76,7 @@ FDEV_STANDARD_STREAMS(&Console_FILE, NULL);
 Xtp2046		Touch;
 UsbDro		UsbPort;
 FileBrowser	Files;
+ToolLib		Tools;
 
 FatSd				Sd;
 FatSysWait<wdt_reset> FileSys;
@@ -249,7 +250,7 @@ int main(void)
 		if (timeCur.ReadClock() != timeLast)
 		{
 			timeLast = timeCur;
-			ToolLib::ShowExportTime(timeCur);
+			Tools.ShowExportTime(timeCur);
 		}
 
 		// Update the axis position displays
@@ -265,7 +266,7 @@ int main(void)
 			deltaY = Yaxis.GetDistance();
 			delta = sqrt(deltaX * deltaX + deltaY * deltaY);
 			// convert to per minute
-			ToolLib::ShowFeedRate(delta * 60.0 * FeedUpdateRate);
+			Tools.ShowFeedRate(delta * 60.0 * FeedUpdateRate);
 		}
 
 		// Process USB events

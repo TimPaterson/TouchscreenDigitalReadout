@@ -151,7 +151,7 @@ FlashStartRead:
 				cb = status;
 				if (cb > 0)
 				{
-					cb = ToolLib::ImportTools(NULL, cb, 0);
+					cb = Tools.ImportTools(NULL, cb, 0);
 					goto ImportNext;
 				}
 				else
@@ -164,9 +164,9 @@ FlashStartRead:
 				if (cb > 0)
 				{
 					if (import.cbLeft != 0)
-						cb = ToolLib::ImportTools((char *)&g_FileBuf[2] - import.cbLeft, import.cbLeft, cb);
+						cb = Tools.ImportTools((char *)&g_FileBuf[2] - import.cbLeft, import.cbLeft, cb);
 					else
-						cb = ToolLib::ImportTools((char *)&g_FileBuf[0], cb, 0);
+						cb = Tools.ImportTools((char *)&g_FileBuf[0], cb, 0);
 
 ImportNext:
 					if (cb < 0)
@@ -180,7 +180,7 @@ ImportNext:
 				{
 ImportClose:
 					Close(m_hFile);
-					ToolLib::ImportDone();
+					Tools.ImportDone();
 					OP_DONE;
 				}
 			END_STATE
@@ -190,7 +190,7 @@ ImportClose:
 				cb = status;
 				if (cb > 0)
 				{
-					cb = ToolLib::ImportTools((char *)&g_FileBuf[1] - import.cbLeft, import.cbLeft + cb, 0);
+					cb = Tools.ImportTools((char *)&g_FileBuf[1] - import.cbLeft, import.cbLeft + cb, 0);
 					if (cb < 0)
 						goto ImportClose;	// UNDONE: error handling
 
@@ -206,7 +206,7 @@ ImportClose:
 			// ToolExport
 
 			OP_STATE(Export, open)
-				Export.pBuf = ToolLib::ExportStart();
+				Export.pBuf = Tools.ExportStart();
 				Export.iTool = 0;
 				Export.iBuf = 0;
 				TO_STATE(Export, write);
@@ -228,7 +228,7 @@ ImportClose:
 				}
 				do 
 				{
-					pBufRes = ToolLib::ExportTool(pBuf, Export.iTool++);
+					pBufRes = Tools.ExportTool(pBuf, Export.iTool++);
 					if (pBufRes == NULL)
 					{
 						// Reached end, flush last buffer
@@ -252,7 +252,7 @@ ImportClose:
 
 			OP_STATE(Export, close)
 				OpDone();
-				ToolLib::ExportDone();	// start folder enumeration
+				Tools.ExportDone();	// start folder enumeration
 			END_STATE
 
 			//*************************************************************
