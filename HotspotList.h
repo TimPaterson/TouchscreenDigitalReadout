@@ -69,11 +69,11 @@ enum ActionHotspots
 };
 
 // Index into array of PosSensor
-enum SensorIndex
+enum AxisIndex
 {
-	Xsensor,
-	Ysensor,
-	Zsensor,
+	Xaxis,
+	Yaxis,
+	Zaxis,
 	Qsensor
 };
 

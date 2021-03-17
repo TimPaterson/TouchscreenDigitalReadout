@@ -11,6 +11,7 @@
 
 class PosSensor
 {
+protected:
 	static constexpr int MaxOrigins = 2;
 	static constexpr double InchRounding = 5000.0;			// 1/5000 inch
 	static constexpr double MmRounding = 100.0;				// 1/100 mm
@@ -55,13 +56,18 @@ public:
 		delta = m_posLast - pos;
 		m_posLast = pos;
 
-		if (IsMetric())
-			return delta * m_scaleMm / MmRounding;
-
-		return delta * m_scaleInch / InchRounding;
+		return GetDistance(delta);
 	}
 
-	void SetPosition(double pos)
+	double GetDistance(int delta)
+	{
+		if (IsMetric())
+			return nearbyint(delta * m_scaleMm) / MmRounding;
+
+		return nearbyint(delta * m_scaleInch) / InchRounding;
+	}
+
+	long ConvertPosToInt(double pos)
 	{
 		// Round to display value first
 		if (IsMetric())
@@ -75,7 +81,12 @@ public:
 			pos /= m_scaleInch;
 		}
 
-		m_arOrigins[Eeprom.Data.OriginNum] = lround(pos) - m_posCur;
+		return lround(pos) - m_posCur;
+	}
+
+	void SetPosition(double pos)
+	{
+		m_arOrigins[Eeprom.Data.OriginNum] = ConvertPosToInt(pos);
 	}
 
 	void SetOffset(double offset)

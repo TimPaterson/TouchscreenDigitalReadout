@@ -89,9 +89,9 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 static const int AxisUpdateRate = 20;	// updates per second
 static const int FeedUpdateRate = 8;	// updates per second
 
-AxisDisplay Xaxis(&Eeprom.Data.XaxisInfo, MainScreen_Areas.Xdisplay);
-AxisDisplay Yaxis(&Eeprom.Data.YaxisInfo, MainScreen_Areas.Ydisplay);
-AxisDisplay Zaxis(&Eeprom.Data.ZaxisInfo, MainScreen_Areas.Zdisplay);
+AxisDisplay Xdisplay(&Eeprom.Data.XaxisInfo, MainScreen_Areas.Xdisplay, MainScreen_Areas.UndoX1);
+AxisDisplay Ydisplay(&Eeprom.Data.YaxisInfo, MainScreen_Areas.Ydisplay, MainScreen_Areas.UndoY1);
+AxisDisplay Zdisplay(&Eeprom.Data.ZaxisInfo, MainScreen_Areas.Zdisplay, MainScreen_Areas.UndoZ1);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
 
 //********************************************************************
@@ -175,9 +175,9 @@ int main(void)
 
 	// Put EEPROM data into effect
 	TCC1->CC[1].reg = Eeprom.Data.Brightness;
-	Xaxis.AxisInfoUpdate();
-	Yaxis.AxisInfoUpdate();
-	Zaxis.AxisInfoUpdate();
+	Xdisplay.AxisInfoUpdate();
+	Ydisplay.AxisInfoUpdate();
+	Zdisplay.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
 	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, Lcd.ScreenWidth, Lcd.ScreenHeight);
@@ -262,8 +262,8 @@ int main(void)
 		{
 			double	deltaX, deltaY, delta;
 
-			deltaX = Xaxis.GetDistance();
-			deltaY = Yaxis.GetDistance();
+			deltaX = Xdisplay.GetDistance();
+			deltaY = Ydisplay.GetDistance();
 			delta = sqrt(deltaX * deltaX + deltaY * deltaY);
 			// convert to per minute
 			Tools.ShowFeedRate(delta * 60.0 * FeedUpdateRate);

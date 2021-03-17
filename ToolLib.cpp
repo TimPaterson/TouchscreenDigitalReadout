@@ -394,18 +394,18 @@ void ToolLib::ShowToolInfo()
 	DrawTool(sides & ToolFrontBit, ToolFront_X, ToolFront_Y);
 
 	val = CheckMetric(pInfo->diameter / 2);
-	Xaxis.SetOffset(sides & ToolLeftBit ? val : (sides & ToolRightBit ? -val : 0));
+	Xdisplay.SetOffset(sides & ToolLeftBit ? val : (sides & ToolRightBit ? -val : 0));
 	if (Eeprom.Data.fCncCoordinates)
 		val = -val;
-	Yaxis.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
+	Ydisplay.SetOffset(sides & ToolFrontBit ? -val : (sides & ToolBackBit ? val : 0));
 	val = CheckMetric(pInfo->length);
 	if (Eeprom.Data.fCncCoordinates)
 		val = -val;
-	Zaxis.SetOffset(Eeprom.Data.fToolLenAffectsZ ? val : 0);
+	Zdisplay.SetOffset(Eeprom.Data.fToolLenAffectsZ ? val : 0);
 
 	color = Eeprom.Data.fHighlightOffset && pInfo->diameter != 0 ? ToolColor : AxisForeColor;
-	Xaxis.SetTextColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
-	Yaxis.SetTextColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
+	Xdisplay.SetTextColor(sides & (ToolLeftBit | ToolRightBit) ? color : AxisForeColor);
+	Ydisplay.SetTextColor(sides & (ToolBackBit | ToolFrontBit) ? color : AxisForeColor);
 }
 
 

@@ -10,10 +10,8 @@
   	BtnHeight = 60;
   	BtnWidth = 60;
   	KeySpace = 10;
-  	KeypadLeft = 584;
   	BtnFontSize = BtnHeight * 3 / 4;
   	SmallTextHeight = CalcSmall_Height;
-  	SettingsWidth = KeypadLeft - KeySpace;
 
     <!-- ListScroll parameters -->
     ScrollGapLeft = 2;
@@ -47,6 +45,9 @@
   <Color Name="TimeEntryForeground" Color="Black" ColorDepth="Color16bpp"/>
   <Color Name="TimeEntryBackground" Color="White" ColorDepth="Color16bpp"/>
   <Color Name="ScrollBarColor" Color="0x303030" ColorDepth="Color16bpp"/>
+  <Color Name="UndoTextColor" Color="Gray" ColorDepth="Color16bpp"/>
+  <Color Name="UndoLineColor" Color="Blue" ColorDepth="Color16bpp"/>
+  <Color Name="UndoBackColor" Color="CalcBackColor" ColorDepth="Color16bpp"/>
 
   <!-- Components -->
   <Component Name="Key">
@@ -88,21 +89,32 @@
     LabHt = 72;
     Vspace = 25;
     LabTop = (DispHt - DigHt) / 2;
+    AxisBtnWidth = 85;
+    AxisBtnGap = 25;
+    AxisBtnLeft = DispWd + AxisBtnGap;
+    AxisBtnRight = AxisBtnLeft + AxisBtnWidth;
 
     <!-- Caculator displays -->
     KeypadWidth = KeySpace + (BtnWidth + KeySpace) * 4;
-    KeypadRight = KeypadLeft + KeypadWidth;
+    KeypadRight = ScreenWidth - (BtnWidth * 2 + KeySpace * 3);
+    KeypadLeft = KeypadRight - KeypadWidth;
     KeypadHeight = KeySpace + (BtnHeight + KeySpace) * 5;
     CalcTextHeight = BtnHeight;
-    Undo3Top = Vspace;
-    Undo2Top = Undo3Top + SmallTextHeight;
-    Undo1Top = Undo2Top + SmallTextHeight;
-    CalcDispTop = Undo1Top + SmallTextHeight + KeySpace;
+    UndoTop = Vspace;
+    UndoItemHeight = SmallTextHeight;
+    UndoHeight = UndoItemHeight * 3;
+    CalcDispTop = UndoTop + UndoHeight + KeySpace;
     CalcTextTop = CalcDispTop + CalcTextHeight + KeySpace;
     KeypadTop = CalcTextTop + SmallTextHeight + KeySpace;
     KeypadBottom = KeypadTop + KeypadHeight;
-    UndoTop = Undo3Top;
-    UndoHeight = SmallTextHeight * 3;
+
+    <!-- Undo lists -->
+    UndoLeft = AxisBtnRight + AxisBtnGap;
+    UndoRight = KeypadRight;
+    UndoWidth = UndoRight - UndoLeft;
+    UndoItemWidth = (UndoWidth - 2) / 3;
+    UndoVertSep1Left = UndoItemWidth;
+    UndoVertSep2Left = UndoItemWidth * 2 + 1;
 
     <!-- Tool display column widths & positions -->
     ToolNumWidth = 54;
@@ -360,7 +372,7 @@
       <Default>
         <Rectangle Name="AxisDisplay" Group="Axis" Height="DispHt" Width="DispWd" Fill="AxisBackColor">
         </Rectangle>
-        <Rectangle Name="AxisButton" Group="AxisButton" Top="LabTop" Left="DispWd+25" Height="DigHt" Width="85" RadiusX="8" RadiusY="8"
+        <Rectangle Name="AxisButton" Group="AxisButton" Top="LabTop" Left="AxisBtnLeft" Height="DigHt" Width="AxisBtnWidth" RadiusX="8" RadiusY="8"
           StrokeThickness="5" Stroke="ScreenForeColor" Fill="White">
           <TextBlock Name="AxisLabel" FontSize="LabHt" Foreground="Black" FontFamily="Arial" Left="13" />
           <TextBlock FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial" Text="0" Top="47" Left="59"/>
@@ -370,9 +382,9 @@
         <Column>
           <Set>
             AxisLabel.Text = X;
-          	AxisButton.HotSpot = Xsensor;
+          	AxisButton.HotSpot = Xaxis;
           	AxisDisplay.Area = Xdisplay;
-            AxisDisplay.HotSpot = Xsensor;
+            AxisDisplay.HotSpot = Xaxis;
           </Set>
         </Column>
       </Row>
@@ -380,9 +392,9 @@
         <Column>
           <Set>
             AxisLabel.Text = Y;
-          	AxisButton.HotSpot = Ysensor;
+          	AxisButton.HotSpot = Yaxis;
           	AxisDisplay.Area = Ydisplay;
-            AxisDisplay.HotSpot = Ysensor;
+            AxisDisplay.HotSpot = Yaxis;
           </Set>
         </Column>
       </Row>
@@ -390,9 +402,9 @@
         <Column>
           <Set>
             AxisLabel.Text = Z;
-          	AxisButton.HotSpot = Zsensor;
+          	AxisButton.HotSpot = Zaxis;
           	AxisDisplay.Area = Zdisplay;
-            AxisDisplay.HotSpot = Zsensor;
+            AxisDisplay.HotSpot = Zaxis;
           </Set>
         </Column>
       </Row>
@@ -419,13 +431,73 @@
       </Rectangle>
     </Rectangle>
 
-    <Rectangle Location="Undo3" Left="KeypadLeft" Top="Undo3Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    <!-- Undo lists -->
+    <Set>UndoTextLeft = 2;</Set>
+    <Grid Name="UndoColumnLabels" ColumnWidth="UndoItemWidth + 1" RowHeight="0" Left="UndoLeft">
+      <Default>
+        <TextBlock Name="UndoLabelText" Font="CalcSmall" FontSize="18" Top="2" Width="UndoItemWidth"/>
+        <Rectangle Name="UndoSpot" Group="Undo" Top="UndoTop" Width="UndoItemWidth" Height="UndoHeight"/>
+      </Default>
+      <!-- The order of the undo HotSpots is used in code -->
+      <Row>
+        <Column><Set>UndoLabelText.Text = "undo X"; UndoSpot.HotSpot = Xaxis</Set></Column>
+        <Column><Set>UndoLabelText.Text = "undo Y"; UndoSpot.HotSpot = Yaxis</Set></Column>
+        <Column><Set>UndoLabelText.Text = "undo Z"; UndoSpot.HotSpot = Zaxis</Set></Column>
+      </Row>
+    </Grid>
+    <Rectangle Top="UndoTop" Left="UndoLeft" Width="UndoWidth" Height="UndoHeight" Fill="CalcBackColor">
+      <!-- We want to generate in columns, so we use a Grid for each column -->
+      <Grid RowHeight="0" ColumnWidth="UndoItemWidth + 1">
+        <Row>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-03.1250"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoX1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoX2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoX3</Set></Column></Row>
+            </Grid>
+          </Column>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-12.1275"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoY1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoY2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoY3</Set></Column></Row>
+            </Grid>
+          </Column>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-12.1275"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoZ1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoZ2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoZ3</Set></Column></Row>
+            </Grid>
+          </Column>
+        </Row>
+      </Grid>
+      <Set>UndoText.Foreground = CalcBackColor</Set> <!-- hide dummy text -->
+      <Rectangle Left="UndoVertSep1Left" Height="UndoHeight" Width="1" StrokeThickness="1" Stroke="UndoLineColor"/>
+      <Rectangle Left="UndoVertSep2Left" Height="UndoHeight" Width="1" StrokeThickness="1" Stroke="UndoLineColor"/>
     </Rectangle>
-    <Rectangle Location="Undo2" Left="KeypadLeft" Top="Undo2Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
-    </Rectangle>
-    <Rectangle Location="Undo1" Left="KeypadLeft" Top="Undo1Top" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
-    </Rectangle>
-    <Rectangle HotSpot="Undo" Left="KeypadLeft" Top="UndoTop" Height="UndoHeight" Width="KeypadWidth"/>
+
     <Rectangle Area="CalcDisplay" Left="KeypadLeft" Top="CalcDispTop" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
     </Rectangle>
     <Rectangle Area="CalcText" Left="KeypadLeft" Top="CalcTextTop" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
@@ -763,6 +835,7 @@
   <!-- Settings Screen (PIP) -->
 
   <Set>
+    SettingsWidth = KeypadLeft - KeySpace;
     AxisLabelWidth = 54;
     AxisSettingWidth = 120;
     AxisSettingHeight = BtnHeight;
@@ -847,22 +920,22 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
-          <Rectangle HotSpot="Xsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Xaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Xdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Xsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Xaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Xresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Xsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Xaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Xinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Xsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Xaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Xcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
           </Rectangle>
         </Column>
@@ -874,22 +947,22 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
-          <Rectangle HotSpot="Ysensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Yaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Ydisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Ysensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Yaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Yresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Ysensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Yaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Yinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Ysensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Yaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Ycorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
           </Rectangle>
         </Column>
@@ -901,22 +974,22 @@
           </Rectangle>
         </Column>
         <Column Left="ColAdjust">
-          <Rectangle HotSpot="Zsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Zaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Zdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Zsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Zaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Zresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Zsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Zaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Zinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
           </Rectangle>
         </Column>
         <Column>
-          <Rectangle HotSpot="Zsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+          <Rectangle HotSpot="Zaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
             <Rectangle Area="Zcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
           </Rectangle>
         </Column>

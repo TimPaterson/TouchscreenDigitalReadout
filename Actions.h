@@ -310,7 +310,7 @@ public:
 			if (s_state == AS_Empty)
 				ToValueState(pSensor->GetPosition());
 			else
-				pSensor->SetPosition(ToValueState());
+				((AxisDisplay *)pSensor)->SetPosition(ToValueState());
 			break;
 
 		//*****************************************************************
@@ -318,7 +318,15 @@ public:
 		//
 
 		case HOTSPOT_GROUP_AxisButton:
-			s_arSensor[spot]->SetPosition(0);
+			((AxisDisplay *)s_arSensor[spot])->SetPosition(0);
+			break;
+
+		//*****************************************************************
+		// Press Undo list for an axis.
+		//
+
+		case HOTSPOT_GROUP_Undo:
+			((AxisDisplay *)s_arSensor[spot])->Undo();
 			break;
 
 		//*****************************************************************
@@ -442,13 +450,15 @@ public:
 				Eeprom.Data.fIsMetric ^= true;
 				ShowInchMetric();
 				Tools.ChangeUnits();
+				AxisDisplay::UpdateUndo();
 				UpdateEeprom();
 				break;
 
 			case AbsInc:
 				Eeprom.Data.OriginNum ^= 1;
-				UpdateEeprom();
 				ShowAbsInc();
+				AxisDisplay::UpdateUndo();
+				UpdateEeprom();
 				break;
 
 			case Settings:
@@ -636,7 +646,7 @@ protected:
 	// const (flash) data
 	//*********************************************************************
 
-	inline static PosSensor	*const s_arSensor[4] = { &Xaxis, &Yaxis, &Zaxis, &Qpos };
+	inline static PosSensor	*const s_arSensor[4] = { &Xdisplay, &Ydisplay, &Zdisplay, &Qpos };
 
 	//*********************************************************************
 	// static (RAM) data

@@ -51,9 +51,9 @@ void EIC_Handler()
 	if (uIntFlags & PosSensorIrqMask)
 	{
 		uPortVal = PORTA->IN.ul;
-		Xaxis.InputChange(uPortVal >> XposA_BIT);
-		Yaxis.InputChange(uPortVal >> YposA_BIT);
-		Zaxis.InputChange(uPortVal >> ZposA_BIT);
+		Xdisplay.InputChange(uPortVal >> XposA_BIT);
+		Ydisplay.InputChange(uPortVal >> YposA_BIT);
+		Zdisplay.InputChange(uPortVal >> ZposA_BIT);
 		Qpos.InputChange(uPortVal >> QposA_BIT);
 	}
 }

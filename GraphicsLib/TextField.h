@@ -160,6 +160,11 @@ public:
 		return m_pFontInfo->arWidths[ch];
 	}
 
+	int GetStdCharWidth(byte ch)
+	{
+		return m_pFontInfo->arWidths[ch - m_pFontInfo->FirstChar];
+	}
+
 	int GetStringWidth(const char *psz)
 	{
 		byte	ch;
@@ -325,29 +330,28 @@ public:
 class NumberLine : public TextLine
 {
 public:
-	NumberLine(Canvas &canvas, const Area &area): 
-		TextLine(canvas, area)
-	{
-		SetSpaceWidth(GetCharWidth('0'));
-	}
-
 	NumberLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		TextLine(canvas, area, id, foreColor, backColor)
 	{
-		SetSpaceWidth(GetCharWidth('0'));
+		SetSpaceWidth(GetStdCharWidth('0'));
 	}
 
 public:
 	void SetFont(uint id)
 	{
 		TextLine::SetFont(id);
-		SetSpaceWidth(GetCharWidth('0'));
+		SetSpaceWidth(GetStdCharWidth('0'));
+	}
+
+	void ShiftMinus()
+	{
+		MoveXposition(GetStdCharWidth('0') - GetStdCharWidth('-'));
 	}
 
 	int PrintNum(const char *fmt, double val)
 	{
 		if (val < 0)
-			MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+			ShiftMinus();
 		return printf(fmt, val);
 	}
 
@@ -362,7 +366,7 @@ public:
 			if (ch == 0)
 				return;
 			if (ch == '-')
-				MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+				ShiftMinus();
 			WriteCharActive(ch);
 		}
 	}
@@ -372,12 +376,6 @@ public:
 class NumberLineBlankZ : public NumberLine
 {
 public:
-	NumberLineBlankZ(Canvas &canvas, const Area &area): 
-		NumberLine(canvas, area)
-	{
-		SetBackgroundTransparent(true);
-	}
-
 	NumberLineBlankZ(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		NumberLine(canvas, area, id, foreColor, backColor)
 	{
@@ -392,7 +390,7 @@ public:
 			return 0;
 
 		if (val < 0)
-			MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+			ShiftMinus();
 		return printf(fmt, val);
 	}
 
@@ -409,7 +407,7 @@ public:
 			return 0;
 
 		if (val < 0)
-			MoveXposition(GetCharWidth('0') - GetCharWidth('-'));
+			ShiftMinus();
 		return printf(fmt, val);
 	}
 
