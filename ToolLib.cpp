@@ -131,11 +131,13 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			case ToolChipLoad:
 				val = LimitVal(val, 0.9999);
 				Eeprom.Data.ChipLoad = val;
+				Eeprom.StartSave();
 				break;
 
 			case ToolSfm:
 				val = CheckMetricSurface(std::min(val, 9999.0), false);
 				Eeprom.Data.Sfm = val;
+				Eeprom.StartSave();
 				break;
 			}
 

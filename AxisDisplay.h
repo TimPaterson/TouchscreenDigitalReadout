@@ -66,7 +66,6 @@ public:
 		long		posUndo;
 		UndoInfo	&undo = m_arUndoInfo[Eeprom.Data.OriginNum];
 
-
 		posNew = ConvertPosToInt(pos);
 		posUndo = m_arOrigins[Eeprom.Data.OriginNum] - posNew;
 		if (posUndo != 0)

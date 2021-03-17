@@ -32,7 +32,7 @@ class TouchCalibrate_t : TouchCanvas, ScreenMgr
 	static constexpr int RepeatBtnTop = ButtonHeight;
 	static constexpr int DoneBtnTop = ButtonHeight * 3;
 	// 16 x 32 font is used with x2 multiplier
-	#define REPEAT_BTN_LABEL	"Repeat"
+	#define REPEAT_BTN_LABEL	"Calibrate"
 	#define DONE_BTN_LABEL		"Done"
 	static constexpr int TextHeight = 32 * 2;
 	static constexpr int TextWidth = 16 * 2;	// per character
@@ -70,7 +70,7 @@ public:
 	TouchCalibrate_t() : TouchCanvas(0, ScreenWidth, ScreenHeight, ScreenWidth, Color16bpp, NULL) {}
 
 public:
-	void Open()
+	void Open(bool fShowButtons = false)
 	{
 		int		flags;
 		HotspotData	*pSpot;
@@ -86,12 +86,16 @@ public:
 		DisablePip1();
 		DisablePip2();
 
+		if (fShowButtons)
+			goto ShowButtons;
+
 		for (;;) 
 		{
 
 			if (StartCalibration())
 				break;
 
+ShowButtons:
 			DrawButtons();
 			for (;;) 
 			{
@@ -265,7 +269,7 @@ protected:
 class TouchCalibrate
 {
 public:
-	static void Open()		{ s_calibrate.Open(); }
+	static void Open(bool fShowButtons = false)		{ s_calibrate.Open(fShowButtons); }
 protected:
 	inline static TouchCalibrate_t	s_calibrate;
 };

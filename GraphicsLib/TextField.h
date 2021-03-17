@@ -183,6 +183,7 @@ public:
 	void ClearArea()
 	{
 		FillArea(m_backColor);
+		ResetPosition();
 	}
 
 	void ClearToEnd()
@@ -357,18 +358,10 @@ public:
 
 	void WriteString(const char *psz)
 	{
-		byte	ch;
+		if (*psz == '-')
+			ShiftMinus();
 
-		MakeActive();
-		for (;;)
-		{
-			ch = *psz++;
-			if (ch == 0)
-				return;
-			if (ch == '-')
-				ShiftMinus();
-			WriteCharActive(ch);
-		}
+		TextLine::WriteString(psz);
 	}
 };
 

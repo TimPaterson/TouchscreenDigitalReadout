@@ -17,7 +17,7 @@
 
 class Actions
 {
-	static constexpr int InBufSize = 12;
+	static constexpr int InBufSize = 11;
 	static constexpr int MemoryCount = 4;
 
 	enum ActionState
@@ -49,11 +49,11 @@ class Actions
 	// Local types
 	//*********************************************************************
 protected:
-	class CalcMemory : public NumberLineBlankZ
+	class CalcMemory : public NumberLine
 	{
 	public:
 		CalcMemory(const Area &area, ulong backColor) :
-			NumberLineBlankZ(MainScreen, area, FID_CalcSmall, 0, backColor)
+			NumberLine(MainScreen, area, FID_CalcSmall, ScreenForeColor, backColor)
 		{}
 
 	public:
@@ -62,7 +62,12 @@ protected:
 		void SetVal(double val)
 		{
 			m_val = val;
-			PrintDbl("%.8g\n", val);
+
+			ClearArea();
+			if (val == 0)
+				return;
+			FormatValue(val);
+			WriteString(s_arFormatBuf);
 		}
 
 	protected:
@@ -173,14 +178,14 @@ public:
 			s_state = AS_Entering;
 			if (spot == Key_sign)
 			{
-				if (s_arEntryBuf[1] == '-')
+				if (s_arEntryBuf[0] == '-')
 				{
-					s_arEntryBuf[1] = ' ';
-					if (s_indBuf == 2)
+					s_arEntryBuf[0] = ' ';
+					if (s_indBuf == 1)
 						s_state =  AS_Empty;
 				}
 				else
-					s_arEntryBuf[1] = '-';
+					s_arEntryBuf[0] = '-';
 			}
 			else
 			{
@@ -197,6 +202,7 @@ public:
 				s_arEntryBuf[s_indBuf++] = spot;
 				s_arEntryBuf[s_indBuf] = '\0';
 			}
+			s_CalcDisplay.ResetPosition();
 			s_CalcDisplay.WriteString(s_arEntryBuf);
 			break;
 
@@ -254,18 +260,18 @@ public:
 					switch (s_state)
 					{
 					case AS_Entering:
-						if (s_indBuf > 2)
+						if (s_indBuf > 1)
 						{
 							s_indBuf--;
 							if (s_fHaveDp && s_arEntryBuf[s_indBuf] == '.')
 								s_fHaveDp = false;
 							s_arEntryBuf[s_indBuf] = '\0';
-							if (s_indBuf == 2 && s_arEntryBuf[1] == ' ')
+							if (s_indBuf == 1 && s_arEntryBuf[0] == ' ')
 								s_state = AS_Empty;
 						}
-						else if (s_arEntryBuf[1] == '-')
+						else if (s_arEntryBuf[0] == '-')
 						{
-							s_arEntryBuf[1] = ' ';
+							s_arEntryBuf[0] = ' ';
 							s_state = AS_Empty;
 						}
 						break;
@@ -504,7 +510,7 @@ public:
 
 			case TouchCal:
 				// touch calibrations save changes to EEPROM
-				TouchCalibrate::Open();
+				TouchCalibrate::Open(true);
 				break;
 
 			case FirmwareUpdate:
@@ -519,14 +525,17 @@ public:
 		// Display full expression
 
 		s_CalcText.ClearArea();
-		pStr = &s_arEntryBuf[1];
-		if (s_arEntryBuf[1] == ' ')
+		pStr = s_arEntryBuf;
+		if (s_arEntryBuf[0] == ' ')
 			pStr++;
 
 		if (s_op == OP_none)
-			s_CalcText.printf("\n%s", pStr);
+			s_CalcText.WriteString(pStr);
 		else
-			s_CalcText.printf("\n%.8g %c %s", s_arg1, s_op, pStr);
+		{
+			FormatValue(s_arg1);
+			s_CalcText.printf("%s %c %s", s_arFormatBuf, s_op, pStr);
+		}
 	}
 
 public:
@@ -558,13 +567,23 @@ protected:
 
 	static void UpdateEeprom()
 	{
-		//Eeprom.StartSave(); // UNDONE: enable auto save to EEPROM
+		Eeprom.StartSave();
 	}
 
 	static void ToValueState(double val)
 	{
+		int		cch;
+
+		cch = FormatValue(val);
+		if (s_arFormatBuf[0] != '-')
+		{
+			s_arEntryBuf[0] = ' ';
+			memcpy(&s_arEntryBuf[1], s_arFormatBuf, cch + 1);
+		}
+		else
+			memcpy(&s_arEntryBuf[0], s_arFormatBuf, cch + 1);
+
 		s_CalcDisplay.ClearArea();
-		snprintf(&s_arEntryBuf[1], InBufSize - 1, "% .8g", val);
 		s_CalcDisplay.WriteString(s_arEntryBuf);
 		if (s_op == OP_none)
 			s_arg1 = val;
@@ -578,11 +597,44 @@ protected:
 		if (s_state == AS_Value && s_op == OP_none)
 			return s_arg1;
 
-		val = atof(&s_arEntryBuf[1]);
+		val = atof(s_arEntryBuf);
 		if (s_op == OP_none)
 			s_arg1 = val;
 		s_state = AS_Value;
 		return val;
+	}
+
+	static int FormatValue(double val) NO_INLINE_ATTR
+	{
+		int		cch;
+		const char *pFmt;
+		double	absVal;
+
+		absVal = fabs(val);
+		if (absVal > 99999999.0 || absVal < 0.00001)
+		{
+			if (absVal == 0.0)
+			{
+				s_arFormatBuf[0] = '0';
+				cch = 1;
+				goto SetNull;
+			}
+			pFmt = "%.2E";	// 3 significant digits (plus 5 char for exponent)
+		}
+		else if (absVal >= 1)
+			pFmt = "%.8G";
+		else
+		{
+			cch = snprintf(s_arFormatBuf, sizeof s_arFormatBuf, "%.7F", val);
+			// strip trailing zeros
+			while (s_arFormatBuf[cch - 1] == '0')
+				cch--;
+SetNull:
+			s_arFormatBuf[cch] = '\0';
+			return cch;
+		}
+
+		return snprintf(s_arFormatBuf, sizeof s_arFormatBuf, pFmt, val);
 	}
 
 	static void ClearEntry()
@@ -590,9 +642,9 @@ protected:
 		s_CalcDisplay.ClearArea();
 		s_state = AS_Empty;
 		s_fHaveDp = false;
-		s_arEntryBuf[1] = ' ';
-		s_arEntryBuf[2] = '\0';
-		s_indBuf = 2;
+		s_arEntryBuf[0] = ' ';
+		s_arEntryBuf[1] = '\0';
+		s_indBuf = 1;
 	}
 
 	static void ShowInchMetric()
@@ -668,8 +720,9 @@ protected:
 		FID_CalcSmall, ScreenForeColor, CalcBackColor};
 	inline static NumberLineBlankZ s_SettingDisplay{SettingsScreen, SettingsScreen_Areas.MaxRpm, 
 		FID_SettingsFont, SettingForeColor, SettingBackColor};
-	inline static char		s_arEntryBuf[InBufSize] = "\n ";
-	inline static byte		s_indBuf = 2;
+	inline static char		s_arEntryBuf[InBufSize] = " ";
+	inline static char		s_arFormatBuf[InBufSize];
+	inline static byte		s_indBuf = 1;
 	inline static byte		s_op = OP_none;
 	inline static byte		s_state;
 	inline static bool		s_fHaveDp;
