@@ -8,6 +8,7 @@
 #include <standard.h>
 #include "Dro.h"
 #include "AxisDisplay.h"
+#include "PowerDown.h"
 
 
 //****************************************************************************
@@ -16,23 +17,29 @@
 DEFINE_USART_ISR(SERCOM0, Console)
 
 //****************************************************************************
-// Analog Comparator UNDONE: testing only
+// Power down
 
 void NonMaskableInt_Handler()
 {
-	Console.WriteStringNoBuf("Shutting down\r\n");
+	//Console.WriteStringNoBuf("Shutting down\r\n");
 	// Disable all I/O pins. Make them all inputs and
 	// disable mux, pull-up, input buffer
 	DirWritePinsA(0);
-	SetPortConfigA(0, ALL_PORT_PINS);	
+	SetPortConfigA(0, 0x3FFFFFFF);	// don't touch debug port pins
 	DirWritePinsB(0);
 	SetPortConfigB(0, ALL_PORT_PINS);
 
 	// Turn off some clocks to save power
 	PM->APBCMASK.reg = 0;	// all peripherals off
-	PM->APBBMASK.reg = PM_APBBMASK_NVMCTRL | PM_APBBMASK_DSU;
+#ifdef DEBUG
+	PM->APBBMASK.reg = PM_APBBMASK_NVMCTRL | PM_APBBMASK_DSU | PM_APBBMASK_PORT;
+#else
+	PM->APBBMASK.reg = PM_APBBMASK_NVMCTRL;
+#endif
 	PM->AHBMASK.reg = PM_AHBMASK_NVMCTRL | PM_APBBMASK_DSU | PM_AHBMASK_HPB2 | 
 		PM_AHBMASK_HPB1 | PM_AHBMASK_HPB0;
+
+	PowerDown::Save();
 	while(1);
 }
 

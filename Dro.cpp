@@ -16,6 +16,7 @@
 #include "Actions.h"
 #include "FileOperations.h"
 #include "VersionUpdate.h"
+#include "PowerDown.h"
 
 
 //*********************************************************************
@@ -148,13 +149,18 @@ FatDateTime GetFatTime()
 
 int main(void)
 {
-	RtcTime	timeCur;
+	RtcTime	timeCur, timeSave;
 
 	StartClock();
 	Init();
 	Timer::Init();
 	Eeprom.Init();
 	RtcTime::Init();
+
+	timeCur.ReadClock();
+	timeSave = PowerDown::Restore();
+	if (!timeCur.IsSet())
+		timeSave.SetClock();
 
 	Console.Init(RXPAD_Pad1, TXPAD_Pad2);
 	Console.SetBaudRate(CONSOLE_BAUD_RATE);
@@ -165,12 +171,6 @@ int main(void)
 	if (PM->RCAUSE.reg & PM_RCAUSE_WDT)
 	{
 		DEBUG_PRINT("WDT Reset\n");
-	}
-	// UNDONE: set RTC from EEPROM
-	if (!timeCur.ReadClock().IsSet())
-	{
-		RtcTime::SetClock(2, 23, 2021, 3 + 12, 47, 0);
-		DEBUG_PRINT("Clock reset\n");
 	}
 
 	// Put EEPROM data into effect

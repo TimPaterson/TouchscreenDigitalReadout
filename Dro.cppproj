@@ -326,6 +326,9 @@ DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"
     <Compile Include="KeyboardMgr.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PowerDown.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="SerialMem.h">
       <SubType>compile</SubType>
     </Compile>

@@ -134,7 +134,9 @@ public:
 		m_scaleInch = m_scaleMm * InchRounding / MmRounding / MmPerInch;
 	}
 
-	long GetPosInt()	{ return m_posCur; }
+	long GetPosInt()					{ return m_posCur; }
+	long GetOrigin(uint i)				{ return m_arOrigins[i]; }
+	void SetOrigin(uint i, long pos)	{ m_arOrigins[i] = pos; }
 
 public:
 	static bool IsMetric()
