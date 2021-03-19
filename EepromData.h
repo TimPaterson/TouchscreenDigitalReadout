@@ -46,6 +46,7 @@ EepromData(ushort, MaxRpm, 10000)
 EepromData(bool, fCncCoordinates, false)
 EepromData(bool, fToolLibMetric, false)
 // 32-bit aligned here
+EepromData(ushort, Tool, 0)
 
 // Undefine all the macros now
 #undef	EepromData

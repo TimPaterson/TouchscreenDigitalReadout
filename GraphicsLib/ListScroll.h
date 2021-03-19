@@ -136,7 +136,7 @@ public:
 			LineSelected(line);
 	}
 
-	void ScrollToLine(int line)
+	void ScrollToLine(int line) NO_INLINE_ATTR
 	{
 		int		posLine;
 
@@ -161,7 +161,7 @@ public:
 		InvalidateLines(line, line);
 	}
 
-	void InvalidateLines(int lineStart, int lineEnd)
+	void InvalidateLines(int lineStart, int lineEnd) NO_INLINE_ATTR
 	{
 		int		lineLast;
 

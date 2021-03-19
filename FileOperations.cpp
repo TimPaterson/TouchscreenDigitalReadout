@@ -151,11 +151,28 @@ FlashStartRead:
 				cb = status;
 				if (cb > 0)
 				{
-					cb = Tools.ImportTools(NULL, cb, 0);
-					goto ImportNext;
+					cb = Tools.ImportStart(cb);
+					if (cb < 0)
+						goto ImportClose;
+					import.cbLeft = cb;
+					import.pBuf = (char *)ADDOFFSET(g_FileBuf, status - cb);
+					import.pErase = NULL;
+					TO_STATE(import, erase);
 				}
 				else
 					goto ImportClose;
+			END_STATE
+
+			OP_STATE(import, erase)
+				void	*pv;
+				pv = Tools.ImportErase(import.pErase);
+				if (pv != NULL)
+					import.pErase = pv;
+				else
+				{
+					cb = Tools.ImportTools(import.pBuf, import.cbLeft, 0);
+					goto ImportNext;
+				}
 			END_STATE
 
 			OP_STATE(import, read0)
@@ -170,7 +187,7 @@ FlashStartRead:
 
 ImportNext:
 					if (cb < 0)
-						goto ImportClose;	// UNDONE: error handling
+						goto ImportClose;
 
 					import.cbLeft = cb;
 					StartRead(m_hFile, g_FileBuf[1], FAT_SECT_SIZE);
@@ -180,7 +197,7 @@ ImportNext:
 				{
 ImportClose:
 					Close(m_hFile);
-					Tools.ImportDone();
+					Tools.ImportDone(cb);
 					OP_DONE;
 				}
 			END_STATE
@@ -192,7 +209,7 @@ ImportClose:
 				{
 					cb = Tools.ImportTools((char *)&g_FileBuf[1] - import.cbLeft, import.cbLeft + cb, 0);
 					if (cb < 0)
-						goto ImportClose;	// UNDONE: error handling
+						goto ImportClose;
 
 					import.cbLeft = cb;
 					StartRead(m_hFile, g_FileBuf[0], FAT_SECT_SIZE);
@@ -306,10 +323,12 @@ EndEnum:
 					{
 						if (folder.pInfo->Name[1] == '\0')
 							goto NextFolder;	// skip folder '.'
-						// UNDONE: handle ..
+
+						if (folder.pInfo->Name[1] == '.' && folder.pInfo->Name[2] == '\0')
+							folder.pInfo->Type = INFO_Parent;
+						else
+							folder.pInfo->Type = INFO_Folder;
 					}
-					if (folder.pInfo->Name[1] == '.' && folder.pInfo->Name[2] == '\0')
-						folder.pInfo->Type = INFO_Parent;
 					else
 						folder.pInfo->Type = INFO_Folder;
 				}

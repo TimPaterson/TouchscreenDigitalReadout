@@ -11,14 +11,14 @@
 #include <FatFile/FatSys.h>
 
 
-static constexpr int FileBufSectors = 6;
+static constexpr int FileBufSectors = 8;
 extern byte g_FileBuf[FileBufSectors][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 #define FILE_BUF_END ((byte *)g_FileBuf[FileBufSectors])
 
 // Use macros for state definitions
 #define FLASH_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, seek) OP_STATE(op, read) OP_STATE(op, wait)
 #define MOUNT_OP_STATES(op) OP_STATE(op, ready)
-#define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, read0) OP_STATE(op, read1)
+#define IMPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, readStart) OP_STATE(op, erase) OP_STATE(op, read0) OP_STATE(op, read1)
 #define EXPORT_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, write) OP_STATE(op, flush) OP_STATE(op, close)
 #define FOLDER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, close) OP_STATE(op, name) OP_STATE(op, date)
 #define HEADER_OP_STATES(op) OP_STATE(op, open) OP_STATE(op, read)
@@ -186,6 +186,8 @@ protected:
 		// ToolImport
 		struct  
 		{
+			void	*pErase;
+			char	*pBuf;
 			ushort	cbLeft;
 		} import;
 

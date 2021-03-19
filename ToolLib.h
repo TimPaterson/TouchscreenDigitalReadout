@@ -22,15 +22,35 @@ static constexpr int IMPORT_HEAD_TEXT_LENGTH = STRLEN(IMPORT_HEAD_TEXT);
 
 class ToolLib
 {
-	static constexpr int ToolEntrySize = 64;
-	static constexpr int MaxToolCount = 70;
+	static constexpr int FlashRowSize = FLASH_PAGE_SIZE * NVMCTRL_ROW_PAGES;
+	static constexpr int ToolEntrySize = FLASH_PAGE_SIZE;
+	static constexpr int MaxToolCount = 500;
+	static constexpr int ToolsPerRow = FlashRowSize / ToolEntrySize;
+	static constexpr ulong FlashErasedValue = 0xFFFFFFFF;
 	static constexpr ushort NoCurrentLine = 0xFFFF;		// occurs in s_curLineNum
 	static constexpr ushort ToolBufIndex = 0xFFFF;		// occurs in s_arSortList[]
-	static constexpr ushort ToolNotModified = 0xFFFF;	// occurs in s_modToolIndex
+	static constexpr ushort ToolNotModified = 0xFFFF;	// occurs in m_modToolOffset
+	static constexpr ushort InvalidTool = 0;			// occurs in tool number
+	static constexpr ushort EmptyTool = 0xFFFF;			// occurs in tool number
+	static constexpr ushort	MaxToolNumber = 999;
+
+	#define ToolListStartAddr	0x18000
+	#define ToolListStart		((ToolLibInfo *)ToolListStartAddr)
+	#define ToolListEnd			((ToolLibInfo *)FLASH_SIZE)
+	#define	ToolFromOffset(n)	((ToolLibInfo *)(ToolListStartAddr + n))
+	#define OffsetFromTool(p)	((ulong)p - ToolListStartAddr)
+	#define EndToolOffset		(FLASH_SIZE - ToolListStartAddr)
 
 	//*********************************************************************
 	// Types
 	//*********************************************************************
+
+	enum ImportError
+	{
+		IMPERR_None,
+		IMPERR_BadFormat = -1,
+		IMPERR_BadTool = -2
+	};
 
 	enum ToolButtonImages
 	{
@@ -90,8 +110,10 @@ class ToolLib
 
 		ToolLibInfo & operator= (const ToolLibInfo &src)
 		{
+			// This is used when writing a tool to flash, which must
+			// use 16-bit or 32-bit writes
 			*(ToolLibBase *)this = *(ToolLibBase *)&src;
-			strcpy(arDesc, src.arDesc);
+			Nvm::memcpy32(arDesc, src.arDesc, strlen(src.arDesc) + 1);
 			return *this;
 		}
 
@@ -158,9 +180,10 @@ public:
 	void ToolAction(uint spot, int x, int y);
 	void ShowExportTime(RtcTime time);
 	void ShowToolInfo();
+	int ImportStart(int cb);
+	void *ImportErase(void *pv);
 	int ImportTools(char *pb, uint cb, uint cbWrap);
-	int ImportTool(char *pchBuf);
-	void ImportDone();
+	void ImportDone(int err);
 	char *ExportTool(char *pBuf, uint iTool);
 
 public:
@@ -172,17 +195,44 @@ public:
 	static void ListUpdateCallback(FileBrowser::NotifyReason reason);
 	static int FileErrorCallback(int err);
 
+protected:
+	int ImportTool(char *pchBuf);
+
 public:
 	void Init()
 	{
+		uint	line, lineCur;
+
 		m_scroll.Init();
 
-		m_modToolIndex = ToolNotModified;
-		if (m_toolCount == 0)
-			m_curLineNum = NoCurrentLine;
+		m_pFreeTool = ToolListEnd;
+		m_modToolOffset = ToolNotModified;
+		line = NoCurrentLine;
 
+		// Scan for existing tools
+		for (ToolLibInfo *pTool = ToolListStart; pTool < ToolListEnd; pTool++)
+		{
+			uint	tool;
+
+			tool = pTool->number;
+			if (tool == EmptyTool)
+			{
+				m_pFreeTool = pTool;
+				break;
+			}
+
+			if (tool == InvalidTool || tool > MaxToolNumber)
+				continue;
+
+			lineCur = InsertTool(OffsetFromTool(pTool));
+			if (tool == Eeprom.Data.Tool)
+				line = lineCur;
+		}
+
+		m_curLineNum = line;
 		m_scroll.SetTotalLines(m_toolCount);
-		m_scroll.ScrollToLine(m_curLineNum);
+		m_scroll.ScrollToLine(line == NoCurrentLine ? 0 : line);
+		ShowToolInfo();
 	}
 
 	void ShowToolLib()
@@ -210,6 +260,16 @@ public:
 		ShowToolInfo();
 	}
 
+public:
+	static void ShowFeedRate(double rate)
+	{
+		s_feedRate.PrintDbl("\n%5.0f", rate);
+	}
+
+	//*********************************************************************
+	// Helpers
+	//*********************************************************************
+protected:
 	void ToolEntryKeyHit(void *pvUser, uint key)
 	{
 		EditLine::EditStatus	edit;
@@ -242,16 +302,6 @@ public:
 		}
 	}
 
-public:
-	static void ShowFeedRate(double rate)
-	{
-		s_feedRate.PrintDbl("\n%5.0f", rate);
-	}
-
-	//*********************************************************************
-	// Helpers
-	//*********************************************************************
-protected:
 	ToolLibInfo *PtrCurrentTool()
 	{
 		if (m_curLineNum == NoCurrentLine)
@@ -274,6 +324,8 @@ protected:
 			m_scroll.InvalidateLine(oldLine);
 		if (line != NoCurrentLine)
 		{
+			Eeprom.Data.Tool = PtrFromLine(line)->number;
+			Eeprom.StartSave();
 			m_scroll.InvalidateLine(line);
 			m_scroll.ScrollToLine(line);
 		}
@@ -288,9 +340,9 @@ protected:
 			if (PtrFromLine(line)->number == num)
 			{
 				SelectLine(line);
-				if (m_modToolIndex != ToolNotModified)
+				if (m_modToolOffset != ToolNotModified)
 					DEBUG_PRINT("Find replacing modified tool\n");
-				m_modToolIndex = ToolNotModified;
+				m_modToolOffset = ToolNotModified;
 				return line;
 			}
 		}
@@ -302,26 +354,69 @@ protected:
 		if (m_curLineNum == NoCurrentLine)
 			return;
 
-		if (m_modToolIndex != ToolNotModified)
+		if (m_modToolOffset != ToolNotModified)
 		{
-			// Update existing tool
-			s_arToolInfo[m_modToolIndex] = s_bufTool;
-			s_arSortList[m_curLineNum] = m_modToolIndex;
-			m_modToolIndex = ToolNotModified;
-			SetToolButtonImage(TOOL_IMAGE_NotModified);
-		}
-		else if (s_arSortList[m_curLineNum] == ToolBufIndex)
-		{
-			// New tool
-			if (m_freeToolIndex >= MaxToolCount)
-			{
-				// UNDONE: garbage collect tool list
-				return;
-			}
+			// Invalidate existing tool
+			ToolFromOffset(m_modToolOffset)->number = 0;
+			Nvm::WritePageReady();
 
-			s_arSortList[m_curLineNum] = m_freeToolIndex;
-			s_arToolInfo[m_freeToolIndex++] = s_bufTool;
+			m_modToolOffset = ToolNotModified;
+			SetToolButtonImage(TOOL_IMAGE_NotModified);
+			goto NewTool;
 		}
+
+		if (s_arSortList[m_curLineNum] == ToolBufIndex)
+		{
+NewTool:
+			// New tool
+			if (m_pFreeTool >= ToolListEnd || m_pFreeTool->number != EmptyTool)
+				m_pFreeTool = FindEmptyTool();
+
+			*m_pFreeTool = s_bufTool;
+			Nvm::WritePageReady();
+			s_arSortList[m_curLineNum] = OffsetFromTool(m_pFreeTool);
+			m_pFreeTool++;
+		}
+	}
+
+	void SaveImportedTool()
+	{
+		m_curLineNum = InsertTool(ToolBufIndex);
+		SaveTool();
+	}
+
+	ToolLibInfo *FindEmptyTool()
+	{
+		ToolLibInfo	*pTool, *pToolFree;
+
+		for (pTool = ToolListStart; pTool->number != InvalidTool; pTool++)
+		{
+			if (pTool->number == EmptyTool)
+				return pTool;
+		}
+		pToolFree = pTool;
+
+		// Copy valid tools in row to buffer, then erase row
+		pTool = (ToolLibInfo *)((ulong)pTool & (FlashRowSize - 1));	// start of row
+		for (int i = 0; i < ToolsPerRow; i++)
+		{
+			if (pTool[i].number != InvalidTool && pTool[i].number != EmptyTool)
+				s_toolRowBuf[i] = pTool[i];
+			else
+				s_toolRowBuf[i].number = EmptyTool;
+		}
+		Nvm::EraseRowReady(pToolFree);
+
+		// Write data back to row
+		for (int i = 0; i < ToolsPerRow; i++)
+		{
+			if (pTool->number != EmptyTool)
+			{
+				s_toolRowBuf[i] = pTool[i];
+				Nvm::WritePage();
+			}
+		}
+		return pToolFree;
 	}
 
 	void InsertIfValid()
@@ -337,7 +432,7 @@ protected:
 		}
 	}
 
-	uint InsertTool(uint bufIndex)
+	uint InsertTool(uint offset) NO_INLINE_ATTR
 	{
 		uint	line;
 		uint	num;
@@ -345,16 +440,16 @@ protected:
 		if (m_toolCount >= MaxToolCount)
 			return NoCurrentLine;
 
-		num = PtrFromIndex(bufIndex)->number;
+		num = PtrFromOffset(offset)->number;
 
-		for (line = 0; line < m_toolCount && PtrFromLine(line)->number < num; line++);
+		for (line = 0; line < m_toolCount && PtrFromLine(line)->number <= num; line++);
 
 		// We do not update the display in case this is a mass import
 		memmove(&s_arSortList[line + 1], &s_arSortList[line], (m_toolCount - line) * sizeof s_arSortList[0]);
-		s_arSortList[line] = bufIndex;
-		if (m_modToolIndex != ToolNotModified)
+		s_arSortList[line] = offset;
+		if (m_modToolOffset != ToolNotModified)
 			DEBUG_PRINT("Inserting  modified tool\n");
-		m_modToolIndex = ToolNotModified;
+		m_modToolOffset = ToolNotModified;
 		m_toolCount++;
 		m_scroll.SetTotalLines(m_toolCount);
 		return line;
@@ -363,13 +458,20 @@ protected:
 	void DeleteTool()
 	{
 		uint	line;
+		ToolLibInfo	*pTool;
 
 		// We should only be here when displaying an unmodified tool
 		line = m_curLineNum;
 
-		// Overwrite tool data -- UNDONE: handle for flash
 		// Tool might be in buffer only, not yet saved
-		PtrFromLine(line)->ClearData();
+		pTool = PtrFromLine(line);
+		if (pTool == &s_bufTool)
+			pTool->ClearData();
+		else
+		{
+			pTool->number = InvalidTool;
+			Nvm::WritePageReady();
+		}
 
 		// Remove from sort list
 		m_toolCount--;
@@ -393,7 +495,7 @@ protected:
 
 	void StartEditTool()
 	{
-		m_modToolIndex = s_arSortList[m_curLineNum];
+		m_modToolOffset = s_arSortList[m_curLineNum];
 		s_arSortList[m_curLineNum] = ToolBufIndex;
 		SetToolButtonImage(TOOL_IMAGE_IsModified);
 	}
@@ -406,17 +508,17 @@ protected:
 	}
 
 protected:
-	static ToolLibInfo *PtrFromIndex(uint index)
+	static ToolLibInfo *PtrFromOffset(uint offset)
 	{
-		if (index == ToolBufIndex)
+		if (offset == ToolBufIndex)
 			return &s_bufTool;
 
-		return &s_arToolInfo[index];
+		return ToolFromOffset(offset);
 	}
 
 	static ToolLibInfo *PtrFromLine(uint line)
 	{
-		return PtrFromIndex(s_arSortList[line]);
+		return PtrFromOffset(s_arSortList[line]);
 	}
 
 	//*********************************************************************
@@ -637,16 +739,18 @@ protected:
 	//*********************************************************************
 protected:
 	inline static const char s_archImportHead[] = IMPORT_HEAD_TEXT "\r\n";
+	inline static const char s_InvalidToolFileMsg[] = "Not a valid tool library file";
+	inline static const char s_InvalidToolMsg[] = "Error in file - not all tools imported";
 	inline static const char s_CreateFolderMsg[] = "Folder not found - use Add Folder to create";
 
 	//*********************************************************************
 	// instance (RAM) data
 	//*********************************************************************
 protected:
+	ToolLibInfo	*m_pFreeTool;
 	ushort		m_toolCount;
-	ushort		m_curLineNum {NoCurrentLine};
-	ushort		m_modToolIndex {ToolNotModified};
-	ushort		m_freeToolIndex;
+	ushort		m_curLineNum;
+	ushort		m_modToolOffset;
 	byte		m_toolSides;
 	byte		m_editMode;
 	bool		m_isExport;
@@ -658,6 +762,7 @@ protected:
 	//*********************************************************************
 protected:
 	inline static ToolLibInfo	s_bufTool;
+	inline static ToolLibInfo	s_toolRowBuf[ToolsPerRow];
 
 	inline static ToolDisplay	s_textMain {MainScreen, MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};
@@ -682,7 +787,6 @@ protected:
 		FID_SettingsFont, FeedRateColor, ToolDiagramColor};
 
 	inline static ushort		s_arSortList[MaxToolCount];
-	inline static ToolLibInfo	s_arToolInfo[MaxToolCount];
 };
 
 extern ToolLib Tools;

@@ -40,7 +40,6 @@ public:
 		SaveAxis(Xdisplay, save.arXaxisPos);
 		SaveAxis(Ydisplay, save.arYaxisPos);
 		SaveAxis(Zdisplay, save.arZaxisPos);
-		Nvm::WaitReadyInline();
 		Nvm::WriteRwweePageReady();
 	}
 

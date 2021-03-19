@@ -40,7 +40,7 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 	if (spot == ToolNumber)
 	{
 		val = Actions::GetCalcValue();
-		tool = (uint)std::min(val, 999.0);
+		tool = (uint)std::min(val, (double)MaxToolNumber);
 
 		// Switching tools, save current tool if modified
 		// It's already in the sort list
@@ -202,12 +202,12 @@ void ToolLib::ToolAction(uint spot, int x, int y)
 			ShowToolInfo();
 			break;
 		}
-		else if (s_arSortList[m_curLineNum] == ToolBufIndex && m_modToolIndex != ToolNotModified)
+		else if (s_arSortList[m_curLineNum] == ToolBufIndex && m_modToolOffset != ToolNotModified)
 		{
 			// Tool is modified, treat as Cancel
 			s_bufTool.ClearData();
-			s_arSortList[m_curLineNum] = m_modToolIndex;
-			m_modToolIndex = ToolNotModified;
+			s_arSortList[m_curLineNum] = m_modToolOffset;
+			m_modToolOffset = ToolNotModified;
 			m_scroll.InvalidateLine(m_curLineNum);
 			SetToolButtonImage(TOOL_IMAGE_NotModified);
 			if (m_editMode == EDIT_Description)
@@ -512,6 +512,74 @@ void ToolLib::ShowExportTime(RtcTime time)
 // Tool Library Import
 //*********************************************************************
 
+int ToolLib::ImportStart(int cb)
+{
+	char	*pch;
+	char	*pchEnd;
+	int		cbLine;
+	int		err;
+
+	// Check header line
+	pch = (char *)memchr(g_FileBuf, '\r', cb);
+	if (pch == NULL)
+		return IMPERR_BadFormat;
+
+	cbLine = pch - (char *)g_FileBuf;
+	if (cbLine != IMPORT_HEAD_TEXT_LENGTH)
+		return -1;
+
+	if (memcmp(g_FileBuf, s_archImportHead, cbLine) != 0)
+		return IMPERR_BadFormat;
+
+	// Read in first tool
+	pch++;
+	cb -= cbLine + 1;
+	pchEnd = (char *)memchr(pch, '\r', cb);
+	if (pchEnd == NULL)
+		return IMPERR_BadFormat;
+
+	*pchEnd++ = '\0';		// zero terminate
+	cb -= pchEnd - pch;		// bytes left in buffer
+	err = ImportTool(pch);
+	if (err < 0)
+		return IMPERR_BadFormat;
+
+	// Success reading one tool. Consider the file valid and erase
+	// the current tool library.
+	Eeprom.Data.fToolLibMetric = Eeprom.Data.fIsMetric;
+	m_pFreeTool = ToolListStart;
+	m_toolCount = 0;
+	return cb;
+}
+
+void *ToolLib::ImportErase(void *pv)
+{
+	ulong	*pRow;
+
+	if (pv == NULL)
+		pv = ToolListStart;
+
+	pRow = (ulong *)pv;
+	do 
+	{
+		// Check if row is completely erased
+		for (uint i = 0; i < FlashRowSize / sizeof(ulong); i++)
+		{
+			if (pRow[i] != FlashErasedValue)
+			{
+				Nvm::EraseRowReady(pRow);
+				return pRow;
+			}
+		}
+		pRow += FlashRowSize / sizeof(ulong);
+	} while (pRow < (ulong *)ToolListEnd);
+
+	// Save the first tool we already imported
+	SaveImportedTool();
+
+	return NULL;	// report all erased
+}
+
 int ToolLib::ImportTool(char *pchBuf)
 {
 	char	ch;
@@ -519,19 +587,19 @@ int ToolLib::ImportTool(char *pchBuf)
 
 	s_bufTool.number = strtoul(pchBuf, &pchBuf, 0);
 	if (*pchBuf++ != ',')
-		return -1;	// UNDONE: error handling on tool import
+		return IMPERR_BadTool;
 
 	s_bufTool.diameter = strtod(pchBuf, &pchBuf);
 	if (*pchBuf++ != ',')
-		return -1;	// UNDONE: error handling on tool import
+		return IMPERR_BadTool;
 
 	s_bufTool.length = strtod(pchBuf, &pchBuf);
 	if (*pchBuf++ != ',')
-		return -1;	// UNDONE: error handling on tool import
+		return IMPERR_BadTool;
 
 	s_bufTool.flutes = strtoul(pchBuf, &pchBuf, 0);
 	if (*pchBuf++ != ',')
-		return -1;	// UNDONE: error handling on tool import
+		return IMPERR_BadTool;
 
 	if (*pchBuf == '"')
 	{
@@ -556,10 +624,8 @@ int ToolLib::ImportTool(char *pchBuf)
 		strncpy(s_bufTool.arDesc, pchBuf, ToolDescSize - 1);
 
 	s_bufTool.arDesc[ToolDescSize - 1] = '\0';	// ensure null terminated
-	m_curLineNum = InsertTool(ToolBufIndex);
-	SaveTool();
 
-	return 0;
+	return IMPERR_None;
 }
 
 int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
@@ -567,28 +633,6 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 	char	*pch;
 	int		cbLine;
 	int		err;
-
-	if (pchBuf == NULL)
-	{
-		// special flag to indicate start of import
-		pch = (char *)memchr(g_FileBuf, '\r', cb);
-		if (pch == NULL)
-			return -1;	// UNDONE: error handling on tool import
-
-		cbLine = pch - (char *)g_FileBuf;
-		if (cbLine != IMPORT_HEAD_TEXT_LENGTH)
-			return -1;	// UNDONE: error handling on tool import
-
-		if (memcmp(g_FileBuf, s_archImportHead, cbLine) != 0)
-			return -1;	// UNDONE: error handling on tool import
-
-		pchBuf = pch + 1;
-		cb -= cbLine + 1;
-		Eeprom.Data.fToolLibMetric = Eeprom.Data.fIsMetric;
-		// UNDONE: delete existing library
-		m_freeToolIndex = 0;
-		m_toolCount = 0;
-	}
 
 	if (cbWrap != 0)
 	{
@@ -610,6 +654,7 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 		if (err < 0)
 			return err;
 
+		SaveImportedTool();
 		pchBuf = (char *)g_FileBuf + cbLine;
 		cb = cbWrap - cbLine;
 	}
@@ -623,6 +668,7 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 		if (err < 0)
 			return err;
 
+		SaveImportedTool();
 		pchBuf += cbLine;
 		cb -= cbLine;
 	}
@@ -630,11 +676,26 @@ int ToolLib::ImportTools(char *pchBuf, uint cb, uint cbWrap)
 	return cb;
 }
 
-void ToolLib::ImportDone()
+void ToolLib::ImportDone(int err)
 {
+	switch (err)
+	{
+	case IMPERR_BadFormat:
+		m_editMode = EDIT_FileError;
+		Files.FileError(s_InvalidToolFileMsg);
+		return;
+
+	case IMPERR_BadTool:
+		m_editMode = EDIT_FileError;
+		Files.FileError(s_InvalidToolMsg);
+		break;	// Keep tools we got
+	}
+
+	Eeprom.StartSave();
 	m_scroll.InvalidateAllLines();
 	s_bufTool.ClearData();
-	m_curLineNum = m_toolCount == 0 ? NoCurrentLine : 0;
+	m_curLineNum = NoCurrentLine;
+	FindTool(Eeprom.Data.Tool);
 	ShowToolInfo();
 	CloseImportExport();
 }
