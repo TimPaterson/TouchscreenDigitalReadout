@@ -29,25 +29,12 @@ EXTERN_C FontInfo *FontList[];
 class TextField : public ScreenMgr
 {
 public:
-	TextField(Canvas &canvas, const Area &area):
-		TextField(canvas, area, 
-		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteCharActive}; u.p;})) 
-		{}
-
 	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor):
 		TextField(canvas, area, id, foreColor, backColor,
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteCharActive}; u.p;})) 
 		{}
 
 protected:
-	TextField(Canvas &canvas, const Area &area, _fdev_put_t *put):
-		m_pCanvas{&canvas},
-		m_pArea{&area},
-		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
-		m_curPosX{area.Xpos},
-		m_curPosY{area.Ypos}
-		{}
-
 	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
 		m_pCanvas{&canvas},
 		m_pFontInfo{FontList[id]},
@@ -56,7 +43,9 @@ protected:
 		m_backColor{backColor},
 		m_file{{{put}}, this, 0, _FDEV_SETUP_WRITE},
 		m_curPosX{area.Xpos},
-		m_curPosY{area.Ypos}
+		m_curPosY{area.Ypos},
+		m_spaceWidth{0},
+		m_fTransparent{false}
 		{}
 
 	//*********************************************************************
@@ -282,20 +271,12 @@ protected:
 class TextLine : public TextField
 {
 public:
-	TextLine(Canvas &canvas, const Area &area): 
-		TextLine(canvas, area,
-		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteCharActive}; u.p;}))
-		{}
-
 	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
 		TextLine(canvas, area, id, foreColor, backColor,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteCharActive}; u.p;}))
 		{}
 
 protected:
-	TextLine(Canvas &canvas, const Area &area, _fdev_put_t *put):
-		TextField(canvas, area, put) {}
-
 	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
 		TextField(canvas, area, id, foreColor, backColor, put) {}
 

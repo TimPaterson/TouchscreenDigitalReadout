@@ -17,33 +17,6 @@
 byte g_FileBuf[FileBufSectors][FAT_SECT_SIZE] ALIGNED_ATTR(uint32_t);
 
 
-int FileOperations::Mount(int drv)
-{
-	int		err;
-
-	err = StartMount(drv);
-	if (IsErrorNotBusy(err))
-		return m_pfnError(err);
-	m_drive = drv;
-	TO_STATE(mount, ready);
-	return FATERR_None;
-}
-
-int FileOperations::FolderEnum(const char *pFilename, int drive, int cchName, bool fCreate)
-{
-	int		err;
-	uint	flags;
-
-	// See if we should create the folder if it doesn't exist
-	flags = fCreate ? OPENFLAG_OpenAlways | OPENFLAG_Folder : OPENFLAG_OpenExisting | OPENFLAG_Folder;
-	err = StartOpen(pFilename, HandleOfDrive(drive), flags, cchName);
-	if (IsError(err))
-		return m_pfnError(err);
-	m_hFile = err;
-	TO_STATE(folder, open);
-	return FATERR_None;
-}
-
 void FileOperations::Process()
 {
 	int		status;

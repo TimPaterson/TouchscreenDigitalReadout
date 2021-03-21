@@ -40,6 +40,7 @@ class ToolLib
 	#define	ToolFromOffset(n)	((ToolLibInfo *)(ToolListStartAddr + n))
 	#define OffsetFromTool(p)	((ulong)p - ToolListStartAddr)
 	#define EndToolOffset		(FLASH_SIZE - ToolListStartAddr)
+	#define ToolRowBuf			((ToolLibInfo *)g_FileBuf)
 
 	//*********************************************************************
 	// Types
@@ -401,9 +402,9 @@ NewTool:
 		for (int i = 0; i < ToolsPerRow; i++)
 		{
 			if (pTool[i].number != InvalidTool && pTool[i].number != EmptyTool)
-				s_toolRowBuf[i] = pTool[i];
+				ToolRowBuf[i] = pTool[i];
 			else
-				s_toolRowBuf[i].number = EmptyTool;
+				ToolRowBuf[i].number = EmptyTool;
 		}
 		Nvm::EraseRowReady(pToolFree);
 
@@ -412,7 +413,7 @@ NewTool:
 		{
 			if (pTool->number != EmptyTool)
 			{
-				s_toolRowBuf[i] = pTool[i];
+				ToolRowBuf[i] = pTool[i];
 				Nvm::WritePage();
 			}
 		}
@@ -762,7 +763,6 @@ protected:
 	//*********************************************************************
 protected:
 	inline static ToolLibInfo	s_bufTool;
-	inline static ToolLibInfo	s_toolRowBuf[ToolsPerRow];
 
 	inline static ToolDisplay	s_textMain {MainScreen, MainScreen_Areas.ToolNumber,
 		ScreenForeColor, ScreenBackColor};

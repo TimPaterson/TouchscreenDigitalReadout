@@ -28,12 +28,6 @@ public:
 	};
 
 public:
-	EditLine(Canvas &canvas, const Area &area, char *pBuf, ushort chMax):
-		TextField(canvas, area), m_pBufText{pBuf}, 
-		m_maxCh{(ushort)(chMax - 1)},		
-		m_cursorArea{0, area.Ypos, 1, area.Height}
-		{}
-
 	EditLine(Canvas &canvas, const Area &area, char *pBuf, ushort chMax, FontId id, ulong foreColor, ulong backColor):
 		TextField(canvas, area, id, foreColor, backColor), m_pBufText{pBuf}, 
 		m_maxCh{(ushort)(chMax - 1)},		

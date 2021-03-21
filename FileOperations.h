@@ -47,7 +47,7 @@ enum
 #define OP_DONE				break
 
 
-enum FileInfoType
+enum FileInfoType : byte
 {
 	INFO_File,
 	INFO_Folder,
@@ -80,10 +80,35 @@ public:
 
 public:
 	void Process();
-	int Mount(int drv);
-	int FolderEnum(const char *pFilename, int drive, int cchName = FAT_NO_NAME_LEN, bool fCreate = false);
 
 public:
+	int Mount(int drv)
+	{
+		int		err;
+
+		err = StartMount(drv);
+		if (IsError(err))
+			return m_pfnError(err);
+		m_drive = drv;
+		TO_STATE(mount, ready);
+		return FATERR_None;
+	}
+
+	int FolderEnum(const char *pFilename, int drive, int cchName = FAT_NO_NAME_LEN, bool fCreate = false)
+	{
+		int		err;
+		uint	flags;
+
+		// See if we should create the folder if it doesn't exist
+		flags = fCreate ? OPENFLAG_OpenAlways | OPENFLAG_Folder : OPENFLAG_OpenExisting | OPENFLAG_Folder;
+		err = StartOpen(pFilename, HandleOfDrive(drive), flags, cchName);
+		if (IsError(err))
+			return m_pfnError(err);
+		m_hFile = err;
+		TO_STATE(folder, open);
+		return FATERR_None;
+	}
+
 	int WriteFileToFlash(const char *psz, ulong addr, int drive = 0)
 	{
 		flash.addr = addr;
