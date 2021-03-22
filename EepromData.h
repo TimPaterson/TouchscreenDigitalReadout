@@ -24,9 +24,7 @@
 //
 //*********************************************************************
 
-EepromData(TouchInfo, TouchInit, { { \
-	{TouchPointInvalid, TouchPointInvalid}, \
-	{TouchPointInvalid, TouchPointInvalid} }, \
+EepromData(TouchInfo, TouchInit, { {}, {}, \
 	TouchDefaultMinZ, TouchUpdateRate, TouchInitialDiscard, TouchAverageShift})
 EepromData(ulong, Brightness, LcdBacklightPwmMax)
 EepromData(AxisInfo, XaxisInfo, { 1.0, 5, false, false })

@@ -12,8 +12,10 @@
 #include "ResTouch.h"
 
 
-struct TouchInfo : public TouchCalPoints
+struct TouchInfo
 {
+	ScaleMatrix	scaleX;
+	ScaleMatrix	scaleY;
 	ushort	minZtouch;
 	byte	updateRate;
 	byte	sampleDiscard;
@@ -102,19 +104,15 @@ public:
 		SetBaudRateConst(BaudRate);
 
 		// Set scaling values
-		SetScale(pInfo, width, height);
-
-		m_tmr.Start();
-	}
-
-	void SetScale(TouchInfo *pInfo, uint width, uint height)
-	{
-		CalcScales(pInfo, width, height);
+		SetMax(width, height);
+		SetMatrix(pInfo->scaleX, pInfo->scaleY);
 		m_minZtouch = pInfo->minZtouch;
 		m_avgShift = pInfo->averageShift;
 		m_discardCnt = pInfo->sampleDiscard;
 		m_sampleCnt = (1 << m_avgShift) + m_discardCnt;
 		m_scanTicks = Timer::TicksFromFreq(pInfo->updateRate * m_sampleCnt);
+
+		m_tmr.Start();
 	}
 
 	ushort GetRawX()	{ return m_rawX; }

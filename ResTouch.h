@@ -8,16 +8,11 @@
 #pragma once
 
 
-struct TouchPoint
+struct ScaleMatrix
 {
-	ushort	x;
-	ushort	y;
-};
-
-struct TouchCalPoints
-{
-	TouchPoint	topLeft;
-	TouchPoint	bottomRight;
+	int		aScale;
+	int		bScale;
+	int		base;
 };
 
 enum TouchFlags
@@ -28,44 +23,36 @@ enum TouchFlags
 	TOUCH_Touched = 4,
 };
 
-static constexpr int TouchEdgeOffset = 32;
-static constexpr ushort TouchPointInvalid = 0xFFFF;
+static constexpr int TouchShift = 18;
+static constexpr int TouchScale = 1 << TouchShift;
 
 
 class ResTouch
 {
-	static constexpr int TouchShift = 18;
-
 	// Types
 protected:
 	class Position
 	{
 	public:
-		void Set(int pos)
+		void Set(int posA, int posB)
 		{
-			pos -= m_base;
-			pos = ShiftIntRnd(pos * m_scale, TouchShift);
-			if (pos < 0)
-				pos = 0;
-			else if (pos > m_max)
-				pos = m_max;
-			m_uCur = pos;
+			posA = posA * m_pScale->aScale + posB *m_pScale->bScale;
+			posA = ShiftIntRnd(posA, TouchShift) + m_pScale->base;
+			if (posA < 0)
+				posA = 0;
+			else if (posA > m_max)
+				posA = m_max;
+			m_cur = posA;
 		}
 
-		void CalcScale(int rawA, int rawB, uint size)
-		{
-			m_max = size - 1;
-			m_scale = DivIntRnd((size - 2 * TouchEdgeOffset) << TouchShift, rawB - rawA);
-			m_base = rawA - DivIntRnd(TouchEdgeOffset << TouchShift, m_scale);
-		}
-
-		uint Get()	{ return m_uCur; }
+		uint Get()									{ return m_cur; }
+		void SetMax(uint max)						{ m_max = max; }
+		void SetMatrix(const ScaleMatrix &scale)	{ m_pScale = &scale; }
 
 	protected:
-		int		m_scale;
-		short	m_base;
-		ushort	m_max;
-		ushort	m_uCur;
+		const ScaleMatrix	*m_pScale;
+		ushort		m_max;
+		ushort		m_cur;
 	};
 
 public:
@@ -78,32 +65,11 @@ public:
 		return flags;
 	}
 
-	void SetCalPoint(TouchPoint *pPoint, uint x, uint y)
-	{
-		pPoint->x = x;
-		pPoint->y  = y;
-	}
-
-	void CalcScales(TouchCalPoints *pPoints, uint width, uint height)
-	{
-		m_posX.CalcScale(pPoints->topLeft.x, pPoints->bottomRight.x, width);
-		m_posY.CalcScale(pPoints->topLeft.y, pPoints->bottomRight.y, height);
-	}
-
-	bool IsTouchDataValid(TouchCalPoints *pPoints)
-	{
-		return pPoints->topLeft.x != TouchPointInvalid && 
-			pPoints->topLeft.y != TouchPointInvalid &&
-			pPoints->bottomRight.x != TouchPointInvalid &&
-			pPoints->bottomRight.y != TouchPointInvalid;
-	}
-
 protected:
-	bool ProcessRaw(ushort rawX, ushort rawY)
+	void ProcessRaw(ushort rawX, ushort rawY)
 	{
-		m_posX.Set(rawX);
-		m_posY.Set(rawY);
-		return true;
+		m_posX.Set(rawX, rawY);
+		m_posY.Set(rawY, rawX);
 	}
 
 	void IsTouched(bool fIsTouched)	
@@ -126,6 +92,18 @@ protected:
 				flags = TOUCH_None;
 		}
 		m_touchFlags = flags;
+	}
+
+	void SetMax(uint maxX, uint maxY)
+	{
+		m_posX.SetMax(maxX);
+		m_posY.SetMax(maxY);
+	}
+
+	void SetMatrix(const ScaleMatrix &x, const ScaleMatrix &y)
+	{
+		m_posX.SetMatrix(x);
+		m_posY.SetMatrix(y);
 	}
 
 protected:

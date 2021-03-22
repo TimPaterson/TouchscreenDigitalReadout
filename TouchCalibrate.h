@@ -13,8 +13,12 @@
 class TouchCalibrate_t : TouchCanvas, ScreenMgr
 {
 	// Calibration target position
-	static constexpr int BottomPosition = ScreenHeight - TouchEdgeOffset - 1;
-	static constexpr int RightPosition = ScreenWidth - TouchEdgeOffset - 1;
+	static constexpr int TouchEdgeOffsetX = ScreenWidth / 10;
+	static constexpr int TouchEdgeOffsetY = ScreenHeight / 10;
+	static constexpr int RightTarget = ScreenWidth - TouchEdgeOffsetX - 1;
+	static constexpr int BottomTarget = ScreenHeight - TouchEdgeOffsetY - 1;
+	static constexpr int MiddleTargetX = ScreenWidth / 2;
+	static constexpr int MiddleTargetY = ScreenHeight / 2;
 
 	// Calibration
 	static constexpr int AbortFlag = -1;
@@ -43,11 +47,23 @@ class TouchCalibrate_t : TouchCanvas, ScreenMgr
 
 	struct Target
 	{
-		Area	horz;
+		// For initializing
+		#define TARGET(x, y) {{x, 0, 1, ScreenHeight}/*vert*/, {0, y, ScreenWidth, 1}/*horz*/}
+
 		Area	vert;
+		Area	horz;
 
 		uint GetX()		{ return vert.Xpos; }
 		uint GetY()		{ return horz.Ypos; }
+	};
+
+	#define TargX(n)	s_Targets[n].vert.Xpos
+	#define TargY(n)	s_Targets[n].horz.Ypos
+
+	struct TouchPoint
+	{
+		int		x;
+		int		y;
 	};
 
 	// Imitate HotpostList
@@ -188,19 +204,74 @@ Restart:
 		point.x = Touch.GetRawX();
 		point.y = Touch.GetRawY();
 
-		if (Touch.IsTouchDataValid(&Eeprom.Data.TouchInit))
-			Touch.CalcScales(&Eeprom.Data.TouchInit, ScreenWidth, ScreenHeight);
-
 		// Now erase the target
 		DrawTarget(target, true);
 		return false;
 	}
 
+	static long DivLongLong(long long num, long den) NO_INLINE_ATTR
+	{
+		return ShiftIntRnd(num * 2 / den, 1);
+	}
+
+	static long DivScale(long num, long den)
+	{
+		return DivLongLong((long long)num << TouchShift, den);
+	}
+
 	bool StartCalibration()
 	{
-		if (CalibrateTarget(s_targetTopLeft, Eeprom.Data.TouchInit.topLeft))
-			return true;	// abort
-		return CalibrateTarget(s_targetBottomRight, Eeprom.Data.TouchInit.bottomRight);
+		int		val, k;
+		long long	c1, c2, c3, baseX, baseY;
+
+		if (CalibrateTarget(s_Targets[0], m_points[0]))
+			return true;
+		if (CalibrateTarget(s_Targets[1], m_points[1]))
+			return true;
+		if (CalibrateTarget(s_Targets[2], m_points[2]))
+			return true;
+
+		// Equations for 3-point touch calibration were found at
+		// https://www.embedded.com/how-to-calibrate-touch-screens/
+		//
+		// A .pdf from Texas Instruments called "Calibration in touch-screen systems"
+		// also has these equations with an explanation of how to extend it
+		// to more points, with an example of 5 points.
+
+		k = (m_points[0].x - m_points[2].x) * (m_points[1].y - m_points[2].y) -
+			(m_points[1].x - m_points[2].x) * (m_points[0].y - m_points[2].y);
+
+		val = (TargX(0) - TargX(2)) * (m_points[1].y - m_points[2].y) -
+			(TargX(1) - TargX(2)) * (m_points[0].y - m_points[2].y);
+		Eeprom.Data.TouchInit.scaleX.aScale = DivScale(val, k);
+
+		val = (TargX(1) - TargX(2)) * (m_points[0].x - m_points[2].x) -
+			(TargX(0) - TargX(2)) * (m_points[1].x - m_points[2].x);
+		Eeprom.Data.TouchInit.scaleX.bScale = DivScale(val, k);
+
+		val = (TargY(1) - TargY(2)) * (m_points[0].x - m_points[2].x) -
+			(TargY(0) - TargY(2)) * (m_points[1].x - m_points[2].x);
+		Eeprom.Data.TouchInit.scaleY.aScale = DivScale(val, k);
+
+		val = (TargY(0) - TargY(2)) * (m_points[1].y - m_points[2].y) -
+			(TargY(1) - TargY(2)) * (m_points[0].y - m_points[2].y);
+		Eeprom.Data.TouchInit.scaleY.bScale = DivScale(val, k);
+
+		// Final calculation exceeds int, use long long
+		c1 = m_points[1].x * m_points[2].y - m_points[2].x * m_points[1].y;
+		c2 = m_points[2].x * m_points[0].y - m_points[0].x * m_points[2].y;
+		c3 = m_points[0].x * m_points[1].y - m_points[1].x * m_points[0].y;
+		baseX = c1 * TargX(0) + c2 * TargX(1) + c3 * TargX(2);
+		baseY = c1 * TargY(0) + c2 * TargY(1) + c3 * TargY(2);
+
+		// compute rounded 32-bit result of division
+		val = DivLongLong(baseX, k);
+		Eeprom.Data.TouchInit.scaleX.base = val;
+
+		val = DivLongLong(baseY, k);
+		Eeprom.Data.TouchInit.scaleY.base = val;
+
+		return false;
 	}
 
 	static int GetTouch(bool fShow = false)
@@ -232,6 +303,7 @@ Restart:
 	//*********************************************************************
 protected:
 	TouchCanvas *m_oldImage;
+	TouchPoint	m_points[3];
 
 	//*********************************************************************
 	// const (flash) data
@@ -239,17 +311,13 @@ protected:
 protected:
 	inline static const char s_archRepeat[] = REPEAT_BTN_LABEL;
 	inline static const char s_archDone[] = DONE_BTN_LABEL;
+	inline static const ScaleMatrix s_calibMatrix = { TouchScale, 0, 0 };
 
-	inline static const Target s_targetTopLeft =
+	inline static const Target s_Targets[3] =
 	{
-		{ 0, TouchEdgeOffset, ScreenWidth, 1 },
-		{ TouchEdgeOffset, 0, 1, ScreenHeight }
-	};
-
-	inline static const Target s_targetBottomRight =
-	{
-		{ 0, BottomPosition, ScreenWidth, 1 },
-		{ RightPosition, 0, 1, ScreenHeight }
+		TARGET(TouchEdgeOffsetX, BottomTarget),
+		TARGET(MiddleTargetX, TouchEdgeOffsetY),
+		TARGET(RightTarget, MiddleTargetY),
 	};
 
 	inline static const Area s_areaRepeat = { ButtonLeft, RepeatBtnTop, ButtonWidth, ButtonHeight };
