@@ -26,19 +26,13 @@
 #include "Fonts/Fonts.h"
 
 //*************************************************************************
-// Enumeration of font names in FontList
-
-#define START_FONT(name)	FID_##name,
-
-enum FontId
-{
-	#include "Fonts/Fonts.h"
-};
-
-//*************************************************************************
 // Direct access to font by name
 
-#define START_FONT(name)	EXTERN_C FontInfo FONT_##name;
+#ifdef __cplusplus
+#define START_FONT(name)	extern "C" FontInfo FONT_##name;
+#else
+#define START_FONT(name)	extern FontInfo FONT_##name;
+#endif
 
 #include "Fonts/Fonts.h"
 

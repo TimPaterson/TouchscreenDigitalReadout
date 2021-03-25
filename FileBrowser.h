@@ -403,7 +403,7 @@ protected:
 	//*********************************************************************
 protected:
 	inline static TextField	s_fileRow{FileRow, FileRow_Areas.FileName, 
-		FID_CalcSmall, ToolLibForeground, ToolLibBackground};
+		FONT_CalcSmall, ToolLibForeground, ToolLibBackground};
 
 	inline static char		s_bufPath[MAX_PATH + 1];
 

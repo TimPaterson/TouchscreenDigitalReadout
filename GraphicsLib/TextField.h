@@ -29,15 +29,15 @@ EXTERN_C FontInfo *FontList[];
 class TextField : public ScreenMgr
 {
 public:
-	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor):
-		TextField(canvas, area, id, foreColor, backColor,
+	TextField(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor):
+		TextField(canvas, area, font, foreColor, backColor,
 		({union {void (TextField::*mf)(byte); _fdev_put_t *p;} u = {&TextField::WriteCharActive}; u.p;})) 
 		{}
 
 protected:
-	TextField(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
+	TextField(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor, _fdev_put_t *put):
 		m_pCanvas{&canvas},
-		m_pFontInfo{FontList[id]},
+		m_pFontInfo{&font},
 		m_pArea{&area},
 		m_foreColor{foreColor},
 		m_backColor{backColor},
@@ -52,9 +52,9 @@ protected:
 	// Public interface
 	//*********************************************************************3
 public:
-	void SetFont(uint id)
+	void SetFont(FontInfo &font)
 	{
-		m_pFontInfo = FontList[id];
+		m_pFontInfo = &font;
 		SetSpaceWidth();
 	}
 
@@ -271,14 +271,14 @@ protected:
 class TextLine : public TextField
 {
 public:
-	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
-		TextLine(canvas, area, id, foreColor, backColor,
+	TextLine(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor): 
+		TextLine(canvas, area, font, foreColor, backColor,
 		({union {void (TextLine::*mf)(byte); _fdev_put_t *p;} u = {&TextLine::WriteCharActive}; u.p;}))
 		{}
 
 protected:
-	TextLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor, _fdev_put_t *put):
-		TextField(canvas, area, id, foreColor, backColor, put) {}
+	TextLine(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor, _fdev_put_t *put):
+		TextField(canvas, area, font, foreColor, backColor, put) {}
 
 public:
 	void WriteCharActive(byte ch)
@@ -312,16 +312,16 @@ public:
 class NumberLine : public TextLine
 {
 public:
-	NumberLine(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
-		TextLine(canvas, area, id, foreColor, backColor)
+	NumberLine(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor): 
+		TextLine(canvas, area, font, foreColor, backColor)
 	{
 		SetSpaceWidth(GetStdCharWidth('0'));
 	}
 
 public:
-	void SetFont(uint id)
+	void SetFont(FontInfo &font)
 	{
-		TextLine::SetFont(id);
+		TextLine::SetFont(font);
 		SetSpaceWidth(GetStdCharWidth('0'));
 	}
 
@@ -350,8 +350,8 @@ public:
 class NumberLineBlankZ : public NumberLine
 {
 public:
-	NumberLineBlankZ(Canvas &canvas, const Area &area, uint id, ulong foreColor, ulong backColor): 
-		NumberLine(canvas, area, id, foreColor, backColor)
+	NumberLineBlankZ(Canvas &canvas, const Area &area, FontInfo &font, ulong foreColor, ulong backColor): 
+		NumberLine(canvas, area, font, foreColor, backColor)
 	{
 		SetBackgroundTransparent(true);
 	}

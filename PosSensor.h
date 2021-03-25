@@ -22,7 +22,7 @@ public:
 
 public:
 	// Called from ISR
-	void InputChange(uint uSignal)
+	void InputChange(uint uSignal) INLINE_ATTR
 	{
 		uSignal &= 3;	// low two bits - A and B signals
 		m_posCur += s_arbQuadDecode[(m_bPrevSig << 2) + uSignal];
@@ -173,7 +173,9 @@ protected:
 	// member (RAM) data
 	//*********************************************************************
 protected:
-	volatile long m_posCur;		// can change in ISR
+	// can change in ISR
+	volatile byte m_bPrevSig;
+	volatile long m_posCur;
 
 protected:
 	AxisInfo	*m_pInfo;
@@ -183,7 +185,4 @@ protected:
 	double		m_scaleInch;
 	double		m_offsetInch;
 	long		m_arOrigins[MaxOrigins];
-	byte		m_bPrevSig;
 };
-
-constexpr double PosSensor::MmRounding;

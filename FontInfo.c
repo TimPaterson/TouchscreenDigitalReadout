@@ -28,14 +28,3 @@
 
 // Run the macros
 #include "Fonts/Fonts.h"
-
-
-//****************************************************************************
-// Make array of pointers to fonts
-
-#define START_FONT(name)	&FONT_##name,
-
-const FontInfo *FontList[] = 
-{
-	#include "Fonts/Fonts.h"
-};

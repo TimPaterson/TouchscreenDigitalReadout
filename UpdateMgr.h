@@ -523,10 +523,10 @@ protected:
 	inline static bool	s_fWriteAll;
 
 	inline static EditLine		s_editFile{UpdateDialog, UpdateDialog_Areas.FileName, FileBrowser::GetPathBuf(),
-		FileBrowser::GetPathBufSize(), FID_CalcSmall, UpdateForeground, UpdateBackground};
+		FileBrowser::GetPathBufSize(), FONT_CalcSmall, UpdateForeground, UpdateBackground};
 
 	inline static TextField		s_versionText{UpdateDialog, UpdateDialog_Areas.CurrrentFirmware,
-		FID_CalcSmall, UpdateForeground, UpdateBackground};
+		FONT_CalcSmall, UpdateForeground, UpdateBackground};
 
 	inline static ProgressBar	s_progress{UpdateDialog, UpdateDialog_Areas.ProgressBar,
 		ProgressBarForecolor, ProgressBarBackcolor};

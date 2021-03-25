@@ -53,7 +53,7 @@ protected:
 	{
 	public:
 		CalcMemory(const Area &area, ulong backColor) :
-			NumberLine(MainScreen, area, FID_CalcSmall, ScreenForeColor, backColor)
+			NumberLine(MainScreen, area, FONT_CalcSmall, ScreenForeColor, backColor)
 		{}
 
 	public:
@@ -715,11 +715,11 @@ protected:
 		{MainScreen_Areas.Mem4, MemColorEven},
 	};
 	inline static NumberLine s_CalcDisplay{MainScreen, MainScreen_Areas.CalcDisplay, 
-		FID_Calculator, ScreenForeColor, CalcBackColor};
+		FONT_Calculator, ScreenForeColor, CalcBackColor};
 	inline static TextLine	s_CalcText{MainScreen, MainScreen_Areas.CalcText, 
-		FID_CalcSmall, ScreenForeColor, CalcBackColor};
+		FONT_CalcSmall, ScreenForeColor, CalcBackColor};
 	inline static NumberLineBlankZ s_SettingDisplay{SettingsScreen, SettingsScreen_Areas.MaxRpm, 
-		FID_SettingsFont, SettingForeColor, SettingBackColor};
+		FONT_SettingsFont, SettingForeColor, SettingBackColor};
 	inline static char		s_arEntryBuf[InBufSize] = " ";
 	inline static char		s_arFormatBuf[InBufSize];
 	inline static byte		s_indBuf = 1;

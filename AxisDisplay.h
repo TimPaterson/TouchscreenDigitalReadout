@@ -140,8 +140,8 @@ protected:
 	//*********************************************************************
 protected:
 	inline static NumberLine		s_Display{MainScreen, MainScreen_Areas.Xdisplay, 
-		FID_DigitDisplay, AxisForeColor, AxisBackColor};
+		FONT_DigitDisplay, AxisForeColor, AxisBackColor};
 
 	inline static NumberLineBlankZ	s_UndoDisplay{MainScreen, MainScreen_Areas.UndoX1, 
-		FID_CalcSmall, UndoTextColor, UndoBackColor};
+		FONT_CalcSmall, UndoTextColor, UndoBackColor};
 };

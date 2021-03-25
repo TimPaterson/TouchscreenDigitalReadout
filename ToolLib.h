@@ -146,7 +146,7 @@ class ToolLib
 	{
 	public:
 		ToolDisplay(Canvas &canvas, const Area &area, ulong foreColor, ulong backColor) :
-			NumberLineBlankZ(canvas, area, FID_CalcSmall, foreColor, backColor), arItemAreas{&area}
+			NumberLineBlankZ(canvas, area, FONT_CalcSmall, foreColor, backColor), arItemAreas{&area}
 			{}
 
 	public:
@@ -772,19 +772,19 @@ protected:
 		ToolLibForeground, ToolLibBackground};
 
 	inline static EditLine		s_editDesc {ToolLibrary, ToolLibrary_Areas.ToolDesc,
-		s_bufTool.arDesc, ToolDescSize, FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+		s_bufTool.arDesc, ToolDescSize, FONT_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
 	inline static EditLine		s_editFile{ToolImport, ToolImport_Areas.FileName, FileBrowser::GetPathBuf(),
-		FileBrowser::GetPathBufSize(), FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+		FileBrowser::GetPathBufSize(), FONT_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
 	inline static NumberLine	s_LiveTime{ToolImport, ToolImport_Areas.LiveTime, 
-		FID_CalcSmall, ToolInfoForeground, ToolInfoBackground};
+		FONT_CalcSmall, ToolInfoForeground, ToolInfoBackground};
 
 	inline static TextField		s_TimeEntry{EnterDateTime, EnterDateTime_Areas.Month, 
-		FID_SettingsFont, TimeEntryForeground, TimeEntryBackground};
+		FONT_SettingsFont, TimeEntryForeground, TimeEntryBackground};
 
 	inline static NumberLineBlankZ	s_feedRate {MainScreen, MainScreen_Areas.CurrentFeedRate,
-		FID_SettingsFont, FeedRateColor, ToolDiagramColor};
+		FONT_SettingsFont, FeedRateColor, ToolDiagramColor};
 
 	inline static ushort		s_arSortList[MaxToolCount];
 };
