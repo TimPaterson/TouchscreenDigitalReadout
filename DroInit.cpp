@@ -140,8 +140,6 @@ void Init()
 
 	// Set up EIC
 	// GCLK only needed in case we select filtering
-	// "To use NMI, GCLK_EIC must be enabled after EIC configuration (NMICTRL)"
-	EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL | EIC_NMICTRL_NMIFILTEN;
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_EIC;
 	EIC->INTENSET.reg = PosSensorIrqMask;
 

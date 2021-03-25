@@ -213,6 +213,9 @@ int main(void)
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
+	//Finally, enable NMI
+	EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL | EIC_NMICTRL_NMIFILTEN;
+
 	//************************************************************************
 	// Main loop
 
