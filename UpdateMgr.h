@@ -109,7 +109,7 @@ public:
 			break;
 
 		case VersionMatch:
-			s_fVersionMatch ^= true;
+			s_fWriteAll ^= true;
 			ShowVersionMatch();
 			break;			
 
@@ -210,18 +210,16 @@ public:
 						cbTotal = pFirmwareSection->dataSize;
 
 						// See if we're leaving some out
-						if (!s_fWriteAll)
-						{
-							if (pGraphicsSection->progVersion <= GRAPHICS_VERSION)
-								pGraphicsSection = NULL;
-							else
-								cbTotal += pGraphicsSection->dataSize;
+						if (!s_fWriteAll && pGraphicsSection->progVersion <= GRAPHICS_VERSION)
+							pGraphicsSection = NULL;
+						else
+							cbTotal += pGraphicsSection->dataSize;
 
-							if (pFontsSection->progVersion <= FONT_VERSION)
-								pFontsSection = NULL;
-							else
-								cbTotal += pFontsSection->dataSize;
-						}
+						if (!s_fWriteAll && pFontsSection->progVersion <= FONT_VERSION)
+							pFontsSection = NULL;
+						else
+							cbTotal += pFontsSection->dataSize;
+
 						s_pGraphicsSection = pGraphicsSection;
 						s_pFontsSection = pFontsSection;
 						s_progress.SetMax(cbTotal);
@@ -407,7 +405,7 @@ protected:
 
 	static void ShowVersionMatch()
 	{
-		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.VersionMatch, &UpdateCheck, s_fVersionMatch);
+		Lcd.SelectImage(&UpdateDialog, &UpdateDialog_Areas.VersionMatch, &UpdateCheck, s_fWriteAll);
 	}
 
 	static void ClearFileError()
@@ -519,7 +517,6 @@ protected:
 	inline static ulong	s_progressLast;
 	inline static byte	s_editMode;
 	inline static byte	s_updateState;
-	inline static bool	s_fVersionMatch;
 	inline static bool	s_fWriteAll;
 
 	inline static EditLine		s_editFile{UpdateDialog, UpdateDialog_Areas.FileName, FileBrowser::GetPathBuf(),

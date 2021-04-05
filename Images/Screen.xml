@@ -28,12 +28,12 @@
   <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
   <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
   <Color Name="ScreenForeColor" Color="Black" ColorDepth="Color16bpp"/>
-  <Color Name="ScreenBackColor" Color="LightBlue" ColorDepth="Color16bpp"/>
+  <Color Name="ScreenBackColor" Color="0xC0FFFF" ColorDepth="Color16bpp"/>
   <Color Name="AxisForeColor" Color="Black" />
   <Color Name="AxisBackColor" Color="Yellow" />
   <Color Name="CalcBackColor" Color="White" />
-  <Color Name="MemColorOdd" Color="0xD0C0D0" ColorDepth="Color16bpp"/>
-  <Color Name="MemColorEven" Color="PaleGreen" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorOdd" Color="0xFFD0E0" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorEven" Color="0xB0FFB0" ColorDepth="Color16bpp"/>
   <Color Name="BtnBackground" Color="0x606060"/>
   <Color Name="ToolDiagramColor" Color="DarkSlateGray" ColorDepth="Color16bpp"/>
   <Color Name="FeedRateColor" Color="White" ColorDepth="Color16bpp"/>

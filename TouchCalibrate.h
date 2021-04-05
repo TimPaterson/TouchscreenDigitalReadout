@@ -28,6 +28,7 @@ class TouchCalibrate_t : TouchCanvas, ScreenMgr
 	static constexpr ulong TargetColor = 0;
 	static constexpr ulong ButtonColor = 0x0000FF;
 	static constexpr ulong ButtonTextColor = 0xFFFFFF;
+	static constexpr ulong BackColor = ScreenBackColor;
 
 	// Define the two big buttons to repeat or quite
 	static constexpr int ButtonHeight = ScreenHeight / 5;
@@ -94,7 +95,7 @@ public:
 		if (AllocIfNeeded(ScreenHeight))
 		{
 			// New screen, build image
-			FillRect(this, GetViewArea(), ScreenBackColor);
+			FillRect(this, GetViewArea(), BackColor);
 			SetHitList((HotspotList *)&s_hotSpots);
 		}
 		m_oldImage = GetMainImage();
@@ -149,7 +150,7 @@ Abort:
 protected:
 	void DrawButtons(bool fErase = false)
 	{
-		ulong color = fErase ? ScreenBackColor : ButtonColor;
+		ulong color = fErase ? BackColor : ButtonColor;
 		FillRect(this, &s_areaRepeat, color);
 		FillRect(this, &s_areaDone, color);
 
