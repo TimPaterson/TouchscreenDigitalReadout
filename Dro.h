@@ -17,8 +17,8 @@
 
 
 #define PROGRAM_VERSION		0
-#define GRAPHICS_VERSION	0
-#define FONT_VERSION		0
+#define GRAPHICS_VERSION	1
+#define FONT_VERSION		1
 
 
 static constexpr double MmPerInch = 25.4;

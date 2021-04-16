@@ -32,8 +32,8 @@
   <Color Name="AxisForeColor" Color="Black" />
   <Color Name="AxisBackColor" Color="Yellow" />
   <Color Name="CalcBackColor" Color="White" />
-  <Color Name="MemColorOdd" Color="0xFFD0E0" ColorDepth="Color16bpp"/>
-  <Color Name="MemColorEven" Color="0xB0FFB0" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorOdd" Color="0xFFE8E8" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorEven" Color="0xD0FFD0" ColorDepth="Color16bpp"/>
   <Color Name="BtnBackground" Color="0x606060"/>
   <Color Name="ToolDiagramColor" Color="DarkSlateGray" ColorDepth="Color16bpp"/>
   <Color Name="FeedRateColor" Color="White" ColorDepth="Color16bpp"/>
@@ -790,7 +790,7 @@
   <!-- Key images -->
 
   <!-- Coordinate system -->
-  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
     <Item>
       <Ref RefName="Toggle">
         <Set>Upper.Foreground=ToggleOn;</Set>
@@ -804,7 +804,7 @@
   </Canvas>
 
   <!-- Inch/Mectic units -->
-  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="LightBlue" ColorDepth="Color16bpp">
+  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
     <Item>
       <Ref RefName="InchMetric">
         <Set>Upper.Foreground=ToggleOn;</Set>
