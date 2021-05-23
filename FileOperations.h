@@ -188,7 +188,7 @@ public:
 protected:
 	static int NoErrorHandler(int err) 
 	{ 
-		DEBUG_PRINT("File error %i\n", err); 
+		printf("File error %i\n", err); 
 		return err;
 	}
 

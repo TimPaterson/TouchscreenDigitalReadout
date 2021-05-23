@@ -288,10 +288,13 @@ private:
 	//*********************************************************************
 
 public:
-	static void Init()
+	static bool Init()
 	{
+		if ((GetStatus() & (STATUS_WriteFifoFull | STATUS_WriteFifoEmpty)) != STATUS_WriteFifoEmpty)
+			return false;	// screen not present
+
 		// Make sure we're ready to accept commands
-		while (GetStatus() & STATUS_InhibitOperation);
+		while (GetStatus() & (STATUS_InhibitOperation | STATUS_CoreBusy));
 
 		// Software reset
 		WriteRegSlow(SRR, SRR_Reset);
@@ -310,6 +313,9 @@ public:
 
 		// Initialize LCD
 		WriteRegList(s_arInitList, _countof(s_arInitList));
+
+		// Let caller know screen is present
+		return true;
 	}
 
 	//*********************************************************************

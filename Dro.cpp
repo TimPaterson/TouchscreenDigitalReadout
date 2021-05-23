@@ -143,6 +143,16 @@ FatDateTime GetFatTime()
 	return dt;
 }
 
+void PrintHelp()
+{
+	printf("Commands:\n"
+		"f - Load fonts from USB file Fonts.bin\n"
+		"i - Load images from USB file Screen.bin\n"
+		"t - Calibrate touchscreen\n"
+		"x - Reset\n"
+	);
+}
+
 //*********************************************************************
 // Main program
 //*********************************************************************
@@ -150,6 +160,7 @@ FatDateTime GetFatTime()
 int main(void)
 {
 	RtcTime	timeCur, timeSave;
+	bool	lcdPresent;
 
 	StartClock();
 	Init();
@@ -180,24 +191,6 @@ int main(void)
 	Zdisplay.AxisInfoUpdate();
 	Qpos.AxisInfoUpdate();
 
-	Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, Lcd.ScreenWidth, Lcd.ScreenHeight);
-	Touch.Enable();
-
-	Lcd.Init();
-
-	// Copy serial data in graphics memory
-	Lcd.CopySerialMemToRam(FlashScreenStart, RamScreenStart, ScreenFileLength, 1);
-	Lcd.CopySerialMemToRam(FlashFontStart, RamFontStart, FontFileLength, 1);
-
-	Lcd.LoadGraphicsCursor(PointerCursor, GTCCR_GraphicCursorSelect1);
-	Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect2);
-	Lcd.SetGraphicsCursorColors(0xFF, 0x00);
-
-	Lcd.SetMainImage(&MainScreen);
-	Lcd.DisplayOn();
-
-	Actions::Init();
-
 	// Initialize USB
 	Mouse.Init(Lcd.ScreenWidth, Lcd.ScreenHeight);
 	UsbPort.Init();
@@ -208,12 +201,35 @@ int main(void)
 	Sd.Enable();
 	FileSys.Init();
 
-	DEBUG_PRINT("Graphics memory allocated: %lu bytes\n", Canvas::AllocVideoRam(0));
+	// Initialize LCD and touch if present
+	lcdPresent = Lcd.Init();
+	if (lcdPresent)
+	{
+		// Copy serial data in graphics memory
+		Lcd.CopySerialMemToRam(FlashScreenStart, RamScreenStart, ScreenFileLength, 1);
+		Lcd.CopySerialMemToRam(FlashFontStart, RamFontStart, FontFileLength, 1);
+
+		Lcd.LoadGraphicsCursor(PointerCursor, GTCCR_GraphicCursorSelect1);
+		Lcd.LoadGraphicsCursor(TargetCursor, GTCCR_GraphicCursorSelect2);
+		Lcd.SetGraphicsCursorColors(0xFF, 0x00);
+
+		Lcd.SetMainImage(&MainScreen);
+		Lcd.DisplayOn();
+
+		Touch.Init(SPIMISOPAD_Pad3, SPIOUTPAD_Pad0_MOSI_Pad1_SCK, &Eeprom.Data.TouchInit, Lcd.ScreenWidth, Lcd.ScreenHeight);
+		Touch.Enable();
+
+		Actions::Init();
+
+		DEBUG_PRINT("Graphics memory allocated: %lu bytes\n", Canvas::AllocVideoRam(0));
+
+		PrintHelp();
+	}
 
 	// Start WDT now that initialization is complete
 	WDT->CTRL.reg = WDT_CTRL_ENABLE;
 
-	//Finally, enable NMI
+	// Finally, enable NMI
 	EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL | EIC_NMICTRL_NMIFILTEN;
 
 	//************************************************************************
@@ -326,7 +342,7 @@ int main(void)
 		FileOp.Process();
 
 		// Process screen touch
-		if (Touch.Process())
+		if (lcdPresent && Touch.Process())
 		{
 			uint	flags;
 
@@ -368,26 +384,17 @@ FileErrChk:
 				err = FileOp.WriteFileToFlash("Screen.bin", FlashScreenStart);
 				goto FileErrChk;
 
-			case 's':
-				printf("Save EEPROM (y/n)?");
-				while(!Console.IsByteReady())
-					wdt_reset();
-				ch = Console.ReadByte();
-				if (ch == 'y' || ch == 'Y')
-				{
-					Eeprom.StartSave();
-					printf("...Saved\n");
-				}
-				else
-					printf("...Not saved\n");
-				break;
-
 			case 't':
 				TouchCalibrate::Open();
 				break;
 
 			case 'x':
 				HardFault((int *)&g_FileBuf[0][1]);
+				break;
+
+			default:
+				if (lcdPresent)
+					PrintHelp();
 				break;
 			}
 		}

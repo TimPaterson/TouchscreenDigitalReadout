@@ -187,7 +187,10 @@ Restart:
 		{
 			flags = GetTouch();
 			if (flags == AbortFlag)
+			{
+				DrawTarget(target, true);	// Erase it
 				return true;
+			}
 		} while (!(flags & TOUCH_Start));
 
 		// Screen touched, make 'em hold it
@@ -283,7 +286,10 @@ Restart:
 		{
 			wdt_reset();
 			if (Console.IsByteReady())
+			{
+				Console.DiscardReadBuf();
 				return AbortFlag;
+			}
 		}
 		flags = Touch.GetTouch();
 

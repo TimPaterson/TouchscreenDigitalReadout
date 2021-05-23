@@ -16,7 +16,7 @@
 #include "FatFileDef.h"
 
 
-#define PROGRAM_VERSION		0
+#define PROGRAM_VERSION		1
 #define GRAPHICS_VERSION	1
 #define FONT_VERSION		1
 
