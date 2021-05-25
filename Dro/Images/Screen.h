@@ -1,0 +1,1863 @@
+#ifndef START_SCREEN
+#define START_SCREEN(a)
+#endif
+#ifndef IMAGE_ADDRESS
+#define IMAGE_ADDRESS(a)
+#endif
+#ifndef IMAGE_SIZE
+#define IMAGE_SIZE(a)
+#endif
+#ifndef IMAGE_WIDTH
+#define IMAGE_WIDTH(a)
+#endif
+#ifndef IMAGE_HEIGHT
+#define IMAGE_HEIGHT(a)
+#endif
+#ifndef IMAGE_STRIDE
+#define IMAGE_STRIDE(a)
+#endif
+#ifndef IMAGE_DEPTH
+#define IMAGE_DEPTH(a)
+#endif
+#ifndef END_SCREEN
+#define END_SCREEN(a)
+#endif
+#ifndef START_HOTSPOTS
+#define START_HOTSPOTS(a)
+#endif
+#ifndef DEFINE_HOTSPOT
+#define DEFINE_HOTSPOT(a,b,c,d,e,f)
+#endif
+#ifndef END_HOTSPOTS
+#define END_HOTSPOTS(a)
+#endif
+#ifndef HOTSPOT_COUNT
+#define HOTSPOT_COUNT(a,b)
+#endif
+#ifndef START_LOCATIONS
+#define START_LOCATIONS(a)
+#endif
+#ifndef DEFINE_LOCATION
+#define DEFINE_LOCATION(a,b,c)
+#endif
+#ifndef END_LOCATIONS
+#define END_LOCATIONS(a)
+#endif
+#ifndef START_AREAS
+#define START_AREAS(a)
+#endif
+#ifndef DEFINE_AREA
+#define DEFINE_AREA(a,b,c,d,e)
+#endif
+#ifndef END_AREAS
+#define END_AREAS(a)
+#endif
+#ifndef START_GROUP
+#define START_GROUP(a)
+#endif
+#ifndef GROUP_HOTSPOT
+#define GROUP_HOTSPOT(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP
+#define END_GROUP(a)
+#endif
+#ifndef START_VALUES
+#define START_VALUES()
+#endif
+#ifndef DEFINE_VALUE
+#define DEFINE_VALUE(a,b)
+#endif
+#ifndef END_VALUES
+#define END_VALUES()
+#endif
+#ifndef START_STR_VALUES
+#define START_STR_VALUES()
+#endif
+#ifndef DEFINE_STR_VALUE
+#define DEFINE_STR_VALUE(a,b)
+#endif
+#ifndef END_STR_VALUES
+#define END_STR_VALUES()
+#endif
+#ifndef START_COLORS
+#define START_COLORS()
+#endif
+#ifndef DEFINE_COLOR
+#define DEFINE_COLOR(a,b)
+#endif
+#ifndef END_COLORS
+#define END_COLORS()
+#endif
+#ifndef SCREEN_FILE_LENGTH
+#define SCREEN_FILE_LENGTH(a)
+#endif
+
+START_COLORS()
+	DEFINE_COLOR(ScreenForeColor, 0x000000)
+	DEFINE_COLOR(ScreenBackColor, 0xC6FFFF)
+	DEFINE_COLOR(AxisForeColor, 0x000000)
+	DEFINE_COLOR(AxisBackColor, 0xFFFF00)
+	DEFINE_COLOR(CalcBackColor, 0xFFFFFF)
+	DEFINE_COLOR(MemColorOdd, 0xFFEBEF)
+	DEFINE_COLOR(MemColorEven, 0xD6FFD6)
+	DEFINE_COLOR(BtnBackground, 0x606060)
+	DEFINE_COLOR(ToolDiagramColor, 0x294D4A)
+	DEFINE_COLOR(FeedRateColor, 0xFFFFFF)
+	DEFINE_COLOR(ToolInfoBackground, 0x0000FF)
+	DEFINE_COLOR(ToolInfoForeground, 0xFFFFFF)
+	DEFINE_COLOR(ToolLibBackground, 0x00008C)
+	DEFINE_COLOR(ToolLibForeground, 0xD6D3D6)
+	DEFINE_COLOR(ToolLibSelected, 0xFFFFFF)
+	DEFINE_COLOR(TimeEntryForeground, 0x000000)
+	DEFINE_COLOR(TimeEntryBackground, 0xFFFFFF)
+	DEFINE_COLOR(ScrollBarColor, 0x313031)
+	DEFINE_COLOR(UndoTextColor, 0x848284)
+	DEFINE_COLOR(UndoLineColor, 0x0000FF)
+	DEFINE_COLOR(UndoBackColor, 0xFFFFFF)
+	DEFINE_COLOR(ToggleOn, 0xFFFF00)
+	DEFINE_COLOR(SetBtnText, 0xFFFF00)
+	DEFINE_COLOR(ToolColor, 0xC60000)
+	DEFINE_COLOR(NoToolColor, 0x84CFFF)
+	DEFINE_COLOR(SettingBackColor, 0x000000)
+	DEFINE_COLOR(SettingForeColor, 0xFFFFFF)
+	DEFINE_COLOR(CheckForeground, 0xFFFFFF)
+	DEFINE_COLOR(CheckBackground, 0x000000)
+	DEFINE_COLOR(UpdateBackground, 0x0000FF)
+	DEFINE_COLOR(UpdateForeground, 0xFFFFFF)
+END_COLORS()
+
+START_VALUES()
+	DEFINE_VALUE(ScrollGapLeft, 2)
+	DEFINE_VALUE(ScrollGapRight, 2)
+	DEFINE_VALUE(ScrollThumbWidth, 50)
+	DEFINE_VALUE(ScrollThumbHeight, 60)
+	DEFINE_VALUE(ScrollBarWidth, 54)
+	DEFINE_VALUE(ToolImageRadius, 15)
+	DEFINE_VALUE(ToolListHeight, 483)
+	DEFINE_VALUE(ToolListWidth, 576)
+	DEFINE_VALUE(ToolRowHeight, 50)
+	DEFINE_VALUE(ToolListTop, 117)
+	DEFINE_VALUE(KeyboardTop, 227)
+	DEFINE_VALUE(KeyboardLeft, 0)
+	DEFINE_VALUE(FileListWidth, 876)
+	DEFINE_VALUE(FileRowHeight, 50)
+	DEFINE_VALUE(FileListHeight, 483)
+	DEFINE_VALUE(UpdateFileListTop, 148)
+	DEFINE_VALUE(UpdateFileListHeight, 452)
+END_VALUES()
+
+START_STR_VALUES()
+END_STR_VALUES()
+
+START_SCREEN(MainScreen)
+	IMAGE_ADDRESS(0)
+	IMAGE_SIZE(1228800)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(600)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(MainScreen)
+
+START_HOTSPOTS(MainScreen)
+	DEFINE_HOTSPOT(Xaxis, Axis, 0, 12, 409, 122)
+	DEFINE_HOTSPOT(Xaxis, AxisButton, 435, 19, 519, 114)
+	DEFINE_HOTSPOT(Yaxis, Axis, 0, 148, 409, 258)
+	DEFINE_HOTSPOT(Yaxis, AxisButton, 435, 155, 519, 250)
+	DEFINE_HOTSPOT(Zaxis, Axis, 0, 284, 409, 394)
+	DEFINE_HOTSPOT(Zaxis, AxisButton, 435, 291, 519, 386)
+	DEFINE_HOTSPOT(Settings, , 894, 10, 1013, 69)
+	DEFINE_HOTSPOT(BrightDown, , 894, 80, 953, 139)
+	DEFINE_HOTSPOT(BrightUp, , 954, 80, 1013, 139)
+	DEFINE_HOTSPOT(Xaxis, Undo, 545, 25, 653, 108)
+	DEFINE_HOTSPOT(Yaxis, Undo, 655, 25, 763, 108)
+	DEFINE_HOTSPOT(Zaxis, Undo, 765, 25, 873, 108)
+	DEFINE_HOTSPOT(InchMetric, , 884, 517, 943, 576)
+	DEFINE_HOTSPOT(AbsInc, , 954, 517, 1013, 576)
+	DEFINE_HOTSPOT(Key_backSpace, Edit, 594, 237, 653, 296)
+	DEFINE_HOTSPOT(Key_clear, Edit, 664, 237, 723, 296)
+	DEFINE_HOTSPOT(Key_pi, Edit, 734, 237, 793, 296)
+	DEFINE_HOTSPOT(Key_plus, Operator, 804, 237, 863, 296)
+	DEFINE_HOTSPOT(Mem1, Memory, 874, 237, 1023, 296)
+	DEFINE_HOTSPOT(Key_7, Digit, 594, 307, 653, 366)
+	DEFINE_HOTSPOT(Key_8, Digit, 664, 307, 723, 366)
+	DEFINE_HOTSPOT(Key_9, Digit, 734, 307, 793, 366)
+	DEFINE_HOTSPOT(Key_minus, Operator, 804, 307, 863, 366)
+	DEFINE_HOTSPOT(Mem2, Memory, 874, 307, 1023, 366)
+	DEFINE_HOTSPOT(Key_4, Digit, 594, 377, 653, 436)
+	DEFINE_HOTSPOT(Key_5, Digit, 664, 377, 723, 436)
+	DEFINE_HOTSPOT(Key_6, Digit, 734, 377, 793, 436)
+	DEFINE_HOTSPOT(Key_mult, Operator, 804, 377, 863, 436)
+	DEFINE_HOTSPOT(Mem3, Memory, 874, 377, 1023, 436)
+	DEFINE_HOTSPOT(Key_1, Digit, 594, 447, 653, 506)
+	DEFINE_HOTSPOT(Key_2, Digit, 664, 447, 723, 506)
+	DEFINE_HOTSPOT(Key_3, Digit, 734, 447, 793, 506)
+	DEFINE_HOTSPOT(Key_divide, Operator, 804, 447, 863, 506)
+	DEFINE_HOTSPOT(Mem4, Memory, 874, 447, 1023, 506)
+	DEFINE_HOTSPOT(Key_sign, Digit, 594, 517, 653, 576)
+	DEFINE_HOTSPOT(Key_0, Digit, 664, 517, 723, 576)
+	DEFINE_HOTSPOT(Key_decimal, Digit, 734, 517, 793, 576)
+	DEFINE_HOTSPOT(Key_equal, Operator, 804, 517, 863, 576)
+	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 405, 64, 465)
+	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 64, 405, 134, 465)
+	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 134, 405, 189, 465)
+	DEFINE_HOTSPOT(ToolLength, ToolLib, 189, 405, 274, 465)
+	DEFINE_HOTSPOT(ToolMenu, , 514, 405, 573, 464)
+	DEFINE_HOTSPOT(ToolLeft, ToolSide, 10, 505, 69, 564)
+	DEFINE_HOTSPOT(ToolBack, ToolSide, 70, 475, 129, 534)
+	DEFINE_HOTSPOT(ToolFront, ToolSide, 70, 535, 129, 594)
+	DEFINE_HOTSPOT(ToolRight, ToolSide, 130, 505, 189, 564)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 200, 475, 379, 570)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 390, 475, 569, 570)
+END_HOTSPOTS(MainScreen)
+
+HOTSPOT_COUNT(MainScreen, 49)
+
+START_LOCATIONS(MainScreen)
+	DEFINE_LOCATION(ToolLeft, 25, 535)
+	DEFINE_LOCATION(ToolRight, 175, 535)
+	DEFINE_LOCATION(ToolBack, 100, 490)
+	DEFINE_LOCATION(ToolFront, 100, 580)
+END_LOCATIONS(MainScreen)
+
+START_AREAS(MainScreen)
+	DEFINE_AREA(Xdisplay, 0, 12, 410, 111)
+	DEFINE_AREA(Ydisplay, 0, 148, 410, 111)
+	DEFINE_AREA(Zdisplay, 0, 284, 410, 111)
+	DEFINE_AREA(UndoX1, 547, 81, 107, 28)
+	DEFINE_AREA(UndoX2, 547, 53, 107, 28)
+	DEFINE_AREA(UndoX3, 547, 25, 107, 28)
+	DEFINE_AREA(UndoY1, 657, 81, 107, 28)
+	DEFINE_AREA(UndoY2, 657, 53, 107, 28)
+	DEFINE_AREA(UndoY3, 657, 25, 107, 28)
+	DEFINE_AREA(UndoZ1, 767, 81, 107, 28)
+	DEFINE_AREA(UndoZ2, 767, 53, 107, 28)
+	DEFINE_AREA(UndoZ3, 767, 25, 107, 28)
+	DEFINE_AREA(CalcDisplay, 584, 119, 290, 60)
+	DEFINE_AREA(CalcText, 584, 189, 290, 28)
+	DEFINE_AREA(InchMetric, 884, 517, 60, 60)
+	DEFINE_AREA(AbsInc, 954, 517, 60, 60)
+	DEFINE_AREA(Mem1, 884, 252, 140, 30)
+	DEFINE_AREA(Mem2, 884, 322, 140, 30)
+	DEFINE_AREA(Mem3, 884, 392, 140, 30)
+	DEFINE_AREA(Mem4, 884, 462, 140, 30)
+	DEFINE_AREA(ToolNumber, 18, 437, 45, 28)
+	DEFINE_AREA(ToolDiameter, 69, 437, 64, 28)
+	DEFINE_AREA(ToolFlutes, 143, 437, 45, 28)
+	DEFINE_AREA(ToolLength, 195, 437, 78, 28)
+	DEFINE_AREA(ToolDesc, 279, 437, 224, 28)
+	DEFINE_AREA(CurrentFeedRate, 40, 514, 120, 42)
+	DEFINE_AREA(SpeedDisplay, 200, 475, 371, 97)
+	DEFINE_AREA(Sfm, 305, 509, 74, 28)
+	DEFINE_AREA(ChipLoad, 488, 509, 81, 28)
+	DEFINE_AREA(Rpm, 305, 541, 74, 28)
+	DEFINE_AREA(FeedRate, 495, 541, 74, 28)
+END_AREAS(MainScreen)
+
+START_HOTSPOTS(Coord)
+END_HOTSPOTS(Coord)
+
+HOTSPOT_COUNT(Coord, 0)
+
+START_HOTSPOTS(InchMetricBtn)
+END_HOTSPOTS(InchMetricBtn)
+
+HOTSPOT_COUNT(InchMetricBtn, 0)
+
+START_HOTSPOTS(SpeedDisplay)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 0, 0, 179, 95)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	DEFINE_HOTSPOT(ToolSfm, ToolLib, 371, 0, 550, 95)
+	DEFINE_HOTSPOT(ToolChipLoad, ToolLib, 561, 0, 740, 95)
+END_HOTSPOTS(SpeedDisplay)
+
+HOTSPOT_COUNT(SpeedDisplay, 4)
+
+START_SCREEN(SettingsScreen)
+	IMAGE_ADDRESS(1401936)
+	IMAGE_SIZE(345600)
+	IMAGE_WIDTH(576)
+	IMAGE_HEIGHT(600)
+	IMAGE_STRIDE(576)
+	IMAGE_DEPTH(Color8bpp)
+END_SCREEN(SettingsScreen)
+
+START_HOTSPOTS(SettingsScreen)
+	DEFINE_HOTSPOT(Xaxis, Disable, 63, 81, 182, 140)
+	DEFINE_HOTSPOT(Xaxis, Resolution, 182, 81, 301, 140)
+	DEFINE_HOTSPOT(Xaxis, Invert, 301, 81, 420, 140)
+	DEFINE_HOTSPOT(Xaxis, Correction, 420, 81, 539, 140)
+	DEFINE_HOTSPOT(Yaxis, Disable, 63, 140, 182, 199)
+	DEFINE_HOTSPOT(Yaxis, Resolution, 182, 140, 301, 199)
+	DEFINE_HOTSPOT(Yaxis, Invert, 301, 140, 420, 199)
+	DEFINE_HOTSPOT(Yaxis, Correction, 420, 140, 539, 199)
+	DEFINE_HOTSPOT(Zaxis, Disable, 63, 199, 182, 258)
+	DEFINE_HOTSPOT(Zaxis, Resolution, 182, 199, 301, 258)
+	DEFINE_HOTSPOT(Zaxis, Invert, 301, 199, 420, 258)
+	DEFINE_HOTSPOT(Zaxis, Correction, 420, 199, 539, 258)
+	DEFINE_HOTSPOT(Qsensor, Disable, 63, 258, 182, 317)
+	DEFINE_HOTSPOT(Qsensor, Resolution, 182, 258, 301, 317)
+	DEFINE_HOTSPOT(Qsensor, Invert, 301, 258, 420, 317)
+	DEFINE_HOTSPOT(Qsensor, Correction, 420, 258, 539, 317)
+	DEFINE_HOTSPOT(HighlightXY, SettingToggle, 10, 332, 354, 391)
+	DEFINE_HOTSPOT(OffsetZ, SettingToggle, 10, 391, 354, 450)
+	DEFINE_HOTSPOT(CncCoordinates, SettingToggle, 10, 450, 354, 509)
+	DEFINE_HOTSPOT(MaxRpm, , 10, 509, 354, 568)
+	DEFINE_HOTSPOT(TouchCal, , 365, 332, 563, 391)
+	DEFINE_HOTSPOT(FirmwareUpdate, , 365, 509, 563, 568)
+END_HOTSPOTS(SettingsScreen)
+
+HOTSPOT_COUNT(SettingsScreen, 22)
+
+START_AREAS(SettingsScreen)
+	DEFINE_AREA(Xdisable, 107, 95, 32, 32)
+	DEFINE_AREA(Xresolution, 232, 91, 69, 42)
+	DEFINE_AREA(Xinvert, 345, 95, 32, 32)
+	DEFINE_AREA(Xcorrection, 425, 91, 114, 42)
+	DEFINE_AREA(Ydisable, 107, 154, 32, 32)
+	DEFINE_AREA(Yresolution, 232, 150, 69, 42)
+	DEFINE_AREA(Yinvert, 345, 154, 32, 32)
+	DEFINE_AREA(Ycorrection, 425, 150, 114, 42)
+	DEFINE_AREA(Zdisable, 107, 213, 32, 32)
+	DEFINE_AREA(Zresolution, 232, 209, 69, 42)
+	DEFINE_AREA(Zinvert, 345, 213, 32, 32)
+	DEFINE_AREA(Zcorrection, 425, 209, 114, 42)
+	DEFINE_AREA(Qdisable, 107, 272, 32, 32)
+	DEFINE_AREA(Qresolution, 232, 268, 69, 42)
+	DEFINE_AREA(Qinvert, 345, 272, 32, 32)
+	DEFINE_AREA(Qcorrection, 425, 268, 114, 42)
+	DEFINE_AREA(HighlightXY, 313, 346, 32, 32)
+	DEFINE_AREA(OffsetZ, 313, 405, 32, 32)
+	DEFINE_AREA(CncCoordinates, 313, 464, 32, 32)
+	DEFINE_AREA(MaxRpm, 245, 519, 100, 42)
+END_AREAS(SettingsScreen)
+
+START_HOTSPOTS(CheckBox)
+END_HOTSPOTS(CheckBox)
+
+HOTSPOT_COUNT(CheckBox, 0)
+
+START_SCREEN(ToolLibrary)
+	IMAGE_ADDRESS(1749584)
+	IMAGE_SIZE(239616)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(117)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolLibrary)
+
+START_HOTSPOTS(ToolLibrary)
+	DEFINE_HOTSPOT(ToolNumber, ToolLib, 10, 10, 64, 70)
+	DEFINE_HOTSPOT(ToolDiameter, ToolLib, 64, 10, 134, 70)
+	DEFINE_HOTSPOT(ToolFlutes, ToolLib, 134, 10, 189, 70)
+	DEFINE_HOTSPOT(ToolLength, ToolLib, 189, 10, 274, 70)
+	DEFINE_HOTSPOT(ToolDesc, ToolLib, 274, 10, 742, 70)
+	DEFINE_HOTSPOT(ClearDesc, ToolLib, 753, 15, 802, 64)
+	DEFINE_HOTSPOT(ToolsDone, ToolLib, 814, 10, 873, 69)
+	DEFINE_HOTSPOT(ToolDelete, ToolLib, 884, 10, 943, 69)
+	DEFINE_HOTSPOT(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+END_HOTSPOTS(ToolLibrary)
+
+HOTSPOT_COUNT(ToolLibrary, 9)
+
+START_AREAS(ToolLibrary)
+	DEFINE_AREA(ToolNumber, 18, 28, 45, 28)
+	DEFINE_AREA(ToolDiameter, 69, 28, 64, 28)
+	DEFINE_AREA(ToolFlutes, 143, 28, 45, 28)
+	DEFINE_AREA(ToolLength, 195, 28, 78, 28)
+	DEFINE_AREA(ToolDesc, 279, 28, 469, 28)
+	DEFINE_AREA(ToolButtons, 814, 10, 200, 107)
+END_AREAS(ToolLibrary)
+
+START_SCREEN(ToolRow)
+	IMAGE_ADDRESS(1989200)
+	IMAGE_SIZE(53448)
+	IMAGE_WIDTH(522)
+	IMAGE_HEIGHT(51)
+	IMAGE_STRIDE(524)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolRow)
+
+START_HOTSPOTS(ToolRow)
+END_HOTSPOTS(ToolRow)
+
+HOTSPOT_COUNT(ToolRow, 0)
+
+START_AREAS(ToolRow)
+	DEFINE_AREA(ToolNumber, 18, 12, 45, 28)
+	DEFINE_AREA(ToolDiameter, 69, 12, 64, 28)
+	DEFINE_AREA(ToolFlutes, 143, 12, 45, 28)
+	DEFINE_AREA(ToolLength, 195, 12, 78, 28)
+	DEFINE_AREA(ToolDesc, 279, 12, 242, 28)
+END_AREAS(ToolRow)
+
+START_HOTSPOTS(ToolButtons)
+END_HOTSPOTS(ToolButtons)
+
+HOTSPOT_COUNT(ToolButtons, 0)
+
+START_SCREEN(KeyLower)
+	IMAGE_ADDRESS(2171048)
+	IMAGE_SIZE(316800)
+	IMAGE_WIDTH(880)
+	IMAGE_HEIGHT(360)
+	IMAGE_STRIDE(880)
+	IMAGE_DEPTH(Color8bpp)
+END_SCREEN(KeyLower)
+
+START_HOTSPOTS(KeyLower)
+	DEFINE_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	DEFINE_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	DEFINE_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	DEFINE_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	DEFINE_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	DEFINE_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	DEFINE_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	DEFINE_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	DEFINE_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	DEFINE_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	DEFINE_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	DEFINE_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	DEFINE_HOTSPOT(Key_q, Keyboard, 40, 80, 99, 139)
+	DEFINE_HOTSPOT(Key_w, Keyboard, 110, 80, 169, 139)
+	DEFINE_HOTSPOT(Key_e, Keyboard, 180, 80, 239, 139)
+	DEFINE_HOTSPOT(Key_r, Keyboard, 250, 80, 309, 139)
+	DEFINE_HOTSPOT(Key_t, Keyboard, 320, 80, 379, 139)
+	DEFINE_HOTSPOT(Key_y, Keyboard, 390, 80, 449, 139)
+	DEFINE_HOTSPOT(Key_u, Keyboard, 460, 80, 519, 139)
+	DEFINE_HOTSPOT(Key_i, Keyboard, 530, 80, 589, 139)
+	DEFINE_HOTSPOT(Key_o, Keyboard, 600, 80, 659, 139)
+	DEFINE_HOTSPOT(Key_p, Keyboard, 670, 80, 729, 139)
+	DEFINE_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	DEFINE_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	DEFINE_HOTSPOT(Key_a, Keyboard, 70, 150, 129, 209)
+	DEFINE_HOTSPOT(Key_s, Keyboard, 140, 150, 199, 209)
+	DEFINE_HOTSPOT(Key_d, Keyboard, 210, 150, 269, 209)
+	DEFINE_HOTSPOT(Key_f, Keyboard, 280, 150, 339, 209)
+	DEFINE_HOTSPOT(Key_g, Keyboard, 350, 150, 409, 209)
+	DEFINE_HOTSPOT(Key_h, Keyboard, 420, 150, 479, 209)
+	DEFINE_HOTSPOT(Key_j, Keyboard, 490, 150, 549, 209)
+	DEFINE_HOTSPOT(Key_k, Keyboard, 560, 150, 619, 209)
+	DEFINE_HOTSPOT(Key_l, Keyboard, 630, 150, 689, 209)
+	DEFINE_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	DEFINE_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	DEFINE_HOTSPOT(Key_z, Keyboard, 110, 220, 169, 279)
+	DEFINE_HOTSPOT(Key_x, Keyboard, 180, 220, 239, 279)
+	DEFINE_HOTSPOT(Key_c, Keyboard, 250, 220, 309, 279)
+	DEFINE_HOTSPOT(Key_v, Keyboard, 320, 220, 379, 279)
+	DEFINE_HOTSPOT(Key_b, Keyboard, 390, 220, 449, 279)
+	DEFINE_HOTSPOT(Key_n, Keyboard, 460, 220, 519, 279)
+	DEFINE_HOTSPOT(Key_m, Keyboard, 530, 220, 589, 279)
+	DEFINE_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	DEFINE_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	DEFINE_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	DEFINE_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	DEFINE_HOTSPOT(Key_symbols, Keyboard, 110, 290, 199, 349)
+	DEFINE_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	DEFINE_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	DEFINE_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	DEFINE_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	DEFINE_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+END_HOTSPOTS(KeyLower)
+
+HOTSPOT_COUNT(KeyLower, 52)
+
+START_SCREEN(KeyUpper)
+	IMAGE_ADDRESS(2487848)
+	IMAGE_SIZE(316800)
+	IMAGE_WIDTH(880)
+	IMAGE_HEIGHT(360)
+	IMAGE_STRIDE(880)
+	IMAGE_DEPTH(Color8bpp)
+END_SCREEN(KeyUpper)
+
+START_HOTSPOTS(KeyUpper)
+	DEFINE_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	DEFINE_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	DEFINE_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	DEFINE_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	DEFINE_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	DEFINE_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	DEFINE_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	DEFINE_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	DEFINE_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	DEFINE_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	DEFINE_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	DEFINE_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	DEFINE_HOTSPOT(Key_Q, Keyboard, 40, 80, 99, 139)
+	DEFINE_HOTSPOT(Key_W, Keyboard, 110, 80, 169, 139)
+	DEFINE_HOTSPOT(Key_E, Keyboard, 180, 80, 239, 139)
+	DEFINE_HOTSPOT(Key_R, Keyboard, 250, 80, 309, 139)
+	DEFINE_HOTSPOT(Key_T, Keyboard, 320, 80, 379, 139)
+	DEFINE_HOTSPOT(Key_Y, Keyboard, 390, 80, 449, 139)
+	DEFINE_HOTSPOT(Key_U, Keyboard, 460, 80, 519, 139)
+	DEFINE_HOTSPOT(Key_I, Keyboard, 530, 80, 589, 139)
+	DEFINE_HOTSPOT(Key_O, Keyboard, 600, 80, 659, 139)
+	DEFINE_HOTSPOT(Key_P, Keyboard, 670, 80, 729, 139)
+	DEFINE_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	DEFINE_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	DEFINE_HOTSPOT(Key_A, Keyboard, 70, 150, 129, 209)
+	DEFINE_HOTSPOT(Key_S, Keyboard, 140, 150, 199, 209)
+	DEFINE_HOTSPOT(Key_D, Keyboard, 210, 150, 269, 209)
+	DEFINE_HOTSPOT(Key_F, Keyboard, 280, 150, 339, 209)
+	DEFINE_HOTSPOT(Key_G, Keyboard, 350, 150, 409, 209)
+	DEFINE_HOTSPOT(Key_H, Keyboard, 420, 150, 479, 209)
+	DEFINE_HOTSPOT(Key_J, Keyboard, 490, 150, 549, 209)
+	DEFINE_HOTSPOT(Key_K, Keyboard, 560, 150, 619, 209)
+	DEFINE_HOTSPOT(Key_L, Keyboard, 630, 150, 689, 209)
+	DEFINE_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	DEFINE_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	DEFINE_HOTSPOT(Key_Z, Keyboard, 110, 220, 169, 279)
+	DEFINE_HOTSPOT(Key_X, Keyboard, 180, 220, 239, 279)
+	DEFINE_HOTSPOT(Key_C, Keyboard, 250, 220, 309, 279)
+	DEFINE_HOTSPOT(Key_V, Keyboard, 320, 220, 379, 279)
+	DEFINE_HOTSPOT(Key_B, Keyboard, 390, 220, 449, 279)
+	DEFINE_HOTSPOT(Key_N, Keyboard, 460, 220, 519, 279)
+	DEFINE_HOTSPOT(Key_M, Keyboard, 530, 220, 589, 279)
+	DEFINE_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	DEFINE_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	DEFINE_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	DEFINE_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	DEFINE_HOTSPOT(Key_symbols, Keyboard, 110, 290, 199, 349)
+	DEFINE_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	DEFINE_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	DEFINE_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	DEFINE_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	DEFINE_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+END_HOTSPOTS(KeyUpper)
+
+HOTSPOT_COUNT(KeyUpper, 52)
+
+START_SCREEN(KeySymbol)
+	IMAGE_ADDRESS(2804648)
+	IMAGE_SIZE(316800)
+	IMAGE_WIDTH(880)
+	IMAGE_HEIGHT(360)
+	IMAGE_STRIDE(880)
+	IMAGE_DEPTH(Color8bpp)
+END_SCREEN(KeySymbol)
+
+START_HOTSPOTS(KeySymbol)
+	DEFINE_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	DEFINE_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	DEFINE_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	DEFINE_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	DEFINE_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	DEFINE_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	DEFINE_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	DEFINE_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	DEFINE_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	DEFINE_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	DEFINE_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	DEFINE_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	DEFINE_HOTSPOT(Key_tilde, Keyboard, 40, 80, 99, 139)
+	DEFINE_HOTSPOT(Key_exclamation, Keyboard, 110, 80, 169, 139)
+	DEFINE_HOTSPOT(Key_at, Keyboard, 180, 80, 239, 139)
+	DEFINE_HOTSPOT(Key_hash, Keyboard, 250, 80, 309, 139)
+	DEFINE_HOTSPOT(Key_dollar, Keyboard, 320, 80, 379, 139)
+	DEFINE_HOTSPOT(Key_percent, Keyboard, 390, 80, 449, 139)
+	DEFINE_HOTSPOT(Key_hat, Keyboard, 460, 80, 519, 139)
+	DEFINE_HOTSPOT(Key_star, Keyboard, 530, 80, 589, 139)
+	DEFINE_HOTSPOT(Key_lparen, Keyboard, 600, 80, 659, 139)
+	DEFINE_HOTSPOT(Key_rparen, Keyboard, 670, 80, 729, 139)
+	DEFINE_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	DEFINE_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	DEFINE_HOTSPOT(Key_backApostrophe, Keyboard, 70, 150, 129, 209)
+	DEFINE_HOTSPOT(Key_ampersand, Keyboard, 140, 150, 199, 209)
+	DEFINE_HOTSPOT(Key_underscore, Keyboard, 210, 150, 269, 209)
+	DEFINE_HOTSPOT(Key_plus, Keyboard, 280, 150, 339, 209)
+	DEFINE_HOTSPOT(Key_equal, Keyboard, 350, 150, 409, 209)
+	DEFINE_HOTSPOT(Key_lbracket, Keyboard, 420, 150, 479, 209)
+	DEFINE_HOTSPOT(Key_rbracket, Keyboard, 490, 150, 549, 209)
+	DEFINE_HOTSPOT(Key_lbrace, Keyboard, 560, 150, 619, 209)
+	DEFINE_HOTSPOT(Key_rbrace, Keyboard, 630, 150, 689, 209)
+	DEFINE_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	DEFINE_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	DEFINE_HOTSPOT(Key_vbar, Keyboard, 110, 220, 169, 279)
+	DEFINE_HOTSPOT(Key_backslash, Keyboard, 180, 220, 239, 279)
+	DEFINE_HOTSPOT(Key_colon, Keyboard, 250, 220, 309, 279)
+	DEFINE_HOTSPOT(Key_semi, Keyboard, 320, 220, 379, 279)
+	DEFINE_HOTSPOT(Key_lessthan, Keyboard, 390, 220, 449, 279)
+	DEFINE_HOTSPOT(Key_greaterthan, Keyboard, 460, 220, 519, 279)
+	DEFINE_HOTSPOT(Key_question, Keyboard, 530, 220, 589, 279)
+	DEFINE_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	DEFINE_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	DEFINE_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	DEFINE_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	DEFINE_HOTSPOT(Key_normal, Keyboard, 110, 290, 199, 349)
+	DEFINE_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	DEFINE_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	DEFINE_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	DEFINE_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	DEFINE_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+END_HOTSPOTS(KeySymbol)
+
+HOTSPOT_COUNT(KeySymbol, 52)
+
+START_SCREEN(EnterDateTime)
+	IMAGE_ADDRESS(3121448)
+	IMAGE_SIZE(92160)
+	IMAGE_WIDTH(576)
+	IMAGE_HEIGHT(80)
+	IMAGE_STRIDE(576)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(EnterDateTime)
+
+START_HOTSPOTS(EnterDateTime)
+	DEFINE_HOTSPOT(Month, TimeSet, 10, 11, 62, 70)
+	DEFINE_HOTSPOT(Day, TimeSet, 79, 11, 131, 70)
+	DEFINE_HOTSPOT(Year, TimeSet, 148, 11, 200, 70)
+	DEFINE_HOTSPOT(Hour, TimeSet, 221, 11, 273, 70)
+	DEFINE_HOTSPOT(Minute, TimeSet, 290, 11, 342, 70)
+	DEFINE_HOTSPOT(Second, TimeSet, 359, 11, 411, 70)
+	DEFINE_HOTSPOT(AmPm, TimeSet, 422, 11, 481, 70)
+	DEFINE_HOTSPOT(TimeEntryDone, ToolLib, 502, 10, 561, 69)
+END_HOTSPOTS(EnterDateTime)
+
+HOTSPOT_COUNT(EnterDateTime, 8)
+
+START_AREAS(EnterDateTime)
+	DEFINE_AREA(Month, 16, 20, 41, 42)
+	DEFINE_AREA(Day, 85, 20, 41, 42)
+	DEFINE_AREA(Year, 154, 20, 41, 42)
+	DEFINE_AREA(Hour, 227, 20, 41, 42)
+	DEFINE_AREA(Minute, 296, 20, 41, 42)
+	DEFINE_AREA(Second, 365, 20, 41, 42)
+	DEFINE_AREA(AmPm, 426, 20, 51, 42)
+END_AREAS(EnterDateTime)
+
+START_HOTSPOTS(LoadSave)
+END_HOTSPOTS(LoadSave)
+
+HOTSPOT_COUNT(LoadSave, 0)
+
+START_HOTSPOTS(RadioButtons)
+END_HOTSPOTS(RadioButtons)
+
+HOTSPOT_COUNT(RadioButtons, 0)
+
+START_HOTSPOTS(ImportWarning)
+END_HOTSPOTS(ImportWarning)
+
+HOTSPOT_COUNT(ImportWarning, 0)
+
+START_HOTSPOTS(TimestampLabel)
+END_HOTSPOTS(TimestampLabel)
+
+HOTSPOT_COUNT(TimestampLabel, 0)
+
+START_HOTSPOTS(TimeSetButton)
+END_HOTSPOTS(TimeSetButton)
+
+HOTSPOT_COUNT(TimeSetButton, 0)
+
+START_HOTSPOTS(ScrollThumb)
+END_HOTSPOTS(ScrollThumb)
+
+HOTSPOT_COUNT(ScrollThumb, 0)
+
+START_SCREEN(ToolImport)
+	IMAGE_ADDRESS(3334616)
+	IMAGE_SIZE(239616)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(117)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(ToolImport)
+
+START_HOTSPOTS(ToolImport)
+	DEFINE_HOTSPOT(FileName, ToolLib, 10, 10, 583, 69)
+	DEFINE_HOTSPOT(ClearFile, ToolLib, 594, 15, 643, 64)
+	DEFINE_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	DEFINE_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 748, 107)
+	DEFINE_HOTSPOT(ImportRadio, ToolLib, 749, 8, 873, 57)
+	DEFINE_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
+	DEFINE_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
+	DEFINE_HOTSPOT(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
+	DEFINE_HOTSPOT(TimeSet, ToolLib, 502, 71, 561, 116)
+END_HOTSPOTS(ToolImport)
+
+HOTSPOT_COUNT(ToolImport, 9)
+
+START_AREAS(ToolImport)
+	DEFINE_AREA(FileName, 15, 26, 574, 28)
+	DEFINE_AREA(UsbDriveBox, 655, 17, 32, 32)
+	DEFINE_AREA(SdDriveBox, 655, 67, 32, 32)
+	DEFINE_AREA(ImportBox, 759, 17, 32, 32)
+	DEFINE_AREA(ExportBox, 759, 67, 32, 32)
+	DEFINE_AREA(ImpExpButton, 884, 10, 60, 107)
+	DEFINE_AREA(TimeLabel, 10, 80, 163, 28)
+	DEFINE_AREA(LiveTime, 183, 80, 318, 28)
+	DEFINE_AREA(TimeSetButton, 502, 71, 60, 46)
+	DEFINE_AREA(ImportWarning, 10, 75, 605, 35)
+END_AREAS(ToolImport)
+
+START_SCREEN(FileRow)
+	IMAGE_ADDRESS(3574232)
+	IMAGE_SIZE(84048)
+	IMAGE_WIDTH(822)
+	IMAGE_HEIGHT(51)
+	IMAGE_STRIDE(824)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(FileRow)
+
+START_HOTSPOTS(FileRow)
+END_HOTSPOTS(FileRow)
+
+HOTSPOT_COUNT(FileRow, 0)
+
+START_AREAS(FileRow)
+	DEFINE_AREA(AllText, 52, 12, 760, 28)
+	DEFINE_AREA(FileSize, 722, 12, 90, 28)
+	DEFINE_AREA(FileTime, 597, 12, 105, 28)
+	DEFINE_AREA(FileDate, 452, 12, 125, 28)
+	DEFINE_AREA(FileName, 52, 12, 380, 28)
+	DEFINE_AREA(FileIcon, 15, 10, 32, 32)
+END_AREAS(FileRow)
+
+START_HOTSPOTS(FileIcons)
+END_HOTSPOTS(FileIcons)
+
+HOTSPOT_COUNT(FileIcons, 0)
+
+START_HOTSPOTS(UpdateCheck)
+END_HOTSPOTS(UpdateCheck)
+
+HOTSPOT_COUNT(UpdateCheck, 0)
+
+START_HOTSPOTS(InspectUpdate)
+END_HOTSPOTS(InspectUpdate)
+
+HOTSPOT_COUNT(InspectUpdate, 0)
+
+START_HOTSPOTS(UpdateLabel)
+END_HOTSPOTS(UpdateLabel)
+
+HOTSPOT_COUNT(UpdateLabel, 0)
+
+START_SCREEN(UpdateDialog)
+	IMAGE_ADDRESS(3695672)
+	IMAGE_SIZE(303104)
+	IMAGE_WIDTH(1024)
+	IMAGE_HEIGHT(148)
+	IMAGE_STRIDE(1024)
+	IMAGE_DEPTH(Color16bpp)
+END_SCREEN(UpdateDialog)
+
+START_HOTSPOTS(UpdateDialog)
+	DEFINE_HOTSPOT(FileName, Update, 10, 10, 708, 69)
+	DEFINE_HOTSPOT(ClearFile, Update, 719, 15, 768, 64)
+	DEFINE_HOTSPOT(UsbDriveRadio, Update, 770, 0, 873, 49)
+	DEFINE_HOTSPOT(SdDriveRadio, Update, 770, 50, 873, 99)
+	DEFINE_HOTSPOT(UpdateExecute, Update, 884, 10, 943, 69)
+	DEFINE_HOTSPOT(UpdateCancel, Update, 954, 10, 1013, 69)
+	DEFINE_HOTSPOT(VersionMatch, Update, 637, 94, 692, 149)
+END_HOTSPOTS(UpdateDialog)
+
+HOTSPOT_COUNT(UpdateDialog, 7)
+
+START_AREAS(UpdateDialog)
+	DEFINE_AREA(FileName, 15, 26, 699, 28)
+	DEFINE_AREA(UsbDriveBox, 780, 9, 32, 32)
+	DEFINE_AREA(SdDriveBox, 780, 59, 32, 32)
+	DEFINE_AREA(UpdateButton, 884, 10, 60, 85)
+	DEFINE_AREA(CurrrentFirmware, 210, 75, 56, 28)
+	DEFINE_AREA(CurrrentGraphics, 403, 75, 56, 28)
+	DEFINE_AREA(CurrrentFonts, 560, 75, 56, 28)
+	DEFINE_AREA(ProgressBar, 10, 108, 616, 28)
+	DEFINE_AREA(UpdateLabel, 10, 108, 85, 28)
+	DEFINE_AREA(UpdateFirmware, 210, 108, 56, 28)
+	DEFINE_AREA(UpdateGraphics, 403, 108, 56, 28)
+	DEFINE_AREA(UpdateFonts, 560, 108, 56, 28)
+	DEFINE_AREA(VersionMatch, 649, 106, 32, 32)
+END_AREAS(UpdateDialog)
+
+START_GROUP(Axis)
+	GROUP_HOTSPOT(Xaxis, Axis, 0, 12, 409, 122)
+	GROUP_HOTSPOT(Yaxis, Axis, 0, 148, 409, 258)
+	GROUP_HOTSPOT(Zaxis, Axis, 0, 284, 409, 394)
+END_GROUP(Axis)
+
+START_GROUP(AxisButton)
+	GROUP_HOTSPOT(Xaxis, AxisButton, 435, 19, 519, 114)
+	GROUP_HOTSPOT(Yaxis, AxisButton, 435, 155, 519, 250)
+	GROUP_HOTSPOT(Zaxis, AxisButton, 435, 291, 519, 386)
+END_GROUP(AxisButton)
+
+START_GROUP()
+	GROUP_HOTSPOT(Settings, , 894, 10, 1013, 69)
+	GROUP_HOTSPOT(BrightDown, , 894, 80, 953, 139)
+	GROUP_HOTSPOT(BrightUp, , 954, 80, 1013, 139)
+	GROUP_HOTSPOT(InchMetric, , 884, 517, 943, 576)
+	GROUP_HOTSPOT(AbsInc, , 954, 517, 1013, 576)
+	GROUP_HOTSPOT(ToolMenu, , 514, 405, 573, 464)
+	GROUP_HOTSPOT(MaxRpm, , 10, 509, 354, 568)
+	GROUP_HOTSPOT(TouchCal, , 365, 332, 563, 391)
+	GROUP_HOTSPOT(FirmwareUpdate, , 365, 509, 563, 568)
+END_GROUP()
+
+START_GROUP(Undo)
+	GROUP_HOTSPOT(Xaxis, Undo, 545, 25, 653, 108)
+	GROUP_HOTSPOT(Yaxis, Undo, 655, 25, 763, 108)
+	GROUP_HOTSPOT(Zaxis, Undo, 765, 25, 873, 108)
+END_GROUP(Undo)
+
+START_GROUP(Edit)
+	GROUP_HOTSPOT(Key_backSpace, Edit, 594, 237, 653, 296)
+	GROUP_HOTSPOT(Key_clear, Edit, 664, 237, 723, 296)
+	GROUP_HOTSPOT(Key_pi, Edit, 734, 237, 793, 296)
+END_GROUP(Edit)
+
+START_GROUP(Operator)
+	GROUP_HOTSPOT(Key_plus, Operator, 804, 237, 863, 296)
+	GROUP_HOTSPOT(Key_minus, Operator, 804, 307, 863, 366)
+	GROUP_HOTSPOT(Key_mult, Operator, 804, 377, 863, 436)
+	GROUP_HOTSPOT(Key_divide, Operator, 804, 447, 863, 506)
+	GROUP_HOTSPOT(Key_equal, Operator, 804, 517, 863, 576)
+END_GROUP(Operator)
+
+START_GROUP(Memory)
+	GROUP_HOTSPOT(Mem1, Memory, 874, 237, 1023, 296)
+	GROUP_HOTSPOT(Mem2, Memory, 874, 307, 1023, 366)
+	GROUP_HOTSPOT(Mem3, Memory, 874, 377, 1023, 436)
+	GROUP_HOTSPOT(Mem4, Memory, 874, 447, 1023, 506)
+END_GROUP(Memory)
+
+START_GROUP(Digit)
+	GROUP_HOTSPOT(Key_7, Digit, 594, 307, 653, 366)
+	GROUP_HOTSPOT(Key_8, Digit, 664, 307, 723, 366)
+	GROUP_HOTSPOT(Key_9, Digit, 734, 307, 793, 366)
+	GROUP_HOTSPOT(Key_4, Digit, 594, 377, 653, 436)
+	GROUP_HOTSPOT(Key_5, Digit, 664, 377, 723, 436)
+	GROUP_HOTSPOT(Key_6, Digit, 734, 377, 793, 436)
+	GROUP_HOTSPOT(Key_1, Digit, 594, 447, 653, 506)
+	GROUP_HOTSPOT(Key_2, Digit, 664, 447, 723, 506)
+	GROUP_HOTSPOT(Key_3, Digit, 734, 447, 793, 506)
+	GROUP_HOTSPOT(Key_sign, Digit, 594, 517, 653, 576)
+	GROUP_HOTSPOT(Key_0, Digit, 664, 517, 723, 576)
+	GROUP_HOTSPOT(Key_decimal, Digit, 734, 517, 793, 576)
+END_GROUP(Digit)
+
+START_GROUP(ToolLib)
+	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 405, 64, 465)
+	GROUP_HOTSPOT(ToolDiameter, ToolLib, 64, 405, 134, 465)
+	GROUP_HOTSPOT(ToolFlutes, ToolLib, 134, 405, 189, 465)
+	GROUP_HOTSPOT(ToolLength, ToolLib, 189, 405, 274, 465)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 200, 475, 379, 570)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 390, 475, 569, 570)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 0, 0, 179, 95)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	GROUP_HOTSPOT(ToolSfm, ToolLib, 371, 0, 550, 95)
+	GROUP_HOTSPOT(ToolChipLoad, ToolLib, 561, 0, 740, 95)
+	GROUP_HOTSPOT(ToolNumber, ToolLib, 10, 10, 64, 70)
+	GROUP_HOTSPOT(ToolDiameter, ToolLib, 64, 10, 134, 70)
+	GROUP_HOTSPOT(ToolFlutes, ToolLib, 134, 10, 189, 70)
+	GROUP_HOTSPOT(ToolLength, ToolLib, 189, 10, 274, 70)
+	GROUP_HOTSPOT(ToolDesc, ToolLib, 274, 10, 742, 70)
+	GROUP_HOTSPOT(ClearDesc, ToolLib, 753, 15, 802, 64)
+	GROUP_HOTSPOT(ToolsDone, ToolLib, 814, 10, 873, 69)
+	GROUP_HOTSPOT(ToolDelete, ToolLib, 884, 10, 943, 69)
+	GROUP_HOTSPOT(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(TimeEntryDone, ToolLib, 502, 10, 561, 69)
+	GROUP_HOTSPOT(FileName, ToolLib, 10, 10, 583, 69)
+	GROUP_HOTSPOT(ClearFile, ToolLib, 594, 15, 643, 64)
+	GROUP_HOTSPOT(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	GROUP_HOTSPOT(SdDriveRadio, ToolLib, 645, 58, 748, 107)
+	GROUP_HOTSPOT(ImportRadio, ToolLib, 749, 8, 873, 57)
+	GROUP_HOTSPOT(ExportRadio, ToolLib, 749, 58, 873, 107)
+	GROUP_HOTSPOT(ImpExpExecute, ToolLib, 884, 10, 943, 69)
+	GROUP_HOTSPOT(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(TimeSet, ToolLib, 502, 71, 561, 116)
+END_GROUP(ToolLib)
+
+START_GROUP(ToolSide)
+	GROUP_HOTSPOT(ToolLeft, ToolSide, 10, 505, 69, 564)
+	GROUP_HOTSPOT(ToolBack, ToolSide, 70, 475, 129, 534)
+	GROUP_HOTSPOT(ToolFront, ToolSide, 70, 535, 129, 594)
+	GROUP_HOTSPOT(ToolRight, ToolSide, 130, 505, 189, 564)
+END_GROUP(ToolSide)
+
+START_GROUP(Disable)
+	GROUP_HOTSPOT(Xaxis, Disable, 63, 81, 182, 140)
+	GROUP_HOTSPOT(Yaxis, Disable, 63, 140, 182, 199)
+	GROUP_HOTSPOT(Zaxis, Disable, 63, 199, 182, 258)
+	GROUP_HOTSPOT(Qsensor, Disable, 63, 258, 182, 317)
+END_GROUP(Disable)
+
+START_GROUP(Resolution)
+	GROUP_HOTSPOT(Xaxis, Resolution, 182, 81, 301, 140)
+	GROUP_HOTSPOT(Yaxis, Resolution, 182, 140, 301, 199)
+	GROUP_HOTSPOT(Zaxis, Resolution, 182, 199, 301, 258)
+	GROUP_HOTSPOT(Qsensor, Resolution, 182, 258, 301, 317)
+END_GROUP(Resolution)
+
+START_GROUP(Invert)
+	GROUP_HOTSPOT(Xaxis, Invert, 301, 81, 420, 140)
+	GROUP_HOTSPOT(Yaxis, Invert, 301, 140, 420, 199)
+	GROUP_HOTSPOT(Zaxis, Invert, 301, 199, 420, 258)
+	GROUP_HOTSPOT(Qsensor, Invert, 301, 258, 420, 317)
+END_GROUP(Invert)
+
+START_GROUP(Correction)
+	GROUP_HOTSPOT(Xaxis, Correction, 420, 81, 539, 140)
+	GROUP_HOTSPOT(Yaxis, Correction, 420, 140, 539, 199)
+	GROUP_HOTSPOT(Zaxis, Correction, 420, 199, 539, 258)
+	GROUP_HOTSPOT(Qsensor, Correction, 420, 258, 539, 317)
+END_GROUP(Correction)
+
+START_GROUP(SettingToggle)
+	GROUP_HOTSPOT(HighlightXY, SettingToggle, 10, 332, 354, 391)
+	GROUP_HOTSPOT(OffsetZ, SettingToggle, 10, 391, 354, 450)
+	GROUP_HOTSPOT(CncCoordinates, SettingToggle, 10, 450, 354, 509)
+END_GROUP(SettingToggle)
+
+START_GROUP(Keyboard)
+	GROUP_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT(Key_q, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT(Key_w, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT(Key_e, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT(Key_r, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT(Key_t, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT(Key_y, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT(Key_u, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT(Key_i, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT(Key_o, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT(Key_p, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT(Key_a, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT(Key_s, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT(Key_d, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT(Key_f, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT(Key_g, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT(Key_h, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT(Key_j, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT(Key_k, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT(Key_l, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT(Key_z, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT(Key_x, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT(Key_c, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT(Key_v, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT(Key_b, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT(Key_n, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT(Key_m, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT(Key_symbols, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+	GROUP_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT(Key_Q, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT(Key_W, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT(Key_E, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT(Key_R, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT(Key_T, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT(Key_Y, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT(Key_U, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT(Key_I, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT(Key_O, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT(Key_P, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT(Key_A, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT(Key_S, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT(Key_D, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT(Key_F, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT(Key_G, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT(Key_H, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT(Key_J, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT(Key_K, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT(Key_L, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT(Key_Z, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT(Key_X, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT(Key_C, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT(Key_V, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT(Key_B, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT(Key_N, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT(Key_M, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT(Key_symbols, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+	GROUP_HOTSPOT(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT(Key_tilde, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT(Key_exclamation, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT(Key_at, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT(Key_hash, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT(Key_dollar, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT(Key_percent, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT(Key_hat, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT(Key_star, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT(Key_lparen, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT(Key_rparen, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT(Key_backApostrophe, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT(Key_ampersand, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT(Key_underscore, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT(Key_plus, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT(Key_equal, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT(Key_lbracket, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT(Key_rbracket, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT(Key_lbrace, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT(Key_rbrace, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT(Key_vbar, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT(Key_backslash, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT(Key_colon, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT(Key_semi, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT(Key_lessthan, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT(Key_greaterthan, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT(Key_question, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT(Key_normal, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT(Key_end, Keyboard, 810, 290, 869, 349)
+END_GROUP(Keyboard)
+
+START_GROUP(TimeSet)
+	GROUP_HOTSPOT(Month, TimeSet, 10, 11, 62, 70)
+	GROUP_HOTSPOT(Day, TimeSet, 79, 11, 131, 70)
+	GROUP_HOTSPOT(Year, TimeSet, 148, 11, 200, 70)
+	GROUP_HOTSPOT(Hour, TimeSet, 221, 11, 273, 70)
+	GROUP_HOTSPOT(Minute, TimeSet, 290, 11, 342, 70)
+	GROUP_HOTSPOT(Second, TimeSet, 359, 11, 411, 70)
+	GROUP_HOTSPOT(AmPm, TimeSet, 422, 11, 481, 70)
+END_GROUP(TimeSet)
+
+START_GROUP(Update)
+	GROUP_HOTSPOT(FileName, Update, 10, 10, 708, 69)
+	GROUP_HOTSPOT(ClearFile, Update, 719, 15, 768, 64)
+	GROUP_HOTSPOT(UsbDriveRadio, Update, 770, 0, 873, 49)
+	GROUP_HOTSPOT(SdDriveRadio, Update, 770, 50, 873, 99)
+	GROUP_HOTSPOT(UpdateExecute, Update, 884, 10, 943, 69)
+	GROUP_HOTSPOT(UpdateCancel, Update, 954, 10, 1013, 69)
+	GROUP_HOTSPOT(VersionMatch, Update, 637, 94, 692, 149)
+END_GROUP(Update)
+
+#ifndef START_GROUP_Axis
+#define START_GROUP_Axis(a)
+#endif
+#ifndef GROUP_HOTSPOT_Axis
+#define GROUP_HOTSPOT_Axis(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Axis
+#define END_GROUP_Axis(a)
+#endif
+
+START_GROUP_Axis(Axis)
+	GROUP_HOTSPOT_Axis(Xaxis, Axis, 0, 12, 409, 122)
+	GROUP_HOTSPOT_Axis(Yaxis, Axis, 0, 148, 409, 258)
+	GROUP_HOTSPOT_Axis(Zaxis, Axis, 0, 284, 409, 394)
+END_GROUP_Axis(Axis)
+
+#undef START_GROUP_Axis
+#undef GROUP_HOTSPOT_Axis
+#undef END_GROUP_Axis
+
+#ifndef START_GROUP_AxisButton
+#define START_GROUP_AxisButton(a)
+#endif
+#ifndef GROUP_HOTSPOT_AxisButton
+#define GROUP_HOTSPOT_AxisButton(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_AxisButton
+#define END_GROUP_AxisButton(a)
+#endif
+
+START_GROUP_AxisButton(AxisButton)
+	GROUP_HOTSPOT_AxisButton(Xaxis, AxisButton, 435, 19, 519, 114)
+	GROUP_HOTSPOT_AxisButton(Yaxis, AxisButton, 435, 155, 519, 250)
+	GROUP_HOTSPOT_AxisButton(Zaxis, AxisButton, 435, 291, 519, 386)
+END_GROUP_AxisButton(AxisButton)
+
+#undef START_GROUP_AxisButton
+#undef GROUP_HOTSPOT_AxisButton
+#undef END_GROUP_AxisButton
+
+#ifndef START_GROUP_
+#define START_GROUP_(a)
+#endif
+#ifndef GROUP_HOTSPOT_
+#define GROUP_HOTSPOT_(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_
+#define END_GROUP_(a)
+#endif
+
+START_GROUP_()
+	GROUP_HOTSPOT_(Settings, , 894, 10, 1013, 69)
+	GROUP_HOTSPOT_(BrightDown, , 894, 80, 953, 139)
+	GROUP_HOTSPOT_(BrightUp, , 954, 80, 1013, 139)
+	GROUP_HOTSPOT_(InchMetric, , 884, 517, 943, 576)
+	GROUP_HOTSPOT_(AbsInc, , 954, 517, 1013, 576)
+	GROUP_HOTSPOT_(ToolMenu, , 514, 405, 573, 464)
+	GROUP_HOTSPOT_(MaxRpm, , 10, 509, 354, 568)
+	GROUP_HOTSPOT_(TouchCal, , 365, 332, 563, 391)
+	GROUP_HOTSPOT_(FirmwareUpdate, , 365, 509, 563, 568)
+END_GROUP_()
+
+#undef START_GROUP_
+#undef GROUP_HOTSPOT_
+#undef END_GROUP_
+
+#ifndef START_GROUP_Undo
+#define START_GROUP_Undo(a)
+#endif
+#ifndef GROUP_HOTSPOT_Undo
+#define GROUP_HOTSPOT_Undo(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Undo
+#define END_GROUP_Undo(a)
+#endif
+
+START_GROUP_Undo(Undo)
+	GROUP_HOTSPOT_Undo(Xaxis, Undo, 545, 25, 653, 108)
+	GROUP_HOTSPOT_Undo(Yaxis, Undo, 655, 25, 763, 108)
+	GROUP_HOTSPOT_Undo(Zaxis, Undo, 765, 25, 873, 108)
+END_GROUP_Undo(Undo)
+
+#undef START_GROUP_Undo
+#undef GROUP_HOTSPOT_Undo
+#undef END_GROUP_Undo
+
+#ifndef START_GROUP_Edit
+#define START_GROUP_Edit(a)
+#endif
+#ifndef GROUP_HOTSPOT_Edit
+#define GROUP_HOTSPOT_Edit(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Edit
+#define END_GROUP_Edit(a)
+#endif
+
+START_GROUP_Edit(Edit)
+	GROUP_HOTSPOT_Edit(Key_backSpace, Edit, 594, 237, 653, 296)
+	GROUP_HOTSPOT_Edit(Key_clear, Edit, 664, 237, 723, 296)
+	GROUP_HOTSPOT_Edit(Key_pi, Edit, 734, 237, 793, 296)
+END_GROUP_Edit(Edit)
+
+#undef START_GROUP_Edit
+#undef GROUP_HOTSPOT_Edit
+#undef END_GROUP_Edit
+
+#ifndef START_GROUP_Operator
+#define START_GROUP_Operator(a)
+#endif
+#ifndef GROUP_HOTSPOT_Operator
+#define GROUP_HOTSPOT_Operator(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Operator
+#define END_GROUP_Operator(a)
+#endif
+
+START_GROUP_Operator(Operator)
+	GROUP_HOTSPOT_Operator(Key_plus, Operator, 804, 237, 863, 296)
+	GROUP_HOTSPOT_Operator(Key_minus, Operator, 804, 307, 863, 366)
+	GROUP_HOTSPOT_Operator(Key_mult, Operator, 804, 377, 863, 436)
+	GROUP_HOTSPOT_Operator(Key_divide, Operator, 804, 447, 863, 506)
+	GROUP_HOTSPOT_Operator(Key_equal, Operator, 804, 517, 863, 576)
+END_GROUP_Operator(Operator)
+
+#undef START_GROUP_Operator
+#undef GROUP_HOTSPOT_Operator
+#undef END_GROUP_Operator
+
+#ifndef START_GROUP_Memory
+#define START_GROUP_Memory(a)
+#endif
+#ifndef GROUP_HOTSPOT_Memory
+#define GROUP_HOTSPOT_Memory(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Memory
+#define END_GROUP_Memory(a)
+#endif
+
+START_GROUP_Memory(Memory)
+	GROUP_HOTSPOT_Memory(Mem1, Memory, 874, 237, 1023, 296)
+	GROUP_HOTSPOT_Memory(Mem2, Memory, 874, 307, 1023, 366)
+	GROUP_HOTSPOT_Memory(Mem3, Memory, 874, 377, 1023, 436)
+	GROUP_HOTSPOT_Memory(Mem4, Memory, 874, 447, 1023, 506)
+END_GROUP_Memory(Memory)
+
+#undef START_GROUP_Memory
+#undef GROUP_HOTSPOT_Memory
+#undef END_GROUP_Memory
+
+#ifndef START_GROUP_Digit
+#define START_GROUP_Digit(a)
+#endif
+#ifndef GROUP_HOTSPOT_Digit
+#define GROUP_HOTSPOT_Digit(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Digit
+#define END_GROUP_Digit(a)
+#endif
+
+START_GROUP_Digit(Digit)
+	GROUP_HOTSPOT_Digit(Key_7, Digit, 594, 307, 653, 366)
+	GROUP_HOTSPOT_Digit(Key_8, Digit, 664, 307, 723, 366)
+	GROUP_HOTSPOT_Digit(Key_9, Digit, 734, 307, 793, 366)
+	GROUP_HOTSPOT_Digit(Key_4, Digit, 594, 377, 653, 436)
+	GROUP_HOTSPOT_Digit(Key_5, Digit, 664, 377, 723, 436)
+	GROUP_HOTSPOT_Digit(Key_6, Digit, 734, 377, 793, 436)
+	GROUP_HOTSPOT_Digit(Key_1, Digit, 594, 447, 653, 506)
+	GROUP_HOTSPOT_Digit(Key_2, Digit, 664, 447, 723, 506)
+	GROUP_HOTSPOT_Digit(Key_3, Digit, 734, 447, 793, 506)
+	GROUP_HOTSPOT_Digit(Key_sign, Digit, 594, 517, 653, 576)
+	GROUP_HOTSPOT_Digit(Key_0, Digit, 664, 517, 723, 576)
+	GROUP_HOTSPOT_Digit(Key_decimal, Digit, 734, 517, 793, 576)
+END_GROUP_Digit(Digit)
+
+#undef START_GROUP_Digit
+#undef GROUP_HOTSPOT_Digit
+#undef END_GROUP_Digit
+
+#ifndef START_GROUP_ToolLib
+#define START_GROUP_ToolLib(a)
+#endif
+#ifndef GROUP_HOTSPOT_ToolLib
+#define GROUP_HOTSPOT_ToolLib(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_ToolLib
+#define END_GROUP_ToolLib(a)
+#endif
+
+START_GROUP_ToolLib(ToolLib)
+	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 405, 64, 465)
+	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 64, 405, 134, 465)
+	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 134, 405, 189, 465)
+	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 189, 405, 274, 465)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 200, 475, 379, 570)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 390, 475, 569, 570)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 0, 0, 179, 95)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 190, 0, 369, 95)
+	GROUP_HOTSPOT_ToolLib(ToolSfm, ToolLib, 371, 0, 550, 95)
+	GROUP_HOTSPOT_ToolLib(ToolChipLoad, ToolLib, 561, 0, 740, 95)
+	GROUP_HOTSPOT_ToolLib(ToolNumber, ToolLib, 10, 10, 64, 70)
+	GROUP_HOTSPOT_ToolLib(ToolDiameter, ToolLib, 64, 10, 134, 70)
+	GROUP_HOTSPOT_ToolLib(ToolFlutes, ToolLib, 134, 10, 189, 70)
+	GROUP_HOTSPOT_ToolLib(ToolLength, ToolLib, 189, 10, 274, 70)
+	GROUP_HOTSPOT_ToolLib(ToolDesc, ToolLib, 274, 10, 742, 70)
+	GROUP_HOTSPOT_ToolLib(ClearDesc, ToolLib, 753, 15, 802, 64)
+	GROUP_HOTSPOT_ToolLib(ToolsDone, ToolLib, 814, 10, 873, 69)
+	GROUP_HOTSPOT_ToolLib(ToolDelete, ToolLib, 884, 10, 943, 69)
+	GROUP_HOTSPOT_ToolLib(ToolImportExport, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_ToolLib(TimeEntryDone, ToolLib, 502, 10, 561, 69)
+	GROUP_HOTSPOT_ToolLib(FileName, ToolLib, 10, 10, 583, 69)
+	GROUP_HOTSPOT_ToolLib(ClearFile, ToolLib, 594, 15, 643, 64)
+	GROUP_HOTSPOT_ToolLib(UsbDriveRadio, ToolLib, 645, 8, 748, 57)
+	GROUP_HOTSPOT_ToolLib(SdDriveRadio, ToolLib, 645, 58, 748, 107)
+	GROUP_HOTSPOT_ToolLib(ImportRadio, ToolLib, 749, 8, 873, 57)
+	GROUP_HOTSPOT_ToolLib(ExportRadio, ToolLib, 749, 58, 873, 107)
+	GROUP_HOTSPOT_ToolLib(ImpExpExecute, ToolLib, 884, 10, 943, 69)
+	GROUP_HOTSPOT_ToolLib(ImpExpCancel, ToolLib, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_ToolLib(TimeSet, ToolLib, 502, 71, 561, 116)
+END_GROUP_ToolLib(ToolLib)
+
+#undef START_GROUP_ToolLib
+#undef GROUP_HOTSPOT_ToolLib
+#undef END_GROUP_ToolLib
+
+#ifndef START_GROUP_ToolSide
+#define START_GROUP_ToolSide(a)
+#endif
+#ifndef GROUP_HOTSPOT_ToolSide
+#define GROUP_HOTSPOT_ToolSide(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_ToolSide
+#define END_GROUP_ToolSide(a)
+#endif
+
+START_GROUP_ToolSide(ToolSide)
+	GROUP_HOTSPOT_ToolSide(ToolLeft, ToolSide, 10, 505, 69, 564)
+	GROUP_HOTSPOT_ToolSide(ToolBack, ToolSide, 70, 475, 129, 534)
+	GROUP_HOTSPOT_ToolSide(ToolFront, ToolSide, 70, 535, 129, 594)
+	GROUP_HOTSPOT_ToolSide(ToolRight, ToolSide, 130, 505, 189, 564)
+END_GROUP_ToolSide(ToolSide)
+
+#undef START_GROUP_ToolSide
+#undef GROUP_HOTSPOT_ToolSide
+#undef END_GROUP_ToolSide
+
+#ifndef START_GROUP_Disable
+#define START_GROUP_Disable(a)
+#endif
+#ifndef GROUP_HOTSPOT_Disable
+#define GROUP_HOTSPOT_Disable(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Disable
+#define END_GROUP_Disable(a)
+#endif
+
+START_GROUP_Disable(Disable)
+	GROUP_HOTSPOT_Disable(Xaxis, Disable, 63, 81, 182, 140)
+	GROUP_HOTSPOT_Disable(Yaxis, Disable, 63, 140, 182, 199)
+	GROUP_HOTSPOT_Disable(Zaxis, Disable, 63, 199, 182, 258)
+	GROUP_HOTSPOT_Disable(Qsensor, Disable, 63, 258, 182, 317)
+END_GROUP_Disable(Disable)
+
+#undef START_GROUP_Disable
+#undef GROUP_HOTSPOT_Disable
+#undef END_GROUP_Disable
+
+#ifndef START_GROUP_Resolution
+#define START_GROUP_Resolution(a)
+#endif
+#ifndef GROUP_HOTSPOT_Resolution
+#define GROUP_HOTSPOT_Resolution(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Resolution
+#define END_GROUP_Resolution(a)
+#endif
+
+START_GROUP_Resolution(Resolution)
+	GROUP_HOTSPOT_Resolution(Xaxis, Resolution, 182, 81, 301, 140)
+	GROUP_HOTSPOT_Resolution(Yaxis, Resolution, 182, 140, 301, 199)
+	GROUP_HOTSPOT_Resolution(Zaxis, Resolution, 182, 199, 301, 258)
+	GROUP_HOTSPOT_Resolution(Qsensor, Resolution, 182, 258, 301, 317)
+END_GROUP_Resolution(Resolution)
+
+#undef START_GROUP_Resolution
+#undef GROUP_HOTSPOT_Resolution
+#undef END_GROUP_Resolution
+
+#ifndef START_GROUP_Invert
+#define START_GROUP_Invert(a)
+#endif
+#ifndef GROUP_HOTSPOT_Invert
+#define GROUP_HOTSPOT_Invert(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Invert
+#define END_GROUP_Invert(a)
+#endif
+
+START_GROUP_Invert(Invert)
+	GROUP_HOTSPOT_Invert(Xaxis, Invert, 301, 81, 420, 140)
+	GROUP_HOTSPOT_Invert(Yaxis, Invert, 301, 140, 420, 199)
+	GROUP_HOTSPOT_Invert(Zaxis, Invert, 301, 199, 420, 258)
+	GROUP_HOTSPOT_Invert(Qsensor, Invert, 301, 258, 420, 317)
+END_GROUP_Invert(Invert)
+
+#undef START_GROUP_Invert
+#undef GROUP_HOTSPOT_Invert
+#undef END_GROUP_Invert
+
+#ifndef START_GROUP_Correction
+#define START_GROUP_Correction(a)
+#endif
+#ifndef GROUP_HOTSPOT_Correction
+#define GROUP_HOTSPOT_Correction(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Correction
+#define END_GROUP_Correction(a)
+#endif
+
+START_GROUP_Correction(Correction)
+	GROUP_HOTSPOT_Correction(Xaxis, Correction, 420, 81, 539, 140)
+	GROUP_HOTSPOT_Correction(Yaxis, Correction, 420, 140, 539, 199)
+	GROUP_HOTSPOT_Correction(Zaxis, Correction, 420, 199, 539, 258)
+	GROUP_HOTSPOT_Correction(Qsensor, Correction, 420, 258, 539, 317)
+END_GROUP_Correction(Correction)
+
+#undef START_GROUP_Correction
+#undef GROUP_HOTSPOT_Correction
+#undef END_GROUP_Correction
+
+#ifndef START_GROUP_SettingToggle
+#define START_GROUP_SettingToggle(a)
+#endif
+#ifndef GROUP_HOTSPOT_SettingToggle
+#define GROUP_HOTSPOT_SettingToggle(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_SettingToggle
+#define END_GROUP_SettingToggle(a)
+#endif
+
+START_GROUP_SettingToggle(SettingToggle)
+	GROUP_HOTSPOT_SettingToggle(HighlightXY, SettingToggle, 10, 332, 354, 391)
+	GROUP_HOTSPOT_SettingToggle(OffsetZ, SettingToggle, 10, 391, 354, 450)
+	GROUP_HOTSPOT_SettingToggle(CncCoordinates, SettingToggle, 10, 450, 354, 509)
+END_GROUP_SettingToggle(SettingToggle)
+
+#undef START_GROUP_SettingToggle
+#undef GROUP_HOTSPOT_SettingToggle
+#undef END_GROUP_SettingToggle
+
+#ifndef START_GROUP_Keyboard
+#define START_GROUP_Keyboard(a)
+#endif
+#ifndef GROUP_HOTSPOT_Keyboard
+#define GROUP_HOTSPOT_Keyboard(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Keyboard
+#define END_GROUP_Keyboard(a)
+#endif
+
+START_GROUP_Keyboard(Keyboard)
+	GROUP_HOTSPOT_Keyboard(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT_Keyboard(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT_Keyboard(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT_Keyboard(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT_Keyboard(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT_Keyboard(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT_Keyboard(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT_Keyboard(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT_Keyboard(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT_Keyboard(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT_Keyboard(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT_Keyboard(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT_Keyboard(Key_q, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT_Keyboard(Key_w, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT_Keyboard(Key_e, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT_Keyboard(Key_r, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT_Keyboard(Key_t, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT_Keyboard(Key_y, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT_Keyboard(Key_u, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT_Keyboard(Key_i, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT_Keyboard(Key_o, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT_Keyboard(Key_p, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT_Keyboard(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT_Keyboard(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT_Keyboard(Key_a, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT_Keyboard(Key_s, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT_Keyboard(Key_d, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT_Keyboard(Key_f, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT_Keyboard(Key_g, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT_Keyboard(Key_h, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT_Keyboard(Key_j, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT_Keyboard(Key_k, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT_Keyboard(Key_l, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT_Keyboard(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT_Keyboard(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT_Keyboard(Key_z, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT_Keyboard(Key_x, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT_Keyboard(Key_c, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT_Keyboard(Key_v, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT_Keyboard(Key_b, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT_Keyboard(Key_n, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT_Keyboard(Key_m, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT_Keyboard(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT_Keyboard(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT_Keyboard(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT_Keyboard(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT_Keyboard(Key_symbols, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT_Keyboard(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT_Keyboard(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT_Keyboard(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT_Keyboard(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT_Keyboard(Key_end, Keyboard, 810, 290, 869, 349)
+	GROUP_HOTSPOT_Keyboard(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT_Keyboard(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT_Keyboard(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT_Keyboard(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT_Keyboard(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT_Keyboard(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT_Keyboard(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT_Keyboard(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT_Keyboard(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT_Keyboard(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT_Keyboard(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT_Keyboard(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT_Keyboard(Key_Q, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT_Keyboard(Key_W, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT_Keyboard(Key_E, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT_Keyboard(Key_R, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT_Keyboard(Key_T, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT_Keyboard(Key_Y, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT_Keyboard(Key_U, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT_Keyboard(Key_I, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT_Keyboard(Key_O, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT_Keyboard(Key_P, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT_Keyboard(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT_Keyboard(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT_Keyboard(Key_A, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT_Keyboard(Key_S, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT_Keyboard(Key_D, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT_Keyboard(Key_F, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT_Keyboard(Key_G, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT_Keyboard(Key_H, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT_Keyboard(Key_J, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT_Keyboard(Key_K, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT_Keyboard(Key_L, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT_Keyboard(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT_Keyboard(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT_Keyboard(Key_Z, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT_Keyboard(Key_X, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT_Keyboard(Key_C, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT_Keyboard(Key_V, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT_Keyboard(Key_B, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT_Keyboard(Key_N, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT_Keyboard(Key_M, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT_Keyboard(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT_Keyboard(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT_Keyboard(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT_Keyboard(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT_Keyboard(Key_symbols, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT_Keyboard(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT_Keyboard(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT_Keyboard(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT_Keyboard(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT_Keyboard(Key_end, Keyboard, 810, 290, 869, 349)
+	GROUP_HOTSPOT_Keyboard(Key_1, Keyboard, 10, 10, 69, 69)
+	GROUP_HOTSPOT_Keyboard(Key_2, Keyboard, 80, 10, 139, 69)
+	GROUP_HOTSPOT_Keyboard(Key_3, Keyboard, 150, 10, 209, 69)
+	GROUP_HOTSPOT_Keyboard(Key_4, Keyboard, 220, 10, 279, 69)
+	GROUP_HOTSPOT_Keyboard(Key_5, Keyboard, 290, 10, 349, 69)
+	GROUP_HOTSPOT_Keyboard(Key_6, Keyboard, 360, 10, 419, 69)
+	GROUP_HOTSPOT_Keyboard(Key_7, Keyboard, 430, 10, 489, 69)
+	GROUP_HOTSPOT_Keyboard(Key_8, Keyboard, 500, 10, 559, 69)
+	GROUP_HOTSPOT_Keyboard(Key_9, Keyboard, 570, 10, 629, 69)
+	GROUP_HOTSPOT_Keyboard(Key_0, Keyboard, 640, 10, 699, 69)
+	GROUP_HOTSPOT_Keyboard(Key_minus, Keyboard, 710, 10, 769, 69)
+	GROUP_HOTSPOT_Keyboard(Key_backspace, Keyboard, 780, 10, 869, 69)
+	GROUP_HOTSPOT_Keyboard(Key_tilde, Keyboard, 40, 80, 99, 139)
+	GROUP_HOTSPOT_Keyboard(Key_exclamation, Keyboard, 110, 80, 169, 139)
+	GROUP_HOTSPOT_Keyboard(Key_at, Keyboard, 180, 80, 239, 139)
+	GROUP_HOTSPOT_Keyboard(Key_hash, Keyboard, 250, 80, 309, 139)
+	GROUP_HOTSPOT_Keyboard(Key_dollar, Keyboard, 320, 80, 379, 139)
+	GROUP_HOTSPOT_Keyboard(Key_percent, Keyboard, 390, 80, 449, 139)
+	GROUP_HOTSPOT_Keyboard(Key_hat, Keyboard, 460, 80, 519, 139)
+	GROUP_HOTSPOT_Keyboard(Key_star, Keyboard, 530, 80, 589, 139)
+	GROUP_HOTSPOT_Keyboard(Key_lparen, Keyboard, 600, 80, 659, 139)
+	GROUP_HOTSPOT_Keyboard(Key_rparen, Keyboard, 670, 80, 729, 139)
+	GROUP_HOTSPOT_Keyboard(Key_quote, Keyboard, 740, 80, 799, 139)
+	GROUP_HOTSPOT_Keyboard(Key_apostrophe, Keyboard, 810, 80, 869, 139)
+	GROUP_HOTSPOT_Keyboard(Key_backApostrophe, Keyboard, 70, 150, 129, 209)
+	GROUP_HOTSPOT_Keyboard(Key_ampersand, Keyboard, 140, 150, 199, 209)
+	GROUP_HOTSPOT_Keyboard(Key_underscore, Keyboard, 210, 150, 269, 209)
+	GROUP_HOTSPOT_Keyboard(Key_plus, Keyboard, 280, 150, 339, 209)
+	GROUP_HOTSPOT_Keyboard(Key_equal, Keyboard, 350, 150, 409, 209)
+	GROUP_HOTSPOT_Keyboard(Key_lbracket, Keyboard, 420, 150, 479, 209)
+	GROUP_HOTSPOT_Keyboard(Key_rbracket, Keyboard, 490, 150, 549, 209)
+	GROUP_HOTSPOT_Keyboard(Key_lbrace, Keyboard, 560, 150, 619, 209)
+	GROUP_HOTSPOT_Keyboard(Key_rbrace, Keyboard, 630, 150, 689, 209)
+	GROUP_HOTSPOT_Keyboard(Key_enter, Keyboard, 700, 150, 869, 209)
+	GROUP_HOTSPOT_Keyboard(Key_shift, Keyboard, 10, 220, 99, 279)
+	GROUP_HOTSPOT_Keyboard(Key_vbar, Keyboard, 110, 220, 169, 279)
+	GROUP_HOTSPOT_Keyboard(Key_backslash, Keyboard, 180, 220, 239, 279)
+	GROUP_HOTSPOT_Keyboard(Key_colon, Keyboard, 250, 220, 309, 279)
+	GROUP_HOTSPOT_Keyboard(Key_semi, Keyboard, 320, 220, 379, 279)
+	GROUP_HOTSPOT_Keyboard(Key_lessthan, Keyboard, 390, 220, 449, 279)
+	GROUP_HOTSPOT_Keyboard(Key_greaterthan, Keyboard, 460, 220, 519, 279)
+	GROUP_HOTSPOT_Keyboard(Key_question, Keyboard, 530, 220, 589, 279)
+	GROUP_HOTSPOT_Keyboard(Key_comma, Keyboard, 600, 220, 659, 279)
+	GROUP_HOTSPOT_Keyboard(Key_period, Keyboard, 670, 220, 729, 279)
+	GROUP_HOTSPOT_Keyboard(Key_slash, Keyboard, 740, 220, 799, 279)
+	GROUP_HOTSPOT_Keyboard(Key_shiftLock, Keyboard, 10, 290, 99, 349)
+	GROUP_HOTSPOT_Keyboard(Key_normal, Keyboard, 110, 290, 199, 349)
+	GROUP_HOTSPOT_Keyboard(Key_space, Keyboard, 210, 290, 589, 349)
+	GROUP_HOTSPOT_Keyboard(Key_home, Keyboard, 600, 290, 659, 349)
+	GROUP_HOTSPOT_Keyboard(Key_left, Keyboard, 670, 290, 729, 349)
+	GROUP_HOTSPOT_Keyboard(Key_right, Keyboard, 740, 290, 799, 349)
+	GROUP_HOTSPOT_Keyboard(Key_end, Keyboard, 810, 290, 869, 349)
+END_GROUP_Keyboard(Keyboard)
+
+#undef START_GROUP_Keyboard
+#undef GROUP_HOTSPOT_Keyboard
+#undef END_GROUP_Keyboard
+
+#ifndef START_GROUP_TimeSet
+#define START_GROUP_TimeSet(a)
+#endif
+#ifndef GROUP_HOTSPOT_TimeSet
+#define GROUP_HOTSPOT_TimeSet(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_TimeSet
+#define END_GROUP_TimeSet(a)
+#endif
+
+START_GROUP_TimeSet(TimeSet)
+	GROUP_HOTSPOT_TimeSet(Month, TimeSet, 10, 11, 62, 70)
+	GROUP_HOTSPOT_TimeSet(Day, TimeSet, 79, 11, 131, 70)
+	GROUP_HOTSPOT_TimeSet(Year, TimeSet, 148, 11, 200, 70)
+	GROUP_HOTSPOT_TimeSet(Hour, TimeSet, 221, 11, 273, 70)
+	GROUP_HOTSPOT_TimeSet(Minute, TimeSet, 290, 11, 342, 70)
+	GROUP_HOTSPOT_TimeSet(Second, TimeSet, 359, 11, 411, 70)
+	GROUP_HOTSPOT_TimeSet(AmPm, TimeSet, 422, 11, 481, 70)
+END_GROUP_TimeSet(TimeSet)
+
+#undef START_GROUP_TimeSet
+#undef GROUP_HOTSPOT_TimeSet
+#undef END_GROUP_TimeSet
+
+#ifndef START_GROUP_Update
+#define START_GROUP_Update(a)
+#endif
+#ifndef GROUP_HOTSPOT_Update
+#define GROUP_HOTSPOT_Update(a,b,c,d,e,f)
+#endif
+#ifndef END_GROUP_Update
+#define END_GROUP_Update(a)
+#endif
+
+START_GROUP_Update(Update)
+	GROUP_HOTSPOT_Update(FileName, Update, 10, 10, 708, 69)
+	GROUP_HOTSPOT_Update(ClearFile, Update, 719, 15, 768, 64)
+	GROUP_HOTSPOT_Update(UsbDriveRadio, Update, 770, 0, 873, 49)
+	GROUP_HOTSPOT_Update(SdDriveRadio, Update, 770, 50, 873, 99)
+	GROUP_HOTSPOT_Update(UpdateExecute, Update, 884, 10, 943, 69)
+	GROUP_HOTSPOT_Update(UpdateCancel, Update, 954, 10, 1013, 69)
+	GROUP_HOTSPOT_Update(VersionMatch, Update, 637, 94, 692, 149)
+END_GROUP_Update(Update)
+
+#undef START_GROUP_Update
+#undef GROUP_HOTSPOT_Update
+#undef END_GROUP_Update
+
+#ifndef START_SCREEN_Overlay
+#define START_SCREEN_Overlay(a)
+#endif
+#ifndef IMAGE_ADDRESS_Overlay
+#define IMAGE_ADDRESS_Overlay(a)
+#endif
+#ifndef IMAGE_SIZE_Overlay
+#define IMAGE_SIZE_Overlay(a)
+#endif
+#ifndef IMAGE_WIDTH_Overlay
+#define IMAGE_WIDTH_Overlay(a)
+#endif
+#ifndef IMAGE_HEIGHT_Overlay
+#define IMAGE_HEIGHT_Overlay(a)
+#endif
+#ifndef IMAGE_STRIDE_Overlay
+#define IMAGE_STRIDE_Overlay(a)
+#endif
+#ifndef IMAGE_DEPTH_Overlay
+#define IMAGE_DEPTH_Overlay(a)
+#endif
+#ifndef END_SCREEN_Overlay
+#define END_SCREEN_Overlay(a)
+#endif
+
+START_SCREEN_Overlay(Coord)
+	IMAGE_ADDRESS_Overlay(1228800)
+	IMAGE_SIZE_Overlay(14400)
+	IMAGE_WIDTH_Overlay(120)
+	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(120)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(Coord)
+
+START_SCREEN_Overlay(InchMetricBtn)
+	IMAGE_ADDRESS_Overlay(1243200)
+	IMAGE_SIZE_Overlay(14400)
+	IMAGE_WIDTH_Overlay(120)
+	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(120)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(InchMetricBtn)
+
+START_SCREEN_Overlay(SpeedDisplay)
+	IMAGE_ADDRESS_Overlay(1257600)
+	IMAGE_SIZE_Overlay(144336)
+	IMAGE_WIDTH_Overlay(742)
+	IMAGE_HEIGHT_Overlay(97)
+	IMAGE_STRIDE_Overlay(744)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(SpeedDisplay)
+
+START_SCREEN_Overlay(CheckBox)
+	IMAGE_ADDRESS_Overlay(1747536)
+	IMAGE_SIZE_Overlay(2048)
+	IMAGE_WIDTH_Overlay(64)
+	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(64)
+	IMAGE_DEPTH_Overlay(Color8bpp)
+END_SCREEN_Overlay(CheckBox)
+
+START_SCREEN_Overlay(ToolButtons)
+	IMAGE_ADDRESS_Overlay(2042648)
+	IMAGE_SIZE_Overlay(128400)
+	IMAGE_WIDTH_Overlay(600)
+	IMAGE_HEIGHT_Overlay(107)
+	IMAGE_STRIDE_Overlay(600)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ToolButtons)
+
+START_SCREEN_Overlay(LoadSave)
+	IMAGE_ADDRESS_Overlay(3213608)
+	IMAGE_SIZE_Overlay(51360)
+	IMAGE_WIDTH_Overlay(240)
+	IMAGE_HEIGHT_Overlay(107)
+	IMAGE_STRIDE_Overlay(240)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(LoadSave)
+
+START_SCREEN_Overlay(RadioButtons)
+	IMAGE_ADDRESS_Overlay(3264968)
+	IMAGE_SIZE_Overlay(6144)
+	IMAGE_WIDTH_Overlay(96)
+	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(96)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(RadioButtons)
+
+START_SCREEN_Overlay(ImportWarning)
+	IMAGE_ADDRESS_Overlay(3271112)
+	IMAGE_SIZE_Overlay(42560)
+	IMAGE_WIDTH_Overlay(605)
+	IMAGE_HEIGHT_Overlay(35)
+	IMAGE_STRIDE_Overlay(608)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ImportWarning)
+
+START_SCREEN_Overlay(TimestampLabel)
+	IMAGE_ADDRESS_Overlay(3313672)
+	IMAGE_SIZE_Overlay(9184)
+	IMAGE_WIDTH_Overlay(163)
+	IMAGE_HEIGHT_Overlay(28)
+	IMAGE_STRIDE_Overlay(164)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(TimestampLabel)
+
+START_SCREEN_Overlay(TimeSetButton)
+	IMAGE_ADDRESS_Overlay(3322856)
+	IMAGE_SIZE_Overlay(5520)
+	IMAGE_WIDTH_Overlay(60)
+	IMAGE_HEIGHT_Overlay(46)
+	IMAGE_STRIDE_Overlay(60)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(TimeSetButton)
+
+START_SCREEN_Overlay(ScrollThumb)
+	IMAGE_ADDRESS_Overlay(3328376)
+	IMAGE_SIZE_Overlay(6240)
+	IMAGE_WIDTH_Overlay(50)
+	IMAGE_HEIGHT_Overlay(60)
+	IMAGE_STRIDE_Overlay(52)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(ScrollThumb)
+
+START_SCREEN_Overlay(FileIcons)
+	IMAGE_ADDRESS_Overlay(3658280)
+	IMAGE_SIZE_Overlay(8192)
+	IMAGE_WIDTH_Overlay(128)
+	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(128)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(FileIcons)
+
+START_SCREEN_Overlay(UpdateCheck)
+	IMAGE_ADDRESS_Overlay(3666472)
+	IMAGE_SIZE_Overlay(4096)
+	IMAGE_WIDTH_Overlay(64)
+	IMAGE_HEIGHT_Overlay(32)
+	IMAGE_STRIDE_Overlay(64)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(UpdateCheck)
+
+START_SCREEN_Overlay(InspectUpdate)
+	IMAGE_ADDRESS_Overlay(3670568)
+	IMAGE_SIZE_Overlay(20400)
+	IMAGE_WIDTH_Overlay(120)
+	IMAGE_HEIGHT_Overlay(85)
+	IMAGE_STRIDE_Overlay(120)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(InspectUpdate)
+
+START_SCREEN_Overlay(UpdateLabel)
+	IMAGE_ADDRESS_Overlay(3690968)
+	IMAGE_SIZE_Overlay(4704)
+	IMAGE_WIDTH_Overlay(84)
+	IMAGE_HEIGHT_Overlay(28)
+	IMAGE_STRIDE_Overlay(84)
+	IMAGE_DEPTH_Overlay(Color16bpp)
+END_SCREEN_Overlay(UpdateLabel)
+
+#undef START_SCREEN_Overlay
+#undef IMAGE_ADDRESS_Overlay
+#undef IMAGE_SIZE_Overlay
+#undef IMAGE_WIDTH_Overlay
+#undef IMAGE_HEIGHT_Overlay
+#undef IMAGE_STRIDE_Overlay
+#undef IMAGE_DEPTH_Overlay
+#undef END_SCREEN_Overlay
+
+SCREEN_FILE_LENGTH(3998776)
+
+#undef START_SCREEN
+#undef IMAGE_ADDRESS
+#undef IMAGE_SIZE
+#undef IMAGE_WIDTH
+#undef IMAGE_HEIGHT
+#undef IMAGE_STRIDE
+#undef IMAGE_DEPTH
+#undef END_SCREEN
+#undef START_HOTSPOTS
+#undef DEFINE_HOTSPOT
+#undef END_HOTSPOTS
+#undef HOTSPOT_COUNT
+#undef START_LOCATIONS
+#undef DEFINE_LOCATION
+#undef END_LOCATIONS
+#undef START_AREAS
+#undef DEFINE_AREA
+#undef END_AREAS
+#undef START_GROUP
+#undef GROUP_HOTSPOT
+#undef END_GROUP
+#undef START_VALUES
+#undef DEFINE_VALUE
+#undef END_VALUES
+#undef START_STR_VALUES
+#undef DEFINE_STR_VALUE
+#undef END_STR_VALUES
+#undef START_COLORS
+#undef DEFINE_COLOR
+#undef END_COLORS
+#undef SCREEN_FILE_LENGTH

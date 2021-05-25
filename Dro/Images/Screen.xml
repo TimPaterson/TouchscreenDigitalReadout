@@ -1,0 +1,2141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Project [<!ENTITY Fonts SYSTEM "../Fonts/Fonts.xml">]>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.timpaterson.com/schemas/ScreenDesigner.xsd"
+         StrideMultiple="4">
+  &Fonts;
+  <Set>
+    ScreenHeight = 600;
+    ScreenWidth = 1024;
+  	BtnHeight = 60;
+  	BtnWidth = 60;
+  	KeySpace = 10;
+  	BtnFontSize = BtnHeight * 3 / 4;
+  	SmallTextHeight = CalcSmall_Height;
+
+    <!-- ListScroll parameters -->
+    ScrollGapLeft = 2;
+    ScrollGapRight = 2;
+    ScrollThumbWidth = 50;
+    ScrollThumbHeight = BtnHeight;
+    ScrollBarWidth = ScrollGapLeft + ScrollThumbWidth + ScrollGapRight;
+  </Set>
+  <Set ShowValue="ScrollGapLeft">ScrollGapLeft</Set>
+  <Set ShowValue="ScrollGapRight">ScrollGapRight</Set>
+  <Set ShowValue="ScrollThumbWidth">ScrollThumbWidth</Set>
+  <Set ShowValue="ScrollThumbHeight">ScrollThumbHeight</Set>
+  <Set ShowValue="ScrollBarWidth">ScrollBarWidth</Set>
+  <Font Name="BtnFont" FontSize="BtnFontSize" FontFamily="Arial"/>
+  <Font Name="BtnSmallFont" FontSize="BtnFontSize * 3 / 4" />
+  <Color Name="ScreenForeColor" Color="Black" ColorDepth="Color16bpp"/>
+  <Color Name="ScreenBackColor" Color="0xC0FFFF" ColorDepth="Color16bpp"/>
+  <Color Name="AxisForeColor" Color="Black" />
+  <Color Name="AxisBackColor" Color="Yellow" />
+  <Color Name="CalcBackColor" Color="White" />
+  <Color Name="MemColorOdd" Color="0xFFE8E8" ColorDepth="Color16bpp"/>
+  <Color Name="MemColorEven" Color="0xD0FFD0" ColorDepth="Color16bpp"/>
+  <Color Name="BtnBackground" Color="0x606060"/>
+  <Color Name="ToolDiagramColor" Color="DarkSlateGray" ColorDepth="Color16bpp"/>
+  <Color Name="FeedRateColor" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ToolInfoBackground" Color="Blue" ColorDepth="Color16bpp"/>
+  <Color Name="ToolInfoForeground" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibBackground" Color="DarkBlue" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibForeground" Color="LightGray" ColorDepth="Color16bpp"/>
+  <Color Name="ToolLibSelected" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="TimeEntryForeground" Color="Black" ColorDepth="Color16bpp"/>
+  <Color Name="TimeEntryBackground" Color="White" ColorDepth="Color16bpp"/>
+  <Color Name="ScrollBarColor" Color="0x303030" ColorDepth="Color16bpp"/>
+  <Color Name="UndoTextColor" Color="Gray" ColorDepth="Color16bpp"/>
+  <Color Name="UndoLineColor" Color="Blue" ColorDepth="Color16bpp"/>
+  <Color Name="UndoBackColor" Color="CalcBackColor" ColorDepth="Color16bpp"/>
+
+  <!-- Components -->
+  <Component Name="Key">
+    <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="White">
+      <TextBlock Name="Label" Font="BtnFont" Foreground="Black"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="Memory">
+    <Rectangle Name="MemRect" Group="Memory" Height="BtnHeight" Width="150">
+      <Rectangle Name="MemDisp" Top="BtnHeight / 4" Left="10" Height="BtnHeight / 2" Width="140"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="Toggle">
+    <Color Name="ToggleOn" Color="Yellow"/>
+    <Rectangle Name="Button" Height="BtnHeight" Width="BtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="BtnBackground">
+      <TextBlock Name="Upper" FontSize="BtnFontSize / 2" Top="1" Foreground="DarkGray" FontFamily="Arial" Text="abs" />
+      <Line X1="10" Y1="BtnHeight / 2" X2="BtnWidth - 10" Y2="BtnHeight / 2" Stroke="White" StrokeThickness="2" />
+      <TextBlock Name="Lower" FontSize="BtnFontSize / 2" Top="33" Foreground="DarkGray" FontFamily="Arial" Text="inc" />
+    </Rectangle>
+  </Component>
+
+  <Component Name="InchMetric">
+    <Ref RefName="Toggle"/>
+    <Set>
+      Upper.Text = "inch";
+    	Lower.Text = "mm";
+    </Set>
+  </Component>
+
+  <Set>
+    <!-- Axis displays -->
+    DispHt = DigitDisplay_Height;
+    DispWd = 410;
+    DigHt = 96;
+    LabHt = 72;
+    Vspace = 25;
+    LabTop = (DispHt - DigHt) / 2;
+    AxisBtnWidth = 85;
+    AxisBtnGap = 25;
+    AxisBtnLeft = DispWd + AxisBtnGap;
+    AxisBtnRight = AxisBtnLeft + AxisBtnWidth;
+
+    <!-- Caculator displays -->
+    KeypadWidth = KeySpace + (BtnWidth + KeySpace) * 4;
+    KeypadRight = ScreenWidth - (BtnWidth * 2 + KeySpace * 3);
+    KeypadLeft = KeypadRight - KeypadWidth;
+    KeypadHeight = KeySpace + (BtnHeight + KeySpace) * 5;
+    CalcTextHeight = BtnHeight;
+    UndoTop = Vspace;
+    UndoItemHeight = SmallTextHeight;
+    UndoHeight = UndoItemHeight * 3;
+    CalcDispTop = UndoTop + UndoHeight + KeySpace;
+    CalcTextTop = CalcDispTop + CalcTextHeight + KeySpace;
+    KeypadTop = CalcTextTop + SmallTextHeight + KeySpace;
+    KeypadBottom = KeypadTop + KeypadHeight;
+
+    <!-- Undo lists -->
+    UndoLeft = AxisBtnRight + AxisBtnGap;
+    UndoRight = KeypadRight;
+    UndoWidth = UndoRight - UndoLeft;
+    UndoItemWidth = (UndoWidth - 2) / 3;
+    UndoVertSep1Left = UndoItemWidth;
+    UndoVertSep2Left = UndoItemWidth * 2 + 1;
+
+    <!-- Tool display column widths & positions -->
+    ToolNumWidth = 54;
+    ToolDiamWidth = 70;
+    ToolFluteWidth = 55;
+    ToolLengthWidth = 85;
+
+    ToolNumLeft = 0;
+    ToolDiamLeft = ToolNumLeft + ToolNumWidth;
+    ToolFluteLeft = ToolDiamLeft + ToolDiamWidth;
+    ToolLengthLeft = ToolFluteLeft + ToolFluteWidth;
+    ToolDescLeft = ToolLengthLeft + ToolLengthWidth;
+
+    ToolTextHeight = SmallTextHeight;
+    ToolTextNumLeft = ToolNumWidth - 3 * 14 - 4;
+
+    <!-- Tool Library -->
+    ToolLibHeight = CalcDispTop - 2;
+    ToolLibWidth = ScreenWidth;
+    ToolLibLeft = KeySpace;
+    ToolListHeight = ScreenHeight - ToolLibHeight;
+    ToolListWidth = KeypadLeft - 8;
+    ToolRowWidth = ToolListWidth - ScrollBarWidth;
+
+    <!-- Controls -->
+    ToolBtnHeight = BtnHeight;
+    ToolBtnWidth = BtnWidth;
+    ClearBtnWidth = 50;
+    ClearBtnHeight = 50;
+    EditBoxMargin = 5;
+    ToolCtrlHeight = ToolLibHeight - KeySpace;
+    ToolButtonsWidth = ToolBtnWidth * 3 + KeySpace * 2;
+    ToolButtonsLeft = ToolLibWidth - ToolButtonsWidth - KeySpace;
+
+    <!-- ToolButtonsLeft & ToolInfoClearBtnLeft relative left edge, other relative ToolLibLeft -->
+    ToolInfoClearBtnLeft = ToolButtonsLeft - KeySpace - ClearBtnWidth - 1;
+    ToolInfoDescWidth = ToolButtonsLeft - ToolLibLeft - KeySpace - ToolDescLeft; <!-- the whole box -->
+    ToolInfoTextWidth = ToolInfoClearBtnLeft - ToolLibLeft - ToolDescLeft - 2 * EditBoxMargin; <!-- text editing area -->
+    ToolListDescWidth = ToolRowWidth - ToolLibLeft - ToolDescLeft;
+    ToolDescTextLeft = EditBoxMargin;
+
+    ToolInfoHeight = 60;
+    ToolLabelHeight = ToolLibHeight - ToolInfoHeight - KeySpace;
+    ToolInfoClearBtnTop = (ToolInfoHeight - ClearBtnHeight) / 2 + KeySpace;
+    ToolRowHeight = 50;
+  </Set>
+
+  <!-- Tool label line -->
+  <Component Name="ToolLabel">
+    <Rectangle Name="Item" Height="40" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <TextBlock Name="Label" Font="CalcSmall" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ToolLabels">
+    <Ref RefName="ToolLabel" Left="ToolNumLeft">
+      <Set>
+        Item.Width = ToolNumWidth + 1;
+        Label.Text = Tool;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolDiamLeft">
+      <Set>
+        Item.Width = ToolDiamWidth + 1;
+        Label.Text = Dia.;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolFluteLeft">
+      <Set>
+        Item.Width = ToolFluteWidth + 1;
+        Label.Text = Flut.;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolLengthLeft">
+      <Set>
+        Item.Width = ToolLengthWidth + 1;
+        Label.Text = Length;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolLabel" Left="ToolDescLeft">
+      <Set>
+        Label.Text = Description;
+        Item.Name = ToolLabelDesc;
+        Label.Name = ToolTextDesc;
+      </Set>
+    </Ref>
+  </Component>
+
+  <!-- Tool info line -->
+  <Component Name="ToolItem">
+    <Rectangle Name="Item" Height="ToolInfoHeight + 1" Width="ToolNumWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <Rectangle Name="Spot" Group="ToolLib" Height="ToolInfoHeight + 1" Width="ToolNumWidth"/>
+      <Rectangle Name="TextAreaTop" Height="ToolTextHeight" Width="ToolNumWidth">
+        <Rectangle Name="TextArea" Height="ToolTextHeight" Width="ToolNumWidth">
+          <TextBlock Name="DummyText" Left="0" Top="0" Font="CalcSmall"/>
+        </Rectangle>
+      </Rectangle>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ToolInfo">
+    <Ref RefName="ToolItem" Left="ToolNumLeft">
+      <Set>
+        Item.Width = ToolNumWidth + 1;
+        Spot.Width = ToolNumWidth + 1;
+        Spot.HotSpot = ToolNumber;
+        TextArea.Left = ToolTextNumLeft;
+        TextArea.Width = ToolNumWidth - ToolTextNumLeft - 1;
+        TextArea.Area = ToolNumber;
+        TextArea.Name = ToolNumber;
+        DummyText.Text = 100;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolDiamLeft">
+      <Set>
+        Item.Width = ToolDiamWidth + 1;
+        Spot.Width = ToolDiamWidth + 1;
+        Spot.HotSpot = ToolDiameter;
+        TextArea.Left = 5;
+        TextArea.Width = ToolDiamWidth - 6;
+        TextArea.Area = ToolDiameter;
+        TextArea.Name = ToolDiameter;
+        DummyText.Text = 0.375;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolFluteLeft">
+      <Set>
+        Item.Width = ToolFluteWidth + 1;
+        Spot.Width = ToolFluteWidth + 1;
+        Spot.HotSpot = ToolFlutes;
+        TextArea.Left = 9;
+        TextArea.Width = ToolFluteWidth - 10;
+        TextArea.Area = ToolFlutes;
+        TextArea.Name = ToolFlutes;
+        DummyText.Text = 003;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolLengthLeft">
+      <Set>
+        Item.Width = ToolLengthWidth + 1;
+        Spot.Width = ToolLengthWidth + 1;
+        Spot.HotSpot = ToolLength;
+        TextArea.Left = 6;
+        TextArea.Width = ToolLengthWidth - 7;
+        TextArea.Area = ToolLength;
+        TextArea.Name = ToolLength;
+        DummyText.Text = 12.897;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolItem" Left="ToolDescLeft">
+      <Set>
+        Item.Width = ToolInfoDescWidth;
+        Item.Name = ToolItemDesc;
+        Spot.Width = ToolInfoTextWidth;
+        Spot.HotSpot = ToolDesc;
+        Spot.Name = SpotDesc;
+        TextArea.Left = ToolDescTextLeft;
+        TextArea.Width = ToolInfoTextWidth;
+        TextArea.Area = ToolDesc;
+        TextArea.Name = ToolDesc;
+        DummyText.Text = 1/4\" carbide;
+      </Set>
+    </Ref>
+  </Component>
+
+  <!-- Feeds & speeds images -->
+  <Set>SpCellWidth = 90;
+  	SpCellHeight = 32;
+  	SpColSpace = 10;
+  	SpeedTextTop = 2;
+  	SpeedDisplayWidth = SpCellWidth * 4 + SpColSpace + 1;
+  	SpeedDisplayHeight = SpCellHeight * 3 + 1;
+  </Set>
+  <Component Name="SpeedDisplay">
+    <Grid RowHeight="SpCellHeight" ColumnWidth="SpCellWidth">
+      <Default>
+        <Rectangle Name="ToolCell" Height="SpCellHeight + 1" Width="SpCellWidth + 1" Stroke="Black" StrokeThickness="1">
+          <TextBlock Name="SpeedText" Font="CalcSmall"/>
+        </Rectangle>
+      </Default>
+      <Row>
+        <Column>
+          <Set>
+            ToolCell.StrokeThickness = 0;
+            ToolCell.Width = SpCellWidth * 2;
+          	SpeedText.Text = Speed;
+          </Set>
+          <Rectangle HotSpot="ToolSfm" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+        </Column>
+        <Column Left="SpCellWidth + SpColSpace">
+          <Set>
+            ToolCell.StrokeThickness = 0;
+            ToolCell.Width = SpCellWidth * 2;
+          	SpeedText.Text = Chip Load;
+          </Set>
+          <Rectangle HotSpot="ToolChipLoad" Group="ToolLib" Height="SpCellHeight * 3" Width="SpCellWidth * 2"/>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            SpeedText.Text = SFM;
+            SpeedText.Name = SpeedTextSfm;
+          </Set>
+        </Column>
+        <Column>
+          <Rectangle Name="Sfm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+        <Column Left="SpColSpace">
+          <Set>
+            SpeedText.Text = in/tooth;
+            SpeedText.Name = SpeedTextFeed;
+          </Set>
+        </Column>
+        <Column>
+          <Rectangle Name="ChipLoad" Left="8" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 9"/>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            SpeedText.Text = RPM;
+          </Set>
+        </Column>
+        <Column>
+          <Rectangle Name="Rpm" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+        <Column Left="SpColSpace">
+          <Set>
+            SpeedText.Text = in/min;
+            SpeedText.Name = SpeedTextLoad;
+          </Set>
+        </Column>
+        <Column>
+          <Rectangle Name="FeedRate" Left="15" Top="SpeedTextTop" Height="SmallTextHeight" Width="SpCellWidth - 16"/>
+        </Column>
+      </Row>
+    </Grid>
+  </Component>
+
+  <Component Name="Menu">
+    <Ref RefName="Key">
+      <Set>
+        Button.Fill = BtnBackground;
+      	Label.Foreground = ToggleOn;
+        Label.Text = "...";
+      </Set>
+    </Ref>
+  </Component>
+
+  <!-- Main Screen -->
+
+  <Canvas Name="MainScreen" Width="ScreenWidth" Height="ScreenHeight" ColorDepth="Color16bpp" Fill="ScreenBackColor">
+    <Grid Top="Vspace/2" RowHeight="DispHt + Vspace" ColumnWidth="0">
+      <Default>
+        <Rectangle Name="AxisDisplay" Group="Axis" Height="DispHt" Width="DispWd" Fill="AxisBackColor">
+        </Rectangle>
+        <Rectangle Name="AxisButton" Group="AxisButton" Top="LabTop" Left="AxisBtnLeft" Height="DigHt" Width="AxisBtnWidth" RadiusX="8" RadiusY="8"
+          StrokeThickness="5" Stroke="ScreenForeColor" Fill="White">
+          <TextBlock Name="AxisLabel" FontSize="LabHt" Foreground="Black" FontFamily="Arial" Left="13" />
+          <TextBlock FontSize="LabHt*2/5" Foreground="Black" FontFamily="Arial" Text="0" Top="47" Left="59"/>
+        </Rectangle>
+     </Default>
+      <Row>
+        <Column>
+          <Set>
+            AxisLabel.Text = X;
+          	AxisButton.HotSpot = Xaxis;
+          	AxisDisplay.Area = Xdisplay;
+            AxisDisplay.HotSpot = Xaxis;
+          </Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            AxisLabel.Text = Y;
+          	AxisButton.HotSpot = Yaxis;
+          	AxisDisplay.Area = Ydisplay;
+            AxisDisplay.HotSpot = Yaxis;
+          </Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Set>
+            AxisLabel.Text = Z;
+          	AxisButton.HotSpot = Zaxis;
+          	AxisDisplay.Area = Zdisplay;
+            AxisDisplay.HotSpot = Zaxis;
+          </Set>
+        </Column>
+      </Row>
+    </Grid>
+
+    <!-- Settings controls -->
+    <Set>
+      LgBtnWidth = BtnWidth * 2;
+    	SettingLeft = ScreenWidth - LgBtnWidth - KeySpace;
+    </Set>
+    <Color Name="SetBtnText" Color="ToggleOn"/>
+    <Rectangle HotSpot="Settings" Top="KeySpace" Left="SettingLeft" Height="BtnHeight"
+      Width="LgBtnWidth" RadiusX="8" RadiusY="8" Fill="BtnBackground">
+      <TextBlock FontSize="BtnHeight * 2 / 5" FontFamily="Arial" Foreground="SetBtnText">Settings</TextBlock>
+    </Rectangle>
+    <Rectangle Top="BtnHeight + KeySpace * 2" Left="SettingLeft" Height="BtnHeight"
+      Width="LgBtnWidth" RadiusX="8" RadiusY="8" Fill="BtnBackground">
+      <TextBlock Top="5" FontSize="BtnHeight / 3" FontFamily="Arial" Foreground="SetBtnText">Brightness</TextBlock>
+      <Rectangle HotSpot="BrightDown" Width="BtnWidth" Height="BtnHeight">
+        <TextBlock Top="15" FontSize="BtnFontSize" FontFamily="Arial" Foreground="SetBtnText">−</TextBlock>
+      </Rectangle>
+      <Rectangle HotSpot="BrightUp" Left="BtnWidth" Width="BtnWidth" Height="BtnHeight">
+        <TextBlock Top="15" FontSize="BtnFontSize" FontFamily="Arial" Foreground="SetBtnText">+</TextBlock>
+      </Rectangle>
+    </Rectangle>
+
+    <!-- Undo lists -->
+    <Set>UndoTextLeft = 2;</Set>
+    <Grid Name="UndoColumnLabels" ColumnWidth="UndoItemWidth + 1" RowHeight="0" Left="UndoLeft">
+      <Default>
+        <TextBlock Name="UndoLabelText" Font="CalcSmall" FontSize="18" Top="2" Width="UndoItemWidth"/>
+        <Rectangle Name="UndoSpot" Group="Undo" Top="UndoTop" Width="UndoItemWidth" Height="UndoHeight"/>
+      </Default>
+      <!-- The order of the undo HotSpots is used in code -->
+      <Row>
+        <Column><Set>UndoLabelText.Text = "undo X"; UndoSpot.HotSpot = Xaxis</Set></Column>
+        <Column><Set>UndoLabelText.Text = "undo Y"; UndoSpot.HotSpot = Yaxis</Set></Column>
+        <Column><Set>UndoLabelText.Text = "undo Z"; UndoSpot.HotSpot = Zaxis</Set></Column>
+      </Row>
+    </Grid>
+    <Rectangle Top="UndoTop" Left="UndoLeft" Width="UndoWidth" Height="UndoHeight" Fill="CalcBackColor">
+      <!-- We want to generate in columns, so we use a Grid for each column -->
+      <Grid RowHeight="0" ColumnWidth="UndoItemWidth + 1">
+        <Row>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-03.1250"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoX1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoX2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoX3</Set></Column></Row>
+            </Grid>
+          </Column>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-12.1275"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoY1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoY2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoY3</Set></Column></Row>
+            </Grid>
+          </Column>
+          <Column>
+            <!-- Grid generates roms from bottom to top, which is order of use -->
+            <Grid Top="UndoItemHeight * 2" ColumnWidth="0" RowHeight="-UndoItemHeight">
+              <Default>
+                <Rectangle Name="UndoItem" Left="UndoTextLeft" Width="UndoItemWidth - UndoTextLeft" Height="UndoItemHeight">
+                  <TextBlock Name="UndoText" Left="0" Font="CalcSmall" Foreground="UndoTextColor" Text="-12.1275"/>
+                </Rectangle>
+              </Default>
+              <!-- The order of the undo Areas is used in code -->
+              <Row><Column><Set>UndoItem.Area = UndoZ1</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoZ2</Set></Column></Row>
+              <Row><Column><Set>UndoItem.Area = UndoZ3</Set></Column></Row>
+            </Grid>
+          </Column>
+        </Row>
+      </Grid>
+      <Set>UndoText.Foreground = CalcBackColor</Set> <!-- hide dummy text -->
+      <Rectangle Left="UndoVertSep1Left" Height="UndoHeight" Width="1" StrokeThickness="1" Stroke="UndoLineColor"/>
+      <Rectangle Left="UndoVertSep2Left" Height="UndoHeight" Width="1" StrokeThickness="1" Stroke="UndoLineColor"/>
+    </Rectangle>
+
+    <Rectangle Area="CalcDisplay" Left="KeypadLeft" Top="CalcDispTop" Width="KeypadWidth" Height="CalcTextHeight" Fill="CalcBackColor">
+    </Rectangle>
+    <Rectangle Area="CalcText" Left="KeypadLeft" Top="CalcTextTop" Width="KeypadWidth" Height="SmallTextHeight" Fill="CalcBackColor">
+    </Rectangle>
+    <TextBlock Top="KeypadTop - 25" Left="KeypadLeft + 310" Font="CalcSmall">Memories</TextBlock>
+
+    <!-- Toggle button locations (images overwritten) -->
+    <Ref RefName="InchMetric" Left="KeypadRight + KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>
+        Button.Area = "InchMetric";
+        Button.HotSpot = "InchMetric"
+      </Set>
+    </Ref>
+    <Ref RefName="Toggle" Left="KeypadRight + BtnWidth + 2 * KeySpace" Top="KeypadBottom - BtnHeight - KeySpace">
+      <Set>
+        Button.Area = "AbsInc";
+        Button.HotSpot = "AbsInc"
+      </Set>
+    </Ref>
+
+    <!-- Keypad -->
+    <Rectangle Top="KeypadTop" Left="KeypadLeft" Height="KeypadHeight" Width="KeypadWidth" Fill="Black">
+      <Grid Name="KeyPad" Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+        <Default>
+          <Ref RefName="Key" />
+          <Set>
+            Button.Group = Digit;
+          </Set>
+        </Default>
+        <Row>
+          <Column>
+            <Set>
+              Label.Text = ⌫;
+              Label.Font = BtnSmallFont;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_backSpace;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = CE;
+              Label.Font =BtnSmallFont;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_clear;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = π;
+            	Button.Group = "Edit";
+              Button.HotSpot = Key_pi;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = +;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_plus;
+            </Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>
+              MemRect.HotSpot = Mem1;
+            	MemRect.Fill = MemColorOdd;
+            	MemDisp.Area = Mem1;
+            </Set>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>
+              Label.Text = 7;
+            	Button.HotSpot = Key_7;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 8;
+            	Button.HotSpot = Key_8;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 9;
+            	Button.HotSpot = Key_9;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = −;
+            	Button.Group = Operator;
+              Button.HotSpot = Key_minus;
+            </Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>
+              MemRect.HotSpot = Mem2;
+            	MemRect.Fill = MemColorEven;
+            	MemDisp.Area = Mem2;
+            </Set>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>
+              Label.Text = 4;
+            	Button.HotSpot = Key_4;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 5;
+            	Button.HotSpot = Key_5;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 6;
+            	Button.HotSpot = Key_6;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = ×;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_mult;
+            </Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>
+              MemRect.HotSpot = Mem3;
+            	MemRect.Fill = MemColorOdd;
+            	MemDisp.Area = Mem3;
+            </Set>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>
+              Label.Text = 1;
+            	Button.HotSpot = Key_1;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 2;
+            	Button.HotSpot = Key_2;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 3;
+            	Button.HotSpot = Key_3;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = ÷;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_divide;
+            </Set>
+          </Column>
+          <ColumnNoDefault>
+            <Ref RefName="Memory"/>
+            <Set>
+              MemRect.HotSpot = Mem4;
+            	MemRect.Fill = MemColorEven;
+            	MemDisp.Area = Mem4;
+            </Set>
+          </ColumnNoDefault>
+        </Row>
+        <Row>
+          <Column>
+            <Set>
+              Label.Text = ±;
+            	Button.HotSpot = Key_sign;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = 0;
+            	Button.HotSpot = Key_0;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = ∙;
+            	Button.HotSpot = Key_decimal;
+            </Set>
+          </Column>
+          <Column>
+            <Set>
+              Label.Text = =;
+            	Button.Group = "Operator";
+              Button.HotSpot = Key_equal;
+            </Set>
+          </Column>
+        </Row>
+      </Grid>
+    </Rectangle>
+
+    <!-- Tool displays -->
+    <Set>
+      ToolTop = 3 * DispHt + 5 * Vspace / 2 + KeySpace;
+      ToolCellHeight = SmallTextHeight + 2;
+      DescCellWidth = KeypadLeft - ToolDescLeft - KeySpace * 3 - BtnWidth;
+    </Set>
+    <Ref RefName="ToolLabels" Left="KeySpace" Top="ToolTop">
+      <Set>
+        Item.Height = ToolCellHeight + 1;
+        ToolLabelDesc.Height = ToolCellHeight + 1;
+        Item.Stroke = Black;
+        ToolLabelDesc.Stroke = Black;
+        Label.Foreground = Black;
+        ToolTextDesc.Foreground = Black;
+        ToolLabelDesc.Width = DescCellWidth;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolInfo" Left="KeySpace" Top="ToolTop">
+      <Set>
+        TextAreaTop.Top = ToolCellHeight + 2;
+        ToolDesc.Width = DescCellWidth - ToolDescTextLeft - 1;
+        Item.Height = ToolCellHeight * 2 + 1;
+        ToolItemDesc.Height = ToolCellHeight * 2 + 1;
+        SpotDesc.Height = ToolCellHeight * 2 + 1;
+        Item.Stroke = Black;
+        ToolItemDesc.Stroke = Black;
+        ToolItemDesc.Width = DescCellWidth;
+        SpotDesc.Width = DescCellWidth;
+        SpotDesc.HotSpot = "";
+        <!-- Hide the dummy text -->
+        DummyText.Foreground = ScreenBackColor;
+      </Set>
+    </Ref>
+    <!-- Tool select button -->
+    <Set>
+      ToolSelectLeft = KeySpace * 2 + ToolDescLeft + DescCellWidth;
+    </Set>
+    <Ref RefName="Menu" Left="ToolSelectLeft" Top="ToolTop">
+      <Set>Button.HotSpot = ToolMenu</Set>
+    </Ref>
+    <!-- Tool diagram -->
+    <Set>
+      DiagramTop = ToolTop + 2 * ToolCellHeight + KeySpace;
+    	DiagramHeight = BtnHeight * 2;
+    	ToolDia = BtnWidth / 2;
+    	ToolImageRadius = ToolDia / 2;
+    </Set>
+    <Set ShowValue="ToolImageRadius">ToolImageRadius</Set>
+    <Color Name="ToolColor" Color="0xC00000" ColorDepth="Color16bpp"/>
+    <Color Name="NoToolColor" Color="LightSkyBlue" ColorDepth="Color16bpp"/>
+    <Rectangle Top="DiagramTop" Left="KeySpace" Width="DescCellWidth" Height="DiagramHeight">
+      <Rectangle HotSpot="ToolLeft" Group="ToolSide" Top="DiagramHeight / 4" Width="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolBack" Group="ToolSide" Top="0" Width="BtnWidth" Left="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolFront" Group="ToolSide" Top="DiagramHeight / 2" Left="BtnWidth" Width="BtnWidth" Height="BtnHeight"/>
+      <Rectangle HotSpot="ToolRight" Group="ToolSide" Top="DiagramHeight / 4" Left="BtnWidth * 2" Width="BtnWidth" Height="BtnHeight"/>
+      <Ellipse Location="ToolLeft" Top="(DiagramHeight - ToolDia) / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolRight" Top="(DiagramHeight - ToolDia) / 2" Left="BtnWidth * 5 / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolBack" Top="0" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Ellipse Location="ToolFront" Top="DiagramHeight * 3 / 4" Left="BtnWidth * 3 / 2 - ToolDia / 2" Height="ToolDia" Width="ToolDia" Fill="NoToolColor"/>
+      <Rectangle Top="DiagramHeight / 4" Left="BtnWidth / 2" Width="BtnWidth * 2" Height="BtnHeight" Fill="ToolDiagramColor">
+        <Set>
+          FeedTextHeight = SettingsFont_Height;
+          FeedTextTop = (BtnHeight - FeedTextHeight) / 2;
+          FeedTextLeft = 0;
+          FeedTextWidth = BtnWidth * 2 - FeedTextLeft;
+        </Set>
+        <Rectangle Area="CurrentFeedRate" Top="FeedTextTop" Left="FeedTextLeft" Height="FeedTextHeight" Width="FeedTextWidth">
+          <TextBlock Name="FeedText" Left="0" Top="0" Font="SettingsFont" Foreground="White" Text="00000"/>
+          <Set>FeedText.Foreground = ToolDiagramColor</Set> <!-- hide the dummy text -->
+        </Rectangle>
+      </Rectangle>
+    </Rectangle>
+    <!-- Tool feeds & speeds -->
+    <Rectangle Area="SpeedDisplay" Top="DiagramTop" Left="BtnWidth * 3 + KeySpace * 2" Height="SpeedDisplayHeight" Width="SpeedDisplayWidth">
+      <Ref RefName="SpeedDisplay">
+        <Set>
+          Sfm.Area = Sfm;
+          ChipLoad.Area = ChipLoad;
+          Rpm.Area = Rpm;
+          FeedRate.Area = FeedRate;
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <!-- Key images -->
+
+  <!-- Coordinate system -->
+  <Canvas Name="Coord" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="Toggle">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <!-- Inch/Mectic units -->
+  <Canvas Name="InchMetricBtn" Type="Overlay" Height="BtnHeight" ItemWidth="BtnWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Upper.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="InchMetric">
+        <Set>Lower.Foreground=ToggleOn;</Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <!-- Feeds & speeds images -->
+  <Canvas Name="SpeedDisplay" Type="Overlay" Height="SpeedDisplayHeight" ItemWidth="SpeedDisplayWidth" Fill="ScreenBackColor" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+    </Item>
+    <Item>
+      <Ref RefName="SpeedDisplay"/>
+      <Set>
+        SpeedTextSfm.Text = m/min;
+        SpeedTextFeed.Text = mm/tth;
+        SpeedTextLoad.Text = mm/min;
+      </Set>
+    </Item>
+  </Canvas>
+
+  <!-- Settings Screen (PIP) -->
+
+  <Set>
+    SettingsWidth = KeypadLeft - KeySpace;
+    AxisLabelWidth = 54;
+    AxisSettingWidth = 120;
+    AxisSettingHeight = BtnHeight;
+    AxisSettingHeaderHeight = 72;
+    AxisLabelTop = 1;
+    ColAdjust = AxisLabelWidth - AxisSettingWidth;
+    SensorTextLeft = 50;
+    CorrectionTextLeft = 5;
+    CheckboxSize = 32;
+    AxisSettingsGridHeight = AxisSettingHeight * 4 + AxisSettingHeaderHeight;
+  </Set>
+  <Color Name="SettingBackColor" Color="Black" ColorDepth="Color8bpp"/>
+  <Color Name="SettingForeColor" Color="White" ColorDepth="Color8bpp"/>
+  <Font Name="SettingsLabelFont" FontFamily="Arial" FontSize ="20"/>
+  <Font Name="UnitsFont" Font="SettingsLabelFont" FontSize="18"/>
+  <Color Name="CheckForeground" Color="SettingForeColor"/>
+  <Color Name="CheckBackground" Color="SettingBackColor"/>
+
+  <Component Name="CheckedBox">
+    <Rectangle Name="Check" Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+      <Line Name="Check" X1="0" Y1="0" X2="CheckboxSize" Y2="CheckboxSize" StrokeThickness="4" Stroke="CheckForeground"/>
+      <Line Name="Check" X1="0" Y1="CheckboxSize" X2="CheckboxSize" Y2="0" StrokeThickness="4" Stroke="CheckForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="UncheckedBox">
+    <Rectangle Name="Check" Height="CheckboxSize" Width="CheckboxSize" StrokeThickness="3" Stroke="CheckForeground" Fill="CheckBackground">
+    </Rectangle>
+  </Component>
+
+  <Component Name="AxisSettingHeader">
+    <Rectangle Height="AxisSettingHeaderHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Name="AxisSettingLabel" Top="AxisLabelTop" Font="SettingsLabelFont" Text="  Sensor&#xA;Resolution" Foreground="SettingForeColor"/>
+      <TextBlock Name="UnitsLabel" Font="UnitsFont" Top="AxisSettingLabel.Height" Text="microns" Foreground="SettingForeColor"/>
+    </Rectangle>
+  </Component>
+
+  <!-- Main Settings Screen (PIP) -->
+  <Canvas Name="SettingsScreen" Width="SettingsWidth" Height="ScreenHeight" Fill="SettingBackColor" ColorDepth="Color8bpp" WidthMultiple="4">
+    <Font Name="AxisLabelFont" FontFamily="Arial" FontSize="48"/>
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="AxisSettingHeight - 1" ColumnWidth="AxisSettingWidth - 1">
+      <Row>
+        <Column></Column>
+        <Column Left="ColAdjust">
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "&#xA;Disable";
+              UnitsLabel.Text = "";
+            </Set>
+          </Ref>
+        </Column>
+        <Column>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "   Sensor&#xA;Resolution";
+              UnitsLabel.Text = "microns";
+            </Set>
+          </Ref>
+        </Column>
+        <Column>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "  Invert&#xA;Direction";
+              UnitsLabel.Text = "";
+            </Set>
+          </Ref>
+        </Column>
+        <Column>
+          <Ref RefName="AxisSettingHeader">
+            <Set>
+              AxisSettingLabel.Text = "   Linear&#xA;Correction";
+              UnitsLabel.Text = "parts/million";
+            </Set>
+          </Ref>
+        </Column>
+      </Row>
+      <Row Top="AxisSettingHeaderHeight - AxisSettingHeight">
+        <!-- The order of the Areas is used in code for each axis -->
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="X" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Xaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Xaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Xaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Xaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Xcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Y" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Yaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Ydisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Yaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Yresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Yaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Yinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Yaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Ycorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Z" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Zaxis" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Zaxis" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Zaxis" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Zaxis" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Zcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Rectangle Height="AxisSettingHeight" Width="AxisLabelWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <TextBlock Name="AxisLabel" Font="AxisLabelFont" Text="Q" Foreground="SettingForeColor"/>
+          </Rectangle>
+        </Column>
+        <Column Left="ColAdjust">
+          <Rectangle HotSpot="Qsensor" Group="Disable" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qdisable" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Qsensor" Group="Resolution" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qresolution" Top="10" Left="SensorTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - SensorTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Qsensor" Group="Invert" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qinvert" Top="(BtnHeight - CheckboxSize) / 2" Left="(AxisSettingWidth - CheckboxSize) / 2" Height="CheckboxSize" Width="CheckboxSize"/>
+          </Rectangle>
+        </Column>
+        <Column>
+          <Rectangle HotSpot="Qsensor" Group="Correction" Height="AxisSettingHeight" Width="AxisSettingWidth" Stroke="SettingForeColor" StrokeThickness="1">
+            <Rectangle Area="Qcorrection" Top="10" Left="CorrectionTextLeft" Height="SettingsFont_Height" Width="AxisSettingWidth - CorrectionTextLeft - 1"/>
+          </Rectangle>
+        </Column>
+      </Row>
+    </Grid>
+    <Set>
+      OptionWidth = 345;
+      OptionHeight = BtnHeight;
+      SetItemRight = OptionWidth - KeySpace;
+      Option1Top = AxisSettingsGridHeight + KeySpace * 2;
+      Option2Top = Option1Top + OptionHeight - 1;
+      Option3Top = Option2Top + OptionHeight - 1;
+      Option4Top = Option3Top + OptionHeight - 1;
+      OptionButtonLeft = OptionWidth + KeySpace * 2;
+      OptionButtonWidth = SettingsWidth - OptionWidth - KeySpace * 3;
+    </Set>
+    <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="Option1Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
+      <Rectangle Area="HighlightXY" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="OffsetZ" Group="SettingToggle" Top="Option2Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Offset Z by tool length:</TextBlock>
+      <Rectangle Area="OffsetZ" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="CncCoordinates" Group="SettingToggle" Top="Option3Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">CNC-style coordinates:</TextBlock>
+      <Rectangle Area="CncCoordinates" Top="(BtnHeight - CheckboxSize) / 2" Left="SetItemRight - CheckboxSize" Height="CheckboxSize" Width="CheckboxSize"/>
+    </Rectangle>
+    <Rectangle HotSpot="MaxRpm" Top="Option4Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
+      <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Max machine RPM:</TextBlock>
+      <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - 5 * 20" Height="SettingsFont_Height" Width="5 * 20"/>
+    </Rectangle>
+    <Rectangle HotSpot="TouchCal" Top="Option1Top" Left="OptionButtonLeft" Height="BtnHeight" Width="OptionButtonWidth" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+      <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Touch Calibration</TextBlock>
+    </Rectangle>
+    <Rectangle HotSpot="FirmwareUpdate" Top="Option4Top" Left="OptionButtonLeft" Height="BtnHeight" Width="OptionButtonWidth" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
+      <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Firmware Update</TextBlock>
+    </Rectangle>
+  </Canvas>
+
+  <!-- Settings images -->
+  <Canvas Name="CheckBox" Type="Overlay" Height="CheckboxSize" ItemWidth="CheckboxSize" Fill="CheckBackground" ColorDepth="Color8bpp">
+    <Item>
+      <Ref RefName="UncheckedBox"/>
+    </Item>
+    <Item>
+      <Ref RefName="CheckedBox"/>
+    </Item>
+  </Canvas>
+
+  <!-- Tool Library (PIP) -->
+
+  <Set ShowValue="ToolListHeight">ToolListHeight</Set>
+  <Set ShowValue="ToolListWidth">ToolListWidth</Set>
+  <Set ShowValue="ToolRowHeight">ToolRowHeight</Set>
+  <Set ShowValue="ToolListTop">ToolLibHeight</Set>
+
+  <Component Name="ToolButton">
+    <Rectangle Name="Button" Height="ToolBtnHeight" Width="ToolBtnWidth"
+      RadiusX="8" RadiusY="8" StrokeThickness="0" Fill="ToolInfoForeground">
+      <Image Name="Icon" Source="" Height="ToolBtnHeight" Width="ToolBtnWidth"/>
+      <TextBlock Name="Label" Top="ToolBtnHeight + 3" Font="BtnFont" FontSize="17" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Set>
+    <!-- Adjust size of icon, keeping it centered -->
+    OkIconAdj = 0;
+    TrashIconAdj = 10;
+    FolderIconAdj = 12;
+    CancelIconAdj = 0;
+  </Set>
+
+  <Component Name="DoneButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Ok128.png;
+        Icon.Height = ToolBtnHeight - OkIconAdj;
+        Icon.Width = ToolBtnWidth - OkIconAdj;
+        Icon.Top = OkIconAdj / 2;
+        Icon.Left = OkIconAdj / 2;
+        Label.Text = Done;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="CancelButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Cancel128.png;
+        Icon.Height = ToolBtnHeight - CancelIconAdj;
+        Icon.Width = ToolBtnWidth - CancelIconAdj;
+        Icon.Top = CancelIconAdj / 2;
+        Icon.Left = CancelIconAdj / 2;
+        Label.Text = Cancel;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="ToolButtons">
+    <Ref RefName="DoneButton">
+      <Set>
+        Button.Name = OkButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="ToolBtnWidth + KeySpace">
+      <Set>
+        Icon.Source = Trash128.png;
+        Icon.Height = ToolBtnHeight - TrashIconAdj;
+        Icon.Width = ToolBtnWidth - TrashIconAdj;
+        Icon.Top = TrashIconAdj / 2;
+        Icon.Left = TrashIconAdj / 2;
+        Label.Text = Delete;
+        Button.Name = DeleteButton;
+      </Set>
+    </Ref>
+    <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+      <Set>
+        Icon.Source = Folder128.png;
+        Icon.Height = ToolBtnHeight - FolderIconAdj;
+        Icon.Width = ToolBtnWidth - FolderIconAdj;
+        Icon.Top = FolderIconAdj / 2;
+        Icon.Left = FolderIconAdj / 2;
+        Label.Text = "Import/&#xA;Export";
+        Button.Name = FileButton;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="ToolLibrary" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Ref RefName="ToolInfo" Left="ToolLibLeft" Top="KeySpace">
+      <Set>
+        TextAreaTop.Top = 18;
+        DummyText.Foreground = ToolInfoBackground; <!-- Hide the dummy text -->
+      </Set>
+    </Ref>
+    <Image HotSpot="ClearDesc" Group="ToolLib" Source="Delete128.png" Left="ToolInfoClearBtnLeft" Top="ToolInfoClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    <Ref RefName="ToolLabels" Left="ToolLibLeft" Top="KeySpace + ToolInfoHeight">
+      <Set>
+        Item.Height = ToolLabelHeight;
+        ToolLabelDesc.Height = ToolLabelHeight;
+        ToolLabelDesc.Width = ToolInfoDescWidth;
+        ToolTextDesc.Left = 80;
+      </Set>
+    </Ref>
+    <Rectangle Area="ToolButtons" Left="ToolButtonsLeft" Top="KeySpace" Width="ToolButtonsWidth" Height="ToolCtrlHeight">
+      <Ref RefName="ToolButtons">
+        <Set>
+          OkButton.Group = ToolLib;
+          OkButton.HotSpot = ToolsDone;
+          DeleteButton.HotSpot = ToolDelete;
+          DeleteButton.Group = ToolLib;
+          FileButton.HotSpot = ToolImportExport;
+          FileButton.Group = ToolLib;
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="ToolRow" Height="ToolRowHeight + 1" Width="ToolRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Rectangle Left="ToolLibLeft" Height="ToolRowHeight + 1" Width="ToolRowWidth - ToolLibLeft">
+      <Ref RefName="ToolInfo">
+        <Set>
+          Item.Height = ToolRowHeight + 1;
+          ToolItemDesc.Height = ToolRowHeight + 1;
+          SpotDesc.Height = ToolRowHeight + 1;
+          Spot.HotSpot = "";
+          ToolItemDesc.HotSpot = "";
+          SpotDesc.HotSpot = "";
+          ToolItemDesc.Width = ToolListDescWidth;
+          SpotDesc.Width = ToolListDescWidth;
+          TextAreaTop.Top = 12;
+          ToolDesc.Width = ToolListDescWidth - ToolDescTextLeft - 1;
+          DummyText.Foreground = ToolLibBackground; <!-- Hide the dummy text -->
+        </Set>
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="ToolButtons" Type="Overlay" ItemWidth="ToolButtonsWidth" Height="ToolCtrlHeight" Fill="ToolInfoBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="ToolButtons"/>
+    </Item>
+    <Item>
+      <Ref RefName="ToolButton">
+        <Set>
+          Icon.Source = Trash128.png;
+          Icon.Height = ToolBtnHeight - TrashIconAdj;
+          Icon.Width = ToolBtnWidth - TrashIconAdj;
+          Icon.Top = TrashIconAdj / 2;
+          Icon.Left = TrashIconAdj / 2;
+          Label.Text = Confirm&#xA; Delete
+        </Set>
+      </Ref>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Cancel128.png;
+          Icon.Height = ToolBtnHeight - CancelIconAdj;
+          Icon.Width = ToolBtnWidth - CancelIconAdj;
+          Icon.Top = CancelIconAdj / 2;
+          Icon.Left = CancelIconAdj / 2;
+          Label.Text = Cancel&#xA;Delete
+        </Set>
+      </Ref>
+    </Item>
+    <Item>
+      <Ref RefName="DoneButton"/>
+      <Ref RefName="CancelButton" Left="ToolBtnWidth + KeySpace"/>
+      <Ref RefName="ToolButton" Left="(ToolBtnWidth + KeySpace) * 2">
+        <Set>
+          Icon.Source = Folder128.png;
+          Icon.Height = ToolBtnHeight - FolderIconAdj;
+          Icon.Width = ToolBtnWidth - FolderIconAdj;
+          Icon.Top = FolderIconAdj / 2;
+          Icon.Left = FolderIconAdj / 2;
+          Label.Text = "Import/&#xA;Export";
+        </Set>
+      </Ref>
+    </Item>
+  </Canvas>
+
+  <!-- Keyboard constants -->
+  <Set>
+    KeyboardWidth = KeySpace + (BtnWidth + KeySpace) * 12 + BtnWidth / 2;
+    KeyboardHeight = KeySpace + (BtnHeight + KeySpace) * 5;
+    SpacebarWidth = KeyboardWidth - KeySpace * 8 - BtnWidth * 7;
+  </Set>
+  <Set ShowValue="KeyboardTop">KeypadTop</Set>
+  <Set ShowValue="KeyboardLeft">0</Set>
+
+  <!-- Base keyboard component -->
+  <Component Name="Keyboard">
+    <SetString>
+      ShiftSymbol = "⇧";
+      UnshiftSymbol = "⇩";
+      EnterSymbol = "⏎";
+    </SetString>
+    <Font Name="ShiftSymbolFont" FontFamily="Global Sans Serif" FontWeight="Bold" FontSize="92"/>
+    <Font Name="EnterSymbolFont" FontFamily="Global Sans Serif" FontWeight="Bold" FontSize="56"/>
+
+    <Grid Top="KeySpace" Left="KeySpace" RowHeight="BtnHeight+KeySpace" ColumnWidth="BtnWidth+KeySpace">
+      <Default>
+        <Ref RefName="Key" />
+        <Set>Button.Group = Keyboard</Set>
+      </Default>
+      <Row>
+        <Column><Set>Label.Text=1; Button.HotSpot=Key_1</Set></Column>
+        <Column><Set>Label.Text=2; Button.HotSpot=Key_2</Set></Column>
+        <Column><Set>Label.Text=3; Button.HotSpot=Key_3</Set></Column>
+        <Column><Set>Label.Text=4; Button.HotSpot=Key_4</Set></Column>
+        <Column><Set>Label.Text=5; Button.HotSpot=Key_5</Set></Column>
+        <Column><Set>Label.Text=6; Button.HotSpot=Key_6</Set></Column>
+        <Column><Set>Label.Text=7; Button.HotSpot=Key_7</Set></Column>
+        <Column><Set>Label.Text=8; Button.HotSpot=Key_8</Set></Column>
+        <Column><Set>Label.Text=9; Button.HotSpot=Key_9</Set></Column>
+        <Column><Set>Label.Text=0; Button.HotSpot=Key_0</Set></Column>
+        <Column><Set>Label.Text="-"; Button.HotSpot=Key_minus</Set></Column>
+        <Column><Set>Label.Text=⌫; Button.Width=BtnWidth * 3 / 2; Label.FontWeight=Bold; Button.HotSpot=Key_backspace</Set></Column>
+      </Row>
+      <Row Left="BtnWidth / 2">
+        <Column><Set>Label.Name=Text_q; Button.Name=Key_q</Set></Column>
+        <Column><Set>Label.Name=Text_w; Button.Name=Key_w</Set></Column>
+        <Column><Set>Label.Name=Text_e; Button.Name=Key_e</Set></Column>
+        <Column><Set>Label.Name=Text_r; Button.Name=Key_r</Set></Column>
+        <Column><Set>Label.Name=Text_t; Button.Name=Key_t</Set></Column>
+        <Column><Set>Label.Name=Text_y; Button.Name=Key_y</Set></Column>
+        <Column><Set>Label.Name=Text_u; Button.Name=Key_u</Set></Column>
+        <Column><Set>Label.Name=Text_i; Button.Name=Key_i</Set></Column>
+        <Column><Set>Label.Name=Text_o; Button.Name=Key_o</Set></Column>
+        <Column><Set>Label.Name=Text_p; Button.Name=Key_p</Set></Column>
+        <Column><Set>Label.Text="\""; Button.HotSpot=Key_quote</Set></Column>
+        <Column><Set>Label.Text='; Button.HotSpot=Key_apostrophe</Set></Column>
+      </Row>
+      <Row Left="BtnWidth">
+        <Column><Set>Label.Name=Text_a; Button.Name=Key_a</Set></Column>
+        <Column><Set>Label.Name=Text_s; Button.Name=Key_s</Set></Column>
+        <Column><Set>Label.Name=Text_d; Button.Name=Key_d</Set></Column>
+        <Column><Set>Label.Name=Text_f; Button.Name=Key_f</Set></Column>
+        <Column><Set>Label.Name=Text_g; Button.Name=Key_g</Set></Column>
+        <Column><Set>Label.Name=Text_h; Button.Name=Key_h</Set></Column>
+        <Column><Set>Label.Name=Text_j; Button.Name=Key_j</Set></Column>
+        <Column><Set>Label.Name=Text_k; Button.Name=Key_k</Set></Column>
+        <Column><Set>Label.Name=Text_l; Button.Name=Key_l</Set></Column>
+        <Column>
+          <SetString>Label.Text = "Done"</SetString>
+          <Set>
+            Label.Foreground = DarkGreen;
+            Label.FontSize = 48;
+            Label.FontWeight = Bold;
+            Button.Width = BtnWidth * 5 / 2 + KeySpace * 2;
+            Button.HotSpot=Key_enter;
+          </Set>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <SetString>Label.Text = ShiftSymbol</SetString>
+          <Set>
+            Label.Font = ShiftSymbolFont;
+            Label.Top = -18;
+            Label.Name = ShiftText;
+            Button.Width=BtnWidth * 3 / 2;
+            Button.HotSpot=Key_shift;
+            Button.Name=Key_shift;
+          </Set>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Name=Text_z; Button.Name=Key_z</Set></Column>
+        <Column><Set>Label.Name=Text_x; Button.Name=Key_x</Set></Column>
+        <Column><Set>Label.Name=Text_c; Button.Name=Key_c</Set></Column>
+        <Column><Set>Label.Name=Text_v; Button.Name=Key_v</Set></Column>
+        <Column><Set>Label.Name=Text_b; Button.Name=Key_b</Set></Column>
+        <Column><Set>Label.Name=Text_n; Button.Name=Key_n</Set></Column>
+        <Column><Set>Label.Name=Text_m; Button.Name=Key_m</Set></Column>
+        <Column>
+          <Set>
+            Label.Text=",";
+            Label.Name=Text_comma;
+            Button.HotSpot = Key_comma;
+            Button.Name=Key_comma
+          </Set>
+        </Column>
+        <Column><Set>Label.Text="."; Button.HotSpot=Key_period</Set></Column>
+        <Column><Set>Label.Text="/"; Button.HotSpot=Key_slash</Set></Column>
+      </Row>
+      <Row>
+        <Column>
+          <SetString>Label.Text = ShiftSymbol</SetString>
+          <Set>
+            Label.Font = ShiftSymbolFont;
+            Label.Top = -18;
+            Label.FontSize = 86;
+            Button.Width=BtnWidth * 3 / 2;
+            Button.HotSpot=Key_shiftLock;
+          </Set>
+          <TextBlock Left="34" Top="-10" FontSize="54" Text="_"/>
+        </Column>
+        <Column Left="BtnWidth / 2">
+          <Set>
+            Label.Text="#$(";
+            Label.Name=Text_symbols;
+            Button.Width=BtnWidth * 3 / 2;
+            Button.HotSpot=Key_symbols;
+            Button.Name=Key_symbols;
+            HomeBarTop = 14;
+            HomeBarBottom = 48;
+            HomeBarThickness = 3;
+            HomeBarPosition = 12;
+            EndBarPosition = 48;
+          </Set>
+        </Column>
+        <Column Left="BtnWidth / 2"><Set>Label.Text=" "; Button.HotSpot=Key_space; Button.Width=SpacebarWidth</Set></Column>
+        <Column Left="SpacebarWidth - BtnHeight">
+          <Set>
+            Label.Text=←;
+            Label.FontFamily=Calibri;
+            Button.HotSpot=Key_home;
+          </Set>
+          <Line Name="Test" X1="HomeBarPosition" Y1="HomeBarTop" X2="HomeBarPosition" Y2="HomeBarBottom" StrokeThickness="HomeBarThickness" Stroke="Black"/>
+        </Column>
+        <Column><Set>Label.Text=←; Label.FontFamily=Calibri; Button.HotSpot=Key_left</Set></Column>
+        <Column><Set>Label.Text=→; Label.FontFamily=Calibri; Button.HotSpot=Key_right</Set></Column>
+        <Column>
+          <Set>Label.Text=→; Label.FontFamily=Calibri; Button.HotSpot=Key_end</Set>
+          <Line Name="Test" X1="EndBarPosition" Y1="HomeBarTop" X2="EndBarPosition" Y2="HomeBarBottom" StrokeThickness="HomeBarThickness" Stroke="Black"/>
+        </Column>
+      </Row>
+    </Grid>
+  </Component>
+
+  <!-- Lower-case keyboard -->
+  <Canvas Name="KeyLower" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Ref RefName="Keyboard">
+      <Set>
+        Text_q.Text=q; Key_q.HotSpot = Key_q;
+        Text_w.Text=w; Key_w.HotSpot = Key_w;
+        Text_e.Text=e; Key_e.HotSpot = Key_e;
+        Text_r.Text=r; Key_r.HotSpot = Key_r;
+        Text_t.Text=t; Key_t.HotSpot = Key_t;
+        Text_y.Text=y; Key_y.HotSpot = Key_y;
+        Text_u.Text=u; Key_u.HotSpot = Key_u;
+        Text_i.Text=i; Key_i.HotSpot = Key_i;
+        Text_o.Text=o; Key_o.HotSpot = Key_o;
+        Text_p.Text=p; Key_p.HotSpot = Key_p;
+
+        Text_a.Text=a; Key_a.HotSpot = Key_a;
+        Text_s.Text=s; Key_s.HotSpot = Key_s;
+        Text_d.Text=d; Key_d.HotSpot = Key_d;
+        Text_f.Text=f; Key_f.HotSpot = Key_f;
+        Text_g.Text=g; Key_g.HotSpot = Key_g;
+        Text_h.Text=h; Key_h.HotSpot = Key_h;
+        Text_j.Text=j; Key_j.HotSpot = Key_j;
+        Text_k.Text=k; Key_k.HotSpot = Key_k;
+        Text_l.Text=l; Key_l.HotSpot = Key_l;
+
+        Text_z.Text=z; Key_z.HotSpot = Key_z;
+        Text_x.Text=x; Key_x.HotSpot = Key_x;
+        Text_c.Text=c; Key_c.HotSpot = Key_c;
+        Text_v.Text=v; Key_v.HotSpot = Key_v;
+        Text_b.Text=b; Key_b.HotSpot = Key_b;
+        Text_n.Text=n; Key_n.HotSpot = Key_n;
+        Text_m.Text=m; Key_m.HotSpot = Key_m;
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <!-- Upper-case keyboard -->
+  <Canvas Name="KeyUpper" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Ref RefName="Keyboard">
+      <SetString>ShiftText.Text = UnshiftSymbol</SetString>
+      <Set>
+        Text_q.Text=Q; Key_q.HotSpot = Key_Q;
+        Text_w.Text=W; Key_w.HotSpot = Key_W;
+        Text_e.Text=E; Key_e.HotSpot = Key_E;
+        Text_r.Text=R; Key_r.HotSpot = Key_R;
+        Text_t.Text=T; Key_t.HotSpot = Key_T;
+        Text_y.Text=Y; Key_y.HotSpot = Key_Y;
+        Text_u.Text=U; Key_u.HotSpot = Key_U;
+        Text_i.Text=I; Key_i.HotSpot = Key_I;
+        Text_o.Text=O; Key_o.HotSpot = Key_O;
+        Text_p.Text=P; Key_p.HotSpot = Key_P;
+
+        Text_a.Text=A; Key_a.HotSpot = Key_A;
+        Text_s.Text=S; Key_s.HotSpot = Key_S;
+        Text_d.Text=D; Key_d.HotSpot = Key_D;
+        Text_f.Text=F; Key_f.HotSpot = Key_F;
+        Text_g.Text=G; Key_g.HotSpot = Key_G;
+        Text_h.Text=H; Key_h.HotSpot = Key_H;
+        Text_j.Text=J; Key_j.HotSpot = Key_J;
+        Text_k.Text=K; Key_k.HotSpot = Key_K;
+        Text_l.Text=L; Key_l.HotSpot = Key_L;
+
+        Text_z.Text=Z; Key_z.HotSpot = Key_Z;
+        Text_x.Text=X; Key_x.HotSpot = Key_X;
+        Text_c.Text=C; Key_c.HotSpot = Key_C;
+        Text_v.Text=V; Key_v.HotSpot = Key_V;
+        Text_b.Text=B; Key_b.HotSpot = Key_B;
+        Text_n.Text=N; Key_n.HotSpot = Key_N;
+        Text_m.Text=M; Key_m.HotSpot = Key_M;
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <!-- Symbol keyboard -->
+  <Canvas Name="KeySymbol" ColorDepth="Color8bpp" Height="KeyboardHeight" Width="KeyboardWidth" Fill="Black">
+    <Ref RefName="Keyboard">
+      <Set>
+        Text_q.Text=~; Key_q.HotSpot = Key_tilde;
+        Text_w.Text=!; Key_w.HotSpot = Key_exclamation;
+        Text_e.Text=@; Key_e.HotSpot = Key_at;
+        Text_r.Text=#; Key_r.HotSpot = Key_hash;
+        Text_t.Text=$; Key_t.HotSpot = Key_dollar;
+        Text_y.Text=%; Key_y.HotSpot = Key_percent;
+        Text_u.Text=^; Key_u.HotSpot = Key_hat;
+        Text_i.Text=*; Key_i.HotSpot = Key_star;
+        Text_o.Text=(; Key_o.HotSpot = Key_lparen;
+        Text_p.Text=); Key_p.HotSpot = Key_rparen;
+
+        Text_a.Text=`; Key_a.HotSpot = Key_backApostrophe;
+        Text_s.Text=&amp;; Key_s.HotSpot = Key_ampersand;
+        Text_d.Text=_; Key_d.HotSpot = Key_underscore;
+        Text_f.Text=+; Key_f.HotSpot = Key_plus;
+        Text_g.Text="="; Key_g.HotSpot = Key_equal;
+        Text_h.Text=[; Key_h.HotSpot = Key_lbracket;
+        Text_j.Text=]; Key_j.HotSpot = Key_rbracket;
+        Text_k.Text={; Key_k.HotSpot = Key_lbrace;
+        Text_l.Text=}; Key_l.HotSpot = Key_rbrace;
+
+        Text_symbols.Text="abc"; Key_symbols.HotSpot = Key_normal;
+        Text_z.Text=|;    Key_z.HotSpot = Key_vbar;
+        Text_x.Text="\\"; Key_x.HotSpot = Key_backslash;
+        Text_c.Text=:;    Key_c.HotSpot = Key_colon;
+        Text_v.Text=";";  Key_v.HotSpot = Key_semi;
+        Text_b.Text=';    Key_b.HotSpot = Key_apostrophe;
+        Text_b.Text=&lt;; Key_b.HotSpot = Key_lessthan;
+        Text_n.Text=>;    Key_n.HotSpot = Key_greaterthan;
+        Text_m.Text=?;    Key_m.HotSpot = Key_question;
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <!-- Tool library import/export -->
+  <Set>
+    <!-- Clock set dialog -->
+    DateEntryWidth = ToolListWidth;
+    EntryHeight = 60;
+    DateTimeTop = 11;
+    DateTextOffset = (EntryHeight - SettingsFont_Height) / 2;
+    AmPmWidth = 60;
+    SeparatorGap = 3;
+    SeparatorWidth = 16;  <!-- including gap-->
+    TimeGap = 20;
+    EntryWidth = (DateEntryWidth - SeparatorWidth * 4 - KeySpace * 3 - TimeGap * 2 - BtnWidth - AmPmWidth) / 6;
+    DateWidth = EntryWidth * 3 + SeparatorWidth * 2;
+    DateLeft = KeySpace;
+    TimeLeft = DateLeft + DateWidth + TimeGap;
+    AmPmLeft = TimeLeft + DateWidth + KeySpace;
+    DoneButtonLeft = AmPmLeft + AmPmWidth + TimeGap;
+
+    <!-- Import/Export dialog -->
+    FileEntryHeight = BtnHeight;
+    RadioButtonSize = 32;
+    RadioButtonStrokeThickness = 4;
+    RadioButtonDot = 16;
+    RadioDotOffset = (RadioButtonSize - RadioButtonDot) / 2;
+    RadioImpExpWidth = 125; <!-- includes text -->
+    RadioDriveWidth = 104;
+    RadioButtonHeight = 50; <!-- vertical pitch-->
+    RadioButtonVoffset = (RadioButtonHeight - RadioButtonSize) / 2;
+    RadioButtonTop = (ToolLibHeight - 2 * RadioButtonHeight) / 2;
+    ImportCtrlsWidth = RadioImpExpWidth + RadioDriveWidth + KeySpace * 2 + BtnWidth * 2;
+    ImportCtrlsLeft = ToolLibWidth - ImportCtrlsWidth - KeySpace;
+    FileClearBtnLeft = ImportCtrlsLeft - KeySpace - ClearBtnWidth - 1;
+    FileClearBtnTop = (FileEntryHeight - ClearBtnHeight) / 2;
+    FileBoxWidth = ImportCtrlsLeft - KeySpace;
+    FileTextLeft = EditBoxMargin;
+    FileTextWidth = FileClearBtnLeft - 2 * EditBoxMargin;
+    ImportWarningTop = 75;
+    TimestampTop = 80;
+    SetButtonHeight = 46;
+
+    <!-- File list box -->
+    FileListWidth = (KeypadRight + 3) and not 3; <!-- must be multiple of 4-->
+    FileRowWidth = FileListWidth - ScrollBarWidth;
+  </Set>
+
+  <Set ShowValue="FileListWidth">FileListWidth</Set>
+  <Set ShowValue="FileRowHeight">ToolRowHeight</Set>
+  <Set ShowValue="FileListHeight">ToolListHeight</Set>
+
+  <Component Name="TimeEntry">
+    <Rectangle Name="EntryBox" Group="TimeSet" Height="EntryHeight" Width="EntryWidth" RadiusX="8" RadiusY="8" Fill="TimeEntryBackground">
+      <TextBlock Name="EntryText" Font="SettingsFont" Left="6" Top="DateTextOffset" Text="00" Foreground="TimeEntryForeground"/>
+      <Set>EntryText.Foreground = TimeEntryBackground</Set> <!-- blank the text -->
+    </Rectangle>
+  </Component>
+
+  <Component Name="Date">
+    <Ref RefName="TimeEntry">
+      <Set>
+        EntryBox.Name = Box1;
+        EntryText.Name = Text1;
+      </Set>
+    </Ref>
+    <TextBlock Name="Separator" Top="DateTextOffset" Left="EntryWidth + SeparatorGap" Font="SettingsFont" Foreground="ToolInfoForeground"/>
+    <Ref RefName="TimeEntry" Left="EntryWidth + SeparatorWidth">
+      <Set>
+        EntryBox.Name = Box2;
+        EntryText.Name = Text2;
+      </Set>
+    </Ref>
+    <TextBlock Name="Separator" Top="DateTextOffset" Left="2 * EntryWidth + SeparatorWidth + SeparatorGap" Font="SettingsFont" Foreground="White"/>
+    <Ref RefName="TimeEntry" Left="EntryWidth * 2 + SeparatorWidth * 2">
+      <Set>
+        EntryBox.Name = Box3;
+        EntryText.Name = Text3;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="DateTimeEntry">
+    <Ref RefName="Date" Left="DateLeft">
+      <Set>
+        Separator.Text = "/";
+        Box1.HotSpot = Month;
+        Box2.HotSpot = Day;
+        Box3.HotSpot = Year;
+        Text1.Area = Month;
+        Text2.Area = Day;
+        Text3.Area = Year;
+      </Set>
+    </Ref>
+    <Ref RefName="Date" Left="TimeLeft">
+      <Set>
+        Separator.Text = ":";
+        Box1.HotSpot = Hour;
+        Box2.HotSpot = Minute;
+        Box3.HotSpot = Second;
+        Text1.Area = Hour;
+        Text2.Area = Minute;
+        Text3.Area = Second;
+      </Set>
+    </Ref>
+    <Ref RefName="TimeEntry" Left="AmPmLeft">
+      <Set>
+        EntryText.Left = 4;
+        EntryText.Text = "pm";
+        EntryText.Area = AmPm;
+        EntryBox.Width = AmPmWidth;
+        EntryBox.HotSpot = AmPm;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="RadioButtonOff">
+    <Ellipse Name="Circle" Height="RadioButtonSize" Width="RadioButtonSize" StrokeThickness="RadioButtonStrokeThickness" Stroke="ToolInfoForeground"/>
+  </Component>
+
+  <Component Name="RadioButtonOn">
+    <Ref RefName="RadioButtonOff"/>
+    <Ellipse Height="RadioButtonDot" Width="RadioButtonDot" Top="RadioDotOffset" Left="RadioDotOffset" Fill="ToolInfoForeground"/>
+  </Component>
+
+  <Set>
+    RadioButtonTextTop = RadioButtonVoffset + 2;
+    RadioButtonTextLeft = RadioButtonSize + KeySpace + 5;
+  </Set>
+
+  <Component Name="RadioButtonTextOff">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioImpExpWidth">
+      <Ref RefName="RadioButtonOff" Top="RadioButtonVoffset" Left="KeySpace"/>
+      <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="RadioButtonTextOn">
+    <Rectangle Name="RadioBox" Height="RadioButtonHeight" Width="RadioImpExpWidth">
+      <Ref RefName="RadioButtonOn" Top="RadioButtonVoffset" Left="KeySpace"/>
+      <TextBlock Name="Text" Top="RadioButtonTextTop" Left="RadioButtonTextLeft" Font="CalcSmall" Foreground="ToolInfoForeground"/>
+    </Rectangle>
+  </Component>
+
+  <Component Name="ImportWarning">
+    <TextBlock Name="ImportWarning" Font="SettingsFont" FontSize="30" Foreground="ToolInfoForeground">Warning: All existing tools will be deleted first!</TextBlock>
+  </Component>
+
+  <Component Name="CurrentTime">
+    <TextBlock Name="TimestampLabel" Font="CalcSmall" Foreground="ToolInfoForeground">File timestamp:</TextBlock>
+  </Component>
+
+  <Component Name="TimeSetButton">
+    <Ref RefName="Key">
+      <Set>
+        Button.Height = SetButtonHeight;
+        Button.Fill = Green;
+        Label.Foreground = White;
+        Label.Text = "Set";
+        Label.FontSize = 28;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="EnterDateTime" Height="BtnHeight + 2 * KeySpace" Width="DateEntryWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Ref RefName="DateTimeEntry" Top="DateTimeTop"/>
+    <Ref RefName="DoneButton" Top="KeySpace" Left="DoneButtonLeft">
+      <Set>
+        Button.HotSpot = TimeEntryDone;
+        Button.Group = ToolLib;
+        Label.Text = "";
+      </Set>
+    </Ref>
+  </Canvas>
+
+  <Set>
+    ImportIconAdj = 4;
+    ExportIconAdj = ImportIconAdj;
+    AddFolderAdj = 0;
+    OpenFolderAdj = 3;
+    RadioImpExpLeft = RadioDriveWidth;
+    ImpExpButtonLeft = RadioImpExpLeft + RadioImpExpWidth + KeySpace;
+    ImpExpCancelLeft = ImpExpButtonLeft + BtnWidth + KeySpace;
+  </Set>
+
+  <Component Name="ImportButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Import128.png;
+        Icon.Height = ToolBtnHeight - ImportIconAdj;
+        Icon.Width = ToolBtnWidth - ImportIconAdj;
+        Icon.Top = ImportIconAdj / 2;
+        Icon.Left = ImportIconAdj / 2;
+        Label.Text = Load;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="ExportButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Export128.png;
+        Icon.Height = ToolBtnHeight - ExportIconAdj;
+        Icon.Width = ToolBtnWidth - ExportIconAdj;
+        Icon.Top = ExportIconAdj / 2;
+        Icon.Left = ExportIconAdj / 2;
+        Label.Text = Save;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="AddFolderButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = AddFolder128.png;
+        Icon.Height = ToolBtnHeight - AddFolderAdj;
+        Icon.Width = ToolBtnWidth - AddFolderAdj;
+        Icon.Top = 4;
+        Icon.Left = 4;
+        Label.Text = "  Add&#xA;Folder";
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="OpenFolderButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = OpenFolder128.png;
+        Icon.Height = ToolBtnHeight - OpenFolderAdj;
+        Icon.Width = ToolBtnWidth - OpenFolderAdj;
+        Icon.Top = 2;
+        Icon.Left = 2;
+        Label.Text = "Open&#xA;Folder";
+      </Set>
+    </Ref>
+  </Component>
+
+  <Canvas Name="LoadSave" Type="Overlay" Height="ToolCtrlHeight" ItemWidth="BtnWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Item>
+      <Ref RefName="ImportButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="ExportButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="AddFolderButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="OpenFolderButton"/>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="RadioButtons" Type="Overlay" Height="RadioButtonSize" ItemWidth="RadioButtonSize" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Item>
+      <Ref RefName="RadioButtonOff"/>
+    </Item>
+    <Item>
+      <Ref RefName="RadioButtonOn"/>
+    </Item>
+    <Item>
+      <Rectangle Height="RadioButtonSize" Width="RadioButtonSize">
+        <Image Source="DoesNotExist128.png" Height="RadioButtonSize" Width="RadioButtonSize"/>
+      </Rectangle>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="ImportWarning" Type="Overlay" Height="ImportWarning.Height" Width="ImportWarning.Width" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="ImportWarning"/>
+  </Canvas>
+
+  <Canvas Name="TimestampLabel" Type="Overlay" Height="TimestampLabel.Height" Width="TimestampLabel.Width" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="CurrentTime"/>
+  </Canvas>
+
+  <Canvas Name="TimeSetButton" Type="Overlay" Height="SetButtonHeight" Width="BtnWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground">
+    <Ref RefName="TimeSetButton"/>
+  </Canvas>
+
+  <!-- Scroll Thumb -->
+  <Canvas Name="ScrollThumb" Type="Overlay" Height="ScrollThumbHeight" Width="ScrollThumbWidth" ColorDepth="Color16bpp" Fill="ScrollBarColor">
+    <Set>
+      GripLeft = 8;
+      GripRight = ScrollThumbWidth - GripLeft - 1;
+      GripFirstTop = 10;
+      GripCount = 4;
+      GripPitch = (ScrollThumbHeight - 2 * GripFirstTop) / (GripCount - 1);
+      GripTop = GripPitch / 2;
+    </Set>
+    <Rectangle Height="ScrollThumbHeight" Width="ScrollThumbWidth" RadiusX="5" RadiusY="5" Fill="Gold">
+      <Grid ColumnWidth="0" RowHeight="GripPitch">
+        <Default>
+          <Line X1="GripLeft" Y1="GripTop" X2="GripRight" Y2="GripTop" StrokeThickness="1" Stroke="DarkSlateGray"/>
+        </Default>
+        <Row Top="GripFirstTop - GripTop">
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+        <Row>
+          <Column/>
+        </Row>
+      </Grid>
+    </Rectangle>
+  </Canvas>
+
+  <!-- Tool Import -->
+  <Canvas Name="ToolImport" Height="ToolLibHeight" Width="ToolLibWidth" ColorDepth="Color16bpp" Fill="ToolInfoBackground" WidthMultiple="4">
+    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="FileBoxWidth" StrokeThickness="1" Stroke="ToolInfoForeground">
+      <Rectangle HotSpot="FileName" Group="ToolLib" Height="FileEntryHeight" Width="FileTextWidth"/>
+      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="FileTextLeft"
+        Height="SmallTextHeight" Width="FileTextWidth"/>
+      <Image HotSpot="ClearFile" Group="ToolLib" Source="Delete128.png" Left="FileClearBtnLeft" Top="FileClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    </Rectangle>
+    <Rectangle Left="ImportCtrlsLeft" Height="ToolLibHeight" Width="ToolLibWidth">
+      <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop">
+        <Set>
+          Text.Text = USB;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = UsbDriveRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = UsbDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight">
+        <Set>
+          Text.Text = SD;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = SdDriveRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = SdDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOn" Top="RadioButtonTop" Left="RadioImpExpLeft">
+        <Set>
+          Text.Text = Import;
+          RadioBox.HotSpot = ImportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = ImportBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="RadioButtonTop + RadioButtonHeight" Left="RadioImpExpLeft">
+        <Set>
+          Text.Text = Export;
+          RadioBox.HotSpot = ExportRadio;
+          RadioBox.Group = ToolLib;
+          Circle.Area = ExportBox;
+        </Set>
+      </Ref>
+      <Rectangle Area="ImpExpButton" Left="ImpExpButtonLeft" Top="KeySpace" Width="BtnWidth" Height="ToolCtrlHeight">
+        <Ref RefName="ImportButton">
+          <Set>
+            Button.Group = ToolLib;
+            Button.HotSpot = ImpExpExecute;
+          </Set>
+        </Ref>
+      </Rectangle>
+      <Ref RefName="CancelButton" Left="ImpExpCancelLeft" Top="KeySpace">
+        <Set>
+          Button.Group = ToolLib;
+          Button.HotSpot = ImpExpCancel;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Top="TimestampTop" Left="KeySpace" Height="TimestampLabel.Height" Width="500">
+      <Rectangle Area="TimeLabel" Height="TimestampLabel.Height" Width="TimestampLabel.Width">
+        <Ref RefName="CurrentTime">
+          <Set>TimestampLabel.Foreground = ToolInfoBackground</Set> <!-- blank the text -->
+        </Ref>
+      </Rectangle>
+      <Set>
+        SetButtonLeft = DoneButtonLeft - KeySpace; <!-- Line it up with time entry Done button -->
+        LiveTimeLeft = TimestampLabel.Width + KeySpace;
+        LiveTimeWidth = SetButtonLeft - LiveTimeLeft - 1;
+      </Set>
+      <Rectangle Area="LiveTime" Left="LiveTimeLeft" Height="SmallTextHeight" Width="LiveTimeWidth">
+      </Rectangle>
+      <Ref RefName="TimeSetButton" Top="-9" Left="SetButtonLeft">
+        <Set>
+          Button.Area = TimeSetButton;
+          Button.HotSpot = TimeSet;
+          Button.Group = ToolLib;
+          Button.Fill = ToolInfoBackground;  <!-- blank the button -->
+          Label.Foreground = ToolInfoBackground;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Area="ImportWarning" Top="ImportWarningTop" Left="KeySpace" Width="ImportWarning.Width" Height="ImportWarning.Height">
+      <Ref RefName="ImportWarning">
+        <!-- <Set>ImportWarning.Foreground = ToolInfoBackground</Set> blank the text -->
+      </Ref>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="FileRow" Height="ToolRowHeight + 1" Width="FileRowWidth" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Set>
+      FileColumnGap = 2 * KeySpace;
+      IconSize = 32;
+      IconLeft = 5;
+      FileTextLeft = IconSize + IconLeft * 2;
+      FileTextWidth = FileRowWidth - FileTextLeft - KeySpace * 2;
+      FileSizeWidth = 90;
+      FileTimeWidth = 105;
+      FileDateWidth = 125;
+      FileSizeLeft = FileTextWidth - FileSizeWidth;
+      FileTimeLeft = FileSizeLeft - FileTimeWidth - FileColumnGap;
+      FileDateLeft = FileTimeLeft - FileDateWidth - FileColumnGap;
+      FileNameLeft = 0;
+      FileNameWidth = FileDateLeft - FileNameLeft - FileColumnGap;
+    </Set>
+    <Rectangle Left="KeySpace" Height="ToolRowHeight + 1" Width="FileRowWidth - KeySpace" Stroke="ToolInfoForeground" StrokeThickness="1">
+      <Rectangle Area="AllText" Top="12" Left="FileTextLeft" Height="SmallTextHeight" Width="FileTextWidth">
+        <Rectangle Area="FileSize" Left="FileSizeLeft" Width="FileSizeWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileTime" Left="FileTimeLeft" Width="FileTimeWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileDate" Left="FileDateLeft" Width="FileDateWidth" Height="SmallTextHeight"/>
+        <Rectangle Area="FileName" Left="FileNameLeft" Width="FileNameWidth" Height="SmallTextHeight"/>
+      </Rectangle>
+      <Image Left="IconLeft" Top="10" Area="FileIcon" Height="IconSize" Width="IconSize" Source=""/>
+    </Rectangle>
+  </Canvas>
+
+  <Canvas Name="FileIcons" Type="Overlay" Height="IconSize" ItemWidth="IconSize" ColorDepth="Color16bpp" Fill="ToolLibBackground">
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="File128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Folder128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Back128.png"/>
+    </Item>
+    <Item>
+      <Image Height="IconSize" Width="IconSize" Source="Error128.png"/>
+    </Item>
+  </Canvas>
+
+  <!-- Firmware Update -->
+  <Set>
+    UpdateHeight = 148;
+    UpdateWidth = ScreenWidth;
+    UpdateCtrlsWidth = RadioDriveWidth + KeySpace * 3 + BtnWidth * 2;
+    UpdateCtrlsLeft = UpdateWidth - UpdateCtrlsWidth;
+    UpdateCtrlHeight = ToolBtnHeight + 25;  <!-- include room for label -->
+    UpdateLoadLeft = RadioDriveWidth + KeySpace;
+    UpdateCancelLeft = UpdateLoadLeft + BtnWidth + KeySpace;
+    UpdateFileBoxWidth = UpdateCtrlsLeft - KeySpace;
+    UpdateClearBtnLeft = UpdateCtrlsLeft - KeySpace - ClearBtnWidth - 1;
+    UpdateFileTextWidth = UpdateClearBtnLeft - 2 * EditBoxMargin;
+    CurrentVersionTop = 75;
+    VersionWidth = 4 * 14; <!-- four numbers -->
+    VersionLineSpace = SmallTextHeight + 5;
+    VersionSeparatorGap = 10;
+    UpdateRadioButtonTop = 0;
+    CheckboxSpotWidth = 56;
+    CheckboxSpotHeight = 56;
+  </Set>
+  <Set ShowValue="UpdateFileListTop">UpdateHeight</Set>
+  <Set ShowValue="UpdateFileListHeight">ScreenHeight - UpdateHeight</Set>
+
+  <Color Name="UpdateBackground" Color="ToolInfoBackground"/>
+  <Color Name="UpdateForeground" Color="ToolInfoForeground"/>
+
+  <Component Name="VersionNumber">
+    <TextBlock Name="VersionText" Width="VersionWidth" Font="CalcSmall" Text="0001" Foreground="UpdateForeground"/>
+    <Set>VersionText.Foreground = UpdateBackground</Set> <!-- Blank the text -->
+  </Component>
+
+  <Component Name="VersionSeparator">
+    <TextBlock Name="VersionSeparatorText" Font="CalcSmall" Text=" " Left="VersionSeparatorGap" Top="0" Foreground="Silver"/>
+  </Component>
+
+  <Set>
+    <!-- Adjust size of icon, keeping it centered -->
+    InspectIconAdj = 0;
+    UpdateIconAdj = 6;
+  </Set>
+
+  <Component Name="InspectButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Inspect128.png;
+        Icon.Height = ToolBtnHeight - InspectIconAdj;
+        Icon.Width = ToolBtnWidth - InspectIconAdj;
+        Icon.Top = InspectIconAdj / 2;
+        Icon.Left = InspectIconAdj / 2;
+        Label.Text = Inspect;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="UpdateButton">
+    <Ref RefName="ToolButton">
+      <Set>
+        Icon.Source = Update.png;
+        Icon.Height = ToolBtnHeight - UpdateIconAdj;
+        Icon.Width = ToolBtnWidth - UpdateIconAdj;
+        Icon.Top = UpdateIconAdj / 2;
+        Icon.Left = UpdateIconAdj / 2;
+        Label.Text = Update;
+      </Set>
+    </Ref>
+  </Component>
+
+  <Component Name="UpdateLabel">
+    <TextBlock Name="UpdateLabel" Font="CalcSmall" Foreground="UpdateForeground">Update:</TextBlock>
+  </Component>
+
+  <Canvas Name="UpdateCheck" Type="Overlay" Height="CheckboxSize" ItemWidth="CheckboxSize" Fill="UpdateBackground" ColorDepth="Color16bpp">
+    <Item>
+      <Ref RefName="UncheckedBox"/>
+      <Set>Check.Fill = UpdateBackground</Set>
+    </Item>
+    <Item>
+      <Ref RefName="CheckedBox"/>
+      <Set>Check.Fill = UpdateBackground</Set>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="InspectUpdate" Type="Overlay" Height="UpdateCtrlHeight" ItemWidth="BtnWidth" ColorDepth="Color16bpp" Fill="UpdateBackground">
+    <Item>
+      <Ref RefName="InspectButton"/>
+    </Item>
+    <Item>
+      <Ref RefName="UpdateButton"/>
+    </Item>
+  </Canvas>
+
+  <Canvas Name="UpdateLabel" Type="Overlay" Height="UpdateLabel.Height" Width="UpdateLabel.Width" ColorDepth="Color16bpp" Fill="UpdateBackground">
+    <Ref RefName="UpdateLabel"/>
+  </Canvas>
+
+  <Canvas Name="UpdateDialog" Height="UpdateHeight" Width="UpdateWidth" ColorDepth="Color16bpp" Fill="UpdateBackground" WidthMultiple="4">
+    <Rectangle Top="KeySpace" Left="KeySpace" Height="FileEntryHeight" Width="UpdateFileBoxWidth" StrokeThickness="1" Stroke="UpdateForeground">
+      <Rectangle HotSpot="FileName" Group="Update" Height="FileEntryHeight" Width="UpdateFileTextWidth"/>
+      <Rectangle Area="FileName" Top="(FileEntryHeight - SmallTextHeight) / 2" Left="EditBoxMargin"
+        Height="SmallTextHeight" Width="UpdateFileTextWidth"/>
+      <Image HotSpot="ClearFile" Group="Update" Source="Delete128.png" Left="UpdateClearBtnLeft" Top="FileClearBtnTop" Height="ClearBtnHeight" Width="ClearBtnWidth"/>
+    </Rectangle>
+    <Rectangle Left="UpdateCtrlsLeft" Height="UpdateHeight" Width="UpdateCtrlsWidth">
+      <Ref RefName="RadioButtonTextOn" Top="UpdateRadioButtonTop">
+        <Set>
+          Text.Text = USB;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = UsbDriveRadio;
+          RadioBox.Group = Update;
+          Circle.Area = UsbDriveBox;
+        </Set>
+      </Ref>
+      <Ref RefName="RadioButtonTextOff" Top="UpdateRadioButtonTop + RadioButtonHeight">
+        <Set>
+          Text.Text = SD;
+          RadioBox.Width = RadioDriveWidth;
+          RadioBox.HotSpot = SdDriveRadio;
+          RadioBox.Group = Update;
+          Circle.Area = SdDriveBox;
+        </Set>
+      </Ref>
+      <Rectangle Area="UpdateButton" Left="UpdateLoadLeft" Top="KeySpace" Width="BtnWidth" Height="UpdateCtrlHeight">
+        <Ref RefName="InspectButton">
+          <Set>
+            Button.Group = Update;
+            Button.HotSpot = UpdateExecute;
+          </Set>
+        </Ref>
+      </Rectangle>
+      <Ref RefName="CancelButton" Left="UpdateCancelLeft" Top="KeySpace">
+        <Set>
+          Button.Group = Update;
+          Button.HotSpot = UpdateCancel;
+        </Set>
+      </Ref>
+    </Rectangle>
+    <Rectangle Top="CurrentVersionTop" Left="KeySpace" Width="UpdateWidth" Height="SmallTextHeight">
+      <TextBlock Name="CurrentVersionLabel" Left="0" Font="CalcSmall" Foreground="UpdateForeground">Current Firmware: </TextBlock>
+      <Set>
+        FirmwareVersionLeft = CurrentVersionLabel.Width;
+        VersionSeparatorWidth = VersionSeparatorText.Width;
+        FirmwareSeparatorLeft = FirmwareVersionLeft + VersionWidth;
+        GraphicsLabelLeft = FirmwareSeparatorLeft + VersionSeparatorWidth + 2 * VersionSeparatorGap;
+      </Set>
+      <Ref RefName="VersionNumber" Left="FirmwareVersionLeft">
+        <Set>VersionText.Area = CurrrentFirmware</Set>
+      </Ref>
+      <Ref RefName="VersionSeparator" Left="FirmwareSeparatorLeft"/>
+      <TextBlock Name="GraphicsLabel" Left="GraphicsLabelLeft" Font="CalcSmall" Foreground="UpdateForeground">Graphics: </TextBlock>
+      <Set>
+        GraphicsVersionLeft = GraphicsLabelLeft + GraphicsLabel.Width;
+        GraphicsSeparatorLeft = GraphicsVersionLeft + VersionWidth;
+        FontLabelLeft = GraphicsSeparatorLeft + VersionSeparatorWidth + 2 * VersionSeparatorGap;
+      </Set>
+      <!-- The order of the version number Areas is used in code -->
+      <Ref RefName="VersionNumber" Left="GraphicsVersionLeft">
+        <Set>VersionText.Area = CurrrentGraphics</Set>
+      </Ref>
+      <Ref RefName="VersionSeparator" Left="GraphicsSeparatorLeft"/>
+      <TextBlock Name="FontsLabel" Left="FontLabelLeft" Font="CalcSmall" Foreground="UpdateForeground">Fonts: </TextBlock>
+      <Set>
+        FontVersionLeft = FontLabelLeft + FontsLabel.Width;
+        ProgressBarWidth = FontVersionLeft + VersionWidth + KeySpace;
+      </Set>
+      <Ref RefName="VersionNumber" Left="FontVersionLeft">
+        <Set>VersionText.Area = CurrrentFonts</Set>
+      </Ref>
+      <Rectangle Area="ProgressBar" Top="VersionLineSpace" Width="ProgressBarWidth" Height="SmallTextHeight">
+        <Ref RefName="UpdateLabel">
+          <Set>
+            UpdateLabel.Area = UpdateLabel;
+            UpdateLabel.Foreground = UpdateBackground; <!-- Hide the text -->
+          </Set>
+        </Ref>
+        <!-- The order of the version number Areas is used in code -->
+        <Ref RefName="VersionNumber" Left="FirmwareVersionLeft">
+          <Set>VersionText.Area = UpdateFirmware</Set>
+        </Ref>
+        <Ref RefName="VersionSeparator" Left="FirmwareSeparatorLeft"/>
+        <Ref RefName="VersionNumber" Left="GraphicsVersionLeft">
+          <Set>VersionText.Area = UpdateGraphics</Set>
+        </Ref>
+        <Ref RefName="VersionSeparator" Left="GraphicsSeparatorLeft"/>
+        <Ref RefName="VersionNumber" Left="FontVersionLeft">
+          <Set>VersionText.Area = UpdateFonts</Set>
+        </Ref>
+        <TextBlock Name="VersionCheck" Font="CalcSmall" Foreground="UpdateForeground">Update even if versions match</TextBlock>
+        <Set>
+          VersionCheckLeft = UpdateWidth - KeySpace * 2 - VersionCheck.Width;
+          VersionCheck.Left = VersionCheckLeft;
+          CheckboxLeft = VersionCheckLeft - CheckboxSize - KeySpace;
+          CheckboxTop = (SmallTextHeight - CheckboxSize) / 2;
+        </Set>
+        <Rectangle HotSpot="VersionMatch" Group="Update" Height="CheckboxSpotHeight" Width="CheckboxSpotWidth"
+          Left="CheckboxLeft - (CheckboxSpotWidth - CheckboxSize) / 2" Top="CheckboxTop - (CheckboxSpotHeight - CheckboxSize) / 2">
+        </Rectangle>
+        <Ref RefName="UncheckedBox" Left="CheckboxLeft" Top="CheckboxTop">
+          <Set>
+            Check.Fill = UpdateBackground;
+            Check.Area = VersionMatch;
+          </Set>
+        </Ref>
+      </Rectangle>
+    </Rectangle>
+  </Canvas>
+</Project>
