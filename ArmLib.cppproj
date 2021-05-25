@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>7.0</ProjectVersion>
+    <ToolchainName>com.Atmel.ARMGCC.CPP</ToolchainName>
+    <ProjectGuid>{fa48cdfc-e239-4f64-8325-be52a759b0bf}</ProjectGuid>
+    <avrdevice>ATSAMD20E16</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>StaticLibrary</OutputType>
+    <Language>CPP</Language>
+    <OutputFileName>lib$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.a</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AvrGccProjectExtensions>
+    </AvrGccProjectExtensions>
+    <AssemblyName>ArmLib</AssemblyName>
+    <Name>ArmLib</Name>
+    <RootNamespace>ArmLib</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress />
+    <UncachedRange />
+    <preserveEEPROM>true</preserveEEPROM>
+    <OverrideVtorValue />
+    <BootSegment>2</BootSegment>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <AsfFrameworkConfig>
+      <framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.42.0" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+    <SccProjectName>
+    </SccProjectName>
+    <SccProvider>
+    </SccProvider>
+    <SccAuxPath />
+    <SccLocalPath>
+    </SccLocalPath>
+    <ResetRule>0</ResetRule>
+    <EraseKey />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <ArmGccCpp>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcccpp.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </armgcccpp.compiler.symbols.DefSymbols>
+        <armgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.compiler.directories.IncludePaths>
+        <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
+        <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
+        <armgcccpp.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.Libraries>
+        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.assembler.general.IncludePaths>
+        <armgcccpp.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.preprocessingassembler.general.IncludePaths>
+      </ArmGccCpp>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <ArmGccCpp>
+        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+        <armgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </armgcc.compiler.symbols.DefSymbols>
+        <armgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
+        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+        <armgcccpp.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </armgcccpp.compiler.symbols.DefSymbols>
+        <armgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.compiler.directories.IncludePaths>
+        <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
+        <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
+        <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
+        <armgcccpp.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </armgcccpp.linker.libraries.Libraries>
+        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.assembler.general.IncludePaths>
+        <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
+        <armgcccpp.preprocessingassembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\SAMD20_DFP\1.0.41\include</Value>
+            <Value>%24(PackRepoDir)\arm\cmsis\4.2.0\CMSIS\Include\</Value>
+          </ListValues>
+        </armgcccpp.preprocessingassembler.general.IncludePaths>
+        <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
+      </ArmGccCpp>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="FatFile\" />
+    <Folder Include="FatFile\SdCard" />
+    <Folder Include="Com" />
+    <Folder Include="Lib\" />
+    <Folder Include="Math" />
+    <Folder Include="Dma" />
+    <Folder Include="Nvm" />
+    <Folder Include="Usb\" />
+    <Folder Include="Usb\Device\" />
+    <Folder Include="Usb\Device\FT232" />
+    <Folder Include="Usb\Device\FlashDrive" />
+    <Folder Include="Usb\Device\WinUsb\" />
+    <Folder Include="Usb\Host\" />
+    <Folder Include="Usb\Host\Drivers" />
+    <Folder Include="Timer" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Com\DmaUsart.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Com\Spi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Dma\Dmac.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\Fat.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatBuffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatDrive.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatFile.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatFileConst.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatSys.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\FatSysWait.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\SdCard\SdCard.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\SdCard\SdConst.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FatFile\Storage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Com\IoBuf.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Com\UsartBuf.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Math\DecimalToFrac.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Nvm\EepromMgr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Nvm\Nvm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam_spec.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="standard.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="stdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Timer\InputCapture.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Timer\Rtc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\FT232\FT232.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\FT232\FT232Def.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\FlashDrive\FlashDrive.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\FlashDrive\FlashDriveDef.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\SamUsbDevice.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\USBdevice.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\WinUsb\MsftUsb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Device\WinUsb\WinUsb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\Drivers\FlashDriveHost.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\Drivers\KeyboardDef.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\Drivers\KeyboardHost.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\Drivers\MouseHost.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\SamUsbHost.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\USBhost.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Host\UsbHostDriver.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\Usb.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\UsbCtrl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Usb\UsbMassStorage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Timer\TimerLib.h">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Lib\libDivas.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-l-flt.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-l.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-ll-dbl.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-ll-flt-dbl.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-ll-flt.a">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="Lib\libstdio-ll.a">
+      <SubType>compile</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
