@@ -155,7 +155,7 @@
       </ArmGccCpp>
     </ToolchainSettings>
     <PostBuildEvent>"$(ToolchainDir)\arm-none-eabi-objdump" -h -S -C $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension) &gt; $(OutputDirectory)\$(OutputFileName).lss
-DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"</PostBuildEvent>
+"$(SolutionDir)..\bin\DroUpdateBuilder" "$(OutputDirectory)\$(OutputFileName).bin"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -256,9 +256,9 @@ DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"</PostBuildEvent>
         <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
       </ArmGccCpp>
     </ToolchainSettings>
-    <PostBuildEvent>FixDebugInfo $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)
+    <PostBuildEvent>"$(SolutionDir)..\bin\FixDebugInfo" $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)
 "$(ToolchainDir)\arm-none-eabi-objdump" -h -S -C $(OutputDirectory)\$(OutputFileName)$(OutputFileExtension) &gt; $(OutputDirectory)\$(OutputFileName).lss
-DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"
+"$(SolutionDir)..\bin\DroUpdateBuilder" "$(OutputDirectory)\$(OutputFileName).bin"
 </PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
