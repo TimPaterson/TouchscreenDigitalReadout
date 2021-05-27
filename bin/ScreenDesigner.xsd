@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- definition of attributes -->
+  <xs:attribute name="Name" type="xs:string"/>
+  <xs:attribute name="RefName" type="xs:string"/>
+  <xs:attribute name="Fill" type="xs:string"/>
+  <xs:attribute name="Location" type="xs:string"/>
+  <xs:attribute name="Height" type="xs:string"/>
+  <xs:attribute name="Width" type="xs:string"/>
+  <xs:attribute name="RowHeight" type="xs:string"/>
+  <xs:attribute name="ColumnWidth" type="xs:string"/>
+  <xs:attribute name="StrokeThickness" type="xs:string"/>
+  <xs:attribute name="Stroke" type="xs:string"/>
+  <xs:attribute name="Top" type="xs:string"/>
+  <xs:attribute name="Left" type="xs:string"/>
+  <xs:attribute name="Group" type="xs:string"/>
+  <xs:attribute name="ColorDepth" type="BitsPerPixel"/>
+  <xs:attribute name="ShowValue" type="xs:string"/>
+  <xs:attribute name="StrideMultiple" type="Multiple"/>
+  <xs:attribute name="WidthMultiple" type="Multiple"/>
+
+  <xs:attributeGroup name="Element">
+    <xs:attribute ref="Name"/>
+    <xs:attribute ref="Top" />
+    <xs:attribute ref="Left" />
+    <xs:attribute ref="Location" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="AreaGroup">
+    <xs:attribute name="Area" type="xs:string"/>
+    <xs:attribute name="Group" type="xs:string"/>
+    <xs:attribute name="HotSpot" type="xs:string" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="FontGroup">
+    <xs:attribute name="FontFamily" type="xs:string" />
+    <xs:attribute name="FontWeight" type="FontWeights" />
+    <xs:attribute name="FontStyle" type="FontStyles" />
+    <xs:attribute name="FontStretch" type="FontStretches" />
+    <xs:attribute name="FontSize" type="xs:string" />
+    <xs:attribute name="Font" type="xs:string" />
+  </xs:attributeGroup>
+
+  <xs:simpleType name="BitsPerPixel">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Color8bpp" />
+      <xs:enumeration value="Color16bpp" />
+      <xs:enumeration value="Color24bpp" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Multiple">
+    <xs:restriction base="xs:integer">
+      <xs:enumeration value="1" />
+      <xs:enumeration value="2" />
+      <xs:enumeration value="4" />
+      <xs:enumeration value="8" />
+      <xs:enumeration value="16" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FontStretches">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UltraCondensed" />
+      <xs:enumeration value="ExtraCondensed" />
+      <xs:enumeration value="Condensed" />
+      <xs:enumeration value="SemiCondensed" />
+      <xs:enumeration value="Normal" />
+      <xs:enumeration value="Medium" />
+      <xs:enumeration value="SemiExpanded" />
+      <xs:enumeration value="Expanded" />
+      <xs:enumeration value="ExtraExpanded" />
+      <xs:enumeration value="UltraExpanded" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FontWeights">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Thin" />
+      <xs:enumeration value="ExtraLight" />
+      <xs:enumeration value="UltraLight" />
+      <xs:enumeration value="Light" />
+      <xs:enumeration value="Normal" />
+      <xs:enumeration value="Regular" />
+      <xs:enumeration value="Medium" />
+      <xs:enumeration value="DemiBold" />
+      <xs:enumeration value="SemiBold" />
+      <xs:enumeration value="Bold" />
+      <xs:enumeration value="ExtraBold" />
+      <xs:enumeration value="UltraBold" />
+      <xs:enumeration value="Black" />
+      <xs:enumeration value="Heavy" />
+      <xs:enumeration value="ExtraBlack" />
+      <xs:enumeration value="UltraBlack" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FontStyles">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Italic" />
+      <xs:enumeration value="Normal" />
+      <xs:enumeration value="Oblique" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- definition of complex elements -->
+  <xs:complexType name="TopContent_t">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element ref="Grid" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Rectangle" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Ellipse" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Line" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="TextBlock" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Image" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Set" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="SetString" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Font" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Color" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Ref" minOccurs="0" maxOccurs="unbounded" />
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:element name="Project">
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="Canvas" maxOccurs="unbounded" />
+        <xs:element ref="Component" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="Set" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="SetString" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="Font" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="Color" minOccurs="0" maxOccurs="unbounded" />
+      </xs:choice>
+      <xs:attribute ref="StrideMultiple"/>
+      <xs:attribute ref="WidthMultiple"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Component_t">
+    <xs:complexContent>
+      <xs:extension base="TopContent_t">
+        <xs:attribute ref="Name" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Component" type="Component_t" />
+
+  <xs:complexType name="Canvas_t">
+    <xs:complexContent>
+      <xs:extension base="TopContent_t">
+        <xs:sequence>
+          <xs:element ref="Item" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute ref="Name" use="required"/>
+        <xs:attribute ref="Height" use="required"/>
+        <xs:attribute ref="Width"/>
+        <xs:attribute ref="StrideMultiple"/>
+        <xs:attribute ref="WidthMultiple"/>
+        <xs:attribute ref="Fill" use="required"/>
+        <xs:attribute ref="ColorDepth" use="required"/>
+        <xs:attribute name="Type" type="xs:string"/>
+        <xs:attribute name="ItemWidth" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Item" type="Content_t" />
+  
+  <xs:element name="Canvas" type="Canvas_t" />
+
+  <xs:complexType name="Content_t">
+    <xs:complexContent>
+      <xs:extension base="TopContent_t">
+        <xs:attributeGroup ref="Element" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Rectangle_t">
+    <xs:complexContent>
+      <xs:extension base="Content_t">
+        <xs:attributeGroup ref="AreaGroup" />
+        <xs:attribute ref="Height" use="required" />
+        <xs:attribute ref="Width" use="required" />
+        <xs:attribute ref="StrokeThickness" />
+        <xs:attribute ref="Stroke" />
+        <xs:attribute ref="Fill" />
+        <xs:attribute name="RadiusX" type="xs:string" />
+        <xs:attribute name="RadiusY" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Rectangle" type="Rectangle_t" />
+
+  <xs:complexType name="Ellipse_t">
+    <xs:complexContent>
+      <xs:extension base="Content_t">
+        <xs:attributeGroup ref="AreaGroup" />
+        <xs:attribute ref="Height" use="required" />
+        <xs:attribute ref="Width" use="required" />
+        <xs:attribute ref="StrokeThickness" />
+        <xs:attribute ref="Stroke" />
+        <xs:attribute ref="Fill" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Ellipse" type="Ellipse_t" />
+
+  <xs:complexType name="Line_t">
+    <xs:complexContent>
+      <xs:extension base="Content_t">
+        <xs:attribute name="X1" type="xs:string" use="required" />
+        <xs:attribute name="Y1" type="xs:string" use="required" />
+        <xs:attribute name="X2" type="xs:string" use="required" />
+        <xs:attribute name="Y2" type="xs:string" use="required" />
+        <xs:attribute ref="Height" />
+        <xs:attribute ref="Width" />
+        <xs:attribute ref="StrokeThickness" />
+        <xs:attribute ref="Stroke" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Line" type="Line_t" />
+
+  <xs:element name="TextBlock">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="Element" />
+          <xs:attributeGroup ref="AreaGroup" />
+          <xs:attributeGroup ref="FontGroup" />
+          <xs:attribute ref="Height" />
+          <xs:attribute ref="Width" />
+          <xs:attribute name="Text" type="xs:string" />
+          <xs:attribute name="Background" type="xs:string" />
+          <xs:attribute name="Foreground" type="xs:string" />
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="Image">
+    <xs:complexType>
+      <xs:attributeGroup ref="Element" />
+      <xs:attributeGroup ref="AreaGroup" />
+      <xs:attribute name="Source" type="xs:string" use="required" />
+      <xs:attribute ref="Height" />
+      <xs:attribute ref="Width" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Set_t">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute ref="ShowValue"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:element name="Set" type="Set_t" />
+
+  <xs:element name="SetString" type="Set_t" />
+
+  <xs:element name="Font">
+    <xs:complexType>
+      <xs:attribute ref="Name" use="required"/>
+      <xs:attributeGroup ref="FontGroup" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Color">
+    <xs:complexType>
+      <xs:attribute ref="Name" use="required"/>
+      <xs:attribute name="Color" use="required"/>
+      <xs:attribute ref="ColorDepth"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Grid">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Default" minOccurs="0" />
+        <xs:element ref="Row" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attributeGroup ref="Element" />
+      <xs:attribute ref="RowHeight" use="required" />
+      <xs:attribute ref="ColumnWidth" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Row">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Default" minOccurs="0" />
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+          <xs:element ref="Column" minOccurs="0" maxOccurs="unbounded" />
+          <xs:element ref="ColumnNoDefault" minOccurs="0" maxOccurs="unbounded" />
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="Element" />
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="Column" type="Content_t" />
+  
+  <xs:element name="ColumnNoDefault" type="Content_t" />
+  
+  <xs:element name="Default" type="Content_t" />
+  
+  <xs:element name="Ref">
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="Set" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element ref="SetString" minOccurs="0" maxOccurs="unbounded" />
+      </xs:choice>
+      <xs:attributeGroup ref="Element" />
+      <xs:attribute ref="RefName" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>
