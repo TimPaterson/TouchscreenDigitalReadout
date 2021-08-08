@@ -9,6 +9,20 @@
 <grid distance="5" unitdist="mil" unit="mil" style="lines" multiple="2" display="yes" altdistance="1" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
+<layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
+<layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
+<layer number="4" name="Route4" color="1" fill="4" visible="no" active="no"/>
+<layer number="5" name="Route5" color="4" fill="4" visible="no" active="no"/>
+<layer number="6" name="Route6" color="1" fill="8" visible="no" active="no"/>
+<layer number="7" name="Route7" color="4" fill="8" visible="no" active="no"/>
+<layer number="8" name="Route8" color="1" fill="2" visible="no" active="no"/>
+<layer number="9" name="Route9" color="4" fill="2" visible="no" active="no"/>
+<layer number="10" name="Route10" color="1" fill="7" visible="no" active="no"/>
+<layer number="11" name="Route11" color="4" fill="7" visible="no" active="no"/>
+<layer number="12" name="Route12" color="1" fill="5" visible="no" active="no"/>
+<layer number="13" name="Route13" color="4" fill="5" visible="no" active="no"/>
+<layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
+<layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
@@ -78,14 +92,14 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="9.144" y2="0" width="0" layer="20"/>
-<wire x1="9.144" y1="0" x2="9.144" y2="6.35" width="0" layer="20"/>
-<wire x1="9.144" y1="6.35" x2="0" y2="6.35" width="0" layer="20"/>
-<wire x1="0" y1="6.35" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="-0.0254" y1="0" x2="9.1694" y2="0" width="0" layer="20"/>
+<wire x1="9.1694" y1="0" x2="9.1694" y2="6.35" width="0" layer="20"/>
+<wire x1="9.1694" y1="6.35" x2="-0.0254" y2="6.35" width="0" layer="20"/>
+<wire x1="-0.0254" y1="6.35" x2="-0.0254" y2="0" width="0" layer="20"/>
 <text x="0.254" y="0.254" size="0.7112" layer="21">Back Bottom 2768</text>
-<text x="0" y="1.524" size="0.7112" layer="21">Paterson Tech v1.0</text>
-<text x="9.017" y="1.524" size="0.7112" layer="22" rot="MR0">Paterson Tech v1.0</text>
-<text x="9.017" y="0.381" size="0.7112" layer="22" rot="MR0">Panel Bottom 2768</text>
+<text x="0.127" y="1.524" size="0.6604" layer="21">Paterson Tech v1.0a</text>
+<text x="9.017" y="1.524" size="0.6604" layer="22" rot="MR0">Paterson Tech v1.0a</text>
+<text x="9.017" y="0.381" size="0.6858" layer="22" rot="MR0">Panel Bottom 2768</text>
 </plain>
 <libraries>
 <library name="Connectors">
@@ -95,25 +109,25 @@ Low profile connectors, straight&lt;p&gt;
 <packages>
 <package name="CONN-1.27X2-14">
 <description>&lt;b&gt;1.27mm Dual Row header&lt;/b&gt;</description>
-<pad name="6" x="0.635" y="0.635" drill="0.508"/>
-<pad name="4" x="-0.635" y="0.635" drill="0.508"/>
-<pad name="2" x="-1.905" y="0.635" drill="0.508"/>
-<pad name="8" x="1.905" y="0.635" drill="0.508"/>
-<pad name="1" x="-1.905" y="-0.635" drill="0.508" shape="square"/>
-<pad name="3" x="-0.635" y="-0.635" drill="0.508"/>
-<pad name="5" x="0.635" y="-0.635" drill="0.508"/>
-<pad name="7" x="1.905" y="-0.635" drill="0.508"/>
+<pad name="6" x="0.635" y="0.635" drill="0.541528125"/>
+<pad name="4" x="-0.635" y="0.635" drill="0.541528125"/>
+<pad name="2" x="-1.905" y="0.635" drill="0.541528125"/>
+<pad name="8" x="1.905" y="0.635" drill="0.541528125"/>
+<pad name="1" x="-1.905" y="-0.635" drill="0.541528125" shape="square"/>
+<pad name="3" x="-0.635" y="-0.635" drill="0.541528125"/>
+<pad name="5" x="0.635" y="-0.635" drill="0.541528125"/>
+<pad name="7" x="1.905" y="-0.635" drill="0.541528125"/>
 <wire x1="-2.54" y1="1.778" x2="6.35" y2="1.778" width="0.127" layer="21"/>
 <wire x1="6.35" y1="1.778" x2="6.35" y2="-1.778" width="0.127" layer="21"/>
 <wire x1="6.35" y1="-1.778" x2="-2.54" y2="-1.778" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-1.778" x2="-2.54" y2="1.778" width="0.127" layer="21"/>
 <text x="-2.54" y="2.159" size="1.27" layer="25">&gt;NAME</text>
-<pad name="14" x="5.715" y="0.635" drill="0.508"/>
-<pad name="12" x="4.445" y="0.635" drill="0.508"/>
-<pad name="10" x="3.175" y="0.635" drill="0.508"/>
-<pad name="9" x="3.175" y="-0.635" drill="0.508"/>
-<pad name="11" x="4.445" y="-0.635" drill="0.508"/>
-<pad name="13" x="5.715" y="-0.635" drill="0.508"/>
+<pad name="14" x="5.715" y="0.635" drill="0.541528125"/>
+<pad name="12" x="4.445" y="0.635" drill="0.541528125"/>
+<pad name="10" x="3.175" y="0.635" drill="0.541528125"/>
+<pad name="9" x="3.175" y="-0.635" drill="0.541528125"/>
+<pad name="11" x="4.445" y="-0.635" drill="0.541528125"/>
+<pad name="13" x="5.715" y="-0.635" drill="0.541528125"/>
 </package>
 </packages>
 </library>
@@ -315,42 +329,42 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <signal name="N$1">
 <contactref element="J1" pad="3"/>
 <contactref element="J1" pad="12"/>
-<wire x1="2.667" y1="5.47003125" x2="3.03896875" y2="5.842" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="2.032" y1="3.937" x2="2.667" y2="4.572" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="2.667" y1="4.572" x2="2.667" y2="5.47003125" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="6.477" y1="5.842" x2="7.112" y2="5.207" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="3.03896875" y1="5.842" x2="6.477" y2="5.842" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="2.667" y1="5.47003125" x2="3.03896875" y2="5.842" width="0.2032" layer="16"/>
-<wire x1="2.032" y1="3.937" x2="2.667" y2="4.572" width="0.2032" layer="16"/>
-<wire x1="2.667" y1="4.572" x2="2.667" y2="5.47003125" width="0.2032" layer="16"/>
-<wire x1="6.477" y1="5.842" x2="7.112" y2="5.207" width="0.2032" layer="16"/>
-<wire x1="3.03896875" y1="5.842" x2="6.477" y2="5.842" width="0.2032" layer="16"/>
+<wire x1="2.667" y1="5.47003125" x2="3.03896875" y2="5.842" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="2.032" y1="3.937" x2="2.667" y2="4.572" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="2.667" y1="4.572" x2="2.667" y2="5.47003125" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="6.477" y1="5.842" x2="7.112" y2="5.207" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="3.03896875" y1="5.842" x2="6.477" y2="5.842" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="2.667" y1="5.47003125" x2="3.03896875" y2="5.842" width="0.1524" layer="16"/>
+<wire x1="2.032" y1="3.937" x2="2.667" y2="4.572" width="0.1524" layer="16"/>
+<wire x1="2.667" y1="4.572" x2="2.667" y2="5.47003125" width="0.1524" layer="16"/>
+<wire x1="6.477" y1="5.842" x2="7.112" y2="5.207" width="0.1524" layer="16"/>
+<wire x1="3.03896875" y1="5.842" x2="6.477" y2="5.842" width="0.1524" layer="16"/>
 </signal>
 <signal name="N$2">
 <contactref element="J1" pad="7"/>
 <contactref element="J1" pad="14"/>
-<wire x1="7.747" y1="3.67396875" x2="7.37503125" y2="3.302" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="8.382" y1="5.207" x2="7.747" y2="4.572" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="7.747" y1="4.572" x2="7.747" y2="3.67396875" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="5.207" y1="3.302" x2="4.572" y2="3.937" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="7.37503125" y1="3.302" x2="5.207" y2="3.302" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="4.572" y1="3.937" x2="5.207" y2="3.302" width="0.2032" layer="16"/>
-<wire x1="7.37503125" y1="3.302" x2="7.747" y2="3.67396875" width="0.2032" layer="16"/>
-<wire x1="7.747" y1="4.572" x2="8.382" y2="5.207" width="0.2032" layer="16"/>
-<wire x1="5.207" y1="3.302" x2="7.37503125" y2="3.302" width="0.2032" layer="16"/>
-<wire x1="7.747" y1="3.67396875" x2="7.747" y2="4.572" width="0.2032" layer="16"/>
+<wire x1="7.747" y1="3.67396875" x2="7.37503125" y2="3.302" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="8.382" y1="5.207" x2="7.747" y2="4.572" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="7.747" y1="4.572" x2="7.747" y2="3.67396875" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="5.207" y1="3.302" x2="4.572" y2="3.937" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="7.37503125" y1="3.302" x2="5.207" y2="3.302" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="4.572" y1="3.937" x2="5.207" y2="3.302" width="0.1524" layer="16"/>
+<wire x1="7.37503125" y1="3.302" x2="7.747" y2="3.67396875" width="0.1524" layer="16"/>
+<wire x1="7.747" y1="4.572" x2="8.382" y2="5.207" width="0.1524" layer="16"/>
+<wire x1="5.207" y1="3.302" x2="7.37503125" y2="3.302" width="0.1524" layer="16"/>
+<wire x1="7.747" y1="3.67396875" x2="7.747" y2="4.572" width="0.1524" layer="16"/>
 </signal>
 <signal name="N$3">
 <contactref element="J1" pad="9"/>
 <contactref element="J1" pad="10"/>
-<wire x1="5.842" y1="5.207" x2="5.842" y2="3.937" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="5.842" y1="5.207" x2="5.842" y2="3.937" width="0.2032" layer="16"/>
+<wire x1="5.842" y1="5.207" x2="5.842" y2="3.937" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="5.842" y1="5.207" x2="5.842" y2="3.937" width="0.1524" layer="16"/>
 </signal>
 <signal name="N$4">
 <contactref element="J1" pad="5"/>
 <contactref element="J1" pad="6"/>
-<wire x1="3.302" y1="5.207" x2="3.302" y2="3.937" width="0.2032" layer="1" grouprefs="CONNECTOR"/>
-<wire x1="3.302" y1="3.937" x2="3.302" y2="5.207" width="0.2032" layer="16"/>
+<wire x1="3.302" y1="5.207" x2="3.302" y2="3.937" width="0.1524" layer="1" grouprefs="CONNECTOR"/>
+<wire x1="3.302" y1="3.937" x2="3.302" y2="5.207" width="0.1524" layer="16"/>
 </signal>
 </signals>
 <mfgpreviewcolors>

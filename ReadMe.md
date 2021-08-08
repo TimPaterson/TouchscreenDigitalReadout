@@ -18,7 +18,7 @@ mills that do not have them factory installed.
 The Smart DRO can greatly simplify milling from dimensioned drawings. If 
 you enter the diameter of the tool it can automatically adjust the
 display reading by the tool radius. This allows you to cut at the specified 
-dimension without having to add or subtrace the radius offset. Note in the 
+dimension without having to add or subtract the radius offset. Note in the 
 lower left corner of the main screen (the dark rectangle with a circle on 
 each side): you can select which side you're cutting so it knows whether to
 add or subtract the cutter radius.
@@ -59,7 +59,7 @@ contents of the Release (SmartDro.zip) is the same as the
 __More to come!__ But in the meantime, here are some critical links:
 + [Touchscreen at BuyDisplay.com](https://www.buydisplay.com/serial-spi-i2c-10-1-inch-tft-lcd-module-dislay-w-ra8876-optl-touch-panel).
 Be sure to select options per the [parts list](https://github.com/TimPaterson/TouchscreenDigitalReadout/blob/master/Electronics/DroPartsList.pdf).
-+ [Main PCB shared at OSH Park](https://oshpark.com/shared_projects/jTW1CESl).
-+ [Pinout PCB at OSH Park](https://oshpark.com/shared_projects/7Whg99iS).
++ [Main PCB shared at OSH Park](https://oshpark.com/shared_projects/AQX5MSFg).
++ [Pinout PCB at OSH Park](https://oshpark.com/shared_projects/TLEyl9I6).
 + [Tool Library Manager](https://github.com/TimPaterson/CNC-Tool-Library-Manager)
 for making tool libary files the Smart DRO can import.

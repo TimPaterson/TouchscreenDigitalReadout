@@ -9,6 +9,20 @@
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
+<layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
+<layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
+<layer number="4" name="Route4" color="1" fill="4" visible="no" active="no"/>
+<layer number="5" name="Route5" color="4" fill="4" visible="no" active="no"/>
+<layer number="6" name="Route6" color="1" fill="8" visible="no" active="no"/>
+<layer number="7" name="Route7" color="4" fill="8" visible="no" active="no"/>
+<layer number="8" name="Route8" color="1" fill="2" visible="no" active="no"/>
+<layer number="9" name="Route9" color="4" fill="2" visible="no" active="no"/>
+<layer number="10" name="Route10" color="1" fill="7" visible="no" active="no"/>
+<layer number="11" name="Route11" color="4" fill="7" visible="no" active="no"/>
+<layer number="12" name="Route12" color="1" fill="5" visible="no" active="no"/>
+<layer number="13" name="Route13" color="4" fill="5" visible="no" active="no"/>
+<layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
+<layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
@@ -8154,16 +8168,16 @@ Digi-Key part no. H11634</description>
 <package name="CONN-1.27X2-10">
 <description>&lt;b&gt;1.27mm Dual Row header&lt;/b&gt;
 &lt;p&gt;Compatible with ARM Cortex debug port</description>
-<pad name="6" x="0" y="0.635" drill="0.508"/>
-<pad name="4" x="-1.27" y="0.635" drill="0.508"/>
-<pad name="2" x="-2.54" y="0.635" drill="0.508"/>
-<pad name="8" x="1.27" y="0.635" drill="0.508"/>
-<pad name="10" x="2.54" y="0.635" drill="0.508"/>
-<pad name="1" x="-2.54" y="-0.635" drill="0.508" shape="square"/>
-<pad name="3" x="-1.27" y="-0.635" drill="0.508"/>
-<pad name="5" x="0" y="-0.635" drill="0.508"/>
-<pad name="7" x="1.27" y="-0.635" drill="0.508"/>
-<pad name="9" x="2.54" y="-0.635" drill="0.508"/>
+<pad name="6" x="0" y="0.635" drill="0.541528125"/>
+<pad name="4" x="-1.27" y="0.635" drill="0.541528125"/>
+<pad name="2" x="-2.54" y="0.635" drill="0.541528125"/>
+<pad name="8" x="1.27" y="0.635" drill="0.541528125"/>
+<pad name="10" x="2.54" y="0.635" drill="0.541528125"/>
+<pad name="1" x="-2.54" y="-0.635" drill="0.541528125" shape="square"/>
+<pad name="3" x="-1.27" y="-0.635" drill="0.541528125"/>
+<pad name="5" x="0" y="-0.635" drill="0.541528125"/>
+<pad name="7" x="1.27" y="-0.635" drill="0.541528125"/>
+<pad name="9" x="2.54" y="-0.635" drill="0.541528125"/>
 <wire x1="-5.6" y1="2.5" x2="5.6" y2="2.5" width="0.127" layer="21"/>
 <wire x1="5.6" y1="2.5" x2="5.6" y2="-2.5" width="0.127" layer="21"/>
 <wire x1="5.6" y1="-2.5" x2="-3.6" y2="-2.5" width="0.127" layer="21"/>
@@ -8419,25 +8433,25 @@ Digi-Key part no. H11634</description>
 </package>
 <package name="CONN-1.27X2-14">
 <description>&lt;b&gt;1.27mm Dual Row header&lt;/b&gt;</description>
-<pad name="6" x="0.635" y="0.635" drill="0.508"/>
-<pad name="4" x="-0.635" y="0.635" drill="0.508"/>
-<pad name="2" x="-1.905" y="0.635" drill="0.508"/>
-<pad name="8" x="1.905" y="0.635" drill="0.508"/>
-<pad name="1" x="-1.905" y="-0.635" drill="0.508" shape="square"/>
-<pad name="3" x="-0.635" y="-0.635" drill="0.508"/>
-<pad name="5" x="0.635" y="-0.635" drill="0.508"/>
-<pad name="7" x="1.905" y="-0.635" drill="0.508"/>
+<pad name="6" x="0.635" y="0.635" drill="0.541528125"/>
+<pad name="4" x="-0.635" y="0.635" drill="0.541528125"/>
+<pad name="2" x="-1.905" y="0.635" drill="0.541528125"/>
+<pad name="8" x="1.905" y="0.635" drill="0.541528125"/>
+<pad name="1" x="-1.905" y="-0.635" drill="0.541528125" shape="square"/>
+<pad name="3" x="-0.635" y="-0.635" drill="0.541528125"/>
+<pad name="5" x="0.635" y="-0.635" drill="0.541528125"/>
+<pad name="7" x="1.905" y="-0.635" drill="0.541528125"/>
 <wire x1="-2.54" y1="1.778" x2="6.35" y2="1.778" width="0.127" layer="21"/>
 <wire x1="6.35" y1="1.778" x2="6.35" y2="-1.778" width="0.127" layer="21"/>
 <wire x1="6.35" y1="-1.778" x2="-2.54" y2="-1.778" width="0.127" layer="21"/>
 <wire x1="-2.54" y1="-1.778" x2="-2.54" y2="1.778" width="0.127" layer="21"/>
 <text x="-2.54" y="2.159" size="1.27" layer="25">&gt;NAME</text>
-<pad name="14" x="5.715" y="0.635" drill="0.508"/>
-<pad name="12" x="4.445" y="0.635" drill="0.508"/>
-<pad name="10" x="3.175" y="0.635" drill="0.508"/>
-<pad name="9" x="3.175" y="-0.635" drill="0.508"/>
-<pad name="11" x="4.445" y="-0.635" drill="0.508"/>
-<pad name="13" x="5.715" y="-0.635" drill="0.508"/>
+<pad name="14" x="5.715" y="0.635" drill="0.541528125"/>
+<pad name="12" x="4.445" y="0.635" drill="0.541528125"/>
+<pad name="10" x="3.175" y="0.635" drill="0.541528125"/>
+<pad name="9" x="3.175" y="-0.635" drill="0.541528125"/>
+<pad name="11" x="4.445" y="-0.635" drill="0.541528125"/>
+<pad name="13" x="5.715" y="-0.635" drill="0.541528125"/>
 </package>
 </packages>
 <packages3d>
