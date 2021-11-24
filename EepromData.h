@@ -27,10 +27,10 @@
 EepromData(TouchInfo, TouchInit, { {}, {}, \
 	TouchDefaultMinZ, TouchUpdateRate, TouchInitialDiscard, TouchAverageShift})
 EepromData(ulong, Brightness, LcdBacklightPwmMax)
-EepromData(AxisInfo, XaxisInfo, { 1.0, 5, false, false })
-EepromData(AxisInfo, YaxisInfo, { 1.0, 5, false, false })
-EepromData(AxisInfo, ZaxisInfo, { 1.0, 5, false, false })
-EepromData(AxisInfo, QaxisInfo, { 1.0, 5, false, true })	// default to disabled
+EepromData(SensorInfo, XaxisInfo, { 1.0, 5, false, false })
+EepromData(SensorInfo, YaxisInfo, { 1.0, 5, false, false })
+EepromData(SensorInfo, ZaxisInfo, { 1.0, 5, false, false })
+EepromData(SensorInfo, QaxisInfo, { 1.0, 5, false, true })	// default to disabled
 // 32-bit aligned here
 EepromData(bool, fIsMetric, false)
 EepromData(byte, OriginNum, 0)

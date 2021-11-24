@@ -37,9 +37,9 @@ public:
 		save.version = s_version;
 		save.rtcTime.ReadClock();
 
-		SaveAxis(Xdisplay, save.arXaxisPos);
-		SaveAxis(Ydisplay, save.arYaxisPos);
-		SaveAxis(Zdisplay, save.arZaxisPos);
+		SaveAxis(Xpos, save.arXaxisPos);
+		SaveAxis(Ypos, save.arYaxisPos);
+		SaveAxis(Zpos, save.arZaxisPos);
 		Nvm::WriteRwweePageReady();
 	}
 
@@ -73,9 +73,9 @@ public:
 		if (version != 0)
 		{
 			time = pSave->rtcTime;
-			RestoreAxis(Xdisplay, pSave->arXaxisPos);
-			RestoreAxis(Ydisplay, pSave->arYaxisPos);
-			RestoreAxis(Zdisplay, pSave->arZaxisPos);
+			RestoreAxis(Xpos, pSave->arXaxisPos);
+			RestoreAxis(Ypos, pSave->arYaxisPos);
+			RestoreAxis(Zpos, pSave->arZaxisPos);
 
 			pSave++;	// most likely next save location
 			if (pSave >= pSaveEnd)
@@ -101,16 +101,16 @@ public:
 	}
 
 protected:
-	static void SaveAxis(AxisDisplay &axis, long *arPos)
+	static void SaveAxis(AxisPos &axis, long *arPos)
 	{
 		ulong	pos;
 
-		pos = axis.GetPosInt();
+		pos = axis.GetSavePos();
 		arPos[0] = axis.GetOrigin(0) + pos;
 		arPos[1] = axis.GetOrigin(1) + pos;
 	}
 
-	static void RestoreAxis(AxisDisplay &axis, long *arPos)
+	static void RestoreAxis(AxisPos &axis, long *arPos)
 	{
 		axis.SetOrigin(0, arPos[0]);
 		axis.SetOrigin(1, arPos[1]);

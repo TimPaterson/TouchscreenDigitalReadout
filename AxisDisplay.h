@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "PosSensor.h"
+#include "AxisPos.h"
 #include "LcdDef.h"
 #include "TextField.h"
 #include "HotspotList.h"
@@ -18,10 +18,13 @@ class AxisDisplay;
 extern AxisDisplay	Xdisplay;
 extern AxisDisplay	Ydisplay;
 extern AxisDisplay	Zdisplay;
+extern AxisPos		Xpos;
+extern AxisPos		Ypos;
+extern AxisPos		Zpos;
 extern PosSensor	Qpos;
 
 
-class AxisDisplay : public PosSensor
+class AxisDisplay
 {
 	static constexpr int UndoLevels = 8;	// Should be power of 2
 	static constexpr int UndoDisplays = 3;
@@ -37,13 +40,13 @@ class AxisDisplay : public PosSensor
 	// Public interface
 	//*********************************************************************3
 public:
-	AxisDisplay(AxisInfo *pInfo, const Area &axisArea, const Area &undoArea) : 
-		PosSensor(pInfo), m_pAxisArea{&axisArea}, m_pUndoArea{&undoArea}
+	AxisDisplay(AxisPos *pAxisPos, const Area &axisArea, const Area &undoArea) : 
+		m_pAxisPos(pAxisPos), m_pAxisArea{&axisArea}, m_pUndoArea{&undoArea}
 		{}
 
 	void UpdateDisplay()
 	{
-		if (m_pInfo->Disable)
+		if (m_pAxisPos->IsDisabled())
 		{
 			s_Display.ClearArea();
 			return;
@@ -51,7 +54,7 @@ public:
 
 		s_Display.SetTextColor(m_textColor);
 		s_Display.SetArea(*m_pAxisArea);
-		s_Display.PrintNum(IsMetric() ? "%8.2f" : "%8.4f", GetPosition());
+		s_Display.PrintNum(Eeprom.Data.fIsMetric ? "%8.2f" : "%8.4f", m_pAxisPos->GetPosition());
 	}
 
 	void SetTextColor(ulong color)
@@ -59,15 +62,17 @@ public:
 		m_textColor = color;
 	}
 
-	// This hides the method in the base classs
+	double GetPosition()
+	{
+		return m_pAxisPos->GetPosition();
+	}
+
 	void SetPosition(double pos)
 	{
-		long		posNew;
 		long		posUndo;
 		UndoInfo	&undo = m_arUndoInfo[Eeprom.Data.OriginNum];
 
-		posNew = ConvertPosToInt(pos);
-		posUndo = m_arOrigins[Eeprom.Data.OriginNum] - posNew;
+		posUndo = m_pAxisPos->SetPosition(pos);
 		if (posUndo != 0)
 		{
 			++undo.cur %= UndoLevels;
@@ -76,7 +81,6 @@ public:
 				undo.count++;
 			DisplayUndo();
 		}
-		m_arOrigins[Eeprom.Data.OriginNum] = posNew;
 	}
 
 	void Undo()
@@ -86,7 +90,7 @@ public:
 		if (undo.count == 0)
 			return;
 
-		m_arOrigins[Eeprom.Data.OriginNum] += undo.value[undo.cur];
+		m_pAxisPos->AdjustOrigin(undo.value[undo.cur]);
 		undo.value[undo.cur] = 0;
 		--undo.cur %= UndoLevels;
 		undo.count--;
@@ -120,8 +124,8 @@ protected:
 		cur = undo.cur;
 		for (uint i = 0; i < UndoDisplays; i++)
 		{
-			s_UndoDisplay.PrintDbl(IsMetric() ? "%8.2f" : "%8.4f", 
-				GetDistance(undo.value[cur]), m_pUndoArea[i]);
+			s_UndoDisplay.PrintDbl(Eeprom.Data.fIsMetric ? "%8.2f" : "%8.4f", 
+				m_pAxisPos->GetDistance(undo.value[cur]), m_pUndoArea[i]);
 			--cur %= UndoLevels;
 		}
 	}
@@ -130,10 +134,11 @@ protected:
 	// instance (RAM) data
 	//*********************************************************************
 protected:
+	AxisPos		*m_pAxisPos;
 	ulong		m_textColor;
 	const Area	*m_pAxisArea;
 	const Area	*m_pUndoArea;
-	UndoInfo	m_arUndoInfo[MaxOrigins];
+	UndoInfo	m_arUndoInfo[PosSensor::MaxOrigins];
 
 	//*********************************************************************
 	// static (RAM) data

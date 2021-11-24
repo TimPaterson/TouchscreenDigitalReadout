@@ -100,9 +100,9 @@ void Init()
 	// Set up LCD WAIT, LCD IRQ, RTP IRQ, and SD card detect as interrupts or events
 	// Set up all the position sensor inputs as external interrupts
 	// This is on MUX channel A
-	SetPortMuxA(PORT_MUX_A, Nmi_PIN | LcdWait_PIN | LcdIrq_PIN | QposA_PIN | QposB_PIN | 
-		ZposA_PIN | ZposB_PIN | YposA_PIN | YposB_PIN | XposA_PIN | XposB_PIN);
-	SetPortMuxB(PORT_MUX_A, MicroSdCd_PIN);
+	SetPortMuxConfigA(PORT_MUX_A, PORT_WRCONFIG_INEN, Nmi_PIN | LcdWait_PIN | LcdIrq_PIN | 
+		QposA_PIN | QposB_PIN | ZposA_PIN | ZposB_PIN | YposA_PIN | YposB_PIN | XposA_PIN | XposB_PIN);
+	SetPortMuxConfigB(PORT_MUX_A, PORT_WRCONFIG_INEN, MicroSdCd_PIN);
 
 	// Set up Analog Comparator input on PA04
 	// This in on MUX channel B
@@ -110,12 +110,12 @@ void Init()
 
 	// Set up SERCOM1 on PA16 (MOSI, pad0), PA17 (SCK, pad 1), PA19 (MISO, pad 3)
 	// This is on MUX channel C
-	SetPortMuxA(PORT_MUX_C, RtpMosi_PIN | RtpSck_PIN | RtpMiso_PIN);
+	SetPortMuxConfigA(PORT_MUX_C, PORT_WRCONFIG_INEN, RtpMosi_PIN | RtpSck_PIN | RtpMiso_PIN);
 
 	// Set up SERCOM0 on PA05 (RX, pad 1) and PA06 (TX, pad 2)
 	// Set up SERCOM2 on PA09 (MISO, pad1), PA10 (MOSI, pad 2), PA11 (SCK, pad 3)
 	// This is on MUX channel D
-	SetPortMuxA(PORT_MUX_D, ConsoleRx_PIN | ConsoleTx_PIN | SdMiso_PIN | SdMosi_PIN | SdSck_PIN);
+	SetPortMuxConfigA(PORT_MUX_D, PORT_WRCONFIG_INEN, ConsoleRx_PIN | ConsoleTx_PIN | SdMiso_PIN | SdMosi_PIN | SdSck_PIN);
 
 	// Set up TCC1 output W0[1] on PA07
 	// This is on MUX channel E
