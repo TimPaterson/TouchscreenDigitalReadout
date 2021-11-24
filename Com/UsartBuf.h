@@ -170,6 +170,7 @@
 // bool CanWriteByte()				
 // void DiscardReadBuf()
 // void DiscardReadBuf(int cnt)
+// byte IsXmitInProgress()
 //
 //****************************************************************************
 

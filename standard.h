@@ -48,6 +48,7 @@ typedef unsigned long	ulong;
 #define STRINGIFY_(x)	#x
 #define STRINGIFY(x)	STRINGIFY_(x)
 #define LOG2(x)			(31 - __builtin_clz(x))
+#define NOP				asm volatile ("nop\n")
 
 inline bool CompSign(int s1, int s2)		{ return (s1 ^ s2) >= 0; }
 
@@ -74,8 +75,12 @@ inline int DivIntRnd(int n, int d)
 
 #ifdef WDT_STATUS_SYNCBUSY
 inline void wdt_reset() {if (!WDT->STATUS.bit.SYNCBUSY) WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY;}
-#else
+#elif defined(WDT_SYNCBUSY_CLEAR)
 inline void wdt_reset() {if (!WDT->SYNCBUSY.bit.CLEAR) WDT->CLEAR.reg = WDT_CLEAR_CLEAR_KEY;}
+#elif defined(WDT_CR_WDRSTT)
+inline void wdt_reset() {WDT->WDT_CR = WDT_CR_KEY_PASSWD | WDT_CR_WDRSTT;}
+#else
+#error WDT reset not defined
 #endif
 
 typedef union
@@ -105,6 +110,11 @@ typedef union
 // Bit I/O helpers
 
 static constexpr ulong ALL_PORT_PINS = 0xFFFFFFFF;
+
+#ifdef PORT_IOBUS
+
+#define PORT_IOBUS_A	(&PORT_IOBUS->Group[0])
+#define PORT_IOBUS_B	(&PORT_IOBUS->Group[1])
 
 // For any port using port number (0 = PORTA, etc.)
 // Output
@@ -180,7 +190,6 @@ inline uint GetPinsB()					{ return GetPins(1); }
 #define PortInA		(*(volatile LONG_BYTES *)&PORT_IOBUS->Group[0].IN.reg)
 #define PortInB		(*(volatile LONG_BYTES *)&PORT_IOBUS->Group[1].IN.reg)
 
-//*********************************************************************
 // Helper to use 8-bit access
 
 inline void WriteByteOfReg32(volatile void *pv, uint val, ulong mask = 0)
@@ -194,6 +203,38 @@ inline void WriteByteOfReg32(volatile void *pv, uint val, ulong mask = 0)
 	else
 		*(volatile ulong *)pv = val;
 }
+
+#else
+
+// Output
+inline void SetPinsA(uint pins)			{ PIOA->PIO_SODR = pins; }
+inline void SetPinsB(uint pins)			{ PIOB->PIO_SODR = pins; }
+inline void ClearPinsA(uint pins)		{ PIOA->PIO_CODR = pins; }
+inline void ClearPinsB(uint pins)		{ PIOB->PIO_CODR = pins; }
+inline void WritePinsA(uint pins)		{ PIOA->PIO_ODSR = pins; }
+inline void WritePinsB(uint pins)		{ PIOB->PIO_ODSR = pins; }
+inline void SetOutMaskA(uint pins)		{ PIOA->PIO_OWER = pins; }
+inline void SetOutMaskB(uint pins)		{ PIOB->PIO_OWER = pins; }
+inline void ClearOutMaskA(uint pins)	{ PIOA->PIO_OWDR = pins; }
+inline void ClearOutMaskB(uint pins)	{ PIOB->PIO_OWDR = pins; }
+inline uint GetOutPinsA()				{ return PIOA->PIO_ODSR; }
+inline uint GetOutPinsB()				{ return PIOB->PIO_ODSR; }
+
+// Direction
+inline void DirOutPinsA(uint pins)		{ PIOA->PIO_OER = pins; }
+inline void DirOutPinsB(uint pins)		{ PIOB->PIO_OER = pins; }
+inline void DirInPinsA(uint pins)		{ PIOA->PIO_ODR = pins; }
+inline void DirInPinsB(uint pins)		{ PIOB->PIO_ODR = pins; }
+inline uint GetDirPinsA()				{ return PIOA->PIO_OSR; }
+inline uint GetDirPinsB()				{ return PIOB->PIO_OSR; }
+
+// Input
+inline uint GetPinsA()					{ return PIOA->PIO_PDSR; }
+inline uint GetPinsB()					{ return PIOB->PIO_PDSR; }
+
+#endif
+
+#ifdef PORT_WRCONFIG_WRPINCFG
 
 //*********************************************************************
 // Helpers to set up port configuration
@@ -223,27 +264,33 @@ inline void SetPortConfig(uint uConfig, uint uPins, int iPort)
 inline void SetPortConfigA(uint uConfig, uint uPins) { SetPortConfig(uConfig, uPins, 0); }
 inline void SetPortConfigB(uint uConfig, uint uPins) { SetPortConfig(uConfig, uPins, 1); }
 
-inline void SetPortMux(uint uMux, uint uPins, int iPort)
+inline void SetPortMuxConfig(uint uMux, uint uConfig, uint uPins, int iPort)
 {
 	SetPortConfig(		
+		uConfig | 
 		PORT_WRCONFIG_WRPMUX |
 		PORT_WRCONFIG_PMUX(uMux) |
-		PORT_WRCONFIG_INEN |
 		PORT_WRCONFIG_PMUXEN,
 		uPins,
 		iPort
 	);
 }
 
-inline void SetPortMuxA(uint uMux, uint uPins)	{ SetPortMux(uMux, uPins, 0); }
-inline void SetPortMuxB(uint uMux, uint uPins)	{ SetPortMux(uMux, uPins, 1); }
+inline void SetPortMux(uint uMux, uint uPins, int iPort)
+{
+	SetPortMuxConfig(uMux, 0, uPins, iPort);	
+}
+
+inline void SetPortMuxConfigA(uint uMux, uint uConfig, uint uPins)	{ SetPortMuxConfig(uMux, uConfig, uPins, 0); }
+inline void SetPortMuxConfigB(uint uMux, uint uConfig, uint uPins)	{ SetPortMuxConfig(uMux, uConfig, uPins, 1); }
+inline void SetPortMuxA(uint uMux, uint uPins)						{ SetPortMux(uMux, uPins, 0); }
+inline void SetPortMuxB(uint uMux, uint uPins)						{ SetPortMux(uMux, uPins, 1); }
 
 inline void SetPortMuxPin(uint uMux, uint uPin)
 {
 	SetPortConfig(		
 		PORT_WRCONFIG_WRPMUX |
 		PORT_WRCONFIG_PMUX(uMux) |
-		PORT_WRCONFIG_INEN |
 		PORT_WRCONFIG_PMUXEN,
 		1 << (uPin & 0x1F),
 		uPin >> 5
@@ -263,3 +310,5 @@ enum PORT_MUX
 	PORT_MUX_H,
 	PORT_MUX_I
 };
+
+#endif
