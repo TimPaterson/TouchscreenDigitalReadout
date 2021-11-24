@@ -129,7 +129,7 @@
     ToolDescLeft = ToolLengthLeft + ToolLengthWidth;
 
     ToolTextHeight = SmallTextHeight;
-    ToolTextNumLeft = ToolNumWidth - 3 * 14 - 4;
+    ToolTextNumLeft = ToolNumWidth - 3 * CalcSmall_WidthZero - 4;
 
     <!-- Tool Library -->
     ToolLibHeight = CalcDispTop - 2;
@@ -1032,6 +1032,7 @@
       Option4Top = Option3Top + OptionHeight - 1;
       OptionButtonLeft = OptionWidth + KeySpace * 2;
       OptionButtonWidth = SettingsWidth - OptionWidth - KeySpace * 3;
+      RpmTextWidth = 5 * SettingsFont_WidthZero;
     </Set>
     <Rectangle HotSpot="HighlightXY" Group="SettingToggle" Top="Option1Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Highlight X, Y axes when offset:</TextBlock>
@@ -1047,7 +1048,7 @@
     </Rectangle>
     <Rectangle HotSpot="MaxRpm" Top="Option4Top" Left="KeySpace" Height="BtnHeight" Width="OptionWidth" Stroke="SettingForeColor" StrokeThickness="1">
       <TextBlock Left="KeySpace" Font="SettingsLabelFont" Foreground="SettingForeColor">Max machine RPM:</TextBlock>
-      <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - 5 * 20" Height="SettingsFont_Height" Width="5 * 20"/>
+      <Rectangle Area="MaxRpm" Top="10" Left="SetItemRight - RpmTextWidth" Height="SettingsFont_Height" Width="RpmTextWidth"/>
     </Rectangle>
     <Rectangle HotSpot="TouchCal" Top="Option1Top" Left="OptionButtonLeft" Height="BtnHeight" Width="OptionButtonWidth" RadiusX="8" RadiusY="8" Fill="SettingForeColor">
       <TextBlock Font="BtnSmallFont" FontSize="25" Foreground="SettingBackColor">Touch Calibration</TextBlock>
@@ -1946,7 +1947,7 @@
     UpdateClearBtnLeft = UpdateCtrlsLeft - KeySpace - ClearBtnWidth - 1;
     UpdateFileTextWidth = UpdateClearBtnLeft - 2 * EditBoxMargin;
     CurrentVersionTop = 75;
-    VersionWidth = 4 * 14; <!-- four numbers -->
+    VersionWidth = 4 * CalcSmall_WidthZero; <!-- four numbers -->
     VersionLineSpace = SmallTextHeight + 5;
     VersionSeparatorGap = 10;
     UpdateRadioButtonTop = 0;

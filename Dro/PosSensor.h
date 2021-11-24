@@ -11,14 +11,19 @@
 
 class PosSensor
 {
-protected:
+public:
 	static constexpr int MaxOrigins = 2;
+
+protected:
 	static constexpr double InchRounding = 5000.0;			// 1/5000 inch
 	static constexpr double MmRounding = 100.0;				// 1/100 mm
 	static constexpr double MaxCompensationPpm = 1000.0;	// max adjust of 0.1%
 
+	//*********************************************************************
+	// Public interface
+	//*********************************************************************3
 public:
-	PosSensor(AxisInfo *pInfo) : m_pInfo{pInfo}	{}
+	PosSensor(SensorInfo *pInfo) : m_pInfo{pInfo}	{}
 
 public:
 	// Called from ISR
@@ -30,11 +35,16 @@ public:
 	}
 
 public:
-	uint GetResolution()		{ return m_pInfo->Resolution; }
-	bool GetDirection()			{ return m_pInfo->Direction; }
-	bool GetDisable()			{ return m_pInfo->Disable; }
-	void SetDisable(bool fDis)	{ m_pInfo->Disable = fDis; }
-	double GetCorrectionPpm()	{ return (m_pInfo->Correction - 1.0) * 1E6; }
+	uint GetResolution()				{ return m_pInfo->Resolution; }
+	bool GetDirection()					{ return m_pInfo->Direction; }
+	bool IsDisabled()					{ return m_pInfo->Disable; }
+	void SetDisable(bool fDis)			{ m_pInfo->Disable = fDis; }
+	double GetCorrectionPpm()			{ return (m_pInfo->Correction - 1.0) * 1E6; }
+	long GetRelativePos()				{ return m_posCur; }
+	long GetOrigin(uint i)				{ return m_arOrigins[i]; }
+	void SetOrigin(uint i, long pos)	{ m_arOrigins[i] = pos; }
+	void AdjustOrigin(uint i, long pos)	{ m_arOrigins[i] += pos; }
+	void AdjustOrigin(long pos)			{ AdjustOrigin(Eeprom.Data.OriginNum, pos); }
 
 public:
 	double GetPosition()
@@ -67,26 +77,14 @@ public:
 		return nearbyint(delta * m_scaleInch) / InchRounding;
 	}
 
-	long ConvertPosToInt(double pos)
+	long SetPosition(double pos)
 	{
-		// Round to display value first
-		if (IsMetric())
-		{
-			pos = nearbyint(pos * MmRounding - m_offsetMm);
-			pos /= m_scaleMm;
-		}
-		else
-		{
-			pos = nearbyint(pos * InchRounding - m_offsetInch);
-			pos /= m_scaleInch;
-		}
+		long	posNew, posOld;
 
-		return lround(pos) - m_posCur;
-	}
-
-	void SetPosition(double pos)
-	{
-		m_arOrigins[Eeprom.Data.OriginNum] = ConvertPosToInt(pos);
+		posNew = ConvertPosToInt(pos);
+		posOld = m_arOrigins[Eeprom.Data.OriginNum];
+		m_arOrigins[Eeprom.Data.OriginNum] = posNew;
+		return posOld - posNew;
 	}
 
 	void SetOffset(double offset)
@@ -110,33 +108,29 @@ public:
 			return false;
 
 		m_pInfo->Correction = pos / 1E6 + 1.0;
-		AxisInfoUpdate();
+		SensorInfoUpdate();
 		return true;
 	}
 
 	void SetResolution(uint res)
 	{
 		m_pInfo->Resolution = res;
-		AxisInfoUpdate();
+		SensorInfoUpdate();
 	}
 
 	void SetDirection(bool dir)
 	{
 		m_pInfo->Direction = dir;
-		AxisInfoUpdate();
+		SensorInfoUpdate();
 	}
 
-	void AxisInfoUpdate()
+	void SensorInfoUpdate()
 	{
 		m_scaleMm = m_pInfo->Correction * m_pInfo->Resolution * MmRounding / 1000.0;
 		if (m_pInfo->Direction)
 			m_scaleMm = -m_scaleMm;
 		m_scaleInch = m_scaleMm * InchRounding / MmRounding / MmPerInch;
 	}
-
-	long GetPosInt()					{ return m_posCur; }
-	long GetOrigin(uint i)				{ return m_arOrigins[i]; }
-	void SetOrigin(uint i, long pos)	{ m_arOrigins[i] = pos; }
 
 public:
 	static bool IsMetric()
@@ -145,9 +139,30 @@ public:
 	}
 
 	//*********************************************************************
-	// const (flash) data
+	// Helpers
 	//*********************************************************************
 protected:
+	long ConvertPosToInt(double pos)
+	{
+		// Round to display value first
+		if (IsMetric())
+		{
+			pos = nearbyint(pos * MmRounding - m_offsetMm);
+			pos /= m_scaleMm;
+		}
+		else
+		{
+			pos = nearbyint(pos * InchRounding - m_offsetInch);
+			pos /= m_scaleInch;
+		}
+
+		return lround(pos) - m_posCur;
+	}
+
+	//*********************************************************************
+	// const (flash) data
+	//*********************************************************************
+private:
 	inline static const sbyte s_arbQuadDecode[16]
 	{
 	//			Bprev	Aprev	Bcur	Acur
@@ -172,17 +187,17 @@ protected:
 	//*********************************************************************
 	// member (RAM) data
 	//*********************************************************************
-protected:
+private:
 	// can change in ISR
 	volatile byte m_bPrevSig;
 	volatile long m_posCur;
 
-protected:
-	AxisInfo	*m_pInfo;
+private:
+	SensorInfo	*m_pInfo;
 	long		m_posLast;
 	double		m_scaleMm;
-	double		m_offsetMm;
 	double		m_scaleInch;
+	double		m_offsetMm;
 	double		m_offsetInch;
 	long		m_arOrigins[MaxOrigins];
 };

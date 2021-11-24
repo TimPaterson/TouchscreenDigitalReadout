@@ -328,7 +328,7 @@ START_AREAS(SettingsScreen)
 	DEFINE_AREA(HighlightXY, 313, 346, 32, 32)
 	DEFINE_AREA(OffsetZ, 313, 405, 32, 32)
 	DEFINE_AREA(CncCoordinates, 313, 464, 32, 32)
-	DEFINE_AREA(MaxRpm, 245, 519, 100, 42)
+	DEFINE_AREA(MaxRpm, 240, 519, 105, 42)
 END_AREAS(SettingsScreen)
 
 START_HOTSPOTS(CheckBox)
