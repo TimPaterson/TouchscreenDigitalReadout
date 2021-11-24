@@ -43,12 +43,12 @@ list. This repository includes all other aspects of the hardware and
 software design needed to build this project as shown. These elements 
 include:
 
-+ Custom [electronics design](https://github.com/TimPaterson/TouchscreenDigitalReadout/tree/master/Electronics),
+- Custom [electronics design](https://github.com/TimPaterson/TouchscreenDigitalReadout/tree/master/Electronics),
 with printed circuit board ready for fabrication.
-+ Complete firmware for the microcontoller unit.
-+ All screen images.
-+ Enclosure design, using a 3D-printed bezel and machined aluminum back.
-+ All of the customized tools needed to generate binary files.
+- Complete firmware for the microcontoller unit.
+- All screen images.
+- Enclosure design, using a 3D-printed bezel and machined aluminum back.
+- All of the customized tools needed to generate binary files.
 
 The project Release includes all binary files as well as schematic, parts
 list, etc. If you want to make one of these as-is, there is no reason to
@@ -57,9 +57,13 @@ contents of the Release (SmartDro.zip) is the same as the
 [Release folder](https://github.com/TimPaterson/TouchscreenDigitalReadout/tree/master/Release).
 
 __More to come!__ But in the meantime, here are some critical links:
-+ [Touchscreen at BuyDisplay.com](https://www.buydisplay.com/serial-spi-i2c-10-1-inch-tft-lcd-module-dislay-w-ra8876-optl-touch-panel).
+- [Touchscreen at BuyDisplay.com](https://www.buydisplay.com/serial-spi-i2c-10-1-inch-tft-lcd-module-dislay-w-ra8876-optl-touch-panel).
 Be sure to select options per the [parts list](https://github.com/TimPaterson/TouchscreenDigitalReadout/blob/master/Electronics/DroPartsList.pdf).
-+ [Main PCB shared at OSH Park](https://oshpark.com/shared_projects/AQX5MSFg).
-+ [Pinout PCB at OSH Park](https://oshpark.com/shared_projects/TLEyl9I6).
-+ [Tool Library Manager](https://github.com/TimPaterson/CNC-Tool-Library-Manager)
+- [Main PCB shared at OSH Park](https://oshpark.com/shared_projects/AQX5MSFg).
+- Pinout PCBs at OSH Park. Pinouts are specified by a 4-digit number where
+the digits are the pin numbers on the 9-pin D-connector for GND, +5V, A, & B, respectively.
+  - [2768 (Grizzly)](https://oshpark.com/shared_projects/TLEyl9I6)
+  - [2134 (Jing/Jcgs)](https://oshpark.com/shared_projects/ilViDS0E)
+  - [6724 (Acu-Rite)](https://oshpark.com/shared_projects/GIDBOB83)
+- [Tool Library Manager](https://github.com/TimPaterson/CNC-Tool-Library-Manager)
 for making tool libary files the Smart DRO can import.
