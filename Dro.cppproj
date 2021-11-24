@@ -41,7 +41,7 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
-    <avrtoolserialnumber>J41800115214</avrtoolserialnumber>
+    <avrtoolserialnumber>J41800056839</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10012692</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
@@ -52,7 +52,7 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800115214</ToolNumber>
+      <ToolNumber>J41800056839</ToolNumber>
       <ToolName>Atmel-ICE</ToolName>
     </com_atmel_avrdbg_tool_atmelice>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
@@ -266,6 +266,9 @@ DroUpdateBuilder "$(OutputDirectory)\$(OutputFileName).bin"
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="AxisDisplay.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="AxisPos.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FileBrowser.h">

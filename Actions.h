@@ -117,6 +117,7 @@ public:
 		uint		spot;
 		double		val;
 		PosSensor	*pSensor;
+		AxisDisplay	*pDisplay;
 		char		*pStr;
 		bool		*pToggle;
 
@@ -311,12 +312,12 @@ public:
 		// to the axis.
 
 		case HOTSPOT_GROUP_Axis:
-			pSensor = s_arSensor[spot];
+			pDisplay = s_arDisplay[spot];
 
 			if (s_state == AS_Empty)
-				ToValueState(pSensor->GetPosition());
+				ToValueState(pDisplay->GetPosition());
 			else
-				((AxisDisplay *)pSensor)->SetPosition(ToValueState());
+				pDisplay->SetPosition(ToValueState());
 			break;
 
 		//*****************************************************************
@@ -324,7 +325,7 @@ public:
 		//
 
 		case HOTSPOT_GROUP_AxisButton:
-			((AxisDisplay *)s_arSensor[spot])->SetPosition(0);
+			s_arDisplay[spot]->SetPosition(0);
 			break;
 
 		//*****************************************************************
@@ -332,7 +333,7 @@ public:
 		//
 
 		case HOTSPOT_GROUP_Undo:
-			((AxisDisplay *)s_arSensor[spot])->Undo();
+			s_arDisplay[spot]->Undo();
 			break;
 
 		//*****************************************************************
@@ -369,7 +370,7 @@ public:
 
 		case HOTSPOT_GROUP_Disable:
 			pSensor = s_arSensor[spot];
-			pSensor->SetDisable(pSensor->GetDisable() ^ true);
+			pSensor->SetDisable(pSensor->IsDisabled() ^ true);
 			ShowSettingsInfo();
 			return;
 
@@ -667,7 +668,7 @@ protected:
 		Lcd.SelectImage(&SettingsScreen, &pAreaDst, &CheckBox, f);
 	}
 
-	static void ShowAxisInfo(AxisInfo axis, const Area arArea[])
+	static void ShowAxisInfo(SensorInfo axis, const Area arArea[])
 	{
 		double	val;
 
@@ -698,7 +699,9 @@ protected:
 	// const (flash) data
 	//*********************************************************************
 
-	inline static PosSensor	*const s_arSensor[4] = { &Xdisplay, &Ydisplay, &Zdisplay, &Qpos };
+	inline static AxisDisplay*const s_arDisplay[3] = { &Xdisplay, &Ydisplay, &Zdisplay };
+
+	inline static PosSensor	*const s_arSensor[4] = { &Xpos, &Ypos, &Zpos, &Qpos };
 
 	//*********************************************************************
 	// static (RAM) data

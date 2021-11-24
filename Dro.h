@@ -16,7 +16,7 @@
 #include "FatFileDef.h"
 
 
-#define PROGRAM_VERSION		1
+#define PROGRAM_VERSION		2
 #define GRAPHICS_VERSION	1
 #define FONT_VERSION		1
 
@@ -426,7 +426,7 @@ typedef RtcTimeBase<> RtcTime;
 // EEPROM data definition
 // Actually managed in flash my EepromMgr
 
-struct AxisInfo
+struct SensorInfo
 {
 	double	Correction;
 	byte	Resolution;		// microns (typically 5)

@@ -79,9 +79,9 @@ UsbDro		UsbPort;
 FileBrowser	Files;
 ToolLib		Tools;
 
-FatSd				Sd;
-FatSysWait<wdt_reset> FileSys;
-FileOperations		FileOp;
+FatSd			Sd;
+FatSys			FileSys;
+FileOperations	FileOp;
 FAT_DRIVES_LIST(&FlashDrive, &Sd);
 
 //********************************************************************
@@ -90,10 +90,14 @@ FAT_DRIVES_LIST(&FlashDrive, &Sd);
 static const int AxisUpdateRate = 20;	// updates per second
 static const int FeedUpdateRate = 8;	// updates per second
 
-AxisDisplay Xdisplay(&Eeprom.Data.XaxisInfo, MainScreen_Areas.Xdisplay, MainScreen_Areas.UndoX1);
-AxisDisplay Ydisplay(&Eeprom.Data.YaxisInfo, MainScreen_Areas.Ydisplay, MainScreen_Areas.UndoY1);
-AxisDisplay Zdisplay(&Eeprom.Data.ZaxisInfo, MainScreen_Areas.Zdisplay, MainScreen_Areas.UndoZ1);
 PosSensor Qpos(&Eeprom.Data.QaxisInfo);
+AxisPos Xpos(&Eeprom.Data.XaxisInfo);
+AxisPos Ypos(&Eeprom.Data.YaxisInfo);
+AxisPos Zpos(&Eeprom.Data.ZaxisInfo, &Qpos);
+
+AxisDisplay Xdisplay(&Xpos, MainScreen_Areas.Xdisplay, MainScreen_Areas.UndoX1);
+AxisDisplay Ydisplay(&Ypos, MainScreen_Areas.Ydisplay, MainScreen_Areas.UndoY1);
+AxisDisplay Zdisplay(&Zpos, MainScreen_Areas.Zdisplay, MainScreen_Areas.UndoZ1);
 
 //********************************************************************
 // EEPROM data
@@ -186,10 +190,10 @@ int main(void)
 
 	// Put EEPROM data into effect
 	TCC1->CC[1].reg = Eeprom.Data.Brightness;
-	Xdisplay.AxisInfoUpdate();
-	Ydisplay.AxisInfoUpdate();
-	Zdisplay.AxisInfoUpdate();
-	Qpos.AxisInfoUpdate();
+	Xpos.SensorInfoUpdate();
+	Ypos.SensorInfoUpdate();
+	Zpos.SensorInfoUpdate();
+	Qpos.SensorInfoUpdate();
 
 	// Initialize USB
 	Mouse.Init(Lcd.ScreenWidth, Lcd.ScreenHeight);
@@ -281,8 +285,8 @@ int main(void)
 		{
 			double	deltaX, deltaY, delta;
 
-			deltaX = Xdisplay.GetDistance();
-			deltaY = Ydisplay.GetDistance();
+			deltaX = Xpos.GetDistance();
+			deltaY = Ypos.GetDistance();
 			delta = sqrt(deltaX * deltaX + deltaY * deltaY);
 			// convert to per minute
 			Tools.ShowFeedRate(delta * 60.0 * FeedUpdateRate);
@@ -385,7 +389,8 @@ FileErrChk:
 				goto FileErrChk;
 
 			case 't':
-				TouchCalibrate::Open();
+				if (lcdPresent)
+					TouchCalibrate::Open();
 				break;
 
 			case 'x':

@@ -1,8 +1,12 @@
 <Font Name='DigitDisplay' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='96'/>
 <Set>DigitDisplay_Height = 111</Set>
+<Set>DigitDisplay_WidthZero = 54</Set>
 <Font Name='Calculator' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='48'/>
 <Set>Calculator_Height = 56</Set>
+<Set>Calculator_WidthZero = 27</Set>
 <Font Name='CalcSmall' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='24'/>
 <Set>CalcSmall_Height = 28</Set>
+<Set>CalcSmall_WidthZero = 14</Set>
 <Font Name='SettingsFont' FontFamily='Arial' FontStyle='Normal' FontWeight='Normal' FontStretch='Normal' FontSize='36'/>
 <Set>SettingsFont_Height = 42</Set>
+<Set>SettingsFont_WidthZero = 21</Set>
