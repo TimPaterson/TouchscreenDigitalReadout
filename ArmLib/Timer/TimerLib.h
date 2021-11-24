@@ -216,29 +216,31 @@ public:
 
 	INLINE_ATTR static uint LoopsFromClocks(uint loops)
 	{
-		// Take ceiling on loop counts
-		return (loops - LoopBaseClocks + ClocksPerLoop - 1) / ClocksPerLoop;
+		// Minimum loop counts
+		return (loops - LoopBaseClocks) / ClocksPerLoop;
 	}
 
 	INLINE_ATTR static void ShortDelay_clocks(uint clocks)
 	{
 		if (clocks >= LoopBaseClocks + ClocksPerLoop)
-			DelayLoop(LoopsFromClocks(clocks));
-		else
 		{
-			// Expecting this loop to be unrolled by optimizations
-			while (clocks >= 2)
-			{
-				asm volatile
-				(
-					"b	1f\n\t"
-				"1:\n\t"
-				);
-				clocks -= 2;
-			}
-			if (clocks == 1)
-				asm volatile ("nop\n\t");
+			uint loops = LoopsFromClocks(clocks);
+			DelayLoop(loops);
+			clocks -= LoopBaseClocks + loops * ClocksPerLoop;
 		}
+
+		// Expecting this loop to be unrolled by optimizations
+		while (clocks >= 2)
+		{
+			asm volatile
+			(
+				"b	1f\n\t"
+			"1:\n\t"
+			);
+			clocks -= 2;
+		}
+		if (clocks == 1)
+			asm volatile ("nop\n\t");
 	}
 		
 public:

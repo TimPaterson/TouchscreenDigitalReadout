@@ -85,15 +85,15 @@ protected:
 		// Set up Read DMA descriptor
 		Dma.Desc[iRdChan].BTCTRL.reg = DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID | DMAC_BTCTRL_EVOSEL_BEAT;
 		Dma.Desc[iRdChan].BTCNT.reg = GetRcvBufLen();
-		Dma.Desc[iRdChan].SRCADDR.reg = (int)&pSercom->DATA;
+		Dma.Desc[iRdChan].SRCADDR.reg = (uint)&pSercom->DATA;
 		// Bizarrely, an incremented address is set to the end of the buffer
-		Dma.Desc[iRdChan].DSTADDR.reg = (int)m_pbRcvBufEnd;
-		Dma.Desc[iRdChan].DESCADDR.reg = (int)&Dma.Desc[iRdChan];
+		Dma.Desc[iRdChan].DSTADDR.reg = (uint)m_pbRcvBufEnd;
+		Dma.Desc[iRdChan].DESCADDR.reg = (uint)&Dma.Desc[iRdChan];
 
 		// Set up Write DMA descriptor
 		m_bChanWrite = iWrChan;
 		Dma.Desc[iWrChan].BTCTRL.reg = DMAC_BTCTRL_SRCINC | DMAC_BTCTRL_VALID;
-		Dma.Desc[iWrChan].DSTADDR.reg = (int)&pSercom->DATA;
+		Dma.Desc[iWrChan].DSTADDR.reg = (uint)&pSercom->DATA;
 		Dma.Desc[iWrChan].DESCADDR.reg = 0;
 
 		// Read channel initialization
@@ -288,7 +288,7 @@ public:
 			// Have more, transfer it on next interrupt
 			DMAC->CHINTENSET.reg = DMAC_CHINTENSET_TCMPL;
 		}
-		Dma.Desc[m_bChanWrite].SRCADDR.reg = (int)pbWrite;
+		Dma.Desc[m_bChanWrite].SRCADDR.reg = (uint)pbWrite;
 		Dma.Desc[m_bChanWrite].BTCNT.reg = pbWrite - pbLastDma;
 		m_pbLastDma = pbNextDma;
 		DMAC->CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL;	// Clear interrupt flag before we start
